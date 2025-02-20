@@ -2,6 +2,7 @@ package com.app.panama_trips.service.implementation;
 
 import com.app.panama_trips.persistence.entity.RoleEnum;
 import com.app.panama_trips.persistence.entity.UserEntity;
+import com.app.panama_trips.persistence.repository.RoleRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
 import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
 import com.app.panama_trips.presentation.dto.AuthLoginRequest;
@@ -35,6 +36,9 @@ public class UserAuthService {
     @Autowired
     private UserEntityRepository userEntityRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     public AuthResponse login (AuthLoginRequest authLoginRequest) {
 
         String username = authLoginRequest.username();
@@ -60,7 +64,7 @@ public class UserAuthService {
         this.validateUser(name, email, password);
 
         // Check if the user already exists
-        if(this.userEntityRepository.findUserEntitiesByEmail(email)) {
+        if(this.userEntityRepository.findUserEntitiesByEmail(email).isPresent()) {
             throw new BadCredentialsException("Email already exists");
         }
 
@@ -71,6 +75,7 @@ public class UserAuthService {
                 .dni(dni)
                 .email(email)
                 .passwordHash(password)
+                .role_id(this.roleRepository.findByRoleEnum(RoleEnum.valueOf(role)))
                 .build();
 
         UserEntity savedUser = this.userEntityRepository.save(userEntity);
