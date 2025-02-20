@@ -20,7 +20,7 @@ public class RoleEntity {
 
     @Column(name = "name", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
-    private RoleEnum name;
+    private RoleEnum roleEnum;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "roles_permissions",

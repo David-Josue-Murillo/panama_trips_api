@@ -25,9 +25,9 @@ public class UserDetailServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-        authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(userEntity.getRole_id().getName().toString())));
+        authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(userEntity.getRole_id().getRoleEnum().toString())));
         userEntity.getRole_id().getPermissions().stream()
-                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getName().toString())));
+                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getPermissionEnum().toString())));
 
         return new User(
                 userEntity.getName(),
