@@ -51,7 +51,7 @@ public class UserEntityService implements IUserEntityService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserEntity getUSerById(Long id) {
+    public UserEntity getUserById(Long id) {
         return userEntityRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
     }
@@ -65,7 +65,6 @@ public class UserEntityService implements IUserEntityService {
 
     @Override
     @Transactional
-
     public UserEntity updateUser(Long id, UserEntity userEntity) {
         validateUser(userEntity);
         UserEntity existingUser = userEntityRepository.findById(id)
