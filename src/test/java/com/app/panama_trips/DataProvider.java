@@ -2,94 +2,95 @@ package com.app.panama_trips;
 
 import com.app.panama_trips.persistence.entity.*;
 
+import java.util.List;
 import java.util.Set;
 
 public class DataProvider {
 
     // PermissionEntity instances
-    private static PermissionEntity USER_READ = PermissionEntity.builder()
+    public static PermissionEntity USER_READ = PermissionEntity.builder()
             .id(1)
             .permissionEnum(PermissionEnum.USER_READ)
             .build();
 
-    private static PermissionEntity USER_CREATE = PermissionEntity.builder()
+    public static PermissionEntity USER_CREATE = PermissionEntity.builder()
             .id(2)
             .permissionEnum(PermissionEnum.USER_CREATE)
             .build();
 
-    private static PermissionEntity USER_UPDATE = PermissionEntity.builder()
+    public static PermissionEntity USER_UPDATE = PermissionEntity.builder()
             .id(3)
             .permissionEnum(PermissionEnum.USER_UPDATE)
             .build();
 
-    private static PermissionEntity USER_DELETE = PermissionEntity.builder()
+    public static PermissionEntity USER_DELETE = PermissionEntity.builder()
             .id(4)
             .permissionEnum(PermissionEnum.USER_DELETE)
             .build();
 
-    private static PermissionEntity BOOKING_READ = PermissionEntity.builder()
+    public static PermissionEntity BOOKING_READ = PermissionEntity.builder()
             .id(5)
             .permissionEnum(PermissionEnum.BOOKING_READ)
             .build();
 
-    private static PermissionEntity BOOKING_CREATE = PermissionEntity.builder()
+    public static PermissionEntity BOOKING_CREATE = PermissionEntity.builder()
             .id(6)
             .permissionEnum(PermissionEnum.BOOKING_CREATE)
             .build();
 
-    private static PermissionEntity BOOKING_UPDATE = PermissionEntity.builder()
+    public static PermissionEntity BOOKING_UPDATE = PermissionEntity.builder()
             .id(7)
             .permissionEnum(PermissionEnum.BOOKING_UPDATE)
             .build();
 
-    private static PermissionEntity BOOKING_DELETE = PermissionEntity.builder()
+    public static PermissionEntity BOOKING_DELETE = PermissionEntity.builder()
             .id(8)
             .permissionEnum(PermissionEnum.BOOKING_DELETE)
             .build();
 
-    private static PermissionEntity PAYMENT_READ = PermissionEntity.builder()
+    public static PermissionEntity PAYMENT_READ = PermissionEntity.builder()
             .id(9)
             .permissionEnum(PermissionEnum.PAYMENT_READ)
             .build();
 
-    private static PermissionEntity PAYMENT_REFUND = PermissionEntity.builder()
+    public static PermissionEntity PAYMENT_REFUND = PermissionEntity.builder()
             .id(10)
             .permissionEnum(PermissionEnum.PAYMENT_REFUND)
             .build();
 
-    private static PermissionEntity SUPPORT_TICKET_READ = PermissionEntity.builder()
+    public static PermissionEntity SUPPORT_TICKET_READ = PermissionEntity.builder()
             .id(11)
             .permissionEnum(PermissionEnum.SUPPORT_TICKET_READ)
             .build();
 
-    private static PermissionEntity SUPPORT_TICKET_RESPOND = PermissionEntity.builder()
+    public static PermissionEntity SUPPORT_TICKET_RESPOND = PermissionEntity.builder()
             .id(12)
             .permissionEnum(PermissionEnum.SUPPORT_TICKET_RESPOND)
             .build();
 
-    private static PermissionEntity CONTENT_CREATE = PermissionEntity.builder()
+    public static PermissionEntity CONTENT_CREATE = PermissionEntity.builder()
             .id(13)
             .permissionEnum(PermissionEnum.CONTENT_CREATE)
             .build();
 
-    private static PermissionEntity CONTENT_UPDATE = PermissionEntity.builder()
+    public static PermissionEntity CONTENT_UPDATE = PermissionEntity.builder()
             .id(14)
             .permissionEnum(PermissionEnum.CONTENT_UPDATE)
             .build();
 
-    private static PermissionEntity CONTENT_DELETE = PermissionEntity.builder()
+    public static PermissionEntity CONTENT_DELETE = PermissionEntity.builder()
             .id(15)
             .permissionEnum(PermissionEnum.CONTENT_DELETE)
             .build();
 
-    private static PermissionEntity SYSTEM_LOG_READ = PermissionEntity.builder()
+    public static PermissionEntity SYSTEM_LOG_READ = PermissionEntity.builder()
             .id(16)
             .permissionEnum(PermissionEnum.SYSTEM_LOG_READ)
             .build();
 
 
     // RoleEntity instances
-    private static RoleEntity ROLE_ADMIN = RoleEntity.builder()
+    public static RoleEntity ROLE_ADMIN = RoleEntity.builder()
             .id(1)
             .roleEnum(RoleEnum.ADMIN)
             .permissions(Set.of(
@@ -100,7 +101,7 @@ public class DataProvider {
             ))
             .build();
 
-    private static RoleEntity ROLE_OPERATOR = RoleEntity.builder()
+    public static RoleEntity ROLE_OPERATOR = RoleEntity.builder()
             .id(2)
             .roleEnum(RoleEnum.OPERATOR)
             .permissions(Set.of(
@@ -110,7 +111,7 @@ public class DataProvider {
             ))
             .build();
 
-    private static RoleEntity ROLE_CUSTOMER = RoleEntity.builder()
+    public static RoleEntity ROLE_CUSTOMER = RoleEntity.builder()
             .id(3)
             .roleEnum(RoleEnum.CUSTOMER)
             .permissions(Set.of(
@@ -119,13 +120,13 @@ public class DataProvider {
             ))
             .build();
 
-    private static RoleEntity ROLE_GUEST = RoleEntity.builder()
+    public static RoleEntity ROLE_GUEST = RoleEntity.builder()
             .id(4)
             .roleEnum(RoleEnum.GUEST)
             .permissions(Set.of())
             .build();
 
-    private static RoleEntity ROLE_SUPPORT = RoleEntity.builder()
+    public static RoleEntity ROLE_SUPPORT = RoleEntity.builder()
             .id(5)
             .roleEnum(RoleEnum.SUPPORT)
             .permissions(Set.of(
@@ -134,7 +135,7 @@ public class DataProvider {
             ))
             .build();
 
-    private static RoleEntity ROLE_CONTENT_MANAGER = RoleEntity.builder()
+    public static RoleEntity ROLE_CONTENT_MANAGER = RoleEntity.builder()
             .id(6)
             .roleEnum(RoleEnum.CONTENT_MANAGER)
             .permissions(Set.of(
@@ -143,7 +144,7 @@ public class DataProvider {
             .build();
 
 
-    private static UserEntity userAdmin() {
+    public static UserEntity userAdmin() {
         // UserEntity instance
         return UserEntity.builder()
                 .id(1L)
@@ -156,7 +157,7 @@ public class DataProvider {
                 .build();
     }
 
-    private static UserEntity userOperator() {
+    public static UserEntity userOperator() {
         // UserEntity instance
         return UserEntity.builder()
                 .id(2L)
@@ -169,7 +170,7 @@ public class DataProvider {
                 .build();
     }
 
-    private static UserEntity userCustomer() {
+    public static UserEntity userCustomer() {
         // UserEntity instance
         return UserEntity.builder()
                 .id(3L)
@@ -182,7 +183,7 @@ public class DataProvider {
                 .build();
     }
 
-    private static UserEntity userGuest() {
+    public static UserEntity userGuest() {
         // UserEntity instance
         return UserEntity.builder()
                 .id(4L)
@@ -195,7 +196,7 @@ public class DataProvider {
                 .build();
     }
 
-    private static UserEntity userSupport() {
+    public static UserEntity userSupport() {
         // UserEntity instance
         return UserEntity.builder()
                 .id(5L)
@@ -208,7 +209,7 @@ public class DataProvider {
                 .build();
     }
 
-    private static UserEntity userContentManager() {
+    public static UserEntity userContentManager() {
         // UserEntity instance
         return UserEntity.builder()
                 .id(6L)
@@ -219,6 +220,17 @@ public class DataProvider {
                 .role_id(ROLE_CONTENT_MANAGER)
                 .passwordHash("contentmanagerpassword")
                 .build();
+    }
+    
+    public static List<UserEntity> userListMocks() {
+        return List.of(
+                userAdmin(),
+                userOperator(),
+                userCustomer(),
+                userGuest(),
+                userSupport(),
+                userContentManager()
+        );
     }
 
 }
