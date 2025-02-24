@@ -1,6 +1,8 @@
 package com.app.panama_trips;
 
 import com.app.panama_trips.persistence.entity.*;
+import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
+import com.app.panama_trips.presentation.dto.AuthLoginRequest;
 
 import java.util.List;
 import java.util.Set;
@@ -233,4 +235,11 @@ public class DataProvider {
         );
     }
 
+    public static AuthCreateUserRequest userAuthCreateUserRequestMock() {
+        return new AuthCreateUserRequest("newUser", "last", "1-222-2222", "newuser@example.com", "testPassword");
+    }
+
+    public static AuthLoginRequest userAuthLoginRequestMock() {
+        return new AuthLoginRequest("admin", "adminpassword");
+    }
 }
