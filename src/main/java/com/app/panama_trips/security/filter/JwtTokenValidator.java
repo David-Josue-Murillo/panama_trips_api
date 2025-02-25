@@ -40,6 +40,11 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
             // Validate the token and get the username and authorities
             DecodedJWT decodedJWT = jwtUtil.validateToken(jwtToken);
+            if(decodedJWT == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String username = jwtUtil.getUsernameFromToken(decodedJWT);
             String stringAuthorities = jwtUtil.getSpecificClaim(decodedJWT, "authorities").asString();
 
