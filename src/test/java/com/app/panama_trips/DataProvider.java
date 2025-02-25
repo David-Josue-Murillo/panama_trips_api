@@ -3,6 +3,7 @@ package com.app.panama_trips;
 import com.app.panama_trips.persistence.entity.*;
 import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
 import com.app.panama_trips.presentation.dto.AuthLoginRequest;
+import com.app.panama_trips.presentation.dto.AuthResponse;
 
 import java.util.List;
 import java.util.Set;
@@ -236,10 +237,14 @@ public class DataProvider {
     }
 
     public static AuthCreateUserRequest userAuthCreateUserRequestMock() {
-        return new AuthCreateUserRequest("newUser", "last", "1-222-2222", "newuser@example.com", "testPassword");
+        return new AuthCreateUserRequest("admin", "admin", "1-222-2222", "admin@example.com", "adminpassword");
     }
 
     public static AuthLoginRequest userAuthLoginRequestMock() {
         return new AuthLoginRequest("admin", "adminpassword");
+    }
+
+    public static AuthResponse userAuthResponseMock() {
+        return new AuthResponse("admin", "Welcome admin", "jwt", true);
     }
 }
