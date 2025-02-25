@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS permissions (
 ALTER TABLE users ADD COLUMN role_id INT REFERENCES roles(id) ON DELETE SET NULL;
 
 -- Relación de roles con permisos (Muchos a Muchos)
-CREATE TABLE IF NOT EXISTS role_permissions (
+CREATE TABLE IF NOT EXISTS roles_permissions (
                                   role_id INT REFERENCES roles(id) ON DELETE CASCADE,
                                   permission_id INT REFERENCES permissions(id) ON DELETE CASCADE,
                                   PRIMARY KEY (role_id, permission_id)

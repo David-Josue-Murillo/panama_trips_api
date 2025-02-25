@@ -1,5 +1,7 @@
 package com.app.panama_trips.security.configuration;
 
+import com.app.panama_trips.security.filter.JwtTokenValidator;
+import com.app.panama_trips.service.implementation.UserDetailServiceImpl;
 import com.app.panama_trips.utility.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,11 +17,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -53,6 +55,7 @@ public class SecurityConfig {
                     logout.invalidateHttpSession(true);
                     logout.deleteCookies("JSESSIONID");
                 })
+                .addFilterBefore(new JwtTokenValidator(this.jwtUtil), BasicAuthenticationFilter.class)
                 .build();
     }
 
@@ -62,7 +65,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
+    public AuthenticationProvider authenticationProvider(UserDetailServiceImpl userDetailsService) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
