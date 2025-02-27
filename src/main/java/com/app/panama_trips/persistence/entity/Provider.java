@@ -2,6 +2,9 @@ package com.app.panama_trips.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -27,4 +30,20 @@ public class Provider {
 
     @Column(name = "phone", nullable = false, length = 15)
     private String phone;
+
+    @ManyToOne
+    @JoinColumn(name = "province_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_provider_province"))
+    private Province provinceId;
+
+    @ManyToOne
+    @JoinColumn(name = "district_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_provider_district"))
+    private District districtId;
+
+    @ManyToOne
+    @JoinColumn(name = "street_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_provider_street"))
+    private Street streetId;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 }
