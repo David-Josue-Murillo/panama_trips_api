@@ -31,4 +31,15 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object> handlerResourceNotFoundException(ResourceNotFoundException ex) {
+        Map<String, Object> body = Map.of(
+                "message", ex.getMessage(),
+                "status", HttpStatus.NOT_FOUND.value(),
+                "timestamp", System.currentTimeMillis()
+        );
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
 }
