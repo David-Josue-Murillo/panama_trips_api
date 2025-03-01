@@ -18,11 +18,11 @@ public class ProvinceService implements IProvinceService {
 
     private void validateProvince(Province province) {
         if (province.getName() == null || province.getName().trim().isEmpty()) {
-            throw new ResourceNotFoundException("Province name is required");
+            throw new IllegalArgumentException("Province name is required");
         }
 
         if(provinceRepository.findByName(province.getName()).isPresent()) {
-            throw new ResourceNotFoundException("Province with name " + province.getName() + " already exists");
+            throw new IllegalArgumentException("Province with name " + province.getName() + " already exists");
         }
     }
 
