@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface DistrictRepository extends JpaRepository<District, Integer> {
     Optional<District> findByName(String name);
     List<District> findDistrictByProvinceId_Id(Integer provinceIdId);
+    Optional<Object> findByNameAndProvinceId_Id(String name, Integer id);
 }
