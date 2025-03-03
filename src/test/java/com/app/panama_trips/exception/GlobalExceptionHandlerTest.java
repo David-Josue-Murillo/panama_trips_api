@@ -59,4 +59,39 @@ public class GlobalExceptionHandlerTest {
         assertNotNull(body.get("timestamp"));
     }
 
+    @Test
+    void handlerResourceNotFoundException_shouldReturnNotFoundStatus() {
+        // Given
+        ResourceNotFoundException exception = new ResourceNotFoundException("Resource not found");
+
+        // When
+        ResponseEntity<Object> response = globalExceptionHandler.handlerResourceNotFoundException(exception);
+
+        // Then
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        Map<String, Object> body = (Map<String, Object>) response.getBody();
+        assertEquals("Resource not found", body.get("message"));
+        assertEquals(404, body.get("status"));
+        assertNotNull(body.get("timestamp"));
+    }
+
+    @Test
+    void handleIllegalArgumentException_shouldReturnBadRequestStatus() {
+        // Given
+        IllegalArgumentException exception = new IllegalArgumentException("Invalid argument");
+
+        // When
+        ResponseEntity<Object> response = globalExceptionHandler.handleIllegalArgumentException(exception);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        Map<String, Object> body = (Map<String, Object>) response.getBody();
+        assertEquals("Invalid argument", body.get("message"));
+        assertEquals(400, body.get("status"));
+        assertNotNull(body.get("timestamp"));
+    }
 }

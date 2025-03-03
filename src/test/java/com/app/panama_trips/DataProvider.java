@@ -5,6 +5,8 @@ import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
 import com.app.panama_trips.presentation.dto.AuthLoginRequest;
 import com.app.panama_trips.presentation.dto.AuthResponse;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -247,4 +249,39 @@ public class DataProvider {
     public static AuthResponse userAuthResponseMock() {
         return new AuthResponse("admin", "Welcome admin", "jwt", true);
     }
+
+
+    // Province instances
+    public static Province provinceBocasMock = Province.builder()
+            .id(1)
+            .name("Bocas del Toro")
+            .build();
+
+    public static Province provinceCocleMock = Province.builder()
+            .id(2)
+            .name("Coclé")
+            .build();
+
+    public static Province provinceColonMock = Province.builder()
+            .id(3)
+            .name("Colón")
+            .build();
+
+    public static Province provinceChiriquiMock = Province.builder()
+            .id(4)
+            .name("Chiriqui")
+            .build();
+
+    public static Province provinceHerraraMock = Province.builder()
+            .id(5)
+            .name("Herrera")
+            .build();
+
+    public static List<Province> provinceListsMock = List.of(
+            provinceBocasMock,
+            provinceCocleMock,
+            provinceColonMock,
+            provinceChiriquiMock,
+            provinceHerraraMock
+    );
 }
