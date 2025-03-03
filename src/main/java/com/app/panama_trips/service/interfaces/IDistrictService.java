@@ -8,7 +8,8 @@ public interface IDistrictService {
     List<District> getAllDistricts();
     District getDistrictById(Integer id);
     District getDistrictByName(String name);
+    List<District> getDistrictsByProvinceId(Integer provinceId);
     District saveDistrict(District district);
     District updateDistrict(Integer id, District district);
-    void deleteDistrict(Long id);
+    void deleteDistrict(Integer id);
 }
