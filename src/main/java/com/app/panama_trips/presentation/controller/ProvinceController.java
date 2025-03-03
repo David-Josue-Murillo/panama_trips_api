@@ -25,17 +25,25 @@ public class ProvinceController {
 
     @PostMapping
     public ResponseEntity<Province> saveProvince(@RequestBody Province province) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.provinceService.saveProvince(province));
+        return province == null
+                ? ResponseEntity.badRequest().build()
+                : ResponseEntity.status(HttpStatus.CREATED).body(this.provinceService.saveProvince(province));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Province> findProvinceById(@PathVariable Integer id) {
-        return ResponseEntity.ok(this.provinceService.getProvinceById(id));
+        Province province = this.provinceService.getProvinceById(id);
+        return province == null
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(province);
     }
 
     @GetMapping("/search")
     public ResponseEntity<Province> findProvinceByName(@RequestParam String name) {
-        return ResponseEntity.ok(this.provinceService.getProvinceByName(name));
+        Province province = this.provinceService.getProvinceByName(name);
+        return province == null
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(province);
     }
 
     @PutMapping("/{id}")
