@@ -20,11 +20,11 @@ public class DistrictService implements IDistrictService {
             throw new IllegalArgumentException("District name is required");
         }
 
-        if (district.getProvinceId() == null) {
+        if (district.getProvince() == null) {
             throw new IllegalArgumentException("Province is required");
         }
 
-        if (districtRepository.findByNameAndProvinceId_Id(district.getName(), district.getProvinceId().getId()).isPresent()) {
+        if (districtRepository.findByNameAndProvinceId_Id(district.getName(), district.getProvince().getId()).isPresent()) {
             throw new IllegalArgumentException("District with name " + district.getName() + " already exists in the province");
         }
     }
@@ -67,7 +67,7 @@ public class DistrictService implements IDistrictService {
     public District updateDistrict(Integer id, District district) {
         District existingDistrict = this.getDistrictById(id);
         existingDistrict.setName(district.getName());
-        existingDistrict.setProvinceId(district.getProvinceId());
+        existingDistrict.setProvince(district.getProvince());
         return this.districtRepository.save(existingDistrict);
     }
 

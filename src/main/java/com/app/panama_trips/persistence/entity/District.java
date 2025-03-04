@@ -23,5 +23,5 @@ public class District {
 
     @ManyToOne
     @JoinColumn(name = "province_id", nullable = false, referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_district_province"))
-    private Province provinceId;
+    private Province province;
 }
