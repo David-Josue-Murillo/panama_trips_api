@@ -48,7 +48,8 @@ public class DistrictService implements IDistrictService {
     @Override
     @Transactional(readOnly = true)
     public List<District> getDistrictsByProvinceId(Integer provinceId) {
-        return this.districtRepository.findDistrictByProvinceId_Id(provinceId);
+        List<District> districts = this.districtRepository.findDistrictByProvinceId_Id(provinceId);
+        return districts.isEmpty() ? null : districts;
     }
 
     @Override

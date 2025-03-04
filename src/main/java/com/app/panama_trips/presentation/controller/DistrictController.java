@@ -39,7 +39,10 @@ public class DistrictController {
 
     @GetMapping("/province/{provinceId}")
     public ResponseEntity<List<District>> findDistrictsByProvinceId(@PathVariable Integer provinceId) {
-        return ResponseEntity.ok(this.districtService.getDistrictsByProvinceId(provinceId));
+        List<District> districts = this.districtService.getDistrictsByProvinceId(provinceId);
+        return districts == null
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(districts);
     }
 
     @PutMapping("/{id}")
