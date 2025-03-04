@@ -56,7 +56,6 @@ public class DistrictService implements IDistrictService {
     @Transactional
     public District saveDistrict(DistrictRequest districtRequest) {
         this.validateDistricts(districtRequest);
-        System.out.println("districtRequest.provinceId() = " + districtRequest.province());
         Province province = this.provinceRepository.findById(districtRequest.province())
                 .orElseThrow(() -> new ResourceNotFoundException("Province not found with id " + districtRequest.province()));
 
