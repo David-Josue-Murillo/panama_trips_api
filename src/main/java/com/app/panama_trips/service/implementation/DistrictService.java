@@ -2,7 +2,10 @@ package com.app.panama_trips.service.implementation;
 
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.District;
+import com.app.panama_trips.persistence.entity.Province;
 import com.app.panama_trips.persistence.repository.DistrictRepository;
+import com.app.panama_trips.persistence.repository.ProvinceRepository;
+import com.app.panama_trips.presentation.dto.DistrictRequest;
 import com.app.panama_trips.service.interfaces.IDistrictService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,18 +17,11 @@ import java.util.List;
 public class DistrictService implements IDistrictService {
 
     private final DistrictRepository districtRepository;
+    private final ProvinceRepository provinceRepository;
 
-    private void validateDistricts(District district) {
-        if (district.getName() == null || district.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("District name is required");
-        }
-
-        if (district.getProvince() == null) {
-            throw new IllegalArgumentException("Province is required");
-        }
-
-        if (districtRepository.findByNameAndProvinceId_Id(district.getName(), district.getProvince().getId()).isPresent()) {
-            throw new IllegalArgumentException("District with name " + district.getName() + " already exists in the province");
+    private void validateDistricts(DistrictRequest districtRequest) {
+        if (districtRepository.findByNameAndProvinceId_Id(districtRequest.name(), districtRequest.province()).isPresent()) {
+            throw new IllegalArgumentException("District with name " + districtRequest.name() + " already exists in the province");
         }
     }
 
@@ -57,17 +53,27 @@ public class DistrictService implements IDistrictService {
 
     @Override
     @Transactional
-    public District saveDistrict(District district) {
-        this.validateDistricts(district);
+    public District saveDistrict(DistrictRequest districtRequest) {
+        this.validateDistricts(districtRequest);
+        System.out.println("districtRequest.provinceId() = " + districtRequest.province());
+        Province province = this.provinceRepository.findById(districtRequest.province())
+                .orElseThrow(() -> new ResourceNotFoundException("Province not found with id " + districtRequest.province()));
+
+        District district = new District();
+        district.setName(districtRequest.name());
+        district.setProvince(province);
         return this.districtRepository.save(district);
     }
 
     @Override
     @Transactional
-    public District updateDistrict(Integer id, District district) {
+    public District updateDistrict(Integer id, DistrictRequest districtRequest) {
         District existingDistrict = this.getDistrictById(id);
-        existingDistrict.setName(district.getName());
-        existingDistrict.setProvince(district.getProvince());
+        Province province = this.provinceRepository.findById(districtRequest.province())
+                .orElseThrow(() -> new ResourceNotFoundException("Province not found with id " + districtRequest.province()));
+
+        existingDistrict.setName(districtRequest.name());
+        existingDistrict.setProvince(province);
         return this.districtRepository.save(existingDistrict);
     }
 
