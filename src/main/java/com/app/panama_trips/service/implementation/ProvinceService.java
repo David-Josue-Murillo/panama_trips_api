@@ -4,19 +4,16 @@ import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.Province;
 import com.app.panama_trips.persistence.repository.ProvinceRepository;
 import com.app.panama_trips.service.interfaces.IProvinceService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProvinceService implements IProvinceService {
 
     private final ProvinceRepository provinceRepository;
-
-    public ProvinceService(ProvinceRepository provinceRepository) {
-        this.provinceRepository = provinceRepository;
-    }
 
     private void validateProvince(Province province) {
         if(provinceRepository.findByName(province.getName()).isPresent()) {
@@ -47,7 +44,7 @@ public class ProvinceService implements IProvinceService {
     @Override
     @Transactional
     public Province saveProvince(Province province) {
-        validateProvince(province);
+        this.validateProvince(province);
         return this.provinceRepository.save(province);
     }
 
