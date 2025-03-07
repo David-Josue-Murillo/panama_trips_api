@@ -60,10 +60,10 @@ public class UserEntityControllerTest {
     void saveUser_shouldReturnTheUserEntitySaved() {
         // Given
         UserEntity userEntity = DataProvider.userAdmin();
-        when(userEntityService.saveUser(userEntity)).thenReturn(userEntity);
+        when(userEntityService.saveUser(DataProvider.userAuthCreateUserRequestMock())).thenReturn(userEntity);
 
         // When
-        ResponseEntity<UserEntity> response  = userEntityController.saveUser(userEntity);
+        ResponseEntity<UserEntity> response  = userEntityController.saveUser(DataProvider.userAuthCreateUserRequestMock());
 
         // Then
         assertNotNull(response);
@@ -75,10 +75,10 @@ public class UserEntityControllerTest {
     void saveUser_shouldReturnOneExceptionIfUserExist() {
         // Given
         UserEntity userEntity = DataProvider.userAdmin();
-        when(userEntityService.saveUser(userEntity)).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,"User already exist"));
+        when(userEntityService.saveUser(DataProvider.userAuthCreateUserRequestMock())).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,"User already exist"));
 
         // When
-        ResponseStatusException exception  = assertThrows(ResponseStatusException.class, () -> userEntityController.saveUser(userEntity));
+        ResponseStatusException exception  = assertThrows(ResponseStatusException.class, () -> userEntityController.saveUser(DataProvider.userAuthCreateUserRequestMock()));
 
         // Then
         assertNotNull(exception);
@@ -116,8 +116,8 @@ public class UserEntityControllerTest {
         userEntity.setName("new name");
 
         // When
-        when(userEntityService.updateUser(1L, userEntity)).thenReturn(userEntity);
-        ResponseEntity<UserEntity> response = userEntityController.updatedUser(1L, userEntity);
+        when(userEntityService.updateUser(1L, DataProvider.userAuthCreateUserRequestMock())).thenReturn(userEntity);
+        ResponseEntity<UserEntity> response = userEntityController.updatedUser(1L, DataProvider.userAuthCreateUserRequestMock());
 
         // Then
         assertNotNull(response);
@@ -131,8 +131,8 @@ public class UserEntityControllerTest {
         UserEntity userEntity = DataProvider.userAdmin();
 
         // When
-        when(userEntityService.updateUser(100L, userEntity)).thenThrow(new UserNotFoundException("User not found with id: 100"));
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityController.updatedUser(100L, userEntity));
+        when(userEntityService.updateUser(100L, DataProvider.userAuthCreateUserRequestMock())).thenThrow(new UserNotFoundException("User not found with id: 100"));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityController.updatedUser(100L, DataProvider.userAuthCreateUserRequestMock()));
 
         // Then
         assertEquals("User not found with id: 100", exception.getMessage());

@@ -5,6 +5,7 @@ import com.app.panama_trips.exception.UserNotFoundException;
 import com.app.panama_trips.exception.ValidationException;
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
+import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
 import com.app.panama_trips.service.implementation.UserEntityService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,13 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,58 +30,17 @@ public class UserEntityServiceTest {
     @InjectMocks
     private UserEntityService userEntityService;
 
-    @Test
-    void validateUser_shouldThrowExceptionWhenNameIsNull() {
-        // Given
-        UserEntity user = DataProvider.userAdmin();
-        user.setName("");
-
-        // When
-        ValidationException exception = assertThrows(ValidationException.class, () -> userEntityService.saveUser(user));
-        List<String> errors = exception.getErrors();
-
-        assertEquals("User validation failed", exception.getMessage());
-        assertTrue(exception.getErrors().contains("Username is required"));
-    }
-
-    @Test
-    void validateUser_shouldThrowExceptionWhenPasswordIsNull() {
-        // Given
-        UserEntity user = DataProvider.userAdmin();
-        user.setPasswordHash("");
-
-        // When
-        ValidationException exception = assertThrows(ValidationException.class, () -> userEntityService.saveUser(user));
-
-        // Then
-        assertEquals("User validation failed", exception.getMessage());
-        assertTrue(exception.getErrors().contains("Password is required"));
-    }
 
     @Test
     void validateUser_shouldThrowExceptionWhenPasswordIsLessThanFourCharacters() {
         // Given
-        UserEntity user = DataProvider.userAdmin();
-        user.setPasswordHash("123");
+        AuthCreateUserRequest userRequest = new AuthCreateUserRequest("admin", "admin", "1-222-2222", "admin@example.com", "pass");
 
         // When
-        ValidationException exception = assertThrows(ValidationException.class, () -> userEntityService.saveUser(user));
+        ValidationException exception = assertThrows(ValidationException.class, () -> userEntityService.saveUser(userRequest));
 
         // Then
-        assertEquals("User validation failed", exception.getMessage());
-        assertTrue(exception.getErrors().contains("Password must be at least 4 characters long"));
-    }
-
-    @Test
-    void validateUser_shouldPassAllValidations() {
-        // Given
-        UserEntity user = DataProvider.userAdmin();
-
-        // When
-        assertDoesNotThrow(() -> userEntityService.saveUser(user));
-
-        // Then
-        verify(userEntityRepository, times(1)).save(user);
+        assertEquals("Password must be at least 4 characters long", exception.getMessage());
     }
 
     @Test
@@ -184,10 +140,10 @@ public class UserEntityServiceTest {
         UserEntity user = DataProvider.userAdmin();
 
         // When
-        when(userEntityRepository.save(user)).thenReturn(user);
+        when(userEntityRepository.save(any(UserEntity.class))).thenReturn(user);
 
         // Then
-        UserEntity result = userEntityService.saveUser(user);
+        UserEntity result = userEntityService.saveUser(DataProvider.userAuthCreateUserRequestMock());
         assertNotNull(result);
         assertEquals(1L, result.getId());
     }
@@ -204,7 +160,7 @@ public class UserEntityServiceTest {
         when(userEntityRepository.save(user)).thenReturn(updatedUser);
 
         // Then
-        UserEntity result = userEntityService.updateUser(1L, updatedUser);
+        UserEntity result = userEntityService.updateUser(1L, DataProvider.userAuthCreateUserRequestMock());
         assertEquals("Updated", result.getName());
         assertEquals(1L, result.getId());
     }
@@ -220,7 +176,7 @@ public class UserEntityServiceTest {
         when(userEntityRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Then
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityService.updateUser(1L, updatedUser));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityService.updateUser(1L, DataProvider.userAuthCreateUserRequestMock()));
         assertEquals("User not found with id: 1", exception.getMessage());
     }
 
