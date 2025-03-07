@@ -14,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -79,7 +78,6 @@ public class UserAuthService {
                 .forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getPermissionEnum().name())));
 
         // Create the authentication
-        SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getName(), savedUser.getPasswordHash(), authorities);
         String token = this.jwtUtil.generateToken(authentication);
 

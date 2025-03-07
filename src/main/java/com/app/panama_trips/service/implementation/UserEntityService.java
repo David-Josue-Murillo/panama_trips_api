@@ -2,7 +2,6 @@ package com.app.panama_trips.service.implementation;
 
 import com.app.panama_trips.exception.UserNotFoundException;
 import com.app.panama_trips.exception.ValidationException;
-import com.app.panama_trips.persistence.entity.RoleEntity;
 import com.app.panama_trips.persistence.entity.RoleEnum;
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.persistence.repository.RoleRepository;

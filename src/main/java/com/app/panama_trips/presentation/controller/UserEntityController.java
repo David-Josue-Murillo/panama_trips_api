@@ -3,7 +3,7 @@ package com.app.panama_trips.presentation.controller;
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
 import com.app.panama_trips.service.implementation.UserEntityService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +13,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
+@RequiredArgsConstructor
 public class UserEntityController {
 
-    @Autowired
-    private UserEntityService userEntityService;
+    private final UserEntityService userEntityService;
 
     @GetMapping
     public ResponseEntity<Page<UserEntity>> findAllUsers(

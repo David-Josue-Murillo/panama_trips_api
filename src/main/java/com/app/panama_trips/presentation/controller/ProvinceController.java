@@ -2,21 +2,18 @@ package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.persistence.entity.Province;
 import com.app.panama_trips.service.implementation.ProvinceService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/provinces")
+@RequiredArgsConstructor
 public class ProvinceController {
 
     private final ProvinceService provinceService;
-
-    public ProvinceController(ProvinceService provinceService) {
-        this.provinceService = provinceService;
-    }
 
     @GetMapping
     public ResponseEntity<List<Province>> findAllProvinces() {

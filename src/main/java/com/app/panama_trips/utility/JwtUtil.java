@@ -60,7 +60,7 @@ public class JwtUtil {
     }
 
     public String getUsernameFromToken(DecodedJWT decodedJWT) {
-        return  decodedJWT.getSubject().toString();
+        return decodedJWT.getSubject();
     }
 
     public Claim getSpecificClaim(DecodedJWT decodedJWT, String claimName) {
