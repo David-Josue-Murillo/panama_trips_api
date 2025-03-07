@@ -44,7 +44,7 @@ public class GlobalExceptionHandlerTest {
     @Test
     void handlerValidationException_shouldReturnBadRequestStatus() {
         // Given
-        ValidationException exception = new ValidationException("Invalid input data", null);
+        ValidationException exception = new ValidationException("Invalid input data");
 
         // When
         ResponseEntity<Object> response = globalExceptionHandler.handlerValidationException(exception);

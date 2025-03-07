@@ -1,13 +1,11 @@
 package com.app.panama_trips.persistence.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -23,5 +21,5 @@ public class District {
 
     @ManyToOne
     @JoinColumn(name = "province_id", nullable = false, referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_district_province"))
-    private Province provinceId;
+    private Province province;
 }

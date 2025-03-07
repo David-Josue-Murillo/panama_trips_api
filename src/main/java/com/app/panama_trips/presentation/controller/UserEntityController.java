@@ -1,8 +1,9 @@
 package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.persistence.entity.UserEntity;
+import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
 import com.app.panama_trips.service.implementation.UserEntityService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +13,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
+@RequiredArgsConstructor
 public class UserEntityController {
 
-    @Autowired
-    private UserEntityService userEntityService;
+    private final UserEntityService userEntityService;
 
     @GetMapping
     public ResponseEntity<Page<UserEntity>> findAllUsers(
@@ -27,8 +28,8 @@ public class UserEntityController {
     }
 
     @PostMapping
-    public ResponseEntity<UserEntity> saveUser(@RequestBody UserEntity userEntity) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userEntityService.saveUser(userEntity));
+    public ResponseEntity<UserEntity> saveUser(@RequestBody AuthCreateUserRequest authCreateUserRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userEntityService.saveUser(authCreateUserRequest));
     }
 
     @GetMapping("/{id}")
@@ -37,8 +38,8 @@ public class UserEntityController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserEntity> updatedUser(@PathVariable Long id, @RequestBody UserEntity userEntity) {
-        return ResponseEntity.ok(userEntityService.updateUser(id, userEntity));
+    public ResponseEntity<UserEntity> updatedUser(@PathVariable Long id, @RequestBody AuthCreateUserRequest authCreateUserRequest) {
+        return ResponseEntity.ok(userEntityService.updateUser(id, authCreateUserRequest));
     }
 
     @DeleteMapping("/{id}")

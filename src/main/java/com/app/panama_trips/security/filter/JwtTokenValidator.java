@@ -20,7 +20,7 @@ import java.util.Collection;
 
 public class JwtTokenValidator extends OncePerRequestFilter {
 
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
     public JwtTokenValidator(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;

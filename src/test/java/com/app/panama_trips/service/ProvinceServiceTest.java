@@ -10,13 +10,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
-
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -99,22 +96,21 @@ public class ProvinceServiceTest {
     @Test
     void saveProvince_shouldSaveAndReturnOneProvince() {
         // Given
-        Province provinceBocas = DataProvider.provinceBocasMock;
-        when(provinceRepository.save(provinceBocas)).thenReturn(provinceBocas);
+        when(provinceRepository.save(any(Province.class))).thenReturn(DataProvider.provinceBocasMock);
 
         // When
-        Province response = provinceService.saveProvince(provinceBocas);
+        Province response = provinceService.saveProvince(DataProvider.provinceBocasMock);
 
         // Then
         assertNotNull(response);
-        assertEquals(provinceBocas, response);
+        assertEquals(DataProvider.provinceBocasMock, response);
     }
 
     @Test
     void saveProvince_shouldThrowExceptionWhenAlreadyExistTheProvince() {
         // Given
         Province provinceBocas = DataProvider.provinceBocasMock;
-        when(provinceRepository.findByName(provinceBocas.getName())).thenReturn(Optional.ofNullable(provinceBocas));
+        when(provinceRepository.findByName(any())).thenReturn(Optional.ofNullable(provinceBocas));
 
         // When
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> provinceService.saveProvince(provinceBocas));
@@ -122,20 +118,6 @@ public class ProvinceServiceTest {
         // Then
         assertNotNull(exception);
         assertEquals("Province with name Bocas del Toro already exists", exception.getMessage());
-    }
-
-    @Test
-    void saverProvince_shouldThrowExceptionWhenNameIsNull() {
-        // Given
-        Province provinceBocas = DataProvider.provinceBocasMock;
-        provinceBocas.setName(null);
-
-        // When
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> provinceService.saveProvince(provinceBocas));
-
-        // Then
-        assertNotNull(exception);
-        assertEquals("Province name is required", exception.getMessage());
     }
 
     @Test

@@ -1,8 +1,7 @@
-package com.app.panama_trips.prensentation.controller;
+package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.persistence.entity.Province;
-import com.app.panama_trips.presentation.controller.ProvinceController;
 import com.app.panama_trips.service.implementation.ProvinceService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,10 +10,7 @@ import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.Arrays;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyInt;

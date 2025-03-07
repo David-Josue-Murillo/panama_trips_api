@@ -1,7 +1,6 @@
-package com.app.panama_trips.prensentation.controller;
+package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.DataProvider;
-import com.app.panama_trips.presentation.controller.AuthController;
 import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
 import com.app.panama_trips.presentation.dto.AuthLoginRequest;
 import com.app.panama_trips.presentation.dto.AuthResponse;
@@ -14,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 

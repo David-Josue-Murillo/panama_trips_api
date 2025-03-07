@@ -239,7 +239,7 @@ public class DataProvider {
     }
 
     public static AuthCreateUserRequest userAuthCreateUserRequestMock() {
-        return new AuthCreateUserRequest("admin", "admin", "1-222-2222", "admin@example.com", "adminpassword");
+        return new AuthCreateUserRequest("admin", "admin", "1-111-1111", "admin@example.com", "adminpassword");
     }
 
     public static AuthLoginRequest userAuthLoginRequestMock() {
@@ -283,5 +283,50 @@ public class DataProvider {
             provinceColonMock,
             provinceChiriquiMock,
             provinceHerraraMock
+    );
+
+    // District instances
+    public static District districtAlmiranteMock = District.builder()
+            .id(1)
+            .name("Almirante")
+            .province(provinceBocasMock)
+            .build();
+
+    public static District districtBocasMock = District.builder()
+            .id(2)
+            .name("Bocas del Toro")
+            .province(provinceBocasMock)
+            .build();
+
+    public static District districtChanguinolaMock = District.builder()
+            .id(3)
+            .name("Changuinola")
+            .province(provinceBocasMock)
+            .build();
+
+    public static District districtAntonMock = District.builder()
+            .id(4)
+            .name("Antón")
+            .province(provinceCocleMock)
+            .build();
+
+    public static District districtPenonomeMock = District.builder()
+            .id(5)
+            .name("Penonomé")
+            .province(provinceCocleMock)
+            .build();
+
+    public static List<District> districtListsMock = List.of(
+            districtAlmiranteMock,
+            districtBocasMock,
+            districtChanguinolaMock,
+            districtAntonMock,
+            districtPenonomeMock
+    );
+
+    public static List<District> districtListBocasMock = List.of(
+            districtAlmiranteMock,
+            districtBocasMock,
+            districtChanguinolaMock
     );
 }
