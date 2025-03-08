@@ -2,6 +2,7 @@ package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
+import com.app.panama_trips.presentation.dto.UserDeleteResponse;
 import com.app.panama_trips.service.implementation.UserEntityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -140,8 +141,8 @@ public class UserEntityController {
                     )
             )
     )
-    public ResponseEntity<Map<String, Boolean>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<UserDeleteResponse> deleteUser(@PathVariable Long id) {
         userEntityService.deleteUser(id);
-        return ResponseEntity.ok(Map.of("deleted", Boolean.TRUE));
+        return ResponseEntity.ok(new UserDeleteResponse("User deleted successfully"));
     }
 }
