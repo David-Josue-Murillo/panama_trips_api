@@ -3,6 +3,7 @@ package com.app.panama_trips.presentation.controller;
 import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.UserNotFoundException;
 import com.app.panama_trips.persistence.entity.UserEntity;
+import com.app.panama_trips.presentation.dto.UserDeleteResponse;
 import com.app.panama_trips.service.implementation.UserEntityService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.Map;
+import java.util.Objects;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -141,10 +144,10 @@ public class UserEntityControllerTest {
     @Test
     void deleteUser_shouldDeleteTheUser() {
         // When
-        ResponseEntity<Map<String, Boolean>> response = userEntityController.deleteUser(1L);
+        ResponseEntity<UserDeleteResponse> response = userEntityController.deleteUser(1L);
 
         // Then
         assertNotNull(response);
-        assertTrue(response.getBody().get("deleted"));
+        assertEquals("User deleted successfully", Objects.requireNonNull(response.getBody()).message());
     }
 }

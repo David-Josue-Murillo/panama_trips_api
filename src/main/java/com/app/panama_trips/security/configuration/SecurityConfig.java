@@ -1,5 +1,6 @@
 package com.app.panama_trips.security.configuration;
 
+import com.app.panama_trips.persistence.entity.RoleEnum;
 import com.app.panama_trips.security.filter.JwtTokenValidator;
 import com.app.panama_trips.service.implementation.UserDetailServiceImpl;
 import com.app.panama_trips.utility.JwtUtil;
@@ -38,6 +39,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( auth -> {
                     auth.requestMatchers("/auth/**").permitAll();
+                    auth.requestMatchers("api/user").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("/api/user/**").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("api/districts").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("api/districts/**").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("api/provinces").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("api/provinces/**").hasRole(RoleEnum.ADMIN.name());
                     auth.anyRequest().authenticated();
                 })
                 .formLogin( formLogin -> {
