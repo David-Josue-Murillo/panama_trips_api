@@ -329,4 +329,15 @@ public class DataProvider {
             districtBocasMock,
             districtChanguinolaMock
     );
+
+    // Streets
+    public static Street streetOneMock = new Street(1, "Street One", districtAlmiranteMock);
+    public static Street streetTwoMock = new Street(2, "Street Two", districtBocasMock);
+    public static Street streetThreeMock = new Street(3, "Street Three", districtChanguinolaMock);
+
+    public static List<Street> streetListsMock = List.of(
+            streetOneMock,
+            streetTwoMock,
+            streetThreeMock
+    );
 }
