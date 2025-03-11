@@ -1,9 +1,7 @@
 package com.app.panama_trips;
 
 import com.app.panama_trips.persistence.entity.*;
-import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
-import com.app.panama_trips.presentation.dto.AuthLoginRequest;
-import com.app.panama_trips.presentation.dto.AuthResponse;
+import com.app.panama_trips.presentation.dto.*;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -340,4 +338,13 @@ public class DataProvider {
             streetTwoMock,
             streetThreeMock
     );
+
+    public static List<StreetResponse> streetResponseListsMock = List.of(
+            new StreetResponse(1, "Street One", 1),
+            new StreetResponse(2, "Street Two", 2),
+            new StreetResponse(3, "Street Three", 3)
+    );
+
+    public static StreetRequest streetRequestOneMock = new StreetRequest("Street One", 1);
+    public static StreetResponse streetResponseOneMock = streetResponseListsMock.get(0);
 }
