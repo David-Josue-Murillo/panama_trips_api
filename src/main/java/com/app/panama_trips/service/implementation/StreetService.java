@@ -54,7 +54,7 @@ public class StreetService implements IStreetService {
     public StreetResponse getStreetById(Integer id) {
         return this.streetRepository.findById(id)
                 .map(this::convertToResponseDTO)
-                .orElseThrow(() -> new ResourceNotFoundException("Street with " + id + "not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Street with " + id + " not found"));
     }
 
     @Override
@@ -80,7 +80,7 @@ public class StreetService implements IStreetService {
     @Transactional
     public StreetResponse updateStreet(Integer id, StreetRequest streetRequest) {
         Street streetExisting = this.streetRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Street with " + id + "not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Street with " + id + " not found"));
         streetExisting.setName(streetRequest.name());
         streetExisting.setDistrictId(this.districtRepository.findById(streetRequest.districtId())
                 .orElseThrow(() -> new ResourceNotFoundException("District with id " + streetRequest.districtId() + " not found"))
