@@ -3,148 +3,132 @@ package com.app.panama_trips.presentation.controller;
 import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.persistence.entity.Province;
 import com.app.panama_trips.service.implementation.ProvinceService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import java.util.List;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.anyInt;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
+@WebMvcTest(ProvinceController.class)
 public class ProvinceControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
     private ProvinceService provinceService;
 
-    @InjectMocks
-    private ProvinceController provinceController;
-
-    @Test
-    void findAllProvinces_shouldReturnAllProvinces() {
-        // Given
-        List<Province> provinces = DataProvider.provinceListsMock;
-        when(provinceService.getAllProvinces()).thenReturn(provinces);
-
-        // When
-        ResponseEntity<List<Province>> response = provinceController.findAllProvinces();
-
-        // Then
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(provinces, response.getBody());
+    private String asJsonString(Object obj) throws Exception {
+        return new ObjectMapper().writeValueAsString(obj);
     }
 
     @Test
-    void saveProvince_shouldReturnCreatedProvince() {
-        // Given
-        when(provinceService.saveProvince(DataProvider.provinceBocasMock)).thenReturn(DataProvider.provinceBocasMock);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void findAllProvince_success() throws Exception{
+        when(provinceService.getAllProvinces()).thenReturn(DataProvider.provinceListsMock);
 
-        // When
-        ResponseEntity<Province> response = provinceController.saveProvince(DataProvider.provinceBocasMock);
-
-        // Then
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(DataProvider.provinceBocasMock, response.getBody());
+        mockMvc.perform(get("/api/provinces"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(DataProvider.provinceListsMock.getFirst().getId()))
+                .andExpect(jsonPath("$[0].name").value(DataProvider.provinceListsMock.getFirst().getName()));
     }
 
     @Test
-    void saveProvince_shouldReturnBadRequestWhenProvinceIsNull() {
-        // Given
-        when(provinceService.saveProvince(null)).thenReturn(null);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void saveProvince_success() throws Exception{
+        when(provinceService.saveProvince(any(Province.class))).thenReturn(DataProvider.provinceBocasMock);
 
-        // When
-        ResponseEntity<Province> response = provinceController.saveProvince(null);
-
-        // Then
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        mockMvc.perform(post("/api/provinces")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(DataProvider.provinceBocasMock))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(DataProvider.provinceBocasMock.getId()))
+                .andExpect(jsonPath("$.name").value(DataProvider.provinceBocasMock.getName()));
     }
 
     @Test
-    void findProvinceById_shouldReturnProvinceWhenFound() {
-        // Given
-        when(provinceService.getProvinceById(1)).thenReturn(DataProvider.provinceBocasMock);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void findProvinceById_success() throws Exception {
+        when(provinceService.getProvinceById(anyInt())).thenReturn(DataProvider.provinceBocasMock);
 
-        // When
-        ResponseEntity<Province> response = provinceController.findProvinceById(1);
-
-        // Then
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(DataProvider.provinceBocasMock, response.getBody());
+        mockMvc.perform(get("/api/provinces/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(DataProvider.provinceBocasMock.getId()))
+                .andExpect(jsonPath("$.name").value(DataProvider.provinceBocasMock.getName()));
     }
 
     @Test
-    void findProvinceById_shouldReturnNotFoundWhenNotFound() {
-        // Given
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void findProvinceById_failed() throws Exception {
         when(provinceService.getProvinceById(anyInt())).thenReturn(null);
 
-        // When
-        ResponseEntity<Province> response = provinceController.findProvinceById(99);
-
-        // Then
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        mockMvc.perform(get("/api/provinces/1"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void findProvinceByName_shouldReturnProvinceWhenFound() {
-        // Given
-        when(provinceService.getProvinceByName("Province1")).thenReturn(DataProvider.provinceBocasMock);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void findProvinceByName_success() throws Exception {
+        when(provinceService.getProvinceByName(anyString())).thenReturn(DataProvider.provinceBocasMock);
 
-        // When
-        ResponseEntity<Province> response = provinceController.findProvinceByName("Province1");
-
-        // Then
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(DataProvider.provinceBocasMock, response.getBody());
+        mockMvc.perform(get("/api/provinces/search")
+                .param("name", "Bocas del Toro"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(DataProvider.provinceBocasMock.getId()))
+                .andExpect(jsonPath("$.name").value(DataProvider.provinceBocasMock.getName()));
     }
 
     @Test
-    void findProvinceByName_shouldReturnNotFoundWhenNotFound() {
-        // Given
-        when(provinceService.getProvinceByName("Province1")).thenReturn(null);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void findProvinceByName_failed() throws Exception {
+        when(provinceService.getProvinceByName(anyString())).thenReturn(null);
 
-        // When
-        ResponseEntity<Province> response = provinceController.findProvinceByName("Province1");
-
-        // Then
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        mockMvc.perform(get("/api/provinces/search")
+                        .param("name", "EEUU"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void updateProvince_shouldReturnUpdatedProvince() {
-        // Given
-        when(provinceService.updateProvince(1, DataProvider.provinceBocasMock)).thenReturn(DataProvider.provinceBocasMock);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void updateProvince_success() throws Exception {
+        when(provinceService.updateProvince(anyInt(), any(Province.class))).thenReturn(DataProvider.provinceBocasMock);
 
-        // When
-        ResponseEntity<Province> response = provinceController.updateProvince(1, DataProvider.provinceBocasMock);
-
-        // Then
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(DataProvider.provinceBocasMock, response.getBody());
+        mockMvc.perform(put("/api/provinces/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(DataProvider.provinceBocasMock))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(DataProvider.provinceBocasMock.getId()))
+                .andExpect(jsonPath("$.name").value(DataProvider.provinceBocasMock.getName()));
     }
 
     @Test
-    void updateProvince_shouldReturnNullWhenProvinceIsNull() {
-        // Given
-        when(provinceService.updateProvince(1, null)).thenReturn(null);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void updateProvince_failed() throws Exception {
+        when(provinceService.updateProvince(anyInt(), any(Province.class))).thenReturn(null);
 
-        // When
-        ResponseEntity<Province> response = provinceController.updateProvince(1, null);
-
-        // Then
-        assertNull(response.getBody());
+        mockMvc.perform(put("/api/provinces/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(null))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void deleteProvince_shouldReturnNoContentWhenDeleted() {
-        // When
-        ResponseEntity<Void> response = provinceController.deleteProvince(1);
-
-        // Then
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void deleteProvince_success() throws Exception {
+        mockMvc.perform(delete("/api/provinces/1")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
     }
 }
