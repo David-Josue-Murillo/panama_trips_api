@@ -23,9 +23,9 @@ public class UserEntityService implements IUserEntityService {
     private final UserEntityRepository userEntityRepository;
     private final RoleRepository roleRepository;
 
-    private void validateUser(AuthCreateUserRequest authCreateUserRequest) {
-        if(authCreateUserRequest.password().length() < 5) {
-            throw new ValidationException("Password must be at least 4 characters long");
+    private void validateUser(String email) {
+        if(this.userEntityRepository.findUserEntitiesByEmail(email).isPresent()) {
+            throw new ValidationException("Email already exists: " + email);
         }
     }
 
@@ -48,8 +48,7 @@ public class UserEntityService implements IUserEntityService {
     @Override
     @Transactional
     public UserEntity saveUser(UserRequest userRequest) {
-        //validateUser(authCreateUserRequest);
-
+        validateUser(userRequest.email());
         UserEntity userEntity = new UserEntity();
         userEntity.setName(userRequest.name());
         userEntity.setLastname(userRequest.lastname());
@@ -64,7 +63,6 @@ public class UserEntityService implements IUserEntityService {
     @Override
     @Transactional
     public UserEntity updateUser(Long id, AuthCreateUserRequest authCreateUserRequest) {
-        validateUser(authCreateUserRequest);
         UserEntity existingUser = userEntityRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
