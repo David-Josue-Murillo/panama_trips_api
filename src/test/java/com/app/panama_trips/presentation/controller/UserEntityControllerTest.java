@@ -119,8 +119,8 @@ public class UserEntityControllerTest {
         userEntity.setName("new name");
 
         // When
-        when(userEntityService.updateUser(1L, DataProvider.userAuthCreateUserRequestMock())).thenReturn(userEntity);
-        ResponseEntity<UserEntity> response = userEntityController.updatedUser(1L, DataProvider.userAuthCreateUserRequestMock());
+        when(userEntityService.updateUser(anyLong(), any(UserRequest.class))).thenReturn(userEntity);
+        ResponseEntity<UserEntity> response = userEntityController.updatedUser(1L, DataProvider.userRequestMock);
 
         // Then
         assertNotNull(response);
@@ -131,8 +131,8 @@ public class UserEntityControllerTest {
     @Test
     void updateUser_shouldThrowAnExceptionWhenTheIDsWereDiferente() {
         // When
-        when(userEntityService.updateUser(100L, DataProvider.userAuthCreateUserRequestMock())).thenThrow(new UserNotFoundException("User not found with id: 100"));
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityController.updatedUser(100L, DataProvider.userAuthCreateUserRequestMock()));
+        when(userEntityService.updateUser(anyLong(), any(UserRequest.class))).thenThrow(new UserNotFoundException("User not found with id: 100"));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityController.updatedUser(100L, DataProvider.userRequestMock));
 
         // Then
         assertEquals("User not found with id: 100", exception.getMessage());

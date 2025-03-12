@@ -152,7 +152,7 @@ public class UserEntityServiceTest {
         when(userEntityRepository.save(user)).thenReturn(updatedUser);
 
         // Then
-        UserEntity result = userEntityService.updateUser(1L, DataProvider.userAuthCreateUserRequestMock());
+        UserEntity result = userEntityService.updateUser(1L, DataProvider.userRequestMock);
         assertEquals("Updated", result.getName());
         assertEquals(1L, result.getId());
     }
@@ -167,7 +167,7 @@ public class UserEntityServiceTest {
         when(userEntityRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Then
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityService.updateUser(1L, DataProvider.userAuthCreateUserRequestMock()));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityService.updateUser(1L, DataProvider.userRequestMock));
         assertEquals("User not found with id: 1", exception.getMessage());
     }
 
