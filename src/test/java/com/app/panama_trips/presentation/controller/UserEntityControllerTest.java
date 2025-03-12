@@ -4,6 +4,7 @@ import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.UserNotFoundException;
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.presentation.dto.UserDeleteResponse;
+import com.app.panama_trips.presentation.dto.UserRequest;
 import com.app.panama_trips.service.implementation.UserEntityService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -63,10 +65,10 @@ public class UserEntityControllerTest {
     void saveUser_shouldReturnTheUserEntitySaved() {
         // Given
         UserEntity userEntity = DataProvider.userAdmin();
-        when(userEntityService.saveUser(DataProvider.userAuthCreateUserRequestMock())).thenReturn(userEntity);
+        when(userEntityService.saveUser(any(UserRequest.class))).thenReturn(userEntity);
 
         // When
-        ResponseEntity<UserEntity> response  = userEntityController.saveUser(DataProvider.userAuthCreateUserRequestMock());
+        ResponseEntity<UserEntity> response  = userEntityController.saveUser(DataProvider.userRequestMock);
 
         // Then
         assertNotNull(response);
@@ -78,10 +80,10 @@ public class UserEntityControllerTest {
     void saveUser_shouldReturnOneExceptionIfUserExist() {
         // Given
         UserEntity userEntity = DataProvider.userAdmin();
-        when(userEntityService.saveUser(DataProvider.userAuthCreateUserRequestMock())).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,"User already exist"));
+        when(userEntityService.saveUser(any(UserRequest.class))).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,"User already exist"));
 
         // When
-        ResponseStatusException exception  = assertThrows(ResponseStatusException.class, () -> userEntityController.saveUser(DataProvider.userAuthCreateUserRequestMock()));
+        ResponseStatusException exception  = assertThrows(ResponseStatusException.class, () -> userEntityController.saveUser(DataProvider.userRequestMock));
 
         // Then
         assertNotNull(exception);

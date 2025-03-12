@@ -38,11 +38,8 @@ public class UserEntityServiceTest {
 
     @Test
     void validateUser_shouldThrowExceptionWhenPasswordIsLessThanFourCharacters() {
-        // Given
-        AuthCreateUserRequest userRequest = new AuthCreateUserRequest("admin", "admin", "1-222-2222", "admin@example.com", "pass");
-
         // When
-        ValidationException exception = assertThrows(ValidationException.class, () -> userEntityService.saveUser(userRequest));
+        ValidationException exception = assertThrows(ValidationException.class, () -> userEntityService.saveUser(DataProvider.userRequestMock));
 
         // Then
         assertEquals("Password must be at least 4 characters long", exception.getMessage());
@@ -150,7 +147,7 @@ public class UserEntityServiceTest {
 
 
         // Then
-        UserEntity result = userEntityService.saveUser(DataProvider.userAuthCreateUserRequestMock());
+        UserEntity result = userEntityService.saveUser(DataProvider.userRequestMock);
         assertNotNull(result);
         assertEquals(1L, result.getId());
     }

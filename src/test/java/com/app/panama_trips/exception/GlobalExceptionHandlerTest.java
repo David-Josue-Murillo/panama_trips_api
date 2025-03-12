@@ -1,27 +1,19 @@
 package com.app.panama_trips.exception;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 public class GlobalExceptionHandlerTest {
 
+    @InjectMocks
     private GlobalExceptionHandler globalExceptionHandler;
-
-    @BeforeEach
-    void setUp() {
-        globalExceptionHandler = new GlobalExceptionHandler();
-    }
 
     @Test
     void handlerUseNotFoundException_WhenUserNotFoundException() {
@@ -29,16 +21,14 @@ public class GlobalExceptionHandlerTest {
         UserNotFoundException exception = new UserNotFoundException("User not found");
 
         // When
-        ResponseEntity<Object> response = globalExceptionHandler.handlerUseNotFoundException(exception);
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handlerUseNotFoundException(exception);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
 
-        Map<String, Object> body = (Map<String, Object>) response.getBody();
-        assertEquals("User not found", body.get("message"));
-        assertEquals(404, body.get("status"));
-        assertNotNull(body.get("timestamp"));
+        assertEquals("User not found", response.getBody().message());
+        assertEquals(404, response.getBody().status());
     }
 
     @Test
@@ -47,16 +37,14 @@ public class GlobalExceptionHandlerTest {
         ValidationException exception = new ValidationException("Invalid input data");
 
         // When
-        ResponseEntity<Object> response = globalExceptionHandler.handlerValidationException(exception);
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleValidationException(exception);
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
 
-        Map<String, Object> body = (Map<String, Object>) response.getBody();
-        assertEquals("Invalid input data", body.get("message"));
-        assertEquals(400, body.get("status"));
-        assertNotNull(body.get("timestamp"));
+        assertEquals("Invalid input data", response.getBody().message());
+        assertEquals(400, response.getBody().status());
     }
 
     @Test
@@ -65,16 +53,14 @@ public class GlobalExceptionHandlerTest {
         ResourceNotFoundException exception = new ResourceNotFoundException("Resource not found");
 
         // When
-        ResponseEntity<Object> response = globalExceptionHandler.handlerResourceNotFoundException(exception);
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleResourceNotFoundException(exception);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
 
-        Map<String, Object> body = (Map<String, Object>) response.getBody();
-        assertEquals("Resource not found", body.get("message"));
-        assertEquals(404, body.get("status"));
-        assertNotNull(body.get("timestamp"));
+        assertEquals("Resource not found", response.getBody().message());
+        assertEquals(404, response.getBody().status());
     }
 
     @Test
@@ -83,15 +69,13 @@ public class GlobalExceptionHandlerTest {
         IllegalArgumentException exception = new IllegalArgumentException("Invalid argument");
 
         // When
-        ResponseEntity<Object> response = globalExceptionHandler.handleIllegalArgumentException(exception);
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleIllegalArgumentException(exception);
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
 
-        Map<String, Object> body = (Map<String, Object>) response.getBody();
-        assertEquals("Invalid argument", body.get("message"));
-        assertEquals(400, body.get("status"));
-        assertNotNull(body.get("timestamp"));
+        assertEquals("Invalid argument", response.getBody().message());
+        assertEquals(400, response.getBody().status());
     }
 }
