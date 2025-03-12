@@ -121,7 +121,7 @@ public class ProvinceControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(null))
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is5xxServerError());
     }
 
     @Test

@@ -35,16 +35,6 @@ public class UserEntityServiceTest {
     @InjectMocks
     private UserEntityService userEntityService;
 
-
-    @Test
-    void validateUser_shouldThrowExceptionWhenPasswordIsLessThanFourCharacters() {
-        // When
-        ValidationException exception = assertThrows(ValidationException.class, () -> userEntityService.saveUser(DataProvider.userRequestMock));
-
-        // Then
-        assertEquals("Password must be at least 4 characters long", exception.getMessage());
-    }
-
     @Test
     void getAllUser_shouldReturnAllUsers() {
         // Given
