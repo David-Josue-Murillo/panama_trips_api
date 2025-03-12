@@ -9,6 +9,6 @@ public interface IUserEntityService {
     Page<UserEntity> getAllUser(Integer page, Integer size, Boolean enabledPagination);
     UserEntity getUserById(Long id);
     UserEntity saveUser(UserRequest userRequest);
-    UserEntity updateUser(Long id, AuthCreateUserRequest authCreateUserRequest);
+    UserEntity updateUser(Long id, UserRequest userRequest);
     void deleteUser(Long id);
 }

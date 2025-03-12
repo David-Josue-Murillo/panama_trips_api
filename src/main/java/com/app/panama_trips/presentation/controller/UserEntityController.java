@@ -126,8 +126,8 @@ public class UserEntityController {
                     )
             )
     )
-    public ResponseEntity<UserEntity> updatedUser(@PathVariable Long id, @RequestBody AuthCreateUserRequest authCreateUserRequest) {
-        return ResponseEntity.ok(userEntityService.updateUser(id, authCreateUserRequest));
+    public ResponseEntity<UserEntity> updatedUser(@PathVariable Long id, @RequestBody UserRequest userRequest) {
+        return ResponseEntity.ok(userEntityService.updateUser(id, userRequest));
     }
 
     @DeleteMapping("/{id}")

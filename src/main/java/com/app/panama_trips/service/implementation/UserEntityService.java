@@ -62,15 +62,16 @@ public class UserEntityService implements IUserEntityService {
 
     @Override
     @Transactional
-    public UserEntity updateUser(Long id, AuthCreateUserRequest authCreateUserRequest) {
+    public UserEntity updateUser(Long id, UserRequest userRequest) {
         UserEntity existingUser = userEntityRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
-        existingUser.setDni(authCreateUserRequest.dni());
-        existingUser.setName(authCreateUserRequest.name());
-        existingUser.setLastname(authCreateUserRequest.lastname());
-        existingUser.setEmail(authCreateUserRequest.email());
-        existingUser.setPasswordHash(authCreateUserRequest.password());
+        existingUser.setDni(userRequest.dni());
+        existingUser.setName(userRequest.name());
+        existingUser.setLastname(userRequest.lastname());
+        existingUser.setEmail(userRequest.email());
+        existingUser.setPasswordHash(userRequest.password());
+        existingUser.setProfileImageUrl(userRequest.profileImageUrl());
 
         return userEntityRepository.save(existingUser);
     }
