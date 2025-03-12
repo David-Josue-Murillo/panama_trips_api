@@ -283,7 +283,11 @@ public class DataProvider {
             provinceHerraraMock
     );
 
-    // District instances
+    /**
+     * District instances
+     * Here we have five districts
+     *
+     */
     public static District districtAlmiranteMock = District.builder()
             .id(1)
             .name("Almirante")
@@ -328,7 +332,14 @@ public class DataProvider {
             districtChanguinolaMock
     );
 
-    // Streets
+    public static DistrictRequest districtRequestMock = new DistrictRequest("Almirante", 1);
+
+
+    /**
+     * Street instances
+     * Here we have three streets, one for each district
+     *
+     */
     public static Street streetOneMock = new Street(1, "Street One", districtAlmiranteMock);
     public static Street streetTwoMock = new Street(2, "Street Two", districtBocasMock);
     public static Street streetThreeMock = new Street(3, "Street Three", districtChanguinolaMock);
