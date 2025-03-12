@@ -1,9 +1,7 @@
 package com.app.panama_trips;
 
 import com.app.panama_trips.persistence.entity.*;
-import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
-import com.app.panama_trips.presentation.dto.AuthLoginRequest;
-import com.app.panama_trips.presentation.dto.AuthResponse;
+import com.app.panama_trips.presentation.dto.*;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -285,7 +283,11 @@ public class DataProvider {
             provinceHerraraMock
     );
 
-    // District instances
+    /**
+     * District instances
+     * Here we have five districts
+     *
+     */
     public static District districtAlmiranteMock = District.builder()
             .id(1)
             .name("Almirante")
@@ -329,4 +331,31 @@ public class DataProvider {
             districtBocasMock,
             districtChanguinolaMock
     );
+
+    public static DistrictRequest districtRequestMock = new DistrictRequest("Almirante", 1);
+
+
+    /**
+     * Street instances
+     * Here we have three streets, one for each district
+     *
+     */
+    public static Street streetOneMock = new Street(1, "Street One", districtAlmiranteMock);
+    public static Street streetTwoMock = new Street(2, "Street Two", districtBocasMock);
+    public static Street streetThreeMock = new Street(3, "Street Three", districtChanguinolaMock);
+
+    public static List<Street> streetListsMock = List.of(
+            streetOneMock,
+            streetTwoMock,
+            streetThreeMock
+    );
+
+    public static List<StreetResponse> streetResponseListsMock = List.of(
+            new StreetResponse(1, "Street One", 1),
+            new StreetResponse(2, "Street Two", 2),
+            new StreetResponse(3, "Street Three", 3)
+    );
+
+    public static StreetRequest streetRequestOneMock = new StreetRequest("Street One", 1);
+    public static StreetResponse streetResponseOneMock = streetResponseListsMock.get(0);
 }

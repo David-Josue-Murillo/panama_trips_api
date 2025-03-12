@@ -5,113 +5,102 @@ import com.app.panama_trips.persistence.entity.District;
 import com.app.panama_trips.presentation.dto.DistrictRequest;
 import com.app.panama_trips.service.implementation.DistrictService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import java.util.List;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(DistrictController.class)
 public class DistrictControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
     private DistrictService districtService;
 
-    @InjectMocks
-    private DistrictController districtController;
+    // Método auxiliar para convertir objetos a JSON
+    private String asJsonString(Object obj) throws Exception {
+        return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(obj);
+    }
 
     @Test
-    void findAllDistricts_shouldReturnAllDistricts() {
-        // Given
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void findAllDistricts_success() throws Exception {
         when(districtService.getAllDistricts()).thenReturn(DataProvider.districtListsMock);
 
-        // When
-        ResponseEntity<List<District>> response = districtController.findAllDistricts();
-
-        // Then
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(DataProvider.districtListsMock, response.getBody());
+        mockMvc.perform(get("/api/districts"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(DataProvider.districtListsMock.getFirst().getId()))
+                .andExpect(jsonPath("$[0].name").value(DataProvider.districtListsMock.getFirst().getName()));
     }
 
     @Test
-    void saveDistrict_shouldReturnCreatedDistrict() {
-        // Given
-        DistrictRequest districtRequest = new DistrictRequest("Almirante", 1);
-        when(districtService.saveDistrict(districtRequest)).thenReturn(DataProvider.districtBocasMock);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void saveDistrict_success() throws Exception{
+        DistrictRequest request = DataProvider.districtRequestMock;
+        District response = DataProvider.districtBocasMock;
+        when(districtService.saveDistrict(request)).thenReturn(response);
 
-        // When
-        ResponseEntity<District> response = districtController.saveDistrict(districtRequest);
-
-        // Then
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(DataProvider.districtBocasMock, response.getBody());
+        mockMvc.perform(post("/api/districts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(response.getId()))
+                .andExpect(jsonPath("$.name").value(response.getName()));
     }
 
     @Test
-    void findDistrictById_shouldReturnDistrictById() {
-        // Given
-        when(districtService.getDistrictById(1)).thenReturn(DataProvider.districtBocasMock);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void findDistrictById_success() throws Exception {
+        when(districtService.getDistrictById(anyInt())).thenReturn(DataProvider.districtAlmiranteMock);
 
-        // When
-        ResponseEntity<District> response = districtController.findDistrictById(1);
-
-        // Then
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(DataProvider.districtBocasMock, response.getBody());
+        mockMvc.perform(get("/api/districts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(DataProvider.districtAlmiranteMock.getId()))
+                .andExpect(jsonPath("$.name").value(DataProvider.districtAlmiranteMock.getName()));
     }
 
     @Test
-    void findDistrictByName_shouldReturnDistrictByName() {
-        // Given
-        when(districtService.getDistrictByName("Almirante")).thenReturn(DataProvider.districtBocasMock);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void findDistrictsByProvinceId_success() throws Exception {
+        when(districtService.getDistrictsByProvinceId(anyInt())).thenReturn(DataProvider.districtListsMock);
 
-        // When
-        ResponseEntity<District> response = districtController.findDistrictByName("Almirante");
-
-        // Then
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(DataProvider.districtBocasMock, response.getBody());
+        mockMvc.perform(get("/api/districts/province/1"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void findDistrictsByProvinceId_shouldReturnDistrictsByProvinceId() {
-        // Given
-        when(districtService.getDistrictsByProvinceId(1)).thenReturn(DataProvider.districtListsMock);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void updateDistrict_success() throws Exception {
+        DistrictRequest request = DataProvider.districtRequestMock;
+        when(districtService.updateDistrict(anyInt(), any(DistrictRequest.class))).thenReturn(DataProvider.districtAlmiranteMock);
 
-        // When
-        ResponseEntity<List<District>> response = districtController.findDistrictsByProvinceId(1);
+        mockMvc.perform(put("/api/districts/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(DataProvider.districtAlmiranteMock.getId()))
+                .andExpect(jsonPath("$.name").value(DataProvider.districtAlmiranteMock.getName()));
 
-        // Then
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(DataProvider.districtListsMock, response.getBody());
     }
 
     @Test
-    void updateDistrict_shouldReturnUpdatedDistrict() {
-        // Given
-        DistrictRequest districtRequest = new DistrictRequest("Almirante", 1);
-        when(districtService.updateDistrict(1, districtRequest)).thenReturn(DataProvider.districtBocasMock);
-
-        // When
-        ResponseEntity<District> response = districtController.updateDistrict(1, districtRequest);
-
-        // Then
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(DataProvider.districtBocasMock, response.getBody());
-    }
-
-    @Test
-    void deleteDistrict_shouldReturnNoContent() {
-        // When
-        ResponseEntity<Void> response = districtController.deleteDistrict(1);
-
-        // Then
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertNull(response.getBody());
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void deleteDistrict_success() throws Exception {
+        mockMvc.perform(delete("/api/districts/1")
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
     }
 }
