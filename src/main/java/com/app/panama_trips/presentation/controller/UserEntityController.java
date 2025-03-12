@@ -3,6 +3,7 @@ package com.app.panama_trips.presentation.controller;
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
 import com.app.panama_trips.presentation.dto.UserDeleteResponse;
+import com.app.panama_trips.presentation.dto.UserRequest;
 import com.app.panama_trips.service.implementation.UserEntityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,12 +16,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "User", description = "Endpoints for users")
 public class UserEntityController {
 
@@ -75,8 +78,8 @@ public class UserEntityController {
                     )
             )
     )
-    public ResponseEntity<UserEntity> saveUser(@Valid @RequestBody AuthCreateUserRequest authCreateUserRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userEntityService.saveUser(authCreateUserRequest));
+    public ResponseEntity<UserEntity> saveUser(@Valid @RequestBody UserRequest userRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userEntityService.saveUser(userRequest));
     }
 
     @GetMapping("/{id}")

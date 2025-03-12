@@ -7,6 +7,7 @@ import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.persistence.repository.RoleRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
 import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
+import com.app.panama_trips.presentation.dto.UserRequest;
 import com.app.panama_trips.service.interfaces.IUserEntityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -46,15 +47,16 @@ public class UserEntityService implements IUserEntityService {
 
     @Override
     @Transactional
-    public UserEntity saveUser(AuthCreateUserRequest authCreateUserRequest) {
-        validateUser(authCreateUserRequest);
+    public UserEntity saveUser(UserRequest userRequest) {
+        //validateUser(authCreateUserRequest);
 
         UserEntity userEntity = new UserEntity();
-        userEntity.setName(authCreateUserRequest.name());
-        userEntity.setLastname(authCreateUserRequest.lastname());
-        userEntity.setEmail(authCreateUserRequest.email());
-        userEntity.setDni(authCreateUserRequest.dni());
-        userEntity.setPasswordHash(authCreateUserRequest.password());
+        userEntity.setName(userRequest.name());
+        userEntity.setLastname(userRequest.lastname());
+        userEntity.setEmail(userRequest.email());
+        userEntity.setDni(userRequest.dni());
+        userEntity.setPasswordHash(userRequest.password());
+        userEntity.setProfileImageUrl(userRequest.profileImageUrl());
         userEntity.setRole_id(this.roleRepository.findByRoleEnum(RoleEnum.CUSTOMER));
         return userEntityRepository.save(userEntity);
     }
