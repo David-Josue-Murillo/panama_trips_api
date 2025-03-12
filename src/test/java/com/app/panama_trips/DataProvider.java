@@ -2,9 +2,6 @@ package com.app.panama_trips;
 
 import com.app.panama_trips.persistence.entity.*;
 import com.app.panama_trips.presentation.dto.*;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -359,5 +356,5 @@ public class DataProvider {
     );
 
     public static StreetRequest streetRequestOneMock = new StreetRequest("Street One", 1);
-    public static StreetResponse streetResponseOneMock = streetResponseListsMock.get(0);
+    public static StreetResponse streetResponseOneMock = streetResponseListsMock.getFirst();
 }

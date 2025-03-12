@@ -16,7 +16,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
-import java.util.Map;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,7 +78,6 @@ public class UserEntityControllerTest {
     @Test
     void saveUser_shouldReturnOneExceptionIfUserExist() {
         // Given
-        UserEntity userEntity = DataProvider.userAdmin();
         when(userEntityService.saveUser(any(UserRequest.class))).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,"User already exist"));
 
         // When
@@ -126,15 +124,12 @@ public class UserEntityControllerTest {
 
         // Then
         assertNotNull(response);
-        assertEquals(DataProvider.userAdmin().getId(), response.getBody().getId());
+        assertEquals(DataProvider.userAdmin().getId(), Objects.requireNonNull(response.getBody()).getId());
         assertNotEquals(DataProvider.userAdmin().getName(), response.getBody().getName());
     }
 
     @Test
     void updateUser_shouldThrowAnExceptionWhenTheIDsWereDiferente() {
-        // Given
-        UserEntity userEntity = DataProvider.userAdmin();
-
         // When
         when(userEntityService.updateUser(100L, DataProvider.userAuthCreateUserRequestMock())).thenThrow(new UserNotFoundException("User not found with id: 100"));
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityController.updatedUser(100L, DataProvider.userAuthCreateUserRequestMock()));

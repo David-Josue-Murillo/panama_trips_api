@@ -2,12 +2,10 @@ package com.app.panama_trips.service;
 
 import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.UserNotFoundException;
-import com.app.panama_trips.exception.ValidationException;
 import com.app.panama_trips.persistence.entity.RoleEnum;
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.persistence.repository.RoleRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
-import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
 import com.app.panama_trips.service.implementation.UserEntityService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +38,7 @@ public class UserEntityServiceTest {
         // Given
         List<UserEntity> userList = DataProvider.userListMocks();
         Pageable pageable = PageRequest.of(0, 10);
-        PageImpl pageMock = new PageImpl<>(userList, pageable, userList.size());
+        PageImpl<UserEntity> pageMock = new PageImpl<>(userList, pageable, userList.size());
 
         // When
         when(userEntityRepository.findAll(pageable)).thenReturn(pageMock);
@@ -58,7 +56,7 @@ public class UserEntityServiceTest {
         // Given
         List<UserEntity> userEntityList = DataProvider.userListMocks();
         Pageable pageable = Pageable.unpaged();
-        PageImpl pageMock = new PageImpl<>(userEntityList, pageable, userEntityList.size());
+        PageImpl<UserEntity> pageMock = new PageImpl<>(userEntityList, pageable, userEntityList.size());
 
         // When
         when(userEntityRepository.findAll(pageable)).thenReturn(pageMock);
@@ -74,7 +72,7 @@ public class UserEntityServiceTest {
         // Given
         List<UserEntity> userEntityList = DataProvider.userListMocks();
         Pageable pageable = PageRequest.of(0, 10);
-        PageImpl pageMock = new PageImpl<>(userEntityList, pageable, userEntityList.size());
+        PageImpl<UserEntity> pageMock = new PageImpl<>(userEntityList, pageable, userEntityList.size());
 
         // When
         when(userEntityRepository.findAll(pageable)).thenReturn(pageMock);
@@ -91,7 +89,7 @@ public class UserEntityServiceTest {
         // Given
         List<UserEntity> userEntityList = DataProvider.userListMocks();
         Pageable pageable = PageRequest.of(0, 1);
-        PageImpl pageMock = new PageImpl<>(userEntityList, pageable, userEntityList.size());
+        PageImpl<UserEntity> pageMock = new PageImpl<>(userEntityList, pageable, userEntityList.size());
 
         // When
         when(userEntityRepository.findAll(pageable)).thenReturn(pageMock);
@@ -162,7 +160,6 @@ public class UserEntityServiceTest {
     @Test
     void updateUser_shouldThrowExceptionWhenUserDoesNotExist() {
         // Given
-        UserEntity user = DataProvider.userAdmin();
         UserEntity updatedUser = DataProvider.userAdmin();
         updatedUser.setName("Updated");
 
