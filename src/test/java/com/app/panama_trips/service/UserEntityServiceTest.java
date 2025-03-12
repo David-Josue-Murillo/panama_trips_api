@@ -3,7 +3,9 @@ package com.app.panama_trips.service;
 import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.UserNotFoundException;
 import com.app.panama_trips.exception.ValidationException;
+import com.app.panama_trips.persistence.entity.RoleEnum;
 import com.app.panama_trips.persistence.entity.UserEntity;
+import com.app.panama_trips.persistence.repository.RoleRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
 import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
 import com.app.panama_trips.service.implementation.UserEntityService;
@@ -26,6 +28,9 @@ public class UserEntityServiceTest {
 
     @Mock
     private UserEntityRepository userEntityRepository;
+
+    @Mock
+    private RoleRepository roleRepository;
 
     @InjectMocks
     private UserEntityService userEntityService;
@@ -141,6 +146,8 @@ public class UserEntityServiceTest {
 
         // When
         when(userEntityRepository.save(any(UserEntity.class))).thenReturn(user);
+        when(roleRepository.findByRoleEnum(any(RoleEnum.class))).thenReturn(DataProvider.userCustomer().getRole_id());
+
 
         // Then
         UserEntity result = userEntityService.saveUser(DataProvider.userAuthCreateUserRequestMock());
