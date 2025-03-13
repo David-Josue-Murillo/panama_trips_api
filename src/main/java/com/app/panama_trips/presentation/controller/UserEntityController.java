@@ -2,7 +2,6 @@ package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
-import com.app.panama_trips.presentation.dto.UserDeleteResponse;
 import com.app.panama_trips.presentation.dto.UserRequest;
 import com.app.panama_trips.presentation.dto.UserResponse;
 import com.app.panama_trips.service.implementation.UserEntityService;
@@ -19,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
@@ -137,16 +135,11 @@ public class UserEntityController {
             description = "Delete a user in the system by its id",
             tags = {"User"},
             responses = @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "200",
-                    description = "User deleted",
-                    content = @io.swagger.v3.oas.annotations.media.Content(
-                            mediaType = "application/json",
-                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = Map.class)
-                    )
+                    responseCode = "204"
             )
     )
-    public ResponseEntity<UserDeleteResponse> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userEntityService.deleteUser(id);
-        return ResponseEntity.ok(new UserDeleteResponse("User deleted successfully"));
+        return ResponseEntity.noContent().build();
     }
 }
