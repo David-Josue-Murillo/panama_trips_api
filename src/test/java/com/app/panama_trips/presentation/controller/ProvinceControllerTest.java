@@ -1,7 +1,8 @@
 package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.DataProvider;
-import com.app.panama_trips.persistence.entity.Province;
+import com.app.panama_trips.exception.ResourceNotFoundException;
+import com.app.panama_trips.presentation.dto.ProvinceRequest;
 import com.app.panama_trips.service.implementation.ProvinceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static com.app.panama_trips.DataProvider.provinceResponseListMocks;
+import static com.app.panama_trips.DataProvider.provinceResponseMock;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -34,7 +38,7 @@ public class ProvinceControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void findAllProvince_success() throws Exception{
-        when(provinceService.getAllProvinces()).thenReturn(DataProvider.provinceListsMock);
+        when(provinceService.getAllProvinces()).thenReturn(provinceResponseListMocks);
 
         mockMvc.perform(get("/api/provinces"))
                 .andExpect(status().isOk())
@@ -45,7 +49,7 @@ public class ProvinceControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void saveProvince_success() throws Exception{
-        when(provinceService.saveProvince(any(Province.class))).thenReturn(DataProvider.provinceBocasMock);
+        when(provinceService.saveProvince(any(ProvinceRequest.class))).thenReturn(provinceResponseMock);
 
         mockMvc.perform(post("/api/provinces")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -59,7 +63,7 @@ public class ProvinceControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void findProvinceById_success() throws Exception {
-        when(provinceService.getProvinceById(anyInt())).thenReturn(DataProvider.provinceBocasMock);
+        when(provinceService.getProvinceById(anyInt())).thenReturn(provinceResponseMock);
 
         mockMvc.perform(get("/api/provinces/1"))
                 .andExpect(status().isOk())
@@ -70,16 +74,18 @@ public class ProvinceControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void findProvinceById_failed() throws Exception {
-        when(provinceService.getProvinceById(anyInt())).thenReturn(null);
+        when(provinceService.getProvinceById(anyInt())).thenThrow(new ResourceNotFoundException("Province not found"));
 
-        mockMvc.perform(get("/api/provinces/1"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/provinces/999"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value("404"))
+                .andExpect(jsonPath("$.message").value("Province not found"));
     }
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void findProvinceByName_success() throws Exception {
-        when(provinceService.getProvinceByName(anyString())).thenReturn(DataProvider.provinceBocasMock);
+        when(provinceService.getProvinceByName(anyString())).thenReturn(provinceResponseMock);
 
         mockMvc.perform(get("/api/provinces/search")
                 .param("name", "Bocas del Toro"))
@@ -91,17 +97,19 @@ public class ProvinceControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void findProvinceByName_failed() throws Exception {
-        when(provinceService.getProvinceByName(anyString())).thenReturn(null);
+        when(provinceService.getProvinceByName(anyString())).thenThrow(new ResourceNotFoundException("Province not found"));
 
         mockMvc.perform(get("/api/provinces/search")
                         .param("name", "EEUU"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value("404"))
+                .andExpect(jsonPath("$.message").value("Province not found"));
     }
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void updateProvince_success() throws Exception {
-        when(provinceService.updateProvince(anyInt(), any(Province.class))).thenReturn(DataProvider.provinceBocasMock);
+        when(provinceService.updateProvince(anyInt(), any(ProvinceRequest.class))).thenReturn(provinceResponseMock);
 
         mockMvc.perform(put("/api/provinces/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -115,7 +123,7 @@ public class ProvinceControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void updateProvince_failed() throws Exception {
-        when(provinceService.updateProvince(anyInt(), any(Province.class))).thenReturn(null);
+        when(provinceService.updateProvince(anyInt(), any(ProvinceRequest.class))).thenReturn(null);
 
         mockMvc.perform(put("/api/provinces/1")
                         .contentType(MediaType.APPLICATION_JSON)
