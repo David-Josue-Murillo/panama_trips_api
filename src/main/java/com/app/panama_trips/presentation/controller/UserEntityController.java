@@ -4,6 +4,7 @@ import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
 import com.app.panama_trips.presentation.dto.UserDeleteResponse;
 import com.app.panama_trips.presentation.dto.UserRequest;
+import com.app.panama_trips.presentation.dto.UserResponse;
 import com.app.panama_trips.service.implementation.UserEntityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,7 +44,7 @@ public class UserEntityController {
                     )
             )
     )
-    public ResponseEntity<Page<UserEntity>> findAllUsers(
+    public ResponseEntity<Page<UserResponse>> findAllUsers(
             @Parameter(description = "Page number (default 0)")
             @RequestParam(defaultValue = "0") Integer page,
 
@@ -78,7 +79,7 @@ public class UserEntityController {
                     )
             )
     )
-    public ResponseEntity<UserEntity> saveUser(@Valid @RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> saveUser(@Valid @RequestBody UserRequest userRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userEntityService.saveUser(userRequest));
     }
 
@@ -100,7 +101,7 @@ public class UserEntityController {
                     )
             }
     )
-    public ResponseEntity<UserEntity> findUSerById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> findUSerById(@PathVariable Long id) {
         return ResponseEntity.ok(userEntityService.getUserById(id));
     }
 
@@ -126,7 +127,7 @@ public class UserEntityController {
                     )
             )
     )
-    public ResponseEntity<UserEntity> updatedUser(@PathVariable Long id, @RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> updatedUser(@PathVariable Long id, @RequestBody UserRequest userRequest) {
         return ResponseEntity.ok(userEntityService.updateUser(id, userRequest));
     }
 
