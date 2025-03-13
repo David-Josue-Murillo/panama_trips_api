@@ -233,8 +233,46 @@ public class DataProvider {
         );
     }
 
-    public static UserRequest userRequestMock = new UserRequest("1-111-1111", "admin", "admin", "admin@example.com", "adminpassword", null);
+    /*
+    * UserRequest instance
+    * UserResponse instance
+    * DTOs
+     */
+    private static UserResponse convertToResponseDTO(UserEntity user) {
+        return new UserResponse(
+                user.getId(),
+                user.getDni(),
+                user.getName(),
+                user.getLastname(),
+                user.getEmail(),
+                user.getProfileImageUrl(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getCreatedBy(),
+                user.getUpdatedBy(),
+                user.getRole_id().getId()
+        );
+    }
 
+    public static UserRequest userRequestMock = new UserRequest("1-111-1111", "admin", "admin", "admin@example.com", "adminpassword", null);
+    public static UserResponse userResponseMock = convertToResponseDTO(userAdmin());
+    public static List<UserResponse> userResponseListMocks() {
+        return List.of(
+                convertToResponseDTO(userAdmin()),
+                convertToResponseDTO(userOperator()),
+                convertToResponseDTO(userCustomer()),
+                convertToResponseDTO(userGuest()),
+                convertToResponseDTO(userSupport())
+        );
+    }
+
+
+
+    /*
+    * Auth instances
+    * Here we have three instances of Auth
+    *
+     */
     public static AuthCreateUserRequest userAuthCreateUserRequestMock() {
         return new AuthCreateUserRequest("admin", "admin", "1-111-1111", "admin@example.com", "adminpassword");
     }
