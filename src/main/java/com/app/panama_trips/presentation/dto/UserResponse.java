@@ -1,5 +1,7 @@
 package com.app.panama_trips.presentation.dto;
 
+import com.app.panama_trips.persistence.entity.UserEntity;
+
 import java.time.LocalDateTime;
 
 public record UserResponse(
@@ -11,7 +13,7 @@ public record UserResponse(
     String profileImageUrl,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
-    Long createdById,
-    Long updatedById,
-    Long RoleId
+    UserEntity createdById,
+    UserEntity updatedById,
+    Integer RoleId
 ) { }
