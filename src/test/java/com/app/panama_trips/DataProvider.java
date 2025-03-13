@@ -286,6 +286,12 @@ public class DataProvider {
     }
 
 
+
+    /**
+     * Province instances
+     * Here we have all provinces in Panama
+     *
+     */
     // Province instances
     public static Province provinceBocasMock = Province.builder()
             .id(1)
@@ -319,6 +325,21 @@ public class DataProvider {
             provinceChiriquiMock,
             provinceHerraraMock
     );
+
+    private static ProvinceResponse convertToResponseDTO(Province province) {
+        return new ProvinceResponse(province.getId(), province.getName());
+    }
+
+    public static ProvinceRequest provinceRequestMock = new ProvinceRequest("Bocas del Toro");
+    public static ProvinceResponse provinceResponseMock = new ProvinceResponse(1, "Bocas del Toro");
+    public static List<ProvinceResponse> provinceResponseListMocks = List.of(
+            convertToResponseDTO(provinceBocasMock),
+            convertToResponseDTO(provinceCocleMock),
+            convertToResponseDTO(provinceColonMock),
+            convertToResponseDTO(provinceChiriquiMock),
+            convertToResponseDTO(provinceHerraraMock)
+    );
+
 
     /**
      * District instances
