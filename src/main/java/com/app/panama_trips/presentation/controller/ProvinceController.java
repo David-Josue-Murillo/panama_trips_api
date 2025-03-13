@@ -1,18 +1,21 @@
 package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.persistence.entity.Province;
+import com.app.panama_trips.presentation.dto.ProvinceRequest;
 import com.app.panama_trips.service.implementation.ProvinceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/provinces")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Province", description = "Endpoints for provinces")
 public class ProvinceController {
 
@@ -58,10 +61,10 @@ public class ProvinceController {
                     )
             )
     )
-    public ResponseEntity<Province> saveProvince(@RequestBody Province province) {
-        return province == null
+    public ResponseEntity<Province> saveProvince(@RequestBody ProvinceRequest provinceRequest) {
+        return provinceRequest == null
                 ? ResponseEntity.badRequest().build()
-                : ResponseEntity.status(HttpStatus.CREATED).body(this.provinceService.saveProvince(province));
+                : ResponseEntity.status(HttpStatus.CREATED).body(this.provinceService.saveProvince(provinceRequest));
     }
 
     @GetMapping("/{id}")
@@ -128,8 +131,8 @@ public class ProvinceController {
                     )
             )
     )
-    public ResponseEntity<Province> updateProvince(@PathVariable Integer id, @RequestBody Province province) {
-        return ResponseEntity.ok(this.provinceService.updateProvince(id, province));
+    public ResponseEntity<Province> updateProvince(@PathVariable Integer id, @RequestBody ProvinceRequest provinceRequest) {
+        return ResponseEntity.ok(this.provinceService.updateProvince(id, provinceRequest));
     }
 
     @DeleteMapping("/{id}")
