@@ -60,12 +60,9 @@ public class StreetService implements IStreetService {
     @Override
     @Transactional(readOnly = true)
     public StreetResponse getStreetByName(String name) {
-        Street street = this.streetRepository.findStreetByName(name);
-        if (street == null) {
-            throw new ResourceNotFoundException("Street with name " + name + " not found");
-        } else {
-            return this.convertToResponseDTO(street);
-        }
+        return this.streetRepository.findByName(name)
+                .map(this::convertToResponseDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Street with name " + name + " not found"));
     }
 
     @Override
