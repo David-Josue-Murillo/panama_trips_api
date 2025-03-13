@@ -91,11 +91,10 @@ public class StreetService implements IStreetService {
     @Override
     @Transactional
     public void deleteStreet(Integer id) {
-        try {
-            streetRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException("Street with ID " + id + " not found");
+        if(this.streetRepository.findById(id).isPresent()) {
+            throw new ResourceNotFoundException("Street with " + id + " not found");
         }
+        this.streetRepository.deleteById(id);
     }
 
     @Override
