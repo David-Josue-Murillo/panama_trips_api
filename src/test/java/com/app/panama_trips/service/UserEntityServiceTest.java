@@ -6,6 +6,7 @@ import com.app.panama_trips.persistence.entity.RoleEnum;
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.persistence.repository.RoleRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
+import com.app.panama_trips.presentation.dto.UserResponse;
 import com.app.panama_trips.service.implementation.UserEntityService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,7 @@ public class UserEntityServiceTest {
     @InjectMocks
     private UserEntityService userEntityService;
 
+
     @Test
     void getAllUser_shouldReturnAllUsers() {
         // Given
@@ -42,7 +44,7 @@ public class UserEntityServiceTest {
 
         // When
         when(userEntityRepository.findAll(pageable)).thenReturn(pageMock);
-        Page<UserEntity> result = userEntityService.getAllUser(0, 10, true);
+        Page<UserResponse> result = userEntityService.getAllUser(0, 10, true);
 
         // Then
         assertNotNull(result);
@@ -60,7 +62,7 @@ public class UserEntityServiceTest {
 
         // When
         when(userEntityRepository.findAll(pageable)).thenReturn(pageMock);
-        Page<UserEntity> result = userEntityService.getAllUser(0, 10, false);
+        Page<UserResponse> result = userEntityService.getAllUser(0, 10, false);
 
         // Then
         assertNotNull(result);
@@ -76,7 +78,7 @@ public class UserEntityServiceTest {
 
         // When
         when(userEntityRepository.findAll(pageable)).thenReturn(pageMock);
-        Page<UserEntity> result = userEntityService.getAllUser(0, 10, true);
+        Page<UserResponse> result = userEntityService.getAllUser(0, 10, true);
 
         // Then
         assertNotNull(result);
@@ -93,7 +95,7 @@ public class UserEntityServiceTest {
 
         // When
         when(userEntityRepository.findAll(pageable)).thenReturn(pageMock);
-        Page<UserEntity> result = userEntityService.getAllUser(0, 1, true);
+        Page<UserResponse> result = userEntityService.getAllUser(0, 1, true);
 
         // Then
         assertNotNull(result);
@@ -110,8 +112,8 @@ public class UserEntityServiceTest {
         when(userEntityRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Then
-        UserEntity result = userEntityService.getUserById(1L);
-        assertEquals(1L, result.getId());
+        UserResponse result = userEntityService.getUserById(1L);
+        assertEquals(1L, result.id());
     }
 
     @Test
@@ -135,9 +137,9 @@ public class UserEntityServiceTest {
 
 
         // Then
-        UserEntity result = userEntityService.saveUser(DataProvider.userRequestMock);
+        UserResponse result = userEntityService.saveUser(DataProvider.userRequestMock);
         assertNotNull(result);
-        assertEquals(1L, result.getId());
+        assertEquals(1L, result.id());
     }
 
     @Test
@@ -152,9 +154,9 @@ public class UserEntityServiceTest {
         when(userEntityRepository.save(user)).thenReturn(updatedUser);
 
         // Then
-        UserEntity result = userEntityService.updateUser(1L, DataProvider.userRequestMock);
-        assertEquals("Updated", result.getName());
-        assertEquals(1L, result.getId());
+        UserResponse result = userEntityService.updateUser(1L, DataProvider.userRequestMock);
+        assertEquals("Updated", result.name());
+        assertEquals(1L, result.id());
     }
 
     @Test
