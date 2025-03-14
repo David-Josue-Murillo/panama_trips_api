@@ -10,5 +10,5 @@ public record DistrictRequest(
 
         @NotNull(message = "Province is required")
         @Positive(message = "Province must be a positive number")
-        Integer province
+        Integer provinceId
 ) { }
