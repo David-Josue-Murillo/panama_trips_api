@@ -390,7 +390,19 @@ public class DataProvider {
             districtChanguinolaMock
     );
 
+    private static DistrictResponse convertToResponseDTO(District district) {
+        return new DistrictResponse(district.getId(), district.getName(), district.getProvince().getId());
+    }
+
     public static DistrictRequest districtRequestMock = new DistrictRequest("Almirante", 1);
+    public static DistrictResponse districtResponseMock = convertToResponseDTO(districtAlmiranteMock);
+    public static List<DistrictResponse> districtResponseListMocks = List.of(
+            convertToResponseDTO(districtAlmiranteMock),
+            convertToResponseDTO(districtBocasMock),
+            convertToResponseDTO(districtChanguinolaMock),
+            convertToResponseDTO(districtAntonMock),
+            convertToResponseDTO(districtPenonomeMock)
+    );
 
 
     /**
