@@ -1,8 +1,8 @@
 package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.DataProvider;
-import com.app.panama_trips.persistence.entity.District;
 import com.app.panama_trips.presentation.dto.DistrictRequest;
+import com.app.panama_trips.presentation.dto.DistrictResponse;
 import com.app.panama_trips.service.implementation.DistrictService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static com.app.panama_trips.DataProvider.districtResponseListMocks;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -36,7 +38,7 @@ public class DistrictControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void findAllDistricts_success() throws Exception {
-        when(districtService.getAllDistricts()).thenReturn(DataProvider.districtListsMock);
+        when(districtService.getAllDistricts()).thenReturn(districtResponseListMocks);
 
         mockMvc.perform(get("/api/districts"))
                 .andExpect(status().isOk())
@@ -48,7 +50,7 @@ public class DistrictControllerTest {
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void saveDistrict_success() throws Exception{
         DistrictRequest request = DataProvider.districtRequestMock;
-        District response = DataProvider.districtBocasMock;
+        DistrictResponse response = DataProvider.districtResponseMock;
         when(districtService.saveDistrict(request)).thenReturn(response);
 
         mockMvc.perform(post("/api/districts")
@@ -56,14 +58,14 @@ public class DistrictControllerTest {
                 .content(asJsonString(request))
                 .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(response.getId()))
-                .andExpect(jsonPath("$.name").value(response.getName()));
+                .andExpect(jsonPath("$.id").value(response.id()))
+                .andExpect(jsonPath("$.name").value(response.name()));
     }
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void findDistrictById_success() throws Exception {
-        when(districtService.getDistrictById(anyInt())).thenReturn(DataProvider.districtAlmiranteMock);
+        when(districtService.getDistrictById(anyInt())).thenReturn(DataProvider.districtResponseMock);
 
         mockMvc.perform(get("/api/districts/1"))
                 .andExpect(status().isOk())
@@ -74,7 +76,7 @@ public class DistrictControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void findDistrictsByProvinceId_success() throws Exception {
-        when(districtService.getDistrictsByProvinceId(anyInt())).thenReturn(DataProvider.districtListsMock);
+        when(districtService.getDistrictsByProvinceId(anyInt())).thenReturn(districtResponseListMocks);
 
         mockMvc.perform(get("/api/districts/province/1"))
                 .andExpect(status().isOk());
@@ -84,7 +86,7 @@ public class DistrictControllerTest {
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void updateDistrict_success() throws Exception {
         DistrictRequest request = DataProvider.districtRequestMock;
-        when(districtService.updateDistrict(anyInt(), any(DistrictRequest.class))).thenReturn(DataProvider.districtAlmiranteMock);
+        when(districtService.updateDistrict(anyInt(), any(DistrictRequest.class))).thenReturn(DataProvider.districtResponseMock);
 
         mockMvc.perform(put("/api/districts/1")
                 .contentType(MediaType.APPLICATION_JSON)

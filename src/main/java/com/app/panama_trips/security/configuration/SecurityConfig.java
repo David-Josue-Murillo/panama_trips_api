@@ -39,12 +39,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( auth -> {
                     auth.requestMatchers("/auth/**").permitAll();
-                    auth.requestMatchers("api/user").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("/api/user").hasRole(RoleEnum.ADMIN.name());
                     auth.requestMatchers("/api/user/**").hasRole(RoleEnum.ADMIN.name());
-                    auth.requestMatchers("api/districts").hasRole(RoleEnum.ADMIN.name());
-                    auth.requestMatchers("api/districts/**").hasRole(RoleEnum.ADMIN.name());
-                    auth.requestMatchers("api/provinces").hasRole(RoleEnum.ADMIN.name());
-                    auth.requestMatchers("api/provinces/**").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("/api/districts").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("/api/districts/**").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("/api/provinces").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("/api/provinces/**").hasRole(RoleEnum.ADMIN.name());
                     auth.anyRequest().authenticated();
                 })
                 .formLogin( formLogin -> {

@@ -1,16 +1,16 @@
 package com.app.panama_trips.service.interfaces;
 
-import com.app.panama_trips.persistence.entity.District;
 import com.app.panama_trips.presentation.dto.DistrictRequest;
+import com.app.panama_trips.presentation.dto.DistrictResponse;
 
 import java.util.List;
 
 public interface IDistrictService {
-    List<District> getAllDistricts();
-    District getDistrictById(Integer id);
-    District getDistrictByName(String name);
-    List<District> getDistrictsByProvinceId(Integer provinceId);
-    District saveDistrict(DistrictRequest districtRequest);
-    District updateDistrict(Integer id, DistrictRequest districtRequest);
+    List<DistrictResponse> getAllDistricts();
+    DistrictResponse getDistrictById(Integer id);
+    DistrictResponse getDistrictByName(String name);
+    List<DistrictResponse> getDistrictsByProvinceId(Integer provinceId);
+    DistrictResponse saveDistrict(DistrictRequest districtRequest);
+    DistrictResponse updateDistrict(Integer id, DistrictRequest districtRequest);
     void deleteDistrict(Integer id);
 }

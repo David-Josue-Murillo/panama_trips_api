@@ -2,12 +2,11 @@ package com.app.panama_trips.service;
 
 import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.UserNotFoundException;
-import com.app.panama_trips.exception.ValidationException;
 import com.app.panama_trips.persistence.entity.RoleEnum;
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.persistence.repository.RoleRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
-import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
+import com.app.panama_trips.presentation.dto.UserResponse;
 import com.app.panama_trips.service.implementation.UserEntityService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,27 +36,15 @@ public class UserEntityServiceTest {
 
 
     @Test
-    void validateUser_shouldThrowExceptionWhenPasswordIsLessThanFourCharacters() {
-        // Given
-        AuthCreateUserRequest userRequest = new AuthCreateUserRequest("admin", "admin", "1-222-2222", "admin@example.com", "pass");
-
-        // When
-        ValidationException exception = assertThrows(ValidationException.class, () -> userEntityService.saveUser(userRequest));
-
-        // Then
-        assertEquals("Password must be at least 4 characters long", exception.getMessage());
-    }
-
-    @Test
     void getAllUser_shouldReturnAllUsers() {
         // Given
         List<UserEntity> userList = DataProvider.userListMocks();
         Pageable pageable = PageRequest.of(0, 10);
-        PageImpl pageMock = new PageImpl<>(userList, pageable, userList.size());
+        PageImpl<UserEntity> pageMock = new PageImpl<>(userList, pageable, userList.size());
 
         // When
         when(userEntityRepository.findAll(pageable)).thenReturn(pageMock);
-        Page<UserEntity> result = userEntityService.getAllUser(0, 10, true);
+        Page<UserResponse> result = userEntityService.getAllUser(0, 10, true);
 
         // Then
         assertNotNull(result);
@@ -71,11 +58,11 @@ public class UserEntityServiceTest {
         // Given
         List<UserEntity> userEntityList = DataProvider.userListMocks();
         Pageable pageable = Pageable.unpaged();
-        PageImpl pageMock = new PageImpl<>(userEntityList, pageable, userEntityList.size());
+        PageImpl<UserEntity> pageMock = new PageImpl<>(userEntityList, pageable, userEntityList.size());
 
         // When
         when(userEntityRepository.findAll(pageable)).thenReturn(pageMock);
-        Page<UserEntity> result = userEntityService.getAllUser(0, 10, false);
+        Page<UserResponse> result = userEntityService.getAllUser(0, 10, false);
 
         // Then
         assertNotNull(result);
@@ -87,11 +74,11 @@ public class UserEntityServiceTest {
         // Given
         List<UserEntity> userEntityList = DataProvider.userListMocks();
         Pageable pageable = PageRequest.of(0, 10);
-        PageImpl pageMock = new PageImpl<>(userEntityList, pageable, userEntityList.size());
+        PageImpl<UserEntity> pageMock = new PageImpl<>(userEntityList, pageable, userEntityList.size());
 
         // When
         when(userEntityRepository.findAll(pageable)).thenReturn(pageMock);
-        Page<UserEntity> result = userEntityService.getAllUser(0, 10, true);
+        Page<UserResponse> result = userEntityService.getAllUser(0, 10, true);
 
         // Then
         assertNotNull(result);
@@ -104,11 +91,11 @@ public class UserEntityServiceTest {
         // Given
         List<UserEntity> userEntityList = DataProvider.userListMocks();
         Pageable pageable = PageRequest.of(0, 1);
-        PageImpl pageMock = new PageImpl<>(userEntityList, pageable, userEntityList.size());
+        PageImpl<UserEntity> pageMock = new PageImpl<>(userEntityList, pageable, userEntityList.size());
 
         // When
         when(userEntityRepository.findAll(pageable)).thenReturn(pageMock);
-        Page<UserEntity> result = userEntityService.getAllUser(0, 1, true);
+        Page<UserResponse> result = userEntityService.getAllUser(0, 1, true);
 
         // Then
         assertNotNull(result);
@@ -125,8 +112,8 @@ public class UserEntityServiceTest {
         when(userEntityRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Then
-        UserEntity result = userEntityService.getUserById(1L);
-        assertEquals(1L, result.getId());
+        UserResponse result = userEntityService.getUserById(1L);
+        assertEquals(1L, result.id());
     }
 
     @Test
@@ -150,9 +137,9 @@ public class UserEntityServiceTest {
 
 
         // Then
-        UserEntity result = userEntityService.saveUser(DataProvider.userAuthCreateUserRequestMock());
+        UserResponse result = userEntityService.saveUser(DataProvider.userRequestMock);
         assertNotNull(result);
-        assertEquals(1L, result.getId());
+        assertEquals(1L, result.id());
     }
 
     @Test
@@ -167,15 +154,14 @@ public class UserEntityServiceTest {
         when(userEntityRepository.save(user)).thenReturn(updatedUser);
 
         // Then
-        UserEntity result = userEntityService.updateUser(1L, DataProvider.userAuthCreateUserRequestMock());
-        assertEquals("Updated", result.getName());
-        assertEquals(1L, result.getId());
+        UserResponse result = userEntityService.updateUser(1L, DataProvider.userRequestMock);
+        assertEquals("Updated", result.name());
+        assertEquals(1L, result.id());
     }
 
     @Test
     void updateUser_shouldThrowExceptionWhenUserDoesNotExist() {
         // Given
-        UserEntity user = DataProvider.userAdmin();
         UserEntity updatedUser = DataProvider.userAdmin();
         updatedUser.setName("Updated");
 
@@ -183,7 +169,7 @@ public class UserEntityServiceTest {
         when(userEntityRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Then
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityService.updateUser(1L, DataProvider.userAuthCreateUserRequestMock()));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityService.updateUser(1L, DataProvider.userRequestMock));
         assertEquals("User not found with id: 1", exception.getMessage());
     }
 

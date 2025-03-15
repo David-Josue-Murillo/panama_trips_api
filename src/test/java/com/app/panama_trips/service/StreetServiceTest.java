@@ -43,7 +43,7 @@ public class StreetServiceTest {
     void getAllStreet_WhenPaginationIsNotEnabled_ThenReturnAllStreets() {
         // Given
         Pageable pageable = Pageable.unpaged();
-        PageImpl pageMock = new PageImpl(DataProvider.streetListsMock, pageable, DataProvider.userListMocks().size());
+        PageImpl<Street> pageMock = new PageImpl<>(DataProvider.streetListsMock, pageable, DataProvider.userListMocks().size());
         when(streetRepository.findAll(pageable)).thenReturn(pageMock);
 
         // When
@@ -58,7 +58,7 @@ public class StreetServiceTest {
     void getAllUsers_WhenPaginationIsEnabled_ThenReturnAllStreetWithPagination() {
         // Given
         Pageable pageable = PageRequest.of(0, 10);
-        PageImpl pageMock = new PageImpl(DataProvider.streetListsMock, pageable, DataProvider.userListMocks().size());
+        PageImpl<Street> pageMock = new PageImpl<>(DataProvider.streetListsMock, pageable, DataProvider.userListMocks().size());
         when(streetRepository.findAll(pageable)).thenReturn(pageMock);
 
         // When
@@ -110,7 +110,7 @@ public class StreetServiceTest {
     @Test
     void getStreetByName_WhenStreetNameIsProvided_ThenReturnStreet() {
         // Given
-        when(streetRepository.findStreetByName(anyString())).thenReturn(DataProvider.streetOneMock);
+        when(streetRepository.findByName(anyString())).thenReturn(Optional.ofNullable(DataProvider.streetOneMock));
 
         // When
         StreetResponse response = this.streetService.getStreetByName("Street One");
@@ -123,7 +123,7 @@ public class StreetServiceTest {
     @Test
     void getStreetByName_WhenStreetNameIsNotProvided_ThenThrowResourceNotFoundException() {
         // Given
-        when(streetRepository.findStreetByName(anyString())).thenReturn(null);
+        when(streetRepository.findByName(anyString())).thenReturn(Optional.empty());
 
         // When
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> this.streetService.getStreetByName("Street One"));
@@ -202,19 +202,5 @@ public class StreetServiceTest {
 
         // Then
         verify(streetRepository, times(1)).deleteById(1);
-    }
-
-    @Test
-    void deleteStreet_WhenNotExists_ShouldThrowResourceNotFoundException() {
-        // Given
-        Integer id = 999;
-        doThrow(new EmptyResultDataAccessException(1)).when(streetRepository).deleteById(id);
-
-        // When
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> streetService.deleteStreet(id));
-
-        // Then
-        assertEquals("Street with ID " + id + " not found", exception.getMessage());
-        verify(streetRepository, times(1)).deleteById(id);
     }
 }

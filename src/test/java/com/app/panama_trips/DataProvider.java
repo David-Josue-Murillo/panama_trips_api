@@ -2,9 +2,6 @@ package com.app.panama_trips;
 
 import com.app.panama_trips.persistence.entity.*;
 import com.app.panama_trips.presentation.dto.*;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -236,6 +233,46 @@ public class DataProvider {
         );
     }
 
+    /*
+    * UserRequest instance
+    * UserResponse instance
+    * DTOs
+     */
+    private static UserResponse convertToResponseDTO(UserEntity user) {
+        return new UserResponse(
+                user.getId(),
+                user.getDni(),
+                user.getName(),
+                user.getLastname(),
+                user.getEmail(),
+                user.getProfileImageUrl(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getCreatedBy(),
+                user.getUpdatedBy(),
+                user.getRole_id().getId()
+        );
+    }
+
+    public static UserRequest userRequestMock = new UserRequest("1-111-1111", "admin", "admin", "admin@example.com", "adminpassword", null);
+    public static UserResponse userResponseMock = convertToResponseDTO(userAdmin());
+    public static List<UserResponse> userResponseListMocks() {
+        return List.of(
+                convertToResponseDTO(userAdmin()),
+                convertToResponseDTO(userOperator()),
+                convertToResponseDTO(userCustomer()),
+                convertToResponseDTO(userGuest()),
+                convertToResponseDTO(userSupport())
+        );
+    }
+
+
+
+    /*
+    * Auth instances
+    * Here we have three instances of Auth
+    *
+     */
     public static AuthCreateUserRequest userAuthCreateUserRequestMock() {
         return new AuthCreateUserRequest("admin", "admin", "1-111-1111", "admin@example.com", "adminpassword");
     }
@@ -249,6 +286,12 @@ public class DataProvider {
     }
 
 
+
+    /**
+     * Province instances
+     * Here we have all provinces in Panama
+     *
+     */
     // Province instances
     public static Province provinceBocasMock = Province.builder()
             .id(1)
@@ -282,6 +325,21 @@ public class DataProvider {
             provinceChiriquiMock,
             provinceHerraraMock
     );
+
+    private static ProvinceResponse convertToResponseDTO(Province province) {
+        return new ProvinceResponse(province.getId(), province.getName());
+    }
+
+    public static ProvinceRequest provinceRequestMock = new ProvinceRequest("Bocas del Toro");
+    public static ProvinceResponse provinceResponseMock = new ProvinceResponse(1, "Bocas del Toro");
+    public static List<ProvinceResponse> provinceResponseListMocks = List.of(
+            convertToResponseDTO(provinceBocasMock),
+            convertToResponseDTO(provinceCocleMock),
+            convertToResponseDTO(provinceColonMock),
+            convertToResponseDTO(provinceChiriquiMock),
+            convertToResponseDTO(provinceHerraraMock)
+    );
+
 
     /**
      * District instances
@@ -332,7 +390,19 @@ public class DataProvider {
             districtChanguinolaMock
     );
 
+    private static DistrictResponse convertToResponseDTO(District district) {
+        return new DistrictResponse(district.getId(), district.getName(), district.getProvince().getId());
+    }
+
     public static DistrictRequest districtRequestMock = new DistrictRequest("Almirante", 1);
+    public static DistrictResponse districtResponseMock = convertToResponseDTO(districtAlmiranteMock);
+    public static List<DistrictResponse> districtResponseListMocks = List.of(
+            convertToResponseDTO(districtAlmiranteMock),
+            convertToResponseDTO(districtBocasMock),
+            convertToResponseDTO(districtChanguinolaMock),
+            convertToResponseDTO(districtAntonMock),
+            convertToResponseDTO(districtPenonomeMock)
+    );
 
 
     /**
@@ -357,5 +427,5 @@ public class DataProvider {
     );
 
     public static StreetRequest streetRequestOneMock = new StreetRequest("Street One", 1);
-    public static StreetResponse streetResponseOneMock = streetResponseListsMock.get(0);
+    public static StreetResponse streetResponseOneMock = streetResponseListsMock.getFirst();
 }

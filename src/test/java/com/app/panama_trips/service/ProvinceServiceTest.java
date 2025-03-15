@@ -4,6 +4,7 @@ import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.Province;
 import com.app.panama_trips.persistence.repository.ProvinceRepository;
+import com.app.panama_trips.presentation.dto.ProvinceResponse;
 import com.app.panama_trips.service.implementation.ProvinceService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,9 +13,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
+
+import static com.app.panama_trips.DataProvider.provinceRequestMock;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ProvinceServiceTest {
@@ -32,11 +35,10 @@ public class ProvinceServiceTest {
         when(provinceRepository.findAll()).thenReturn(provinceList);
 
         // When
-        List<Province> response = provinceService.getAllProvinces();
+        List<ProvinceResponse> response = provinceService.getAllProvinces();
 
         // Then
         assertNotNull(response);
-        assertEquals(provinceList, response);
         assertEquals(provinceList.size(), response.size());
     }
 
@@ -46,7 +48,7 @@ public class ProvinceServiceTest {
         when(provinceRepository.findAll()).thenReturn(List.of());
 
         // When
-        List<Province> response = provinceService.getAllProvinces();
+        List<ProvinceResponse> response = provinceService.getAllProvinces();
 
         // Then
         assertTrue(response.isEmpty());
@@ -59,11 +61,11 @@ public class ProvinceServiceTest {
         when(provinceRepository.findById(1)).thenReturn(Optional.ofNullable(provinceBocas));
 
         // When
-        Province response = provinceService.getProvinceById(1);
+        ProvinceResponse response = provinceService.getProvinceById(1);
 
         // Then
         assertNotNull(response);
-        assertEquals(provinceBocas, response);
+        assertEquals(provinceBocas.getName(), response.name());
     }
 
     @Test
@@ -73,11 +75,11 @@ public class ProvinceServiceTest {
         when(provinceRepository.findByName("Bocas del Toro")).thenReturn(Optional.ofNullable(provinceBocas));
 
         // When
-        Province response = provinceService.getProvinceByName("Bocas del Toro");
+        ProvinceResponse response = provinceService.getProvinceByName("Bocas del Toro");
 
         // Then
         assertNotNull(response);
-        assertEquals(provinceBocas, response);
+        assertEquals(provinceBocas.getName(), response.name());
     }
 
     @Test
@@ -99,11 +101,11 @@ public class ProvinceServiceTest {
         when(provinceRepository.save(any(Province.class))).thenReturn(DataProvider.provinceBocasMock);
 
         // When
-        Province response = provinceService.saveProvince(DataProvider.provinceBocasMock);
+        ProvinceResponse response = provinceService.saveProvince(provinceRequestMock);
 
         // Then
         assertNotNull(response);
-        assertEquals(DataProvider.provinceBocasMock, response);
+        assertEquals(DataProvider.provinceBocasMock.getName(), response.name());
     }
 
     @Test
@@ -113,7 +115,7 @@ public class ProvinceServiceTest {
         when(provinceRepository.findByName(any())).thenReturn(Optional.ofNullable(provinceBocas));
 
         // When
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> provinceService.saveProvince(provinceBocas));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> provinceService.saveProvince(provinceRequestMock));
 
         // Then
         assertNotNull(exception);
@@ -129,11 +131,11 @@ public class ProvinceServiceTest {
         when(provinceRepository.save(provinceBocas)).thenReturn(provinceChiriqui);
 
         // When
-        Province response = provinceService.updateProvince(1, provinceBocas);
+        ProvinceResponse response = provinceService.updateProvince(1, provinceRequestMock);
 
         // Then
         assertNotNull(response);
-        assertEquals(provinceChiriqui, response);
+        assertEquals(provinceChiriqui.getId(), response.id());
     }
 
     @Test
@@ -143,7 +145,7 @@ public class ProvinceServiceTest {
         when(provinceRepository.findById(1)).thenReturn(Optional.empty());
 
         // When
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> provinceService.updateProvince(1, provinceBocas));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> provinceService.updateProvince(1, provinceRequestMock));
 
         // Then
         assertNotNull(exception);
@@ -154,19 +156,21 @@ public class ProvinceServiceTest {
     void deleteProvince_shouldDeleteProvince() {
         // Given
         Province provinceBocas = DataProvider.provinceBocasMock;
-        when(provinceRepository.existsById(1)).thenReturn(true);
+        when(provinceRepository.findById(anyInt())).thenReturn(Optional.ofNullable(provinceBocas));
+        doNothing().when(provinceRepository).deleteById(1);
 
         // When
         provinceService.deleteProvince(1);
 
         // Then
         assertTrue(true);
+        verify(provinceRepository, times(1)).deleteById(1);
     }
 
     @Test
     void deleteProvince_shouldThrowExceptionWhenProvinceNotExist() {
         // Given
-        when(provinceRepository.existsById(99)).thenReturn(false);
+        when(provinceRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         // When
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> provinceService.deleteProvince(99));

@@ -1,18 +1,23 @@
 package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.persistence.entity.Province;
+import com.app.panama_trips.presentation.dto.ProvinceRequest;
+import com.app.panama_trips.presentation.dto.ProvinceResponse;
 import com.app.panama_trips.service.implementation.ProvinceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/provinces")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Province", description = "Endpoints for provinces")
 public class ProvinceController {
 
@@ -32,7 +37,7 @@ public class ProvinceController {
                     )
             )
     )
-    public ResponseEntity<List<Province>> findAllProvinces() {
+    public ResponseEntity<List<ProvinceResponse>> findAllProvinces() {
         return ResponseEntity.ok(this.provinceService.getAllProvinces());
     }
 
@@ -58,10 +63,8 @@ public class ProvinceController {
                     )
             )
     )
-    public ResponseEntity<Province> saveProvince(@RequestBody Province province) {
-        return province == null
-                ? ResponseEntity.badRequest().build()
-                : ResponseEntity.status(HttpStatus.CREATED).body(this.provinceService.saveProvince(province));
+    public ResponseEntity<ProvinceResponse> saveProvince(@RequestBody @Valid ProvinceRequest provinceRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.provinceService.saveProvince(provinceRequest));
     }
 
     @GetMapping("/{id}")
@@ -78,11 +81,8 @@ public class ProvinceController {
                     )
             )
     )
-    public ResponseEntity<Province> findProvinceById(@PathVariable Integer id) {
-        Province province = this.provinceService.getProvinceById(id);
-        return province == null
-                ? ResponseEntity.notFound().build()
-                : ResponseEntity.ok(province);
+    public ResponseEntity<ProvinceResponse> findProvinceById(@PathVariable Integer id) {
+        return ResponseEntity.ok(this.provinceService.getProvinceById(id));
     }
 
     @GetMapping("/search")
@@ -99,11 +99,8 @@ public class ProvinceController {
                     )
             )
     )
-    public ResponseEntity<Province> findProvinceByName(@RequestParam String name) {
-        Province province = this.provinceService.getProvinceByName(name);
-        return province == null
-                ? ResponseEntity.notFound().build()
-                : ResponseEntity.ok(province);
+    public ResponseEntity<ProvinceResponse> findProvinceByName(@RequestParam String name) {
+        return ResponseEntity.ok(this.provinceService.getProvinceByName(name));
     }
 
     @PutMapping("/{id}")
@@ -128,8 +125,8 @@ public class ProvinceController {
                     )
             )
     )
-    public ResponseEntity<Province> updateProvince(@PathVariable Integer id, @RequestBody Province province) {
-        return ResponseEntity.ok(this.provinceService.updateProvince(id, province));
+    public ResponseEntity<ProvinceResponse> updateProvince(@PathVariable Integer id, @RequestBody @Valid ProvinceRequest provinceRequest) {
+        return ResponseEntity.ok(this.provinceService.updateProvince(id, provinceRequest));
     }
 
     @DeleteMapping("/{id}")

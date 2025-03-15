@@ -2,10 +2,12 @@ package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.persistence.entity.District;
 import com.app.panama_trips.presentation.dto.DistrictRequest;
+import com.app.panama_trips.presentation.dto.DistrictResponse;
 import com.app.panama_trips.service.implementation.DistrictService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +36,7 @@ public class DistrictController {
                     )
             )
     )
-    public ResponseEntity<List<District>> findAllDistricts() {
+    public ResponseEntity<List<DistrictResponse>> findAllDistricts() {
         return ResponseEntity.ok(this.districtService.getAllDistricts());
     }
 
@@ -60,7 +62,7 @@ public class DistrictController {
                     )
             )
     )
-    public ResponseEntity<District> saveDistrict(@RequestBody DistrictRequest districtRequest) {
+    public ResponseEntity<DistrictResponse> saveDistrict(@RequestBody @Valid DistrictRequest districtRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.districtService.saveDistrict(districtRequest));
     }
 
@@ -78,7 +80,7 @@ public class DistrictController {
                     )
             )
     )
-    public ResponseEntity<District> findDistrictById(@PathVariable Integer id) {
+    public ResponseEntity<DistrictResponse> findDistrictById(@PathVariable Integer id) {
         return ResponseEntity.ok(this.districtService.getDistrictById(id));
     }
 
@@ -96,7 +98,7 @@ public class DistrictController {
                     )
             )
     )
-    public ResponseEntity<District> findDistrictByName(@RequestParam String name) {
+    public ResponseEntity<DistrictResponse> findDistrictByName(@RequestParam String name) {
         return ResponseEntity.ok(this.districtService.getDistrictByName(name));
     }
 
@@ -114,8 +116,8 @@ public class DistrictController {
                     )
             )
     )
-    public ResponseEntity<List<District>> findDistrictsByProvinceId(@PathVariable Integer provinceId) {
-        List<District> districts = this.districtService.getDistrictsByProvinceId(provinceId);
+    public ResponseEntity<List<DistrictResponse>> findDistrictsByProvinceId(@PathVariable Integer provinceId) {
+        List<DistrictResponse> districts = this.districtService.getDistrictsByProvinceId(provinceId);
         return districts == null
                 ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(districts);
@@ -143,7 +145,7 @@ public class DistrictController {
                     )
             )
     )
-    public ResponseEntity<District> updateDistrict(@PathVariable Integer id, @RequestBody DistrictRequest districtRequest) {
+    public ResponseEntity<DistrictResponse> updateDistrict(@PathVariable Integer id, @Valid @RequestBody DistrictRequest districtRequest) {
         return ResponseEntity.ok(this.districtService.updateDistrict(id, districtRequest));
     }
 

@@ -2,152 +2,162 @@ package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.UserNotFoundException;
-import com.app.panama_trips.persistence.entity.UserEntity;
-import com.app.panama_trips.presentation.dto.UserDeleteResponse;
+import com.app.panama_trips.presentation.dto.UserRequest;
+import com.app.panama_trips.presentation.dto.UserResponse;
 import com.app.panama_trips.service.implementation.UserEntityService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
-import java.util.Map;
-import java.util.Objects;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(UserEntityController.class)
 public class UserEntityControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
     UserEntityService userEntityService;
 
-    @InjectMocks
-    UserEntityController userEntityController;
-
-    @Test
-    void findAllUsers_shouldReturnAllUsersWhenTheEnabledPaginationIsFalse() {
-        // Given
-        Page<UserEntity> userEntityPage = new PageImpl<>(DataProvider.userListMocks());
-        when(userEntityService.getAllUser(0, 10, false)).thenReturn(userEntityPage);
-
-        // When
-        ResponseEntity<Page<UserEntity>> response = userEntityController.findAllUsers(0, 10, false);
-
-        // Then
-        assertNotNull(response);
-        assertEquals(userEntityPage, response.getBody());
+    // Método auxiliar para convertir objetos a JSON
+    private String asJsonString(Object obj) throws Exception {
+        return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(obj);
     }
 
     @Test
-    void findAllUsers_shouldReturnAllUsersWhenTheEnablePaginationIsTrue() {
-        // Given
-        Page<UserEntity> userEntityPage = new PageImpl<>(DataProvider.userListMocks());
-        when(userEntityService.getAllUser(0, 10, true)).thenReturn(userEntityPage);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void findAllUsers_success() throws Exception {
+        Page<UserResponse> page = new PageImpl<>(DataProvider.userResponseListMocks());
+        when(userEntityService.getAllUser(anyInt(), anyInt(), anyBoolean())).thenReturn(page);
 
-        // When
-        ResponseEntity<Page<UserEntity>> response = userEntityController.findAllUsers(0, 10, true);
-
-        // Then
-        assertNotNull(response);
-        assertEquals(userEntityPage, response.getBody());
+        mockMvc.perform(get("/api/user")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("enabledPagination", "false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(DataProvider.userResponseListMocks().getFirst().id()))
+                .andExpect(jsonPath("$.content[0].name").value(DataProvider.userResponseListMocks().getFirst().name()));
     }
 
     @Test
-    void saveUser_shouldReturnTheUserEntitySaved() {
-        // Given
-        UserEntity userEntity = DataProvider.userAdmin();
-        when(userEntityService.saveUser(DataProvider.userAuthCreateUserRequestMock())).thenReturn(userEntity);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void findAllUsers_successTrue() throws Exception {
+        Page<UserResponse> page = new PageImpl<>(DataProvider.userResponseListMocks());
+        when(userEntityService.getAllUser(anyInt(), anyInt(), anyBoolean())).thenReturn(page);
 
-        // When
-        ResponseEntity<UserEntity> response  = userEntityController.saveUser(DataProvider.userAuthCreateUserRequestMock());
+        mockMvc.perform(get("/api/user")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("enabledPagination", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(DataProvider.userResponseListMocks().getFirst().id()))
+                .andExpect(jsonPath("$.content[0].name").value(DataProvider.userResponseListMocks().getFirst().name()));
 
-        // Then
-        assertNotNull(response);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(userEntity, response.getBody());
     }
 
     @Test
-    void saveUser_shouldReturnOneExceptionIfUserExist() {
-        // Given
-        UserEntity userEntity = DataProvider.userAdmin();
-        when(userEntityService.saveUser(DataProvider.userAuthCreateUserRequestMock())).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,"User already exist"));
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void saveUser_success() throws Exception {
+        UserResponse userResponse = DataProvider.userResponseMock;
+        when(userEntityService.saveUser(any(UserRequest.class))).thenReturn(userResponse);
 
-        // When
-        ResponseStatusException exception  = assertThrows(ResponseStatusException.class, () -> userEntityController.saveUser(DataProvider.userAuthCreateUserRequestMock()));
-
-        // Then
-        assertNotNull(exception);
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        mockMvc.perform(post("/api/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(DataProvider.userRequestMock))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(userResponse.id()))
+                .andExpect(jsonPath("$.name").value(userResponse.name()));
     }
 
     @Test
-    void findUSerById_shouldReturnUserById() {
-        // Given
-        UserEntity userEntity = DataProvider.userAdmin();
-        when(userEntityService.getUserById(anyLong())).thenReturn(userEntity);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void saveUser_failed() throws Exception {
+        UserResponse userResponse = DataProvider.userResponseMock;
+        when(userEntityService.saveUser(any(UserRequest.class))).thenReturn(userResponse);
 
-        // When
-        ResponseEntity<UserEntity> response = userEntityController.findUSerById(1L);
-
-        // Then
-        assertNotNull(response);
-        assertEquals(userEntity, response.getBody());
+        mockMvc.perform(post("/api/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(DataProvider.userRequestMock).replace("admin", ""))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void findUserById_shouldThrowExceptionWhenUserNotExits() {
-        // When
-        when(userEntityService.getUserById(anyLong())).thenThrow(new UserNotFoundException("User not found"));
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityController.findUSerById(1L));
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void findUserById_success() throws Exception {
+        UserResponse userResponse = DataProvider.userResponseMock;
+        when(userEntityService.getUserById(anyLong())).thenReturn(userResponse);
 
-        // Then
-        assertEquals("User not found", exception.getMessage());
+        mockMvc.perform(get("/api/user/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userResponse.id()))
+                .andExpect(jsonPath("$.name").value(userResponse.name()));
     }
 
     @Test
-    void updateUser_shouldReturnAnUserUpdate() {
-        // Given
-        UserEntity userEntity = DataProvider.userAdmin();
-        userEntity.setName("new name");
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void findUserById_failed() throws Exception {
+        when(userEntityService.getUserById(anyLong())).thenThrow(new UserNotFoundException("User not found with id: 999"));
 
-        // When
-        when(userEntityService.updateUser(1L, DataProvider.userAuthCreateUserRequestMock())).thenReturn(userEntity);
-        ResponseEntity<UserEntity> response = userEntityController.updatedUser(1L, DataProvider.userAuthCreateUserRequestMock());
-
-        // Then
-        assertNotNull(response);
-        assertEquals(DataProvider.userAdmin().getId(), response.getBody().getId());
-        assertNotEquals(DataProvider.userAdmin().getName(), response.getBody().getName());
+        mockMvc.perform(get("/api/user/999"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value())) // 404
+                .andExpect(jsonPath("$.message").value("User not found with id: 999"))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 
     @Test
-    void updateUser_shouldThrowAnExceptionWhenTheIDsWereDiferente() {
-        // Given
-        UserEntity userEntity = DataProvider.userAdmin();
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void updateUser_success() throws Exception {
+        UserResponse userResponse = DataProvider.userResponseMock;
+        when(userEntityService.updateUser(anyLong(), any(UserRequest.class))).thenReturn(userResponse);
 
-        // When
-        when(userEntityService.updateUser(100L, DataProvider.userAuthCreateUserRequestMock())).thenThrow(new UserNotFoundException("User not found with id: 100"));
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userEntityController.updatedUser(100L, DataProvider.userAuthCreateUserRequestMock()));
-
-        // Then
-        assertEquals("User not found with id: 100", exception.getMessage());
+        mockMvc.perform(put("/api/user/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(DataProvider.userRequestMock))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userResponse.id()))
+                .andExpect(jsonPath("$.name").value(userResponse.name()));
     }
 
     @Test
-    void deleteUser_shouldDeleteTheUser() {
-        // When
-        ResponseEntity<UserDeleteResponse> response = userEntityController.deleteUser(1L);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void updateUser_failed() throws Exception {
+        when(userEntityService.updateUser(anyLong(), any(UserRequest.class))).thenThrow(new UserNotFoundException("User not found with id: 100"));
 
-        // Then
-        assertNotNull(response);
-        assertEquals("User deleted successfully", Objects.requireNonNull(response.getBody()).message());
+        mockMvc.perform(put("/api/user/100")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(DataProvider.userRequestMock))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value())) // 404
+                .andExpect(jsonPath("$.message").value("User not found with id: 100"))
+                .andExpect(jsonPath("$.timestamp").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void deleteUser_success() throws Exception {
+        doNothing().when(userEntityService).deleteUser(anyLong());
+
+        mockMvc.perform(delete("/api/user/1")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
     }
 }

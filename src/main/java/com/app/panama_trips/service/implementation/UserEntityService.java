@@ -6,7 +6,8 @@ import com.app.panama_trips.persistence.entity.RoleEnum;
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.persistence.repository.RoleRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
-import com.app.panama_trips.presentation.dto.AuthCreateUserRequest;
+import com.app.panama_trips.presentation.dto.UserRequest;
+import com.app.panama_trips.presentation.dto.UserResponse;
 import com.app.panama_trips.service.interfaces.IUserEntityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,57 +23,58 @@ public class UserEntityService implements IUserEntityService {
     private final UserEntityRepository userEntityRepository;
     private final RoleRepository roleRepository;
 
-    private void validateUser(AuthCreateUserRequest authCreateUserRequest) {
-        if(authCreateUserRequest.password().length() < 5) {
-            throw new ValidationException("Password must be at least 4 characters long");
+    private void validateUser(String email) {
+        if(this.userEntityRepository.findUserEntitiesByEmail(email).isPresent()) {
+            throw new ValidationException("Email already exists: " + email);
         }
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<UserEntity> getAllUser(Integer page, Integer size, Boolean enabledPagination) {
+    public Page<UserResponse> getAllUser(Integer page, Integer size, Boolean enabledPagination) {
         Pageable pageable = enabledPagination
                 ? PageRequest.of(page, size)
                 : Pageable.unpaged();
-        return userEntityRepository.findAll(pageable);
+        return userEntityRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public UserEntity getUserById(Long id) {
+    public UserResponse getUserById(Long id) {
         return userEntityRepository.findById(id)
+                .map(this::convertToResponseDTO)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
     }
 
     @Override
     @Transactional
-    public UserEntity saveUser(AuthCreateUserRequest authCreateUserRequest) {
-        validateUser(authCreateUserRequest);
-
+    public UserResponse saveUser(UserRequest userRequest) {
+        validateUser(userRequest.email());
         UserEntity userEntity = new UserEntity();
-        userEntity.setName(authCreateUserRequest.name());
-        userEntity.setLastname(authCreateUserRequest.lastname());
-        userEntity.setEmail(authCreateUserRequest.email());
-        userEntity.setDni(authCreateUserRequest.dni());
-        userEntity.setPasswordHash(authCreateUserRequest.password());
+        userEntity.setName(userRequest.name());
+        userEntity.setLastname(userRequest.lastname());
+        userEntity.setEmail(userRequest.email());
+        userEntity.setDni(userRequest.dni());
+        userEntity.setPasswordHash(userRequest.password());
+        userEntity.setProfileImageUrl(userRequest.profileImageUrl());
         userEntity.setRole_id(this.roleRepository.findByRoleEnum(RoleEnum.CUSTOMER));
-        return userEntityRepository.save(userEntity);
+        return this.convertToResponseDTO(userEntityRepository.save(userEntity));
     }
 
     @Override
     @Transactional
-    public UserEntity updateUser(Long id, AuthCreateUserRequest authCreateUserRequest) {
-        validateUser(authCreateUserRequest);
+    public UserResponse updateUser(Long id, UserRequest userRequest) {
         UserEntity existingUser = userEntityRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
-        existingUser.setDni(authCreateUserRequest.dni());
-        existingUser.setName(authCreateUserRequest.name());
-        existingUser.setLastname(authCreateUserRequest.lastname());
-        existingUser.setEmail(authCreateUserRequest.email());
-        existingUser.setPasswordHash(authCreateUserRequest.password());
+        existingUser.setDni(userRequest.dni());
+        existingUser.setName(userRequest.name());
+        existingUser.setLastname(userRequest.lastname());
+        existingUser.setEmail(userRequest.email());
+        existingUser.setPasswordHash(userRequest.password());
+        existingUser.setProfileImageUrl(userRequest.profileImageUrl());
 
-        return userEntityRepository.save(existingUser);
+        return this.convertToResponseDTO(userEntityRepository.save(existingUser));
     }
 
     @Override
@@ -81,5 +83,22 @@ public class UserEntityService implements IUserEntityService {
         UserEntity existingUser = userEntityRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
         userEntityRepository.delete(existingUser);
+    }
+
+    private UserResponse convertToResponseDTO(UserEntity user) {
+
+        return new UserResponse(
+                user.getId(),
+                user.getDni(),
+                user.getName(),
+                user.getLastname(),
+                user.getEmail(),
+                user.getProfileImageUrl(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getCreatedBy(),
+                user.getUpdatedBy(),
+                user.getRole_id().getId()
+        );
     }
 }
