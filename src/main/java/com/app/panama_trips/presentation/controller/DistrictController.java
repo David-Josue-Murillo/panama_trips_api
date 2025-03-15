@@ -7,6 +7,7 @@ import com.app.panama_trips.service.implementation.DistrictService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +62,7 @@ public class DistrictController {
                     )
             )
     )
-    public ResponseEntity<DistrictResponse> saveDistrict(@RequestBody DistrictRequest districtRequest) {
+    public ResponseEntity<DistrictResponse> saveDistrict(@RequestBody @Valid DistrictRequest districtRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.districtService.saveDistrict(districtRequest));
     }
 
@@ -144,7 +145,7 @@ public class DistrictController {
                     )
             )
     )
-    public ResponseEntity<DistrictResponse> updateDistrict(@PathVariable Integer id, @RequestBody DistrictRequest districtRequest) {
+    public ResponseEntity<DistrictResponse> updateDistrict(@PathVariable Integer id, @Valid @RequestBody DistrictRequest districtRequest) {
         return ResponseEntity.ok(this.districtService.updateDistrict(id, districtRequest));
     }
 

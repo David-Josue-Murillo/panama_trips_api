@@ -77,7 +77,7 @@ public class UserEntityController {
                     )
             )
     )
-    public ResponseEntity<UserResponse> saveUser(@Valid @RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> saveUser(@RequestBody @Valid UserRequest userRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userEntityService.saveUser(userRequest));
     }
 
@@ -125,7 +125,7 @@ public class UserEntityController {
                     )
             )
     )
-    public ResponseEntity<UserResponse> updatedUser(@PathVariable Long id, @RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> updatedUser(@PathVariable Long id, @RequestBody @Valid UserRequest userRequest) {
         return ResponseEntity.ok(userEntityService.updateUser(id, userRequest));
     }
 

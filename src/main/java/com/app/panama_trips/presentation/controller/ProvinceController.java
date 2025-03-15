@@ -6,6 +6,7 @@ import com.app.panama_trips.presentation.dto.ProvinceResponse;
 import com.app.panama_trips.service.implementation.ProvinceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +63,7 @@ public class ProvinceController {
                     )
             )
     )
-    public ResponseEntity<ProvinceResponse> saveProvince(@RequestBody ProvinceRequest provinceRequest) {
+    public ResponseEntity<ProvinceResponse> saveProvince(@RequestBody @Valid ProvinceRequest provinceRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.provinceService.saveProvince(provinceRequest));
     }
 
@@ -124,7 +125,7 @@ public class ProvinceController {
                     )
             )
     )
-    public ResponseEntity<ProvinceResponse> updateProvince(@PathVariable Integer id, @RequestBody ProvinceRequest provinceRequest) {
+    public ResponseEntity<ProvinceResponse> updateProvince(@PathVariable Integer id, @RequestBody @Valid ProvinceRequest provinceRequest) {
         return ResponseEntity.ok(this.provinceService.updateProvince(id, provinceRequest));
     }
 
