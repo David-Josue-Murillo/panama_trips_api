@@ -1,7 +1,6 @@
 package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.DataProvider;
-import com.app.panama_trips.persistence.entity.District;
 import com.app.panama_trips.presentation.dto.DistrictRequest;
 import com.app.panama_trips.presentation.dto.DistrictResponse;
 import com.app.panama_trips.service.implementation.DistrictService;
