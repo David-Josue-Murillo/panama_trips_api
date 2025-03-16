@@ -20,12 +20,12 @@ public class Address {
     @Column(name = "street", nullable = false, length = 255)
     private String street;
 
-    @Column(name = "postal_code")
+    @Column(name = "postal_code", length = 20)
     private Integer postalCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "district_id", nullable = false, referencedColumnName = "id")
-    private District districtId;
+    private District district;
 
     @Column(name = "additional_info", columnDefinition = "TEXT")
     private String additionalInfo;
