@@ -428,4 +428,50 @@ public class DataProvider {
 
     public static StreetRequest streetRequestOneMock = new StreetRequest("Street One", 1);
     public static StreetResponse streetResponseOneMock = streetResponseListsMock.getFirst();
+
+
+
+    /*
+    * Address instances
+    *
+     */
+    public static Address addressOneMock = Address.builder()
+            .addressId(1)
+            .street(streetOneMock.getName())
+            .postalCode("1111")
+            .district(districtAlmiranteMock)
+            .additionalInfo("Additional info")
+            .build();
+
+    public static Address addressTwoMock = Address.builder()
+            .addressId(2)
+            .street(streetTwoMock.getName())
+            .postalCode("2222")
+            .district(districtBocasMock)
+            .additionalInfo("Additional info")
+            .build();
+
+    public static Address addressThreeMock = Address.builder()
+            .addressId(3)
+            .street(streetThreeMock.getName())
+            .postalCode("3333")
+            .district(districtChanguinolaMock)
+            .additionalInfo("Additional info")
+            .build();
+
+    public static List<Address> addressListsMock = List.of(
+            addressOneMock,
+            addressTwoMock,
+            addressThreeMock
+    );
+
+    public static AddressResponse addressResponseMock = new AddressResponse(addressOneMock);
+    public static AddressRequest addressRequestMock = new AddressRequest("Street One", "1111", 1, "Additional info");
+
+    public static List<AddressResponse> addressResponsesListMocks = List.of(
+            new AddressResponse(addressOneMock),
+            new AddressResponse(addressTwoMock),
+            new AddressResponse(addressThreeMock)
+    );
+
 }
