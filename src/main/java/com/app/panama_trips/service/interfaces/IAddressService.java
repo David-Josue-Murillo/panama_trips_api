@@ -12,7 +12,7 @@ public interface IAddressService {
     AddressResponse getAddressById(Integer id);
     AddressResponse getAddressByStreet(String street);
     List<AddressResponse> getAddressesByDistrictId(Integer districtId);
-    List<AddressResponse> getAddressesByPostalCode(Integer postalCode);
+    List<AddressResponse> getAddressesByPostalCode(String postalCode);
     List<AddressResponse> getAddressesByStreetContainingIgnoreCase(String streetFragment);
     AddressResponse saveAddress(AddressRequest address);
     AddressResponse updateAddress(Integer id, AddressRequest address);

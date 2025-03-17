@@ -12,7 +12,7 @@ public record AddressRequest (
 
         @NotNull(message = "Postal code is required")
         @Positive(message = "Postal code must be a positive number")
-        Integer postalCode,
+        String postalCode,
 
         @NotNull(message = "District is required")
         @Positive(message = "District ID must be a positive number")

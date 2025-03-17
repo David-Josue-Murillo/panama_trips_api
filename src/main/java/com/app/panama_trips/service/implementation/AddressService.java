@@ -57,7 +57,7 @@ public class AddressService implements IAddressService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AddressResponse> getAddressesByPostalCode(Integer postalCode) {
+    public List<AddressResponse> getAddressesByPostalCode(String postalCode) {
         return this.addressRepository.findAddressesByPostalCode(postalCode)
                 .stream()
                 .map(AddressResponse::new)

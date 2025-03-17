@@ -5,7 +5,7 @@ import com.app.panama_trips.persistence.entity.Address;
 public record AddressResponse(
         Integer addressId,
         String street,
-        Integer postalCode,
+        String postalCode,
         String districtName,
         String provinceName,
         String additionalInfo

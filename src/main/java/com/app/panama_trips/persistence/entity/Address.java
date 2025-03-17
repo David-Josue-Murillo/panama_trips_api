@@ -21,7 +21,7 @@ public class Address {
     private String street;
 
     @Column(name = "postal_code", length = 20)
-    private Integer postalCode;
+    private String postalCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "district_id", nullable = false, referencedColumnName = "id")

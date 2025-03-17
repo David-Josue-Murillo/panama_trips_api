@@ -14,7 +14,7 @@ public interface AddressRepository extends JpaRepository<Address, Integer> {
     Optional<Address> findByStreet(String street);
 
     List<Address> findByDistrictId(Integer district_id);
-    List<Address> findAddressesByPostalCode(Integer postalCode);
+    List<Address> findAddressesByPostalCode(String postalCode);
 
     @Query("SELECT a FROM Address a WHERE LOWER(a.street) LIKE LOWER(concat('%', :streetFragment, '%'))")
     List<Address> findByStreetContainingIgnoreCase(@Param("streetFragment") String streetFragment);
