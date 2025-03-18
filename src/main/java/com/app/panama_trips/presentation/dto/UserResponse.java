@@ -16,4 +16,20 @@ public record UserResponse(
     UserEntity createdById,
     UserEntity updatedById,
     Integer RoleId
-) { }
+) {
+    public UserResponse(UserEntity userEntity) {
+        this(
+            userEntity.getId(),
+            userEntity.getDni(),
+            userEntity.getName(),
+            userEntity.getLastname(),
+            userEntity.getEmail(),
+            userEntity.getProfileImageUrl(),
+            userEntity.getCreatedAt(),
+            userEntity.getUpdatedAt(),
+            userEntity.getCreatedBy(),
+            userEntity.getUpdatedBy(),
+            userEntity.getRole_id().getId()
+        );
+    }
+}

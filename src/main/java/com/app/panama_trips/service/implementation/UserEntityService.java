@@ -35,14 +35,14 @@ public class UserEntityService implements IUserEntityService {
         Pageable pageable = enabledPagination
                 ? PageRequest.of(page, size)
                 : Pageable.unpaged();
-        return userEntityRepository.findAll(pageable).map(this::convertToResponseDTO);
+        return userEntityRepository.findAll(pageable).map(UserResponse::new);
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
         return userEntityRepository.findById(id)
-                .map(this::convertToResponseDTO)
+                .map(UserResponse::new)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
     }
 
@@ -58,7 +58,7 @@ public class UserEntityService implements IUserEntityService {
         userEntity.setPasswordHash(userRequest.password());
         userEntity.setProfileImageUrl(userRequest.profileImageUrl());
         userEntity.setRole_id(this.roleRepository.findByRoleEnum(RoleEnum.CUSTOMER));
-        return this.convertToResponseDTO(userEntityRepository.save(userEntity));
+        return new UserResponse((userEntityRepository.save(userEntity)));
     }
 
     @Override
@@ -74,7 +74,7 @@ public class UserEntityService implements IUserEntityService {
         existingUser.setPasswordHash(userRequest.password());
         existingUser.setProfileImageUrl(userRequest.profileImageUrl());
 
-        return this.convertToResponseDTO(userEntityRepository.save(existingUser));
+        return new UserResponse(userEntityRepository.save(existingUser));
     }
 
     @Override
@@ -83,22 +83,5 @@ public class UserEntityService implements IUserEntityService {
         UserEntity existingUser = userEntityRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
         userEntityRepository.delete(existingUser);
-    }
-
-    private UserResponse convertToResponseDTO(UserEntity user) {
-
-        return new UserResponse(
-                user.getId(),
-                user.getDni(),
-                user.getName(),
-                user.getLastname(),
-                user.getEmail(),
-                user.getProfileImageUrl(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                user.getCreatedBy(),
-                user.getUpdatedBy(),
-                user.getRole_id().getId()
-        );
     }
 }
