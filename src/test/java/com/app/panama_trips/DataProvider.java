@@ -405,27 +405,48 @@ public class DataProvider {
     );
 
 
-    /**
-     * Street instances
-     * Here we have three streets, one for each district
-     *
+
+    /*
+    * Address instances
+    *
      */
-    public static Street streetOneMock = new Street(1, "Street One", districtAlmiranteMock);
-    public static Street streetTwoMock = new Street(2, "Street Two", districtBocasMock);
-    public static Street streetThreeMock = new Street(3, "Street Three", districtChanguinolaMock);
+    public static Address addressOneMock = Address.builder()
+            .addressId(1)
+            .street("Street One")
+            .postalCode("1111")
+            .district(districtAlmiranteMock)
+            .additionalInfo("Additional info")
+            .build();
 
-    public static List<Street> streetListsMock = List.of(
-            streetOneMock,
-            streetTwoMock,
-            streetThreeMock
+    public static Address addressTwoMock = Address.builder()
+            .addressId(2)
+            .street("Street Two")
+            .postalCode("2222")
+            .district(districtBocasMock)
+            .additionalInfo("Additional info")
+            .build();
+
+    public static Address addressThreeMock = Address.builder()
+            .addressId(3)
+            .street("Street Three")
+            .postalCode("3333")
+            .district(districtChanguinolaMock)
+            .additionalInfo("Additional info")
+            .build();
+
+    public static List<Address> addressListsMock = List.of(
+            addressOneMock,
+            addressTwoMock,
+            addressThreeMock
     );
 
-    public static List<StreetResponse> streetResponseListsMock = List.of(
-            new StreetResponse(1, "Street One", 1),
-            new StreetResponse(2, "Street Two", 2),
-            new StreetResponse(3, "Street Three", 3)
+    public static AddressResponse addressResponseMock = new AddressResponse(addressOneMock);
+    public static AddressRequest addressRequestMock = new AddressRequest("Street One", "1111", 1, "Additional info");
+
+    public static List<AddressResponse> addressResponsesListMocks = List.of(
+            new AddressResponse(addressOneMock),
+            new AddressResponse(addressTwoMock),
+            new AddressResponse(addressThreeMock)
     );
 
-    public static StreetRequest streetRequestOneMock = new StreetRequest("Street One", 1);
-    public static StreetResponse streetResponseOneMock = streetResponseListsMock.getFirst();
 }
