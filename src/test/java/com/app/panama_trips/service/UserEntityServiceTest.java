@@ -179,12 +179,12 @@ public class UserEntityServiceTest {
         UserEntity user = DataProvider.userAdmin();
 
         // When
-        when(userEntityRepository.findById(1L)).thenReturn(Optional.of(user));
-        doNothing().when(userEntityRepository).delete(user);
+        when(userEntityRepository.existsById(1L)).thenReturn(true);
+        doNothing().when(userEntityRepository).deleteById(anyLong());
 
         // Then
         userEntityService.deleteUser(1L);
-        verify(userEntityRepository, times(1)).delete(user);
+        verify(userEntityRepository, times(1)).deleteById(1L);
     }
 
     @Test

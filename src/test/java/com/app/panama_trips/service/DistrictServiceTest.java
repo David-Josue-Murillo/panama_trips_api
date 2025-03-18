@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -128,13 +129,13 @@ public class DistrictServiceTest {
     void saveDistrict_shouldThrowExceptionWhenNotFoundProvince() {
         // Given
         DistrictRequest request = new DistrictRequest("Almirante", 1);
-        when(provinceRepository.findById(1)).thenReturn(Optional.empty());
+        when(provinceRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         // When
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> districtService.saveDistrict(request));
 
         // Then
-        assertEquals("Province not found with id 1", exception.getMessage());
+        assertEquals("Province with id 1 not found", exception.getMessage());
     }
 
     @Test

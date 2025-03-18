@@ -23,26 +23,20 @@ public class UserEntityService implements IUserEntityService {
     private final UserEntityRepository userEntityRepository;
     private final RoleRepository roleRepository;
 
-    private void validateUser(String email) {
-        if(this.userEntityRepository.findUserEntitiesByEmail(email).isPresent()) {
-            throw new ValidationException("Email already exists: " + email);
-        }
-    }
-
     @Override
     @Transactional(readOnly = true)
     public Page<UserResponse> getAllUser(Integer page, Integer size, Boolean enabledPagination) {
         Pageable pageable = enabledPagination
                 ? PageRequest.of(page, size)
                 : Pageable.unpaged();
-        return userEntityRepository.findAll(pageable).map(this::convertToResponseDTO);
+        return userEntityRepository.findAll(pageable).map(UserResponse::new);
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
         return userEntityRepository.findById(id)
-                .map(this::convertToResponseDTO)
+                .map(UserResponse::new)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
     }
 
@@ -50,15 +44,8 @@ public class UserEntityService implements IUserEntityService {
     @Transactional
     public UserResponse saveUser(UserRequest userRequest) {
         validateUser(userRequest.email());
-        UserEntity userEntity = new UserEntity();
-        userEntity.setName(userRequest.name());
-        userEntity.setLastname(userRequest.lastname());
-        userEntity.setEmail(userRequest.email());
-        userEntity.setDni(userRequest.dni());
-        userEntity.setPasswordHash(userRequest.password());
-        userEntity.setProfileImageUrl(userRequest.profileImageUrl());
-        userEntity.setRole_id(this.roleRepository.findByRoleEnum(RoleEnum.CUSTOMER));
-        return this.convertToResponseDTO(userEntityRepository.save(userEntity));
+        UserEntity userEntity = builderUserEntityFromRequest(userRequest);
+        return new UserResponse((userEntityRepository.save(userEntity)));
     }
 
     @Override
@@ -66,39 +53,44 @@ public class UserEntityService implements IUserEntityService {
     public UserResponse updateUser(Long id, UserRequest userRequest) {
         UserEntity existingUser = userEntityRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+        updateUserEntityFields(existingUser, userRequest);
+        return new UserResponse(userEntityRepository.save(existingUser));
+    }
 
+    @Override
+    @Transactional
+    public void deleteUser(Long id) {
+        if(!this.userEntityRepository.existsById(id)){
+            throw new UserNotFoundException("User not found with id: " + id);
+        }
+        this.userEntityRepository.deleteById(id);
+    }
+
+    // Private methods
+    private void validateUser(String email) {
+        if(this.userEntityRepository.findUserEntitiesByEmail(email).isPresent()) {
+            throw new ValidationException("Email already exists: " + email);
+        }
+    }
+
+    private UserEntity builderUserEntityFromRequest(UserRequest userRequest) {
+        return UserEntity.builder()
+                .name(userRequest.name())
+                .lastname(userRequest.lastname())
+                .email(userRequest.email())
+                .dni(userRequest.dni())
+                .passwordHash(userRequest.password())
+                .profileImageUrl(userRequest.profileImageUrl())
+                .role_id(this.roleRepository.findByRoleEnum(RoleEnum.CUSTOMER))
+                .build();
+    }
+
+    private void updateUserEntityFields(UserEntity existingUser, UserRequest userRequest) {
         existingUser.setDni(userRequest.dni());
         existingUser.setName(userRequest.name());
         existingUser.setLastname(userRequest.lastname());
         existingUser.setEmail(userRequest.email());
         existingUser.setPasswordHash(userRequest.password());
         existingUser.setProfileImageUrl(userRequest.profileImageUrl());
-
-        return this.convertToResponseDTO(userEntityRepository.save(existingUser));
-    }
-
-    @Override
-    @Transactional
-    public void deleteUser(Long id) {
-        UserEntity existingUser = userEntityRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
-        userEntityRepository.delete(existingUser);
-    }
-
-    private UserResponse convertToResponseDTO(UserEntity user) {
-
-        return new UserResponse(
-                user.getId(),
-                user.getDni(),
-                user.getName(),
-                user.getLastname(),
-                user.getEmail(),
-                user.getProfileImageUrl(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                user.getCreatedBy(),
-                user.getUpdatedBy(),
-                user.getRole_id().getId()
-        );
     }
 }
