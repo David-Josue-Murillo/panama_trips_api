@@ -17,12 +17,6 @@ public class ProvinceService implements IProvinceService {
 
     private final ProvinceRepository provinceRepository;
 
-    private void validateProvince(String provinceName) {
-        if(provinceRepository.findByName(provinceName).isPresent()) {
-            throw new IllegalArgumentException("Province with name " + provinceName + " already exists");
-        }
-    }
-
     @Override
     @Transactional(readOnly = true)
     public List<ProvinceResponse> getAllProvinces() {
@@ -48,9 +42,8 @@ public class ProvinceService implements IProvinceService {
     @Override
     @Transactional
     public ProvinceResponse saveProvince(ProvinceRequest provinceRequest) {
-        this.validateProvince(provinceRequest.name());
-        Province province = new Province();
-        province.setName(provinceRequest.name());
+        validateProvince(provinceRequest.name());
+        Province province = builderProvinceFromRequest(provinceRequest);
         return new ProvinceResponse((this.provinceRepository.save(province)));
     }
 
@@ -59,8 +52,7 @@ public class ProvinceService implements IProvinceService {
     public ProvinceResponse updateProvince(Integer id, ProvinceRequest provinceRequest) {
         Province provinceExisting = this.provinceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Province not found with id " + id));
-        validateProvince(provinceRequest.name());
-        provinceExisting.setName(provinceRequest.name());
+        updateProvinceFields(provinceExisting, provinceRequest);
         return new ProvinceResponse(this.provinceRepository.save(provinceExisting));
     }
 
@@ -72,4 +64,23 @@ public class ProvinceService implements IProvinceService {
         }
         this.provinceRepository.deleteById(id);
     }
+
+    // Methods private
+    private void validateProvince(String provinceName) {
+        if(provinceRepository.findByName(provinceName).isPresent()) {
+            throw new IllegalArgumentException("Province with name " + provinceName + " already exists");
+        }
+    }
+
+    private Province builderProvinceFromRequest(ProvinceRequest request) {
+        return Province.builder()
+                .name(request.name())
+                .build();
+    }
+
+    private void updateProvinceFields(Province province, ProvinceRequest request) {
+        validateProvince(request.name());
+        province.setName(request.name());
+    }
+
 }
