@@ -29,14 +29,14 @@ public class DistrictService implements IDistrictService {
     @Override
     @Transactional(readOnly = true)
     public List<DistrictResponse> getAllDistricts() {
-        return this.districtRepository.findAll().stream().map(this::convertToResponse).toList();
+        return this.districtRepository.findAll().stream().map(DistrictResponse::new).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public DistrictResponse getDistrictById(Integer id) {
         return this.districtRepository.findById(id)
-                .map(this::convertToResponse)
+                .map(DistrictResponse::new)
                 .orElseThrow(() -> new ResourceNotFoundException("District not found with id " + id));
     }
 
@@ -44,7 +44,7 @@ public class DistrictService implements IDistrictService {
     @Transactional(readOnly = true)
     public DistrictResponse getDistrictByName(String name) {
         return this.districtRepository.findByName(name)
-                .map(this::convertToResponse)
+                .map(DistrictResponse::new)
                 .orElseThrow(() -> new ResourceNotFoundException("District not found with name " + name));
     }
 
@@ -52,7 +52,7 @@ public class DistrictService implements IDistrictService {
     @Transactional(readOnly = true)
     public List<DistrictResponse> getDistrictsByProvinceId(Integer provinceId) {
         List<District> districts = this.districtRepository.findDistrictByProvinceId_Id(provinceId);
-        return districts.isEmpty() ? null : districts.stream().map(this::convertToResponse).toList();
+        return districts.isEmpty() ? null : districts.stream().map(DistrictResponse::new).toList();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class DistrictService implements IDistrictService {
         District district = new District();
         district.setName(districtRequest.name());
         district.setProvince(province);
-        return convertToResponse(this.districtRepository.save(district));
+        return new DistrictResponse(this.districtRepository.save(district));
     }
 
     @Override
@@ -78,7 +78,7 @@ public class DistrictService implements IDistrictService {
 
         existingDistrict.setName(districtRequest.name());
         existingDistrict.setProvince(province);
-        return convertToResponse(this.districtRepository.save(existingDistrict));
+        return new DistrictResponse(this.districtRepository.save(existingDistrict));
     }
 
     @Override
@@ -88,9 +88,5 @@ public class DistrictService implements IDistrictService {
             throw new ResourceNotFoundException("District not found with id " + id);
         }
         this.districtRepository.deleteById(id);
-    }
-
-    private DistrictResponse convertToResponse(District district) {
-        return new DistrictResponse(district.getId(), district.getName(), district.getProvince().getId());
     }
 }
