@@ -7,8 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -59,7 +59,7 @@ public class AddressController {
 
     @PostMapping
     public ResponseEntity<AddressResponse> saveAddress(@Valid @RequestBody AddressRequest addressRequest) {
-        return ResponseEntity.ok(this.addressService.saveAddress(addressRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.addressService.saveAddress(addressRequest));
     }
 
     @PutMapping("/{id}")
