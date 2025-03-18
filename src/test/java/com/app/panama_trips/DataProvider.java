@@ -405,31 +405,6 @@ public class DataProvider {
     );
 
 
-    /**
-     * Street instances
-     * Here we have three streets, one for each district
-     *
-     */
-    public static Street streetOneMock = new Street(1, "Street One", districtAlmiranteMock);
-    public static Street streetTwoMock = new Street(2, "Street Two", districtBocasMock);
-    public static Street streetThreeMock = new Street(3, "Street Three", districtChanguinolaMock);
-
-    public static List<Street> streetListsMock = List.of(
-            streetOneMock,
-            streetTwoMock,
-            streetThreeMock
-    );
-
-    public static List<StreetResponse> streetResponseListsMock = List.of(
-            new StreetResponse(1, "Street One", 1),
-            new StreetResponse(2, "Street Two", 2),
-            new StreetResponse(3, "Street Three", 3)
-    );
-
-    public static StreetRequest streetRequestOneMock = new StreetRequest("Street One", 1);
-    public static StreetResponse streetResponseOneMock = streetResponseListsMock.getFirst();
-
-
 
     /*
     * Address instances
@@ -437,7 +412,7 @@ public class DataProvider {
      */
     public static Address addressOneMock = Address.builder()
             .addressId(1)
-            .street(streetOneMock.getName())
+            .street("Street One")
             .postalCode("1111")
             .district(districtAlmiranteMock)
             .additionalInfo("Additional info")
@@ -445,7 +420,7 @@ public class DataProvider {
 
     public static Address addressTwoMock = Address.builder()
             .addressId(2)
-            .street(streetTwoMock.getName())
+            .street("Street Two")
             .postalCode("2222")
             .district(districtBocasMock)
             .additionalInfo("Additional info")
@@ -453,7 +428,7 @@ public class DataProvider {
 
     public static Address addressThreeMock = Address.builder()
             .addressId(3)
-            .street(streetThreeMock.getName())
+            .street("Street Three")
             .postalCode("3333")
             .district(districtChanguinolaMock)
             .additionalInfo("Additional info")
