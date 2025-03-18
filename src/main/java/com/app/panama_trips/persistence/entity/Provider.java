@@ -40,8 +40,8 @@ public class Provider {
     private District districtId;
 
     @ManyToOne
-    @JoinColumn(name = "street_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_provider_street"))
-    private Street streetId;
+    @JoinColumn(name = "address_id", referencedColumnName = "address_id", foreignKey = @ForeignKey(name = "fk_provider_address"))
+    private Address streetId;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
