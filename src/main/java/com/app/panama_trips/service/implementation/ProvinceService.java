@@ -26,14 +26,14 @@ public class ProvinceService implements IProvinceService {
     @Override
     @Transactional(readOnly = true)
     public List<ProvinceResponse> getAllProvinces() {
-        return this.provinceRepository.findAll().stream().map(this::convertToResponseDTO).toList();
+        return this.provinceRepository.findAll().stream().map(ProvinceResponse::new).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public ProvinceResponse getProvinceById(Integer id) {
         return this.provinceRepository.findById(id)
-                .map(this::convertToResponseDTO)
+                .map(ProvinceResponse::new)
                 .orElseThrow(() -> new ResourceNotFoundException("Province not found with id " + id));
     }
 
@@ -41,7 +41,7 @@ public class ProvinceService implements IProvinceService {
     @Transactional(readOnly = true)
     public ProvinceResponse getProvinceByName(String name) {
         return this.provinceRepository.findByName(name)
-                .map(this::convertToResponseDTO)
+                .map(ProvinceResponse::new)
                 .orElseThrow(() -> new ResourceNotFoundException("Province not found with name " + name));
     }
 
@@ -51,7 +51,7 @@ public class ProvinceService implements IProvinceService {
         this.validateProvince(provinceRequest.name());
         Province province = new Province();
         province.setName(provinceRequest.name());
-        return convertToResponseDTO(this.provinceRepository.save(province));
+        return new ProvinceResponse((this.provinceRepository.save(province)));
     }
 
     @Override
@@ -61,7 +61,7 @@ public class ProvinceService implements IProvinceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Province not found with id " + id));
         validateProvince(provinceRequest.name());
         provinceExisting.setName(provinceRequest.name());
-        return convertToResponseDTO(this.provinceRepository.save(provinceExisting));
+        return new ProvinceResponse(this.provinceRepository.save(provinceExisting));
     }
 
     @Override
@@ -71,9 +71,5 @@ public class ProvinceService implements IProvinceService {
             throw new ResourceNotFoundException("Province not found with id " + id);
         }
         this.provinceRepository.deleteById(id);
-    }
-
-    private ProvinceResponse convertToResponseDTO(Province province) {
-        return new ProvinceResponse(province.getId(), province.getName());
     }
 }
