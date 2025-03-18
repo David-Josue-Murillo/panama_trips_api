@@ -20,11 +20,6 @@ public class DistrictService implements IDistrictService {
     private final DistrictRepository districtRepository;
     private final ProvinceRepository provinceRepository;
 
-    private void validateDistricts(DistrictRequest districtRequest) {
-        if (districtRepository.findByNameAndProvinceId_Id(districtRequest.name(), districtRequest.provinceId()).isPresent()) {
-            throw new IllegalArgumentException("District with name " + districtRequest.name() + " already exists in the province");
-        }
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -58,13 +53,8 @@ public class DistrictService implements IDistrictService {
     @Override
     @Transactional
     public DistrictResponse saveDistrict(DistrictRequest districtRequest) {
-        this.validateDistricts(districtRequest);
-        Province province = this.provinceRepository.findById(districtRequest.provinceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Province not found with id " + districtRequest.provinceId()));
-
-        District district = new District();
-        district.setName(districtRequest.name());
-        district.setProvince(province);
+        validateDistricts(districtRequest);
+        District district = builderDistrictFromRequest(districtRequest);
         return new DistrictResponse(this.districtRepository.save(district));
     }
 
@@ -73,11 +63,8 @@ public class DistrictService implements IDistrictService {
     public DistrictResponse updateDistrict(Integer id, DistrictRequest districtRequest) {
         District existingDistrict = this.districtRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("District not found with id " + id));
-        Province province = this.provinceRepository.findById(districtRequest.provinceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Province not found with id " + districtRequest.provinceId()));
 
-        existingDistrict.setName(districtRequest.name());
-        existingDistrict.setProvince(province);
+        updateDistrictFields(existingDistrict, districtRequest);
         return new DistrictResponse(this.districtRepository.save(existingDistrict));
     }
 
@@ -88,5 +75,29 @@ public class DistrictService implements IDistrictService {
             throw new ResourceNotFoundException("District not found with id " + id);
         }
         this.districtRepository.deleteById(id);
+    }
+
+    // Private methods
+    private void validateDistricts(DistrictRequest districtRequest) {
+        if (districtRepository.findByNameAndProvinceId_Id(districtRequest.name(), districtRequest.provinceId()).isPresent()) {
+            throw new IllegalArgumentException("District with name " + districtRequest.name() + " already exists in the province");
+        }
+    }
+
+    private District builderDistrictFromRequest(DistrictRequest request) {
+        return District.builder()
+                .name(request.name())
+                .province(findProvinceOrFail(request.provinceId()))
+                .build();
+    }
+
+    private Province findProvinceOrFail(Integer provinceId) {
+        return this.provinceRepository.findById(provinceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Province with id " + provinceId + " not found"));
+    }
+
+    private void updateDistrictFields(District district, DistrictRequest request) {
+        district.setName(request.name());
+        district.setProvince(findProvinceOrFail(request.provinceId()));
     }
 }
