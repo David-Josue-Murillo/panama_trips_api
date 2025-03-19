@@ -93,8 +93,8 @@ public class ProviderService implements IProvideService {
     @Override
     @Transactional(readOnly = true)
     public ProviderResponse getProviderByPhone(String phone) {
-        return new ProviderResponse(this.providerRepository.findByPhone(phone)
-                .orElseThrow(() -> new ResourceNotFoundException("Provider with " + phone + " not found")));
+        return new ProviderResponse(this.providerRepository.findByPhone(formatPhone(phone))
+                .orElseThrow(() -> new ResourceNotFoundException("Provider with " + formatPhone(phone) + " not found")));
     }
 
     @Override
@@ -193,5 +193,13 @@ public class ProviderService implements IProvideService {
         existingProvider.setProvince(findProvinceOrFail(provider.provinceId()));
         existingProvider.setDistrict(findDistrictOrFail(provider.districtId()));
         existingProvider.setAddress(findAddressOrFail(provider.addressId()));
+    }
+
+    private String formatPhone(String phone) {
+        if(phone.startsWith("6")){
+            return phone.replace("6","+5076");
+        }
+
+        return "+" + phone;
     }
 }
