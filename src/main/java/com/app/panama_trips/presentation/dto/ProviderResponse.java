@@ -22,7 +22,7 @@ public record ProviderResponse(
                 provider.getPhone(),
                 provider.getProvince().getId(),
                 provider.getDistrict().getId(),
-                provider.getStreet().getAddressId(),
+                provider.getAddress().getAddressId(),
                 provider.getCreatedAt().toString()
         );
     }
