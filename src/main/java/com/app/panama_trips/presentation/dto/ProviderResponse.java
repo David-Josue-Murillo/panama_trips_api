@@ -8,9 +8,9 @@ public record ProviderResponse(
         String name,
         String email,
         String phone,
-        Integer provinceId,
-        Integer districtId,
-        Integer streetId,
+        String province,
+        String district,
+        String street,
         String createdAt
 ) {
     public ProviderResponse(Provider provider) {
@@ -20,9 +20,9 @@ public record ProviderResponse(
                 provider.getName(),
                 provider.getEmail(),
                 provider.getPhone(),
-                provider.getProvince().getId(),
-                provider.getDistrict().getId(),
-                provider.getAddress().getAddressId(),
+                provider.getProvince().getName(),
+                provider.getDistrict().getName(),
+                provider.getAddress().getStreet(),
                 provider.getCreatedAt().toString()
         );
     }
