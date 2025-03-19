@@ -22,6 +22,4 @@ public interface ProviderRepository extends JpaRepository<Provider, Integer> {
 
     boolean existsProviderByRuc(String ruc);
     boolean existsProviderByEmail(String email);
-
-    Long countProviders();
 }
