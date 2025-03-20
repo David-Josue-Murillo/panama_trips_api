@@ -449,4 +449,64 @@ public class DataProvider {
             new AddressResponse(addressThreeMock)
     );
 
+
+    /*
+     * Provider instances
+     *
+     */
+
+    public static Provider providerOneMock = Provider.builder()
+            .id(1)
+            .ruc("1-111-1111")
+            .name("Provider One")
+            .email("provideone@example.com")
+            .phone("+50761011111")
+            .province(provinceCocleMock)
+            .district(districtAlmiranteMock)
+            .address(addressOneMock)
+            .build();
+
+    public static Provider providerTwoMock = Provider.builder()
+            .id(2)
+            .ruc("2-222-2222")
+            .name("Provider Two")
+            .email("providertwo@example.com")
+            .phone("+50761022222")
+            .province(provinceColonMock)
+            .district(districtBocasMock)
+            .address(addressTwoMock)
+            .build();
+
+    public static Provider providerThreeMock = Provider.builder()
+            .id(3)
+            .ruc("3-333-3333")
+            .name("Provider Three")
+            .email("providerthree@example.com")
+            .phone("+50761033333")
+            .province(provinceCocleMock)
+            .district(districtChanguinolaMock)
+            .address(addressThreeMock)
+            .build();
+
+    public static List<Provider> providerListsMock = List.of(
+            providerOneMock,
+            providerTwoMock,
+            providerThreeMock
+    );
+
+    public static ProviderResponse providerResponseMock = new ProviderResponse(providerOneMock);
+    public static ProviderRequest providerRequestMock = new ProviderRequest(
+            "1-111-1111",
+            "Provider One",
+            "providertwo@example.com",
+            "+50761011111",
+            2,
+            1,
+            1);
+
+    public static List<ProviderResponse> providerResponseListMocks = List.of(
+            new ProviderResponse(providerOneMock),
+            new ProviderResponse(providerTwoMock),
+            new ProviderResponse(providerThreeMock)
+    );
 }
