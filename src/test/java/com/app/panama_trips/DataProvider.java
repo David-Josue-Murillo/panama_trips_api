@@ -2,6 +2,8 @@ package com.app.panama_trips;
 
 import com.app.panama_trips.persistence.entity.*;
 import com.app.panama_trips.presentation.dto.*;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -464,6 +466,7 @@ public class DataProvider {
             .province(provinceCocleMock)
             .district(districtAlmiranteMock)
             .address(addressOneMock)
+            .createdAt(LocalDateTime.now())
             .build();
 
     public static Provider providerTwoMock = Provider.builder()
@@ -475,6 +478,7 @@ public class DataProvider {
             .province(provinceColonMock)
             .district(districtBocasMock)
             .address(addressTwoMock)
+            .createdAt(LocalDateTime.now())
             .build();
 
     public static Provider providerThreeMock = Provider.builder()
@@ -486,6 +490,7 @@ public class DataProvider {
             .province(provinceCocleMock)
             .district(districtChanguinolaMock)
             .address(addressThreeMock)
+            .createdAt(LocalDateTime.now())
             .build();
 
     public static List<Provider> providerListsMock = List.of(
