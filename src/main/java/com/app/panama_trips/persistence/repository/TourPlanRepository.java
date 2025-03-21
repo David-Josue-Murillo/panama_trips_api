@@ -26,7 +26,7 @@ public interface TourPlanRepository extends JpaRepository<TourPlan, Integer> {
     List<TourPlan> findByAvailableSpots(Integer availableSpots);
     Page<TourPlan> findByAvailableSpotsBetween(Integer availableSpotsAfter, Integer availableSpotsBefore, Pageable pageable);
 
-    List<TourPlan> findByProviderId_Id(Integer providerId);
+    List<TourPlan> findByProvider_Id(Integer providerId);
 
     List<TourPlan> findByTitleContainingIgnoreCaseAndPrice(String title, BigDecimal price);
     Page<TourPlan> findByTitleContainingIgnoreCaseAndPriceBetween(String title, BigDecimal priceAfter, BigDecimal priceBefore, Pageable pageable);
