@@ -11,8 +11,11 @@ public record TourPlanResponse(
         BigDecimal price,
         Integer duration,
         Integer availableSpots,
-        LocalDateTime createdAt,
-        ProviderResponse provider
+        String providerName,
+        String providerEmail,
+        String providerPhone,
+        String address,
+        LocalDateTime createdAt
 ) {
     public TourPlanResponse(TourPlan tourPlan) {
         this(
@@ -22,8 +25,11 @@ public record TourPlanResponse(
                 tourPlan.getPrice(),
                 tourPlan.getDuration(),
                 tourPlan.getAvailableSpots(),
-                tourPlan.getCreatedAt(),
-                new ProviderResponse(tourPlan.getProviderId())
+                tourPlan.getProvider().getName(),
+                tourPlan.getProvider().getEmail(),
+                tourPlan.getProvider().getPhone(),
+                tourPlan.getProvider().getAddress().toString(),
+                tourPlan.getCreatedAt()
         );
     }
 }
