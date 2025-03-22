@@ -28,7 +28,7 @@ public record TourPlanResponse(
                 tourPlan.getProvider().getName(),
                 tourPlan.getProvider().getEmail(),
                 tourPlan.getProvider().getPhone(),
-                tourPlan.getProvider().getAddress().toString(),
+                tourPlan.getProvider().getAddress().getStreet(),
                 tourPlan.getCreatedAt()
         );
     }
