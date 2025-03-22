@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Entity
 @Table(name = "providers")
 public class Provider {
@@ -33,15 +33,15 @@ public class Provider {
 
     @ManyToOne
     @JoinColumn(name = "province_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_provider_province"))
-    private Province provinceId;
+    private Province province;
 
     @ManyToOne
     @JoinColumn(name = "district_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_provider_district"))
-    private District districtId;
+    private District district;
 
     @ManyToOne
     @JoinColumn(name = "address_id", referencedColumnName = "address_id", foreignKey = @ForeignKey(name = "fk_provider_address"))
-    private Address streetId;
+    private Address address;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
