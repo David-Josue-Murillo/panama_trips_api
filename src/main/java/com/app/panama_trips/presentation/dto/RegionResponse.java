@@ -14,8 +14,8 @@ public record RegionResponse(
         this(
                 region.getId(),
                 region.getName(),
-                region.getProvinceId() != null ? region.getProvinceId().getName() : null,
-                region.getProvinceId() != null ? region.getProvinceId().getId() : null,
+                region.getProvince() != null ? region.getProvince().getName() : null,
+                region.getProvince() != null ? region.getProvince().getId() : null,
                 region.getComarca() != null ? region.getComarca().getName() : null,
                 region.getComarca() != null ? region.getComarca().getId() : null
         );
