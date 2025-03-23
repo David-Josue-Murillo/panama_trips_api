@@ -38,7 +38,7 @@ public class TourPlan {
 
     @ManyToOne
     @JoinColumn(name = "provider_id", nullable = false, foreignKey = @ForeignKey(name = "fk_tour_plan_provider"))
-    private Provider providerId;
+    private Provider provider;
 
     @PrePersist
     protected void prePersist() {

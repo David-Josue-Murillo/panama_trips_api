@@ -2,6 +2,9 @@ package com.app.panama_trips;
 
 import com.app.panama_trips.persistence.entity.*;
 import com.app.panama_trips.presentation.dto.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -449,4 +452,129 @@ public class DataProvider {
             new AddressResponse(addressThreeMock)
     );
 
+
+    /*
+     * Provider instances
+     *
+     */
+
+    public static Provider providerOneMock = Provider.builder()
+            .id(1)
+            .ruc("1-111-1111")
+            .name("Provider One")
+            .email("provideone@example.com")
+            .phone("+50761011111")
+            .province(provinceCocleMock)
+            .district(districtAlmiranteMock)
+            .address(addressOneMock)
+            .createdAt(LocalDateTime.now())
+            .build();
+
+    public static Provider providerTwoMock = Provider.builder()
+            .id(2)
+            .ruc("2-222-2222")
+            .name("Provider Two")
+            .email("providertwo@example.com")
+            .phone("+50761022222")
+            .province(provinceColonMock)
+            .district(districtBocasMock)
+            .address(addressTwoMock)
+            .createdAt(LocalDateTime.now())
+            .build();
+
+    public static Provider providerThreeMock = Provider.builder()
+            .id(3)
+            .ruc("3-333-3333")
+            .name("Provider Three")
+            .email("providerthree@example.com")
+            .phone("+50761033333")
+            .province(provinceCocleMock)
+            .district(districtChanguinolaMock)
+            .address(addressThreeMock)
+            .createdAt(LocalDateTime.now())
+            .build();
+
+    public static List<Provider> providerListsMock = List.of(
+            providerOneMock,
+            providerTwoMock,
+            providerThreeMock
+    );
+
+    public static ProviderResponse providerResponseMock = new ProviderResponse(providerOneMock);
+    public static ProviderRequest providerRequestMock = new ProviderRequest(
+            "1-111-1111",
+            "Provider One",
+            "providertwo@example.com",
+            "+50761011111",
+            2,
+            1,
+            1);
+
+    public static List<ProviderResponse> providerResponseListMocks = List.of(
+            new ProviderResponse(providerOneMock),
+            new ProviderResponse(providerTwoMock),
+            new ProviderResponse(providerThreeMock)
+    );
+
+
+
+    /*
+    * TourPlan instances
+    *
+    *
+     */
+
+    public static TourPlan tourPlanOneMock = TourPlan.builder()
+            .id(1)
+            .title("Tour Plan One")
+            .description("Description One")
+            .price(BigDecimal.valueOf(100.00))
+            .duration(1)
+            .availableSpots(10)
+            .provider(providerOneMock)
+            .createdAt(LocalDateTime.now())
+            .build();
+
+    public static TourPlan tourPlanTwoMock = TourPlan.builder()
+            .id(2)
+            .title("Tour Plan Two")
+            .description("Description Two")
+            .price(BigDecimal.valueOf(200.00))
+            .duration(2)
+            .availableSpots(20)
+            .provider(providerTwoMock)
+            .createdAt(LocalDateTime.now())
+            .build();
+
+    public static TourPlan tourPlanThreeMock = TourPlan.builder()
+            .id(3)
+            .title("Tour Plan Three")
+            .description("Description Three")
+            .price(BigDecimal.valueOf(300.00))
+            .duration(3)
+            .availableSpots(30)
+            .provider(providerThreeMock)
+            .createdAt(LocalDateTime.now())
+            .build();
+
+    public static List<TourPlan> tourPlanListsMock = List.of(
+            tourPlanOneMock,
+            tourPlanTwoMock,
+            tourPlanThreeMock
+    );
+
+    public static TourPlanResponse tourPlanResponseMock = new TourPlanResponse(tourPlanOneMock);
+    public static TourPlanRequest tourPlanRequestMock = new TourPlanRequest(
+            "Tour Plan One",
+            "Description One",
+            BigDecimal.valueOf(100.00),
+            1,
+            10,
+            1);
+
+    public static List<TourPlanResponse> tourPlanResponseListMocks = List.of(
+            new TourPlanResponse(tourPlanOneMock),
+            new TourPlanResponse(tourPlanTwoMock),
+            new TourPlanResponse(tourPlanThreeMock)
+    );
 }
