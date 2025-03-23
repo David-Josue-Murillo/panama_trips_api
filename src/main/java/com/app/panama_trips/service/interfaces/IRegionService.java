@@ -18,5 +18,6 @@ public interface IRegionService {
     Page<RegionResponse> getRegionsByName(String name, Pageable pageable);
     Page<RegionResponse> getRegionByProvinceId(Integer provinceId, Pageable pageable);
     Page<RegionResponse> getRegionByComarcaId(Integer comarcaId, Pageable pageable);
+    Long countRegions();
     boolean existsRegionByName(String name);
 }

@@ -82,6 +82,11 @@ public class RegionService implements IRegionService {
     }
 
     @Override
+    public Long countRegions() {
+        return this.regionRepository.count();
+    }
+
+    @Override
     public boolean existsRegionByName(String name) {
         return this.regionRepository.existsByNameIgnoreCase(name);
     }
