@@ -16,7 +16,7 @@ public interface IRegionService {
     // Additional service methods
     RegionResponse getRegionByName(String name);
     Page<RegionResponse> getRegionsByName(String name, Pageable pageable);
-    Page<RegionResponse> getRegionByProvinceId(Integer provinceId);
-    Page<RegionResponse> getRegionByComarcaId(Integer comarcaId);
+    Page<RegionResponse> getRegionByProvinceId(Integer provinceId, Pageable pageable);
+    Page<RegionResponse> getRegionByComarcaId(Integer comarcaId, Pageable pageable);
     boolean existsRegionByName(String name);
 }
