@@ -1,6 +1,5 @@
 package com.app.panama_trips.presentation.controller;
 
-import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.presentation.dto.RegionRequest;
 import com.app.panama_trips.presentation.dto.RegionResponse;
