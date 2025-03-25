@@ -577,4 +577,72 @@ public class DataProvider {
             new TourPlanResponse(tourPlanTwoMock),
             new TourPlanResponse(tourPlanThreeMock)
     );
+
+    /*
+    * Comarca instances
+    *
+    *
+     */
+
+    public static Comarca comarcaOneMock = Comarca.builder()
+            .id(1)
+            .name("Comarca One")
+            .build();
+
+    public static Comarca comarcaTwoMock = Comarca.builder()
+            .id(2)
+            .name("Comarca Two")
+            .build();
+
+    public static Comarca comarcaThreeMock = Comarca.builder()
+            .id(3)
+            .name("Comarca Three")
+            .build();
+
+    public static List<Comarca> comarcaListsMock = List.of(
+            comarcaOneMock,
+            comarcaTwoMock,
+            comarcaThreeMock
+    );
+
+    /*
+     * Region Instance
+     *
+     *
+     */
+
+    public static Region regionOneMock = Region.builder()
+            .id(1)
+            .name("Region One")
+            .province(provinceBocasMock)
+            .comarca(comarcaOneMock)
+            .build();
+
+    public static Region regionTwoMock = Region.builder()
+            .id(2)
+            .name("Region Two")
+            .province(provinceCocleMock)
+            .comarca(comarcaTwoMock)
+            .build();
+
+    public static Region regionThreeMock = Region.builder()
+            .id(3)
+            .name("Region Three")
+            .province(provinceColonMock)
+            .comarca(comarcaThreeMock)
+            .build();
+
+    public static List<Region> regionListsMock = List.of(
+            regionOneMock,
+            regionTwoMock,
+            regionThreeMock
+    );
+
+    public static RegionResponse regionResponseMock = new RegionResponse(regionOneMock);
+    public static RegionRequest regionRequestMock = new RegionRequest("Region One", 1, 1);
+    public static List<RegionResponse> regionResponseListMocks = List.of(
+            new RegionResponse(regionOneMock),
+            new RegionResponse(regionTwoMock),
+            new RegionResponse(regionThreeMock)
+    );
 }
