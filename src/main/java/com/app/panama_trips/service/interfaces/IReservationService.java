@@ -28,7 +28,6 @@ public interface IReservationService {
 
     // Searches by dates
     Page<ReservationResponse> getReservationsBetweenDates(LocalDate startDate, LocalDate endDate, Pageable pageable);
-    Page<ReservationResponse> getUpcomingReservations(Pageable pageable);
     Page<ReservationResponse> getReservationsByMonth(short month, Pageable pageable);
     Page<ReservationResponse> getReservationsByYear(int year, Pageable pageable);
 
@@ -39,10 +38,11 @@ public interface IReservationService {
     // Special searches
     Page<ReservationResponse> getRecentReservationsByUser(Long userId, LocalDate recentDate, Pageable pageable);
     Page<ReservationResponse> getReservationsByDayOfWeek(int dayOfWeek, Pageable pageable);
-    Page<ReservationResponse> getReservationsByRegion(Integer regionId, Pageable pageable);
+    Page<ReservationResponse> getReservationsByProvince(Integer ProvinceId, Pageable pageable);
 
     // Counting and statistical operations
     Long countReservationsByStatus(ReservationStatus status);
+    Long countReservationsByTourPlan(Integer tourPlanId);
     Object[] getReservationStatistics();
 
     // Status change
