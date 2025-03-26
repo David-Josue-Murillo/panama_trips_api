@@ -13,25 +13,30 @@ import java.time.LocalDate;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
+    // Search by user, travel plan, status, and date
     Page<Reservation> findByUser_Id(Long userId, Pageable pageable);
-    Page<Reservation> findByUser_IdAndReservationStatus(Long userId, ReservationStatus reservationStatus, Pageable pageable);
     Page<Reservation> findByTourPlan_Id(Integer tourPlanId, Pageable pageable);
-    Page<Reservation> findByTourPlan_IdAndReservationStatus(Integer tourPlanId, ReservationStatus reservationStatus, Pageable pageable);
     Page<Reservation> findByReservationStatus(ReservationStatus reservationStatus, Pageable pageable);
+    Page<Reservation> findByReservationDate(LocalDate reservationDate, Pageable pageable);
 
-    // Contar reservas por estado
+    // Searched by user and status, travel plan and status
+    Page<Reservation> findByUser_IdAndReservationStatus(Long userId, ReservationStatus reservationStatus, Pageable pageable);
+    Page<Reservation> findByTourPlan_IdAndReservationStatus(Integer tourPlanId, ReservationStatus reservationStatus, Pageable pageable);
+
+    // Count reservations by status and travel plan
     Long countByReservationStatus(ReservationStatus reservationStatus);
-
-    // Contar reservas por tour
     Long countByTourPlan_Id(Integer tourPlanId);
 
+    // Search by date range, month, year
     Page<Reservation> findByReservationDateBetween(LocalDate reservationDateAfter, LocalDate reservationDateBefore, Pageable pageable);
     Page<Reservation> findByReservationDate_Month(short reservationDateMonth, Pageable pageable);
     Page<Reservation> findByReservationDate_Year(int reservationDateYear, Pageable pageable);
+
+    // Search by price
     Page<Reservation> findByTotalPriceGreaterThan(BigDecimal totalPriceIsGreaterThan, Pageable pageable);
     Page<Reservation> findByTotalPriceBetween(BigDecimal totalPriceAfter, BigDecimal totalPriceBefore, Pageable pageable);
 
-    // Buscar por rango de precios con estado específico
+    // Search by price range with specific status
     Page<Reservation> findByTotalPriceBetweenAndReservationStatus(
             BigDecimal minPrice,
             BigDecimal maxPrice,
@@ -39,7 +44,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
             Pageable pageable
     );
 
-    // Consulta personalizada para buscar reservas recientes de un usuario
+    // Custom query to search for a user's recent reservations
     @Query("SELECT r FROM Reservation r WHERE r.user.id = :userId AND r.createdAt >= :recentDate")
     Page<Reservation> findRecentReservationsByUser(
             @Param("userId") Long userId,
@@ -47,15 +52,15 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
             Pageable pageable
     );
 
-    // Buscar reservas por día de la semana
+    // Search for reservations by day of the week
     @Query("SELECT r FROM Reservation r WHERE DAYOFWEEK(r.reservationDate) = :dayOfWeek")
     Page<Reservation> findByDayOfWeek(@Param("dayOfWeek") int dayOfWeek, Pageable pageable);
 
-    // Buscar reservas de tours en una región específica
+    // Search for tour reservations in a specific province
     @Query("SELECT r FROM Reservation r JOIN r.tourPlan tp JOIN tp.provider.province reg WHERE reg.id = :provinceId")
     Page<Reservation> findByRegion(@Param("provinceId") Integer provinceId, Pageable pageable);
 
-    // Estadísticas de reservas
+    // Booking statistics
     @Query("SELECT " +
             "COUNT(r) as totalReservations, " +
             "AVG(r.totalPrice) as averagePrice, " +
