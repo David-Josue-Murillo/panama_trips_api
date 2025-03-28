@@ -11,10 +11,10 @@ import java.time.LocalDate;
 public interface IReservationService {
     // CRUD operations
     Page<ReservationResponse> getAllReservations(Pageable pageable);
-    ReservationResponse getReservationById(Long id);
+    ReservationResponse getReservationById(Integer id);
     ReservationResponse saveReservation(ReservationResponse reservationResponse);
-    ReservationResponse updateReservation(Long id, ReservationResponse reservationResponse);
-    void deleteReservation(Long id);
+    ReservationResponse updateReservation(Integer id, ReservationResponse reservationResponse);
+    void deleteReservation(Integer id);
 
     // Additional service methods
     Page<ReservationResponse> getReservationByUserId(Long userId, Pageable pageable);
