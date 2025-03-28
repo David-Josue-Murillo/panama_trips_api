@@ -26,6 +26,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     // Count reservations by status and travel plan
     Long countByReservationStatus(ReservationStatus reservationStatus);
     Long countByTourPlan_Id(Integer tourPlanId);
+    boolean existsByUser_IdAndTourPlanId(Long userId, Integer tourPlanId);
 
     // Search by date range, month, year
     Page<Reservation> findByReservationDateBetween(LocalDate reservationDateAfter, LocalDate reservationDateBefore, Pageable pageable);
