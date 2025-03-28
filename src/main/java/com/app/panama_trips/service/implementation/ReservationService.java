@@ -164,31 +164,28 @@ public class ReservationService implements IReservationService {
             throw new UserNotFoundException("User with id " + reservationRequest.userId() + " not found");
         }
 
-        // 3. Validar que la fecha de reserva no sea en el pasado
         if (reservationRequest.reservationDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("La fecha de reserva no puede ser en el pasado");
+            throw new IllegalArgumentException("The booking date cannot be in the past");
         }
 
-        // 4. Validar que el precio sea coherente con el precio del tour
+        // Validate that the price is consistent with the tour price
         if (reservationRequest.totalPrice().compareTo(tourPlan.getPrice()) != 0) {
-            throw new IllegalArgumentException("El precio de la reserva debe coincidir con el precio del tour");
+            throw new IllegalArgumentException("The booking price must match the tour price");
         }
 
-        /*
-        // 5. Validar disponibilidad del tour
-        long reservationCount = reservationRepository.countByTourPlanId(reservationRequest.tourPlanId());
-        if (reservationCount >= tourPlan.getMaxParticipants()) {
+        // Validate tour availability
+        long reservationCount = reservationRepository.countByTourPlan_Id(reservationRequest.tourPlanId());
+        if (reservationCount >= tourPlan.getAvailableSpots()) {
             throw new IllegalStateException("No hay cupos disponibles para este tour");
         }
 
-        // 6. Verificar que el usuario no tenga ya una reserva para este tour
+        // Verify that the user does not already have a booking for this tour
         boolean existingReservation = reservationRepository
-                .existsByUserIdAndTourPlanId(reservationRequest.userId(), reservationRequest.tourPlanId());
+                .existsByUser_IdAndTourPlanId(reservationRequest.userId(), reservationRequest.tourPlanId());
 
         if (existingReservation) {
             throw new IllegalArgumentException("Ya tienes una reserva para este tour");
         }
-        */
     }
 
     private Reservation builderReservationFromRequest(ReservationRequest reservationRequest) {
