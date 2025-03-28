@@ -1,6 +1,7 @@
 package com.app.panama_trips.service.interfaces;
 
 import com.app.panama_trips.persistence.entity.ReservationStatus;
+import com.app.panama_trips.presentation.dto.ReservationRequest;
 import com.app.panama_trips.presentation.dto.ReservationResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,8 +13,8 @@ public interface IReservationService {
     // CRUD operations
     Page<ReservationResponse> getAllReservations(Pageable pageable);
     ReservationResponse getReservationById(Integer id);
-    ReservationResponse saveReservation(ReservationResponse reservationResponse);
-    ReservationResponse updateReservation(Integer id, ReservationResponse reservationResponse);
+    ReservationResponse saveReservation(ReservationRequest reservationRequest);
+    ReservationResponse updateReservation(Integer id, ReservationRequest reservationRequest);
     void deleteReservation(Integer id);
 
     // Additional service methods

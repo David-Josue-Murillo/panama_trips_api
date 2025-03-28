@@ -5,6 +5,7 @@ import com.app.panama_trips.persistence.entity.ReservationStatus;
 import com.app.panama_trips.persistence.repository.ReservationRepository;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
+import com.app.panama_trips.presentation.dto.ReservationRequest;
 import com.app.panama_trips.presentation.dto.ReservationResponse;
 import com.app.panama_trips.service.interfaces.IReservationService;
 import lombok.RequiredArgsConstructor;
@@ -36,12 +37,12 @@ public class ReservationService implements IReservationService {
     }
 
     @Override
-    public ReservationResponse saveReservation(ReservationResponse reservationResponse) {
+    public ReservationResponse saveReservation(ReservationRequest reservationRequest) {
         return null;
     }
 
     @Override
-    public ReservationResponse updateReservation(Integer id, ReservationResponse reservationResponse) {
+    public ReservationResponse updateReservation(Integer id, ReservationRequest reservationRequest) {
         return null;
     }
 
