@@ -1,7 +1,11 @@
 package com.app.panama_trips.service.implementation;
 
 import com.app.panama_trips.exception.ResourceNotFoundException;
+import com.app.panama_trips.exception.UserNotFoundException;
+import com.app.panama_trips.persistence.entity.Reservation;
 import com.app.panama_trips.persistence.entity.ReservationStatus;
+import com.app.panama_trips.persistence.entity.TourPlan;
+import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.persistence.repository.ReservationRepository;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
@@ -12,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,11 +30,13 @@ public class ReservationService implements IReservationService {
     private final TourPlanRepository tourPlanRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ReservationResponse> getAllReservations(Pageable pageable) {
         return this.reservationRepository.findAll(pageable).map(ReservationResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ReservationResponse getReservationById(Integer id) {
         return this.reservationRepository.findById(id)
                 .map(ReservationResponse::new)
@@ -37,7 +44,9 @@ public class ReservationService implements IReservationService {
     }
 
     @Override
+    @Transactional
     public ReservationResponse saveReservation(ReservationRequest reservationRequest) {
+
         return null;
     }
 
@@ -144,5 +153,61 @@ public class ReservationService implements IReservationService {
     @Override
     public ReservationResponse confirmReservation(Integer id) {
         return null;
+    }
+
+    // Private Methods
+    private void validateReservation(ReservationRequest reservationRequest) {
+        TourPlan tourPlan = tourPlanRepository.findById(reservationRequest.tourPlanId())
+                .orElseThrow(() -> new ResourceNotFoundException("Tour with ID: " + reservationRequest.tourPlanId() + " not found"));
+
+        if(!this.userEntityRepository.existsById(reservationRequest.userId())) {
+            throw new UserNotFoundException("User with id " + reservationRequest.userId() + " not found");
+        }
+
+        // 3. Validar que la fecha de reserva no sea en el pasado
+        if (reservationRequest.reservationDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha de reserva no puede ser en el pasado");
+        }
+
+        // 4. Validar que el precio sea coherente con el precio del tour
+        if (reservationRequest.totalPrice().compareTo(tourPlan.getPrice()) != 0) {
+            throw new IllegalArgumentException("El precio de la reserva debe coincidir con el precio del tour");
+        }
+
+        /*
+        // 5. Validar disponibilidad del tour
+        long reservationCount = reservationRepository.countByTourPlanId(reservationRequest.tourPlanId());
+        if (reservationCount >= tourPlan.getMaxParticipants()) {
+            throw new IllegalStateException("No hay cupos disponibles para este tour");
+        }
+
+        // 6. Verificar que el usuario no tenga ya una reserva para este tour
+        boolean existingReservation = reservationRepository
+                .existsByUserIdAndTourPlanId(reservationRequest.userId(), reservationRequest.tourPlanId());
+
+        if (existingReservation) {
+            throw new IllegalArgumentException("Ya tienes una reserva para este tour");
+        }
+        */
+    }
+
+    private Reservation builderReservationFromRequest(ReservationRequest reservationRequest) {
+        return Reservation.builder()
+                .user(findUserEntityOrFail(reservationRequest.userId()))
+                .tourPlan(findTourPlanOrFail(reservationRequest.tourPlanId()))
+                .reservationStatus(ReservationStatus.PENDING)
+                .reservationDate(reservationRequest.reservationDate())
+                .totalPrice(reservationRequest.totalPrice())
+                .build();
+    }
+
+    private UserEntity findUserEntityOrFail(Long userId) {
+        return this.userEntityRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with id: " + userId + " not found"));
+    }
+
+    private TourPlan findTourPlanOrFail(Integer tourPlanId) {
+        return this.tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tour Plan with id: " + tourPlanId + " not found"));
     }
 }
