@@ -1,12 +1,12 @@
 package com.app.panama_trips.service.implementation;
 
+import com.app.panama_trips.exception.BusinessRuleException;
 import com.app.panama_trips.exception.ResourceNotFoundException;
+import com.app.panama_trips.exception.UnauthorizedException;
 import com.app.panama_trips.exception.UserNotFoundException;
-import com.app.panama_trips.persistence.entity.Reservation;
-import com.app.panama_trips.persistence.entity.ReservationStatus;
-import com.app.panama_trips.persistence.entity.TourPlan;
-import com.app.panama_trips.persistence.entity.UserEntity;
+import com.app.panama_trips.persistence.entity.*;
 import com.app.panama_trips.persistence.repository.ReservationRepository;
+import com.app.panama_trips.persistence.repository.RoleRepository;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
 import com.app.panama_trips.presentation.dto.ReservationRequest;
@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,7 @@ public class ReservationService implements IReservationService {
     private final ReservationRepository reservationRepository;
     private final UserEntityRepository userEntityRepository;
     private final TourPlanRepository tourPlanRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -46,14 +48,55 @@ public class ReservationService implements IReservationService {
     @Override
     @Transactional
     public ReservationResponse saveReservation(ReservationRequest reservationRequest) {
-
-        return null;
+        validateReservation(reservationRequest);
+        Reservation reservation = builderReservationFromRequest(reservationRequest);
+        return new ReservationResponse(this.reservationRepository.save(reservation));
     }
 
     @Override
-    public ReservationResponse updateReservation(Integer id, ReservationRequest reservationRequest) {
-        return null;
-    }
+    @Transactional
+    public ReservationResponse updateStatusReservation(Integer id, String status, String username) {
+        ReservationStatus newStatus;
+
+        // Validate the status
+        try {
+            newStatus = ReservationStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid reservation status: " + status);
+        }
+
+        // Check if the reservation exists
+        Reservation reservation = this.reservationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + id + " not found"));
+
+        UserEntity currentUser = this.userEntityRepository.findUserEntitiesByName(username)
+                .orElseThrow(() -> new UserNotFoundException("User with name " + username + " not found"));
+
+        if(!isAuthorizedToModifyReservation(currentUser, reservation)){
+            throw new UnauthorizedException("You are not authorized to modify this reservation");
+        }
+
+        // Verify business rules for status change
+        if (!canChangeToStatus(reservation, newStatus)) {
+            throw new BusinessRuleException("Cannot change reservation from " +
+                    reservation.getReservationStatus() + " to " + newStatus);
+        }
+
+        // Apply specific logic based on the new status
+        switch (newStatus) {
+            case CANCELLED:
+                handleCancellation(reservation);
+                break;
+            case CONFIRMED:
+                handleConfirmation(reservation);
+                break;
+            // otros casos según sea necesario
+            default:
+                reservation.setReservationStatus(newStatus);
+        }
+
+        return new ReservationResponse(this.reservationRepository.save(reservation));
+}
 
     @Override
     public void deleteReservation(Integer id) {
@@ -206,5 +249,41 @@ public class ReservationService implements IReservationService {
     private TourPlan findTourPlanOrFail(Integer tourPlanId) {
         return this.tourPlanRepository.findById(tourPlanId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tour Plan with id: " + tourPlanId + " not found"));
+    }
+
+    // Business logic methods
+    private boolean isAuthorizedToModifyReservation(UserEntity user, Reservation reservation) {
+        // If admin, always allow
+        // If the owner of the booking, allow
+        // If the tour provider, allow certain changes
+
+        return user.getRole_id().getRoleEnum() == RoleEnum.ADMIN ||
+                reservation.getUser().getRole_id().equals(user.getRole_id()) ||
+                user.getRole_id().getRoleEnum() == RoleEnum.OPERATOR;
+    }
+
+    private boolean canChangeToStatus(Reservation reservation, ReservationStatus newStatus) {
+        ReservationStatus currentStatus = reservation.getReservationStatus();
+
+        if (currentStatus == ReservationStatus.CONFIRMED && newStatus == ReservationStatus.CANCELLED) {
+            return false;
+        }
+
+        // Validate cancellations by date
+        if (newStatus == ReservationStatus.CANCELLED) {
+            // Do not allow cancellation if there are less than X days left until the tour
+            LocalDate tourDate = reservation.getTourPlan().getSeasonStartDate();
+            return ChronoUnit.DAYS.between(LocalDate.now(), tourDate) >= 2;
+        }
+
+        return true;
+    }
+
+    private void handleCancellation(Reservation reservation) {
+        // Pending logic for cancellations
+    }
+
+    private void handleConfirmation(Reservation reservation) {
+        // Pending logic for confirmations
     }
 }
