@@ -99,18 +99,26 @@ public class ReservationService implements IReservationService {
 }
 
     @Override
+    @Transactional
     public void deleteReservation(Integer id) {
+        if(!this.reservationRepository.existsById(id)){
+            throw new ResourceNotFoundException("Reservation with id " + id + " not found");
+        }
 
+        this.reservationRepository.deleteById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ReservationResponse> getReservationByUserId(Long userId, Pageable pageable) {
-        return null;
+        return this.reservationRepository.findRecentReservationsByUser(userId, LocalDate.now(), pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
-    public Page<ReservationResponse> getReservationByTourPlanId(Long tourPlanId, Pageable pageable) {
-        return null;
+    public Page<ReservationResponse> getReservationByTourPlanId(Integer tourPlanId, Pageable pageable) {
+        return this.reservationRepository.findByTourPlan_Id(tourPlanId, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override

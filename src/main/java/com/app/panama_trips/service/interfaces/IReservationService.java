@@ -19,7 +19,7 @@ public interface IReservationService {
 
     // Additional service methods
     Page<ReservationResponse> getReservationByUserId(Long userId, Pageable pageable);
-    Page<ReservationResponse> getReservationByTourPlanId(Long tourPlanId, Pageable pageable);
+    Page<ReservationResponse> getReservationByTourPlanId(Integer tourPlanId, Pageable pageable);
     Page<ReservationResponse> getReservationByReservationStatus(String reservationStatus, Pageable pageable);
     Page<ReservationResponse> getReservationByReservationDate(String reservationDate, Pageable pageable);
 
