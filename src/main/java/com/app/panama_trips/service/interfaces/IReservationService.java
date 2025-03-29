@@ -14,7 +14,7 @@ public interface IReservationService {
     Page<ReservationResponse> getAllReservations(Pageable pageable);
     ReservationResponse getReservationById(Integer id);
     ReservationResponse saveReservation(ReservationRequest reservationRequest);
-    ReservationResponse updateReservation(Integer id, ReservationRequest reservationRequest);
+    ReservationResponse updateStatusReservation(Integer id, String status, String username);
     void deleteReservation(Integer id);
 
     // Additional service methods
