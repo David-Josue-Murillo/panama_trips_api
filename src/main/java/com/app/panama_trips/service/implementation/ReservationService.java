@@ -226,12 +226,18 @@ public class ReservationService implements IReservationService {
 
     @Override
     public ReservationResponse cancelReservation(Integer id) {
-        return null;
+        Reservation reservation = this.reservationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + id + " not found"));
+        this.handleCancellation(reservation);
+        return new ReservationResponse(reservation);
     }
 
     @Override
     public ReservationResponse confirmReservation(Integer id) {
-        return null;
+        Reservation reservation = this.reservationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + id + " not found"));
+        this.handleConfirmation(reservation);
+        return new ReservationResponse(reservation);
     }
 
     // Private Methods
