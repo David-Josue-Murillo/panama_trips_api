@@ -211,17 +211,17 @@ public class ReservationService implements IReservationService {
 
     @Override
     public Long countReservationsByStatus(ReservationStatus status) {
-        return 0L;
+        return this.reservationRepository.countByReservationStatus(status);
     }
 
     @Override
     public Long countReservationsByTourPlan(Integer tourPlanId) {
-        return 0L;
+        return this.reservationRepository.countByTourPlan_Id(tourPlanId);
     }
 
     @Override
     public Object[] getReservationStatistics() {
-        return new Object[0];
+        return this.reservationRepository.getReservationStatistics();
     }
 
     @Override
