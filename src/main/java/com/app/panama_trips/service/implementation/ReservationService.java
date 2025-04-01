@@ -123,62 +123,90 @@ public class ReservationService implements IReservationService {
 
     @Override
     public Page<ReservationResponse> getReservationByReservationStatus(String reservationStatus, Pageable pageable) {
-        return null;
+        ReservationStatus status;
+
+        try {
+            status = ReservationStatus.valueOf(reservationStatus.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid reservation status: " + reservationStatus);
+        }
+
+        return this.reservationRepository.findByReservationStatus(status, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationByReservationDate(String reservationDate, Pageable pageable) {
-        return null;
+        LocalDate date;
+
+        try {
+            date = LocalDate.parse(reservationDate);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid reservation date: " + reservationDate);
+        }
+
+        return this.reservationRepository.findByReservationDate(date, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
-    public Page<ReservationResponse> getReservationsByUserAndStatus(Long userId, ReservationStatus status, Pageable pageable) {
-        return null;
+    public Page<ReservationResponse> getReservationsByUserAndStatus(Long userId, ReservationStatus reservationStatus, Pageable pageable) {
+        return this.reservationRepository.findByUser_IdAndReservationStatus(userId, reservationStatus, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsByTourPlanAndStatus(Integer tourPlanId, ReservationStatus status, Pageable pageable) {
-        return null;
+        return this.reservationRepository.findByTourPlan_IdAndReservationStatus(tourPlanId, status, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsBetweenDates(LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return null;
+        return this.reservationRepository.findByReservationDateBetween(startDate, endDate, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsByMonth(short month, Pageable pageable) {
-        return null;
+        return this.reservationRepository.findByReservationDate_Month(month, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsByYear(int year, Pageable pageable) {
-        return null;
+        return this.reservationRepository.findByReservationDate_Year(year, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsWithPriceGreaterThan(BigDecimal price, Pageable pageable) {
-        return null;
+        return this.reservationRepository.findByTotalPriceGreaterThan(price, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsByPriceRange(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
-        return null;
+        return this.reservationRepository.findByTotalPriceBetween(minPrice, maxPrice, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getRecentReservationsByUser(Long userId, LocalDate recentDate, Pageable pageable) {
-        return null;
+        return this.reservationRepository.findRecentReservationsByUser(userId, recentDate, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsByDayOfWeek(int dayOfWeek, Pageable pageable) {
-        return null;
+        return this.reservationRepository.findByDayOfWeek(dayOfWeek, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsByProvince(Integer ProvinceId, Pageable pageable) {
-        return null;
+        return this.reservationRepository.findByRegion(ProvinceId, pageable)
+                .map(ReservationResponse::new);
     }
 
     @Override
