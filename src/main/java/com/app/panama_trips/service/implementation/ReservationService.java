@@ -56,14 +56,7 @@ public class ReservationService implements IReservationService {
     @Override
     @Transactional
     public ReservationResponse updateStatusReservation(Integer id, String status, String username) {
-        ReservationStatus newStatus;
-
-        // Validate the status
-        try {
-            newStatus = ReservationStatus.valueOf(status.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid reservation status: " + status);
-        }
+        ReservationStatus newStatus = getReservationStatus(status);
 
         // Check if the reservation exists
         Reservation reservation = this.reservationRepository.findById(id)
@@ -123,14 +116,7 @@ public class ReservationService implements IReservationService {
 
     @Override
     public Page<ReservationResponse> getReservationByReservationStatus(String reservationStatus, Pageable pageable) {
-        ReservationStatus status;
-
-        try {
-            status = ReservationStatus.valueOf(reservationStatus.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid reservation status: " + reservationStatus);
-        }
-
+        ReservationStatus status = getReservationStatus(reservationStatus);
         return this.reservationRepository.findByReservationStatus(status, pageable)
                 .map(ReservationResponse::new);
     }
@@ -150,14 +136,16 @@ public class ReservationService implements IReservationService {
     }
 
     @Override
-    public Page<ReservationResponse> getReservationsByUserAndStatus(Long userId, ReservationStatus reservationStatus, Pageable pageable) {
+    public Page<ReservationResponse> getReservationsByUserAndStatus(Long userId, String status, Pageable pageable) {
+        ReservationStatus reservationStatus = getReservationStatus(status);
         return this.reservationRepository.findByUser_IdAndReservationStatus(userId, reservationStatus, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
-    public Page<ReservationResponse> getReservationsByTourPlanAndStatus(Integer tourPlanId, ReservationStatus status, Pageable pageable) {
-        return this.reservationRepository.findByTourPlan_IdAndReservationStatus(tourPlanId, status, pageable)
+    public Page<ReservationResponse> getReservationsByTourPlanAndStatus(Integer tourPlanId, String status, Pageable pageable) {
+        ReservationStatus reservationStatus = getReservationStatus(status);
+        return this.reservationRepository.findByTourPlan_IdAndReservationStatus(tourPlanId, reservationStatus, pageable)
                 .map(ReservationResponse::new);
     }
 
@@ -327,5 +315,13 @@ public class ReservationService implements IReservationService {
 
     private void handleConfirmation(Reservation reservation) {
         // Pending logic for confirmations
+    }
+
+    private ReservationStatus getReservationStatus(String status) {
+        try {
+            return ReservationStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid reservation status: " + status);
+        }
     }
 }
