@@ -24,8 +24,8 @@ public interface IReservationService {
     Page<ReservationResponse> getReservationByReservationDate(String reservationDate, Pageable pageable);
 
     // Specific searches
-    Page<ReservationResponse> getReservationsByUserAndStatus(Long userId, ReservationStatus status, Pageable pageable);
-    Page<ReservationResponse> getReservationsByTourPlanAndStatus(Integer tourPlanId, ReservationStatus status, Pageable pageable);
+    Page<ReservationResponse> getReservationsByUserAndStatus(Long userId, String status, Pageable pageable);
+    Page<ReservationResponse> getReservationsByTourPlanAndStatus(Integer tourPlanId, String status, Pageable pageable);
 
     // Searches by dates
     Page<ReservationResponse> getReservationsBetweenDates(LocalDate startDate, LocalDate endDate, Pageable pageable);
