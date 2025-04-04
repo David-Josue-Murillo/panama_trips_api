@@ -33,7 +33,7 @@ public class ReservationController {
         return ResponseEntity.ok(this.reservationService.getAllReservations(pageable));
     }
 
-    @GetMapping("/id")
+    @GetMapping("/{id}")
     public ResponseEntity<ReservationResponse> getReservationById(@PathVariable Integer id) {
         return ResponseEntity.ok(this.reservationService.getReservationById(id));
     }
