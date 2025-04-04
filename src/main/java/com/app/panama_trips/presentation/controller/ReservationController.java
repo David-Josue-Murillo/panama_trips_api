@@ -39,8 +39,8 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.reservationService.saveReservation(reservationRequest));
     }
 
-    @PutMapping("/id")
-    public ResponseEntity<ReservationResponse> updateStatusReservation(@PathVariable Integer id, @RequestBody ReservationRequest reservationRequest) {
-        return ResponseEntity.
+    @PutMapping("/{id}")
+    public ResponseEntity<ReservationResponse> updateStatusReservation(@PathVariable Integer id, @RequestParam String user, @RequestBody String status) {
+        return ResponseEntity.ok(this.reservationService.updateStatusReservation(id, user, status));
     }
 }
