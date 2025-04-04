@@ -43,4 +43,62 @@ public class ReservationController {
     public ResponseEntity<ReservationResponse> updateStatusReservation(@PathVariable Integer id, @RequestParam String user, @RequestBody String status) {
         return ResponseEntity.ok(this.reservationService.updateStatusReservation(id, user, status));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteReservation(@PathVariable Integer id) {
+        this.reservationService.deleteReservation(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<ReservationResponse>> getReservationsByUserId(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "false") Boolean enabledPagination
+    ) {
+        Pageable pageable = enabledPagination
+                ? Pageable.ofSize(size).withPage(page)
+                : Pageable.unpaged();
+        return ResponseEntity.ok(this.reservationService.getReservationByUserId(userId, pageable));
+    }
+
+    @GetMapping("/tourPlan/{tourPlanId}")
+    public ResponseEntity<Page<ReservationResponse>> getReservationsByTourPlanId(
+            @PathVariable Integer tourPlanId,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "false") Boolean enabledPagination
+    ) {
+        Pageable pageable = enabledPagination
+                ? Pageable.ofSize(size).withPage(page)
+                : Pageable.unpaged();
+        return ResponseEntity.ok(this.reservationService.getReservationByTourPlanId(tourPlanId, pageable));
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<Page<ReservationResponse>> getReservationsByStatus(
+            @PathVariable String status,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "false") Boolean enabledPagination
+    ) {
+        Pageable pageable = enabledPagination
+                ? Pageable.ofSize(size).withPage(page)
+                : Pageable.unpaged();
+        return ResponseEntity.ok(this.reservationService.getReservationByReservationStatus(status, pageable));
+    }
+
+    @GetMapping("/reservation-date/{reservationDate}")
+    public ResponseEntity<Page<ReservationResponse>> getReservationsByReservationDate(
+            @PathVariable String reservationDate,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "false") Boolean enabledPagination
+    ) {
+        Pageable pageable = enabledPagination
+                ? Pageable.ofSize(size).withPage(page)
+                : Pageable.unpaged();
+        return ResponseEntity.ok(this.reservationService.getReservationByReservationDate(reservationDate, pageable));
+    }
 }
