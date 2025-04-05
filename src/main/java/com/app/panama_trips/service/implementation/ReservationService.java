@@ -77,10 +77,10 @@ public class ReservationService implements IReservationService {
 
         // Apply specific logic based on the new status
         switch (newStatus) {
-            case CANCELLED:
+            case cancelled:
                 handleCancellation(reservation);
                 break;
-            case CONFIRMED:
+            case confirmed:
                 handleConfirmation(reservation);
                 break;
             // otros casos según sea necesario
@@ -265,7 +265,7 @@ public class ReservationService implements IReservationService {
         return Reservation.builder()
                 .user(findUserEntityOrFail(reservationRequest.userId()))
                 .tourPlan(findTourPlanOrFail(reservationRequest.tourPlanId()))
-                .reservationStatus(ReservationStatus.PENDING)
+                .reservationStatus(ReservationStatus.pending)
                 .reservationDate(reservationRequest.reservationDate())
                 .totalPrice(reservationRequest.totalPrice())
                 .build();
@@ -295,12 +295,12 @@ public class ReservationService implements IReservationService {
     private boolean canChangeToStatus(Reservation reservation, ReservationStatus newStatus) {
         ReservationStatus currentStatus = reservation.getReservationStatus();
 
-        if (currentStatus == ReservationStatus.CONFIRMED && newStatus == ReservationStatus.CANCELLED) {
+        if (currentStatus == ReservationStatus.confirmed && newStatus == ReservationStatus.cancelled) {
             return false;
         }
 
         // Validate cancellations by date
-        if (newStatus == ReservationStatus.CANCELLED) {
+        if (newStatus == ReservationStatus.cancelled) {
             // Do not allow cancellation if there are less than X days left until the tour
             LocalDate tourDate = reservation.getTourPlan().getSeasonStartDate();
             return ChronoUnit.DAYS.between(LocalDate.now(), tourDate) >= 2;

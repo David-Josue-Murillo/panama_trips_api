@@ -32,7 +32,7 @@ public class Reservation {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "reservation_status", nullable = false)
-    private ReservationStatus reservationStatus = ReservationStatus.PENDING;
+    private ReservationStatus reservationStatus = ReservationStatus.pending;
 
     @Column(name = "reservation_date", nullable = false)
     private LocalDate reservationDate;
