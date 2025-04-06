@@ -42,7 +42,7 @@ public class ReservationService implements IReservationService {
     public ReservationResponse getReservationById(Integer id) {
         return this.reservationRepository.findById(id)
                 .map(ReservationResponse::new)
-                .orElseThrow(() -> new ResourceNotFoundException(" "));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + id + " not found"));
     }
 
     @Override
