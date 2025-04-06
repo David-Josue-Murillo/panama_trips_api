@@ -4,6 +4,7 @@ import com.app.panama_trips.persistence.entity.*;
 import com.app.panama_trips.presentation.dto.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -644,5 +645,58 @@ public class DataProvider {
             new RegionResponse(regionOneMock),
             new RegionResponse(regionTwoMock),
             new RegionResponse(regionThreeMock)
+    );
+
+
+    /*
+     * Reservation instances
+     *
+     *
+     */
+    public static Reservation reservationOneMock = Reservation.builder()
+            .id(1)
+            .user(userCustomer())
+            .tourPlan(tourPlanOneMock)
+            .reservationDate(LocalDate.now())
+            .reservationStatus(ReservationStatus.pending)
+            .totalPrice(BigDecimal.valueOf(100.00))
+            .build();
+
+    public static Reservation reservationTwoMock = Reservation.builder()
+            .id(2)
+            .user(userCustomer())
+            .tourPlan(tourPlanTwoMock)
+            .reservationDate(LocalDate.now())
+            .reservationStatus(ReservationStatus.pending)
+            .totalPrice(BigDecimal.valueOf(200.00))
+            .build();
+
+    public static Reservation reservationThreeMock = Reservation.builder()
+            .id(3)
+            .user(userCustomer())
+            .tourPlan(tourPlanThreeMock)
+            .reservationDate(LocalDate.now())
+            .reservationStatus(ReservationStatus.pending)
+            .totalPrice(BigDecimal.valueOf(300.00))
+            .build();
+
+    public static List<Reservation> reservationListsMock = List.of(
+            reservationOneMock,
+            reservationTwoMock,
+            reservationThreeMock
+    );
+
+    public static ReservationResponse reservationResponseMock = new ReservationResponse(reservationOneMock);
+    public static ReservationRequest reservationRequestMock = new ReservationRequest(
+            1L,
+            1,
+            LocalDate.now(),
+            BigDecimal.valueOf(100.00)
+    );
+
+    public static List<ReservationResponse> reservationResponseListMocks = List.of(
+            new ReservationResponse(reservationOneMock),
+            new ReservationResponse(reservationTwoMock),
+            new ReservationResponse(reservationThreeMock)
     );
 }
