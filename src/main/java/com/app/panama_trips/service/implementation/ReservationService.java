@@ -319,7 +319,7 @@ public class ReservationService implements IReservationService {
 
     private ReservationStatus getReservationStatus(String status) {
         try {
-            return ReservationStatus.valueOf(status.toUpperCase());
+            return ReservationStatus.valueOf(status.toLowerCase());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid reservation status: " + status);
         }
