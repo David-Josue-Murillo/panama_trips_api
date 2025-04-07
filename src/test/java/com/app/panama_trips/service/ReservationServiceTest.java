@@ -2,6 +2,7 @@ package com.app.panama_trips.service;
 
 import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.ResourceNotFoundException;
+import com.app.panama_trips.exception.UserNotFoundException;
 import com.app.panama_trips.persistence.entity.Reservation;
 import com.app.panama_trips.persistence.repository.ReservationRepository;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
@@ -18,12 +19,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import javax.xml.crypto.Data;
 import java.util.Optional;
 
-import static com.app.panama_trips.DataProvider.reservationListsMock;
-import static com.app.panama_trips.DataProvider.reservationOneMock;
+import static com.app.panama_trips.DataProvider.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,5 +81,63 @@ public class ReservationServiceTest {
 
         assertNotNull(exception);
         assertEquals("Reservation with id 1 not found", exception.getMessage());
+    }
+
+    @Test
+    void saveReservation_shouldReturnSavedReservation() {
+        // Given
+        when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlanOneMock));
+        when(userEntityRepository.existsById(anyLong())).thenReturn(true);
+        when(reservationRepository.countByTourPlan_Id(anyInt())).thenReturn(1L);
+        when(reservationRepository.existsByUser_IdAndTourPlanId(anyLong(), anyInt())).thenReturn(false);
+        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservationOneMock);
+        when(userEntityRepository.findById(anyLong())).thenReturn(Optional.of(userAdmin()));
+        when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlanOneMock));
+
+        // When
+        ReservationResponse result = reservationService.saveReservation(reservationRequestMock);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(reservationOneMock.getId(), result.id());
+    }
+
+    @Test
+    void saveReservation_shouldThrowException_whenUserNotFound() {
+        // Given
+        when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlanOneMock));
+        when(userEntityRepository.existsById(anyLong())).thenReturn(false);
+
+        // When & Then
+        Exception exception = assertThrows(UserNotFoundException.class, () -> reservationService.saveReservation(reservationRequestMock));
+
+        assertNotNull(exception);
+        assertEquals("User with id 1 not found", exception.getMessage());
+    }
+
+    @Test
+    void saveReservation_shouldThrowException_whenTourPlanNotFound() {
+        // Given
+        when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+        // When & Then
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> reservationService.saveReservation(reservationRequestMock));
+
+        assertNotNull(exception);
+        assertEquals("Tour with ID: 1 not found", exception.getMessage());
+    }
+
+    @Test
+    void saveReservation_shouldThrowException_whenUserAlreadyReserved() {
+        // Given
+        when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlanOneMock));
+        when(userEntityRepository.existsById(anyLong())).thenReturn(true);
+        when(reservationRepository.existsByUser_IdAndTourPlanId(anyLong(), anyInt())).thenReturn(true);
+
+        // When & Then
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> reservationService.saveReservation(reservationRequestMock));
+
+        assertNotNull(exception);
+        assertEquals("User with id 1 already reserved this tour", exception.getMessage());
     }
 }

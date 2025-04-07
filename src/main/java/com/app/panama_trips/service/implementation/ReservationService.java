@@ -257,7 +257,7 @@ public class ReservationService implements IReservationService {
                 .existsByUser_IdAndTourPlanId(reservationRequest.userId(), reservationRequest.tourPlanId());
 
         if (existingReservation) {
-            throw new IllegalArgumentException("Ya tienes una reserva para este tour");
+            throw new IllegalArgumentException("User with id 1 already reserved this tour");
         }
     }
 
