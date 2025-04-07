@@ -25,7 +25,7 @@ import java.util.Optional;
 import static com.app.panama_trips.DataProvider.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ReservationServiceTest {
@@ -139,5 +139,67 @@ public class ReservationServiceTest {
 
         assertNotNull(exception);
         assertEquals("User with id 1 already reserved this tour", exception.getMessage());
+    }
+
+    @Test
+    void updateStatusReservation_shouldUpdateReservation() {
+        // Given
+        when(reservationRepository.findById(anyInt())).thenReturn(Optional.of(reservationOneMock));
+        when(userEntityRepository.findUserEntitiesByName(anyString())).thenReturn(Optional.of(userAdmin()));
+        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservationOneMock);
+
+        // When
+        ReservationResponse result = reservationService.updateStatusReservation(1, "pending", "admin");
+
+        // Then
+        assertNotNull(result);
+        assertEquals(reservationOneMock.getId(), result.id());
+    }
+
+    @Test
+    void updateStatusReservation_shouldThrowException_whenReservationNotFound() {
+        // Given
+        when(reservationRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+        // When & Then
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> reservationService.updateStatusReservation(1, "pending", "admin"));
+
+        assertNotNull(exception);
+        assertEquals("Reservation with id 1 not found", exception.getMessage());
+    }
+
+    @Test
+    void updateStatusReservation_shouldThrowException_whenUserNotFound() {
+        // Given
+        when(reservationRepository.findById(anyInt())).thenReturn(Optional.of(reservationOneMock));
+        when(userEntityRepository.findUserEntitiesByName(anyString())).thenReturn(Optional.empty());
+
+        // When & Then
+        Exception exception = assertThrows(UserNotFoundException.class, () -> reservationService.updateStatusReservation(1, "pending", "admin"));
+
+        assertNotNull(exception);
+        assertEquals("User with name admin not found", exception.getMessage());
+    }
+
+    @Test
+    void updateStatusReservation_shouldThrowException_whenStatusNotFound() {
+        // When & Then
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> reservationService.updateStatusReservation(1, "invalidStatus", "admin"));
+
+        assertNotNull(exception);
+        assertEquals("Invalid reservation status: invalidStatus", exception.getMessage());
+    }
+
+    @Test
+    void deleteReservation_shouldDeleteReservation() {
+        // Given
+        when(reservationRepository.existsById(anyInt())).thenReturn(true);
+
+        // When
+        reservationService.deleteReservation(1);
+
+        // Then
+        assertTrue(true);
+        verify(reservationRepository, times(1)).deleteById(anyInt());
     }
 }
