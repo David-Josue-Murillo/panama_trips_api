@@ -1,7 +1,6 @@
 package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.service.implementation.ReservationService;
-import com.app.panama_trips.service.implementation.TourPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
