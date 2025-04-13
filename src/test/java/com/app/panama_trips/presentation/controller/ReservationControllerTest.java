@@ -5,6 +5,9 @@ import com.app.panama_trips.presentation.dto.ReservationRequest;
 import com.app.panama_trips.presentation.dto.ReservationResponse;
 import com.app.panama_trips.presentation.dto.TourPlanResponse;
 import com.app.panama_trips.service.implementation.ReservationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -37,7 +40,10 @@ public class ReservationControllerTest {
 
     // Método auxiliar para convertir objetos a JSON
     private String asJsonString(Object obj) throws Exception {
-        return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(obj);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return mapper.writeValueAsString(obj);
     }
 
     @Test
