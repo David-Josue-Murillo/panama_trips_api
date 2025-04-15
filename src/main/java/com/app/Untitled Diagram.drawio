@@ -66,7 +66,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="7baba1c4bc27f4b0-5" value="RepositorioReserva" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;" parent="1" vertex="1">
-          <mxGeometry x="670" y="80" width="205" height="580" as="geometry" />
+          <mxGeometry x="670" y="80" width="130" height="580" as="geometry" />
         </mxCell>
         <mxCell id="ZBgwGvBiho1KH4Yr-yPo-4" value="procesar el pago" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="7baba1c4bc27f4b0-5" vertex="1">
           <mxGeometry y="230" width="110" height="30" as="geometry" />
