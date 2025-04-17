@@ -24,15 +24,15 @@ public class Reservation {
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, foreignKey = @ForeignKey(name = "fk_reservation_user"))
-    private UserEntity userId;
+    private UserEntity user;
 
     @ManyToOne
     @JoinColumn(name = "tour_plan_id", referencedColumnName = "id", nullable = false, foreignKey = @ForeignKey(name = "fk_reservation_tour_plan"))
-    private TourPlan tourPlanId;
+    private TourPlan tourPlan;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "reservation_status", nullable = false)
-    private ReservationStatus reservationStatus = ReservationStatus.PENDING;
+    private ReservationStatus reservationStatus = ReservationStatus.pending;
 
     @Column(name = "reservation_date", nullable = false)
     private LocalDate reservationDate;
