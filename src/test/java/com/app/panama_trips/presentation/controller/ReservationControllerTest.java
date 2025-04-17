@@ -261,7 +261,7 @@ public class ReservationControllerTest {
         Page<ReservationResponse> page = new PageImpl<>(reservationResponseListMocks);
         when(reservationService.getReservationsByPriceRange(any(BigDecimal.class), any(BigDecimal.class), any(Pageable.class))).thenReturn(page);
 
-        mockMvc.perform(get("/api/reservations/price-greater-than")
+        mockMvc.perform(get("/api/reservations/price-range")
                         .param("min", "10")
                         .param("max", "100")
                         .param("page", "0")
@@ -277,7 +277,7 @@ public class ReservationControllerTest {
         Page<ReservationResponse> page = new PageImpl<>(reservationResponseListMocks);
         when(reservationService.getRecentReservationsByUser(anyLong(), any(LocalDate.class), any(Pageable.class))).thenReturn(page);
 
-        mockMvc.perform(get("/api/reservations/{userId}", 1)
+        mockMvc.perform(get("/api/reservations/recent/{userId}", 1)
                         .param("date", "2023-10-01")
                         .param("page", "0")
                         .param("size", "10")
@@ -305,7 +305,7 @@ public class ReservationControllerTest {
     void countReservationsByStatus_success() throws Exception {
         when(reservationService.countReservationsByStatus(any(ReservationStatus.class))).thenReturn(5L);
 
-        mockMvc.perform(get("/api/reservations/count/status/{status}", "CONFIRMED"))
+        mockMvc.perform(get("/api/reservations/count/status/{status}", "confirmed"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(5));
     }
@@ -315,7 +315,7 @@ public class ReservationControllerTest {
     void countReservationsByTourPlan_success() throws Exception {
         when(reservationService.countReservationsByTourPlan(anyInt())).thenReturn(5L);
 
-        mockMvc.perform(get("/api/reservations/count/tour-plan/{tourPlanId}", "CONFIRMED"))
+        mockMvc.perform(get("/api/reservations/count/tour-plan/{tourPlanId}", 1))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(5));
     }
