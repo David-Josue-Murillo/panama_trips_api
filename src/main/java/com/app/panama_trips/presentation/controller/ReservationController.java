@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -243,7 +244,7 @@ public class ReservationController {
 
     @GetMapping("/count/status/{status}")
     public ResponseEntity<Long> countReservationsByStatus(@PathVariable String status) {
-        return ResponseEntity.ok(this.reservationService.countReservationsByStatus(ReservationStatus.valueOf(status.toUpperCase())));
+        return ResponseEntity.ok(this.reservationService.countReservationsByStatus(ReservationStatus.valueOf(status.toLowerCase())));
     }
 
     @GetMapping("/count/tour-plan/{tourPlanId}")
