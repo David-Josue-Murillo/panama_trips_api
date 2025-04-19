@@ -7,7 +7,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -44,4 +43,25 @@ public class Reservation {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "number_of_persons", nullable = false, columnDefinition = "INTEGER DEFAULT 1")
+    private Integer numberOfPersons = 1;
+
+    @Column(name = "number_of_children", nullable = false, columnDefinition = "INTEGER DEFAULT 0")
+    private Integer numberOfChildren = 0;
+
+    @Column(name = "special_requests", columnDefinition = "TEXT")
+    private String specialRequests;
+
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "contact_phone", length = 20)
+    private String contactPhone;
+
+    @Column(name = "contact_email", length = 100)
+    private String contactEmail;
+
+    @ManyToOne
+    @JoinColumn(name = "last_modified_by", foreignKey = @ForeignKey(name = "fk_reservation_last_modified_by"))
+    private UserEntity lastModifiedBy;
 }
