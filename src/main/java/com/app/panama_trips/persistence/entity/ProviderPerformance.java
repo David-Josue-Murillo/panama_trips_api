@@ -2,6 +2,7 @@ package com.app.panama_trips.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Immutable;
 
 import java.math.BigDecimal;
 
