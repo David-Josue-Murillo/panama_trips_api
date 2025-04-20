@@ -187,9 +187,9 @@ public class TourPlan {
     @Column(name = "external_id", length = 100)
     private String externalId;
 
-    //@ManyToOne
-    //@JoinColumn(name = "cancellation_policy_id", foreignKey = @ForeignKey(name = "fk_tour_cancellation_policy"))
-    //private CancellationPolicy cancellationPolicy;
+    @ManyToOne
+    @JoinColumn(name = "cancellation_policy_id", foreignKey = @ForeignKey(name = "fk_tour_cancellation_policy"))
+    private CancellationPolicy cancellationPolicy;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
