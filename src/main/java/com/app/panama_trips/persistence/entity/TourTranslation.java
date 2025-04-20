@@ -28,7 +28,7 @@ public class TourTranslation {
     @Column(name = "title", length = 150)
     private String title;
 
-    @Column(name = "short_description", length = 255)
+    @Column(name = "short_description")
     private String shortDescription;
 
     @Column(name = "description", columnDefinition = "TEXT")
@@ -43,6 +43,6 @@ public class TourTranslation {
     @Column(name = "what_to_bring", columnDefinition = "JSONB")
     private String whatToBring;
 
-    @Column(name = "meeting_point", length = 255)
+    @Column(name = "meeting_point")
     private String meetingPoint;
 }
