@@ -1,5 +1,6 @@
 package com.app.panama_trips.service.implementation;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.repository.TourPlanImageRepository;
 import com.app.panama_trips.presentation.dto.TourPlanImageRequest;
 import com.app.panama_trips.presentation.dto.TourPlanImageResponse;
@@ -8,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -19,12 +19,15 @@ public class TourPlanImageService implements ITourPlanImageService {
 
     @Override
     public Page<TourPlanImageResponse> getAllTourPlanImages(Pageable pageable) {
-        return null;
+        return this.tourPlanImageRepository.findAll(pageable)
+                .map(TourPlanImageResponse::new);
     }
 
     @Override
     public TourPlanImageResponse getTourPlanImageById(Integer id) {
-        return null;
+        return this.tourPlanImageRepository.findById(id)
+                .map(TourPlanImageResponse::new)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlanImage with " + id + " not found"));
     }
 
     @Override
