@@ -1,5 +1,7 @@
 package com.app.panama_trips.presentation.dto;
 
+import com.app.panama_trips.persistence.entity.TourPlanImage;
+
 import java.io.Serializable;
 
 public record TourPlanImageResponse(
@@ -9,4 +11,15 @@ public record TourPlanImageResponse(
         String altText,
         Boolean isMain,
         Integer displayOrder
-) implements Serializable {}
+) {
+    public TourPlanImageResponse(TourPlanImage tourPlanImage) {
+        this(
+                tourPlanImage.getId(),
+                tourPlanImage.getTourPlan().getId(),
+                tourPlanImage.getImageUrl(),
+                tourPlanImage.getAltText(),
+                tourPlanImage.getIsMain(),
+                tourPlanImage.getDisplayOrder()
+        );
+    }
+}
