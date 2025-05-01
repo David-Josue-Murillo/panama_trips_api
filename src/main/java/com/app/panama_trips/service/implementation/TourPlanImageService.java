@@ -108,7 +108,6 @@ public class TourPlanImageService implements ITourPlanImageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Integer getMaxDisplayOrderForTourPlan(Integer tourPlanId) {
         return this.tourPlanImageRepository.findMaxDisplayOrderByTourPlanId(tourPlanId);
     }
@@ -128,7 +127,6 @@ public class TourPlanImageService implements ITourPlanImageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public boolean existsImageWithUrlForTourPlan(Integer tourPlanId, String imageUrl) {
         TourPlan tourPlan = this.tourPlanRepository.findById(tourPlanId)
                 .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
