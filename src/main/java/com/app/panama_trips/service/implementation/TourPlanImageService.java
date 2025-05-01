@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -60,42 +61,63 @@ public class TourPlanImageService implements ITourPlanImageService {
 
     @Override
     public List<TourPlanImageResponse> getTourPlanImagesByTourPlanId(Integer tourPlanId) {
-        return List.of();
+        TourPlan tourPlanExists = this.tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
+        return this.tourPlanImageRepository.findByTourPlan(tourPlanExists)
+                .stream()
+                .map(TourPlanImageResponse::new)
+                .toList();
     }
 
     @Override
     public List<TourPlanImageResponse> getTourPlanImagesByTourPlanIdOrderByDisplayOrder(Integer tourPlanId) {
-        return List.of();
+        return this.tourPlanImageRepository.findByTourPlanIdOrderByDisplayOrder(tourPlanId)
+                .stream()
+                .map(TourPlanImageResponse::new)
+                .toList();
     }
 
     @Override
     public TourPlanImageResponse getMainImageByTourPlanId(Integer tourPlanId) {
-        return null;
+        TourPlan tourPlan = this.tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
+        Optional<TourPlanImage> mainImage = this.tourPlanImageRepository.findByTourPlanAndIsMainTrue(tourPlan);
+        return mainImage.map(TourPlanImageResponse::new)
+                .orElseThrow(() -> new ResourceNotFoundException("Main image not found for TourPlan with id " + tourPlanId));
     }
 
     @Override
     public List<TourPlanImageResponse> getNonMainImagesByTourPlanIdOrdered(Integer tourPlanId) {
-        return List.of();
+        TourPlan tourPlan = this.tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
+        return this.tourPlanImageRepository.findByTourPlanAndIsMainFalseOrderByDisplayOrderAsc(tourPlan)
+                .stream()
+                .map(TourPlanImageResponse::new)
+                .toList();
     }
 
     @Override
     public Integer getMaxDisplayOrderForTourPlan(Integer tourPlanId) {
-        return 0;
+        return this.tourPlanImageRepository.findMaxDisplayOrderByTourPlanId(tourPlanId);
     }
 
     @Override
     public Long countImagesByTourPlanId(Integer tourPlanId) {
-        return 0L;
+        return this.tourPlanImageRepository.countByTourPlanId(tourPlanId);
     }
 
     @Override
     public void deleteAllImagesByTourPlanId(Integer tourPlanId) {
-
+        TourPlan tourPlan = this.tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
+        this.tourPlanImageRepository.deleteByTourPlan(tourPlan);
     }
 
     @Override
     public boolean existsImageWithUrlForTourPlan(Integer tourPlanId, String imageUrl) {
-        return false;
+        TourPlan tourPlan = this.tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
+        return this.tourPlanImageRepository.existsByTourPlanAndImageUrl(tourPlan, imageUrl);
     }
 
     @Override
