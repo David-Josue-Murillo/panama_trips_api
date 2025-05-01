@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -23,12 +25,14 @@ public class TourPlanImageService implements ITourPlanImageService {
     private final TourPlanRepository tourPlanRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TourPlanImageResponse> getAllTourPlanImages(Pageable pageable) {
         return this.tourPlanImageRepository.findAll(pageable)
                 .map(TourPlanImageResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TourPlanImageResponse getTourPlanImageById(Integer id) {
         return this.tourPlanImageRepository.findById(id)
                 .map(TourPlanImageResponse::new)
@@ -36,6 +40,7 @@ public class TourPlanImageService implements ITourPlanImageService {
     }
 
     @Override
+    @Transactional
     public TourPlanImageResponse saveTourPlanImage(TourPlanImageRequest tourPlanImageRequest) {
         validateTourPlanImage(tourPlanImageRequest);
         TourPlanImage tourPlanImage = buildTourPlanImageFromRequest(tourPlanImageRequest);
@@ -43,6 +48,7 @@ public class TourPlanImageService implements ITourPlanImageService {
     }
 
     @Override
+    @Transactional
     public TourPlanImageResponse updateTourPlanImage(Integer id, TourPlanImageRequest tourPlanImageRequest) {
         TourPlanImage existingImage = this.tourPlanImageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TourPlanImage with " + id + " not found"));
@@ -52,6 +58,7 @@ public class TourPlanImageService implements ITourPlanImageService {
     }
 
     @Override
+    @Transactional
     public void deleteTourPlanImage(Integer id) {
         if(!this.tourPlanImageRepository.existsById(id)) {
             throw new ResourceNotFoundException("TourPlanImage with " + id + " not found");
@@ -60,6 +67,7 @@ public class TourPlanImageService implements ITourPlanImageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanImageResponse> getTourPlanImagesByTourPlanId(Integer tourPlanId) {
         TourPlan tourPlanExists = this.tourPlanRepository.findById(tourPlanId)
                 .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
@@ -70,6 +78,7 @@ public class TourPlanImageService implements ITourPlanImageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanImageResponse> getTourPlanImagesByTourPlanIdOrderByDisplayOrder(Integer tourPlanId) {
         return this.tourPlanImageRepository.findByTourPlanIdOrderByDisplayOrder(tourPlanId)
                 .stream()
@@ -78,6 +87,7 @@ public class TourPlanImageService implements ITourPlanImageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TourPlanImageResponse getMainImageByTourPlanId(Integer tourPlanId) {
         TourPlan tourPlan = this.tourPlanRepository.findById(tourPlanId)
                 .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
@@ -87,6 +97,7 @@ public class TourPlanImageService implements ITourPlanImageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanImageResponse> getNonMainImagesByTourPlanIdOrdered(Integer tourPlanId) {
         TourPlan tourPlan = this.tourPlanRepository.findById(tourPlanId)
                 .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
@@ -97,16 +108,19 @@ public class TourPlanImageService implements ITourPlanImageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Integer getMaxDisplayOrderForTourPlan(Integer tourPlanId) {
         return this.tourPlanImageRepository.findMaxDisplayOrderByTourPlanId(tourPlanId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long countImagesByTourPlanId(Integer tourPlanId) {
         return this.tourPlanImageRepository.countByTourPlanId(tourPlanId);
     }
 
     @Override
+    @Transactional
     public void deleteAllImagesByTourPlanId(Integer tourPlanId) {
         TourPlan tourPlan = this.tourPlanRepository.findById(tourPlanId)
                 .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
@@ -114,6 +128,7 @@ public class TourPlanImageService implements ITourPlanImageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsImageWithUrlForTourPlan(Integer tourPlanId, String imageUrl) {
         TourPlan tourPlan = this.tourPlanRepository.findById(tourPlanId)
                 .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
