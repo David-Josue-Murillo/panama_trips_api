@@ -133,16 +133,6 @@ public class TourPlanImageService implements ITourPlanImageService {
         return this.tourPlanImageRepository.existsByTourPlanAndImageUrl(tourPlan, imageUrl);
     }
 
-    @Override
-    public void reorderTourPlanImages(Integer tourPlanId, List<Integer> imageIds) {
-
-    }
-
-    @Override
-    public void setMainImage(Integer tourPlanId, Integer imageId) {
-
-    }
-
     // Private methods
     private void validateTourPlanImage(TourPlanImageRequest request) {
         // Validate required fields
