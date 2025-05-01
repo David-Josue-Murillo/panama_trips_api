@@ -52,7 +52,10 @@ public class TourPlanImageService implements ITourPlanImageService {
 
     @Override
     public void deleteTourPlanImage(Integer id) {
-
+        if(!this.tourPlanImageRepository.existsById(id)) {
+            throw new ResourceNotFoundException("TourPlanImage with " + id + " not found");
+        }
+        this.tourPlanImageRepository.deleteById(id);
     }
 
     @Override
