@@ -94,4 +94,17 @@ public class TourPlanImageService implements ITourPlanImageService {
     public void setMainImage(Integer tourPlanId, Integer imageId) {
 
     }
+
+    // Private methods
+    private void validateTourPlanImage(TourPlanImageRequest request) {
+        // Validate required fields
+        if (request == null) {
+            throw new IllegalArgumentException("TourPlanImage request cannot be null");
+        }
+
+        // Check if image URL already exists for the tour plan
+        if (existsImageWithUrlForTourPlan(request.getTourPlanId(), request.getImageUrl())) {
+            throw new IllegalArgumentException("An image with this URL already exists for this tour plan");
+        }
+    }
 }
