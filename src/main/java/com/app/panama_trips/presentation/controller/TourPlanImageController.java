@@ -2,7 +2,6 @@ package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.presentation.dto.TourPlanImageResponse;
 import com.app.panama_trips.service.implementation.TourPlanImageService;
-import com.app.panama_trips.service.implementation.TourPlanService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +29,4 @@ public class TourPlanImageController {
                 : Pageable.unpaged();
         return ResponseEntity.ok(this.tourPlanImageService.getAllTourPlanImages(pageable));
     }
-
-
 }
