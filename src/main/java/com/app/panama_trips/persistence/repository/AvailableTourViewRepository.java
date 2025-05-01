@@ -9,35 +9,40 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface AvailableTourViewRepository extends JpaRepository<AvailableTourView, Long> {
 
-    List<AvailableTourView> findByStatus(String status);
-
+    // Find available tours by provider
     List<AvailableTourView> findByProviderId(Long providerId);
 
-    List<AvailableTourView> findByFeaturedTrue();
+    // Find available tours with remaining spots - Fixed method name
+    List<AvailableTourView> findByRemainingSpotsGreaterThan(Long spots);
 
-    Optional<AvailableTourView> findBySlug(String slug);
+    // Find featured available tours
+    List<AvailableTourView> findByFeaturedTrueOrderByFeaturedOrderAsc();
 
-    List<AvailableTourView> findByPriceLessThanEqual(BigDecimal maxPrice);
+    // Find tours by price range
+    List<AvailableTourView> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
 
-    List<AvailableTourView> findByRemainingSpotGreaterThan(Long minSpots);
+    // Find tours by status
+    List<AvailableTourView> findByStatus(String status);
 
-    @Query("SELECT a FROM AvailableTourView a WHERE a.remainingSpots > 0 AND a.price >= :minPrice AND a.price <= :maxPrice")
-    List<AvailableTourView> findAvailableToursByPriceRange(@Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice);
+    // Find wheelchair accessible tours
+    List<AvailableTourView> findByWheelchairAccessibleTrue();
 
-    @Query("SELECT a FROM AvailableTourView a WHERE " +
-            "(:keyword IS NULL OR LOWER(a.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(a.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
-            "a.remainingSpots > 0 ORDER BY a.featuredOrder DESC, a.averageRating DESC")
-    List<AvailableTourView> searchAvailableTours(@Param("keyword") String keyword);
+    // Search by title or description
+    @Query("SELECT a FROM AvailableTourView a WHERE LOWER(a.title) LIKE LOWER(concat('%', :keyword, '%')) OR LOWER(a.description) LIKE LOWER(concat('%', :keyword, '%'))")
+    List<AvailableTourView> searchByTitleOrDescription(@Param("keyword") String keyword);
 
-    @Query("SELECT a FROM AvailableTourView a WHERE a.tags LIKE CONCAT('%', :tag, '%') AND a.remainingSpots > 0")
+    // Find tours by tags
+    @Query("SELECT a FROM AvailableTourView a WHERE a.tags LIKE %:tag%")
     List<AvailableTourView> findByTag(@Param("tag") String tag);
 
-    List<AvailableTourView> findBySeasonalTrueAndSeasonStartDateLessThanEqualAndSeasonEndDateGreaterThanEqual(
-            LocalDate currentDate, LocalDate currentDate2);
+    // Find highly rated tours
+    List<AvailableTourView> findByAverageRatingGreaterThanEqual(BigDecimal minRating);
+
+    // Find seasonal tours available on a specific date
+    @Query("SELECT a FROM AvailableTourView a WHERE (a.isSeasonal = false OR (a.seasonStartDate <= :date AND a.seasonEndDate >= :date))")
+    List<AvailableTourView> findAvailableOnDate(@Param("date") LocalDate date);
 }
