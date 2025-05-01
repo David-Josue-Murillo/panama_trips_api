@@ -24,8 +24,4 @@ public interface ITourPlanImageService {
     Long countImagesByTourPlanId(Integer tourPlanId);
     void deleteAllImagesByTourPlanId(Integer tourPlanId);
     boolean existsImageWithUrlForTourPlan(Integer tourPlanId, String imageUrl);
-
-    // Utility methods
-    void reorderTourPlanImages(Integer tourPlanId, List<Integer> imageIds);
-    void setMainImage(Integer tourPlanId, Integer imageId);
 }
