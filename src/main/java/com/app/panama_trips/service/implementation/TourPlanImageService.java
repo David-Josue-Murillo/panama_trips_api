@@ -126,4 +126,15 @@ public class TourPlanImageService implements ITourPlanImageService {
         return this.tourPlanRepository.findById(tourPlanId)
                 .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
     }
+
+    private void updateTourPlanImageFields(TourPlanImage existingImage, TourPlanImageRequest request) {
+        existingImage.setAltText(request.getAltText());
+        existingImage.setImageUrl(request.getImageUrl());
+        existingImage.setIsMain(request.getIsMain());
+        existingImage.setDisplayOrder(request.getDisplayOrder());
+        existingImage.setTourPlan(findTourPlanOrFail(request.getTourPlanId()));
+        if (request.getDisplayOrder() == null) {
+            existingImage.setDisplayOrder(getMaxDisplayOrderForTourPlan(request.getTourPlanId()) + 1);
+        }
+    }
 }
