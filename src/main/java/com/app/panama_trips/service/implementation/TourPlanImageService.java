@@ -36,12 +36,18 @@ public class TourPlanImageService implements ITourPlanImageService {
 
     @Override
     public TourPlanImageResponse saveTourPlanImage(TourPlanImageRequest tourPlanImageRequest) {
-        return null;
+        validateTourPlanImage(tourPlanImageRequest);
+        TourPlanImage tourPlanImage = buildTourPlanImageFromRequest(tourPlanImageRequest);
+        return new TourPlanImageResponse(this.tourPlanImageRepository.save(tourPlanImage));
     }
 
     @Override
     public TourPlanImageResponse updateTourPlanImage(Integer id, TourPlanImageRequest tourPlanImageRequest) {
-        return null;
+        TourPlanImage existingImage = this.tourPlanImageRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlanImage with " + id + " not found"));
+
+        updateTourPlanImageFields(existingImage, tourPlanImageRequest);
+        return new TourPlanImageResponse(this.tourPlanImageRepository.save(existingImage));
     }
 
     @Override
