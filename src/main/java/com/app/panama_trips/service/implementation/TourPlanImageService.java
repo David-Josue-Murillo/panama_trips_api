@@ -1,7 +1,10 @@
 package com.app.panama_trips.service.implementation;
 
 import com.app.panama_trips.exception.ResourceNotFoundException;
+import com.app.panama_trips.persistence.entity.TourPlan;
+import com.app.panama_trips.persistence.entity.TourPlanImage;
 import com.app.panama_trips.persistence.repository.TourPlanImageRepository;
+import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.presentation.dto.TourPlanImageRequest;
 import com.app.panama_trips.presentation.dto.TourPlanImageResponse;
 import com.app.panama_trips.service.interfaces.ITourPlanImageService;
@@ -16,6 +19,7 @@ import java.util.List;
 public class TourPlanImageService implements ITourPlanImageService {
 
     private final TourPlanImageRepository tourPlanImageRepository;
+    private final TourPlanRepository tourPlanRepository;
 
     @Override
     public Page<TourPlanImageResponse> getAllTourPlanImages(Pageable pageable) {
@@ -106,5 +110,20 @@ public class TourPlanImageService implements ITourPlanImageService {
         if (existsImageWithUrlForTourPlan(request.getTourPlanId(), request.getImageUrl())) {
             throw new IllegalArgumentException("An image with this URL already exists for this tour plan");
         }
+    }
+
+    private TourPlanImage buildTourPlanImageFromRequest(TourPlanImageRequest request) {
+        return TourPlanImage.builder()
+                .tourPlan(findTourPlanOrFail(request.getTourPlanId()))
+                .imageUrl(request.getImageUrl())
+                .altText(request.getAltText())
+                .isMain(request.getIsMain())
+                .displayOrder(request.getDisplayOrder())
+                .build();
+    }
+
+    private TourPlan findTourPlanOrFail(Integer tourPlanId) {
+        return this.tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
     }
 }
