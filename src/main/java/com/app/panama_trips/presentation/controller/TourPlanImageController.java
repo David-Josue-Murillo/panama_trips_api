@@ -55,7 +55,43 @@ public class TourPlanImageController {
     }
 
     @GetMapping("/tour-plan/{tourPlanId}")
-    public ResponseEntity<TourPlanImageResponse> findImagesByTourPlanId(@PathVariable Integer tourPlanId) {
+    public ResponseEntity<TourPlanImageResponse> findImageByTourPlanId(@PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(this.tourPlanImageService.getTourPlanImageById(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/all/{tourPlanId}")
+    public ResponseEntity<List<TourPlanImageResponse>> findImagesByTourPlanId(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(this.tourPlanImageService.getTourPlanImagesByTourPlanId(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/ordered")
+    public ResponseEntity<List<TourPlanImageResponse>> findImagesByTourPlanIdOrdered(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(this.tourPlanImageService.getTourPlanImagesByTourPlanIdOrderByDisplayOrder(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/main")
+    public ResponseEntity<TourPlanImageResponse> findMainImageByTourPlanId(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(this.tourPlanImageService.getMainImageByTourPlanId(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/non-main")
+    public ResponseEntity<List<TourPlanImageResponse>> findNonMainImagesByTourPlanId(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(this.tourPlanImageService.getNonMainImagesByTourPlanIdOrdered(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/count")
+    public ResponseEntity<Long> countImagesByTourPlanId(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(this.tourPlanImageService.countImagesByTourPlanId(tourPlanId));
+    }
+
+    @DeleteMapping("/tour-plan/{tourPlanId}/all")
+    public ResponseEntity<Void> deleteAllImagesByTourPlanId(@PathVariable Integer tourPlanId) {
+        this.tourPlanImageService.deleteAllImagesByTourPlanId(tourPlanId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/max-order")
+    public ResponseEntity<Integer> getMaxDisplayOrderForTourPlan(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(this.tourPlanImageService.getMaxDisplayOrderForTourPlan(tourPlanId));
     }
 }
