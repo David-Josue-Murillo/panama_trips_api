@@ -186,4 +186,19 @@ public class TourPlanImageServiceTest {
         assertEquals(tourPlanImageListsMock.size(), responses.size());
         verify(tourPlanImageRepository).findByTourPlan(tourPlanOneMock);
     }
+
+    @Test
+    void getTourPlanImagesByTourPlanIdOrderByDisplayOrder_shouldReturnImages() {
+        // Given
+        int tourPlanId = 1;
+        when(tourPlanImageRepository.findByTourPlanIdOrderByDisplayOrder(tourPlanId)).thenReturn(tourPlanImageListsMock);
+
+        // When
+        List<TourPlanImageResponse> responses = tourPlanImageService.getTourPlanImagesByTourPlanIdOrderByDisplayOrder(tourPlanId);
+
+        // Then
+        assertNotNull(responses);
+        assertEquals(tourPlanImageListsMock.size(), responses.size());
+        verify(tourPlanImageRepository).findByTourPlanIdOrderByDisplayOrder(tourPlanId);
+    }
 }
