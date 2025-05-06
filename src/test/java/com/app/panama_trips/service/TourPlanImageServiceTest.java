@@ -201,4 +201,190 @@ public class TourPlanImageServiceTest {
         assertEquals(tourPlanImageListsMock.size(), responses.size());
         verify(tourPlanImageRepository).findByTourPlanIdOrderByDisplayOrder(tourPlanId);
     }
+
+    @Test
+    void getMainImageByTourPlanId_shouldReturnImages() {
+        // Given
+        int tourPlanId = 1;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlanOneMock));
+        when(tourPlanImageRepository.findByTourPlanAndIsMainTrue(tourPlanOneMock)).thenReturn(Optional.of(tourPlanImageOneMock));
+
+        // When
+        TourPlanImageResponse responses = tourPlanImageService.getMainImageByTourPlanId(tourPlanId);
+
+        // Then
+        assertNotNull(responses);
+        verify(tourPlanImageRepository).findByTourPlanAndIsMainTrue(tourPlanOneMock);
+    }
+
+    @Test
+    void getMainImageByTourPlanId_shouldThrowExceptionWhenTourPlanNotFound() {
+        // Given
+        int tourPlanId = 999;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ResourceNotFoundException.class,
+                () -> tourPlanImageService.getMainImageByTourPlanId(tourPlanId));
+    }
+
+    @Test
+    void getMainImageByTourPlanId_shouldThrowExceptionWhenMainImageNotFound() {
+        // Given
+        int tourPlanId = 1;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlanOneMock));
+        when(tourPlanImageRepository.findByTourPlanAndIsMainTrue(tourPlanOneMock)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ResourceNotFoundException.class,
+                () -> tourPlanImageService.getMainImageByTourPlanId(tourPlanId));
+    }
+
+    @Test
+    void getNonMainImagesByTourPlanIdOrdered_shouldReturnNonMainImages() {
+        // Given
+        int tourPlanId = 1;
+        List<TourPlanImage> nonMainImages = tourPlanImageListsMock.subList(1, 2);
+
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlanOneMock));
+        when(tourPlanImageRepository.findByTourPlanAndIsMainFalseOrderByDisplayOrderAsc(tourPlanOneMock))
+                .thenReturn(nonMainImages);
+
+        // When
+        List<TourPlanImageResponse> responses = tourPlanImageService.getNonMainImagesByTourPlanIdOrdered(tourPlanId);
+
+        // Then
+        assertNotNull(responses);
+        assertEquals(nonMainImages.size(), responses.size());
+        verify(tourPlanImageRepository).findByTourPlanAndIsMainFalseOrderByDisplayOrderAsc(tourPlanOneMock);
+    }
+
+    @Test
+    void getNonMainImagesByTourPlanIdOrdered_shouldThrowExceptionWhenTourPlanNotFound() {
+        // Given
+        int tourPlanId = 999;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ResourceNotFoundException.class,
+                () -> tourPlanImageService.getNonMainImagesByTourPlanIdOrdered(tourPlanId));
+    }
+
+    @Test
+    void getMaxDisplayOrderForTourPlan_shouldReturnMaxDisplayOrder() {
+        // Given
+        int tourPlanId = 1;
+        Integer maxOrder = 5;
+        when(tourPlanImageRepository.findMaxDisplayOrderByTourPlanId(tourPlanId)).thenReturn(maxOrder);
+
+        // When
+        Integer result = tourPlanImageService.getMaxDisplayOrderForTourPlan(tourPlanId);
+
+        // Then
+        assertEquals(maxOrder, result);
+        verify(tourPlanImageRepository).findMaxDisplayOrderByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    void getMaxDisplayOrderForTourPlan_shouldReturnNullWhenNoImagesExist() {
+        // Given
+        int tourPlanId = 1;
+        when(tourPlanImageRepository.findMaxDisplayOrderByTourPlanId(tourPlanId)).thenReturn(null);
+
+        // When
+        Integer result = tourPlanImageService.getMaxDisplayOrderForTourPlan(tourPlanId);
+
+        // Then
+        assertNull(result);
+        verify(tourPlanImageRepository).findMaxDisplayOrderByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    void countImagesByTourPlanId_shouldReturnCorrectCount() {
+        // Given
+        int tourPlanId = 1;
+        long expectedCount = 3L;
+        when(tourPlanImageRepository.countByTourPlanId(tourPlanId)).thenReturn(expectedCount);
+
+        // When
+        Long result = tourPlanImageService.countImagesByTourPlanId(tourPlanId);
+
+        // Then
+        assertEquals(expectedCount, result);
+        verify(tourPlanImageRepository).countByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    void deleteAllImagesByTourPlanId_shouldDeleteAllImages() {
+        // Given
+        int tourPlanId = 1;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlanOneMock));
+
+        // When
+        tourPlanImageService.deleteAllImagesByTourPlanId(tourPlanId);
+
+        // Then
+        verify(tourPlanRepository).findById(tourPlanId);
+        verify(tourPlanImageRepository).deleteByTourPlan(tourPlanOneMock);
+    }
+
+    @Test
+    void deleteAllImagesByTourPlanId_shouldThrowExceptionWhenTourPlanNotFound() {
+        // Given
+        int tourPlanId = 999;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ResourceNotFoundException.class,
+                () -> tourPlanImageService.deleteAllImagesByTourPlanId(tourPlanId));
+    }
+
+    @Test
+    void existsImageWithUrlForTourPlan_shouldReturnTrueWhenImageExists() {
+        // Given
+        int tourPlanId = 1;
+        String imageUrl = "http://example.com/image.jpg";
+
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlanOneMock));
+        when(tourPlanImageRepository.existsByTourPlanAndImageUrl(tourPlanOneMock, imageUrl)).thenReturn(true);
+
+        // When
+        boolean result = tourPlanImageService.existsImageWithUrlForTourPlan(tourPlanId, imageUrl);
+
+        // Then
+        assertTrue(result);
+        verify(tourPlanRepository).findById(tourPlanId);
+        verify(tourPlanImageRepository).existsByTourPlanAndImageUrl(tourPlanOneMock, imageUrl);
+    }
+
+    @Test
+    void existsImageWithUrlForTourPlan_shouldReturnFalseWhenImageDoesNotExist() {
+        // Given
+        int tourPlanId = 1;
+        String imageUrl = "http://example.com/new-image.jpg";
+
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlanOneMock));
+        when(tourPlanImageRepository.existsByTourPlanAndImageUrl(tourPlanOneMock, imageUrl)).thenReturn(false);
+
+        // When
+        boolean result = tourPlanImageService.existsImageWithUrlForTourPlan(tourPlanId, imageUrl);
+
+        // Then
+        assertFalse(result);
+        verify(tourPlanRepository).findById(tourPlanId);
+        verify(tourPlanImageRepository).existsByTourPlanAndImageUrl(tourPlanOneMock, imageUrl);
+    }
+
+    @Test
+    void existsImageWithUrlForTourPlan_shouldThrowExceptionWhenTourPlanNotFound() {
+        // Given
+        int tourPlanId = 999;
+        String imageUrl = "http://example.com/image.jpg";
+
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ResourceNotFoundException.class,
+                () -> tourPlanImageService.existsImageWithUrlForTourPlan(tourPlanId, imageUrl));
+    }
 }
