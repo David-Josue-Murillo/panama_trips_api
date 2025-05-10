@@ -141,18 +141,18 @@ public class TourPlanImageService implements ITourPlanImageService {
         }
 
         // Check if image URL already exists for the tour plan
-        if (existsImageWithUrlForTourPlan(request.getTourPlanId(), request.getImageUrl())) {
+        if (existsImageWithUrlForTourPlan(request.tourPlanId(), request.imageUrl())) {
             throw new IllegalArgumentException("An image with this URL already exists for this tour plan");
         }
     }
 
     private TourPlanImage buildTourPlanImageFromRequest(TourPlanImageRequest request) {
         return TourPlanImage.builder()
-                .tourPlan(findTourPlanOrFail(request.getTourPlanId()))
-                .imageUrl(request.getImageUrl())
-                .altText(request.getAltText())
-                .isMain(request.getIsMain())
-                .displayOrder(request.getDisplayOrder())
+                .tourPlan(findTourPlanOrFail(request.tourPlanId()))
+                .imageUrl(request.imageUrl())
+                .altText(request.altText())
+                .isMain(request.isMain())
+                .displayOrder(request.displayOrder())
                 .build();
     }
 
@@ -162,13 +162,13 @@ public class TourPlanImageService implements ITourPlanImageService {
     }
 
     private void updateTourPlanImageFields(TourPlanImage existingImage, TourPlanImageRequest request) {
-        existingImage.setAltText(request.getAltText());
-        existingImage.setImageUrl(request.getImageUrl());
-        existingImage.setIsMain(request.getIsMain());
-        existingImage.setDisplayOrder(request.getDisplayOrder());
-        existingImage.setTourPlan(findTourPlanOrFail(request.getTourPlanId()));
-        if (request.getDisplayOrder() == null) {
-            existingImage.setDisplayOrder(getMaxDisplayOrderForTourPlan(request.getTourPlanId()) + 1);
+        existingImage.setAltText(request.altText());
+        existingImage.setImageUrl(request.imageUrl());
+        existingImage.setIsMain(request.isMain());
+        existingImage.setDisplayOrder(request.displayOrder());
+        existingImage.setTourPlan(findTourPlanOrFail(request.tourPlanId()));
+        if (request.displayOrder() == null) {
+            existingImage.setDisplayOrder(getMaxDisplayOrderForTourPlan(request.tourPlanId()) + 1);
         }
     }
 }
