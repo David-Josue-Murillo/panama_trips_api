@@ -67,63 +67,115 @@ public class TourPlanAvailabilityService implements ITourPlanAvailabilityService
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanAvailabilityResponse> getTourPlanAvailabilitiesByTourPlanId(Integer tourPlanId) {
-        return List.of();
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+
+        return availabilityRepository.findByTourPlan(tourPlan).stream()
+                .map(TourPlanAvailabilityResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanAvailabilityResponse> getAvailableDatesByTourPlanId(Integer tourPlanId) {
-        return List.of();
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+
+        return availabilityRepository.findByTourPlanAndIsAvailableTrue(tourPlan).stream()
+                .map(TourPlanAvailabilityResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanAvailabilityResponse> getAvailabilitiesByDateRange(LocalDate startDate, LocalDate endDate) {
-        return List.of();
+        return availabilityRepository.findByAvailableDateBetween(startDate, endDate).stream()
+                .map(TourPlanAvailabilityResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanAvailabilityResponse> getAvailabilitiesByTourPlanIdAndDateRange(Integer tourPlanId, LocalDate startDate, LocalDate endDate) {
-        return List.of();
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+
+        return availabilityRepository.findByTourPlanAndAvailableDateBetween(tourPlan, startDate, endDate).stream()
+                .map(TourPlanAvailabilityResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TourPlanAvailabilityResponse getAvailabilityByTourPlanIdAndDate(Integer tourPlanId, LocalDate date) {
-        return null;
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+
+        return availabilityRepository.findByTourPlanAndAvailableDate(tourPlan, date)
+                .map(TourPlanAvailabilityResponse::new)
+                .orElseThrow(() -> new RuntimeException(
+                        "TourPlanAvailability not found for tour plan id: " + tourPlanId + " and date: " + date));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanAvailabilityResponse> getUpcomingAvailableDatesByTourPlanId(Integer tourPlanId) {
-        return List.of();
+        LocalDate today = LocalDate.now();
+
+        return this.availabilityRepository.findAvailableDatesByTourPlanId(tourPlanId, today)
+                .stream()
+                .map(TourPlanAvailabilityResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanAvailabilityResponse> getAvailableDatesWithSufficientSpots(Integer tourPlanId, Integer requiredSpots) {
-        return List.of();
+        LocalDate today = LocalDate.now();
+
+        return availabilityRepository.findDatesByTourPlanWithSufficientSpots(tourPlanId, requiredSpots, today)
+                .stream()
+                .map(TourPlanAvailabilityResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long countUpcomingAvailableDatesByTourPlanId(Integer tourPlanId) {
-        return 0L;
+        LocalDate today = LocalDate.now();
+
+        return availabilityRepository.countAvailableDatesByTourPlan(tourPlanId, today);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanAvailabilityResponse> getAvailabilitiesWithPriceOverride(Integer tourPlanId) {
-        return List.of();
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+
+        return availabilityRepository.findByTourPlanAndPriceOverrideIsNotNull(tourPlan).stream()
+                .map(TourPlanAvailabilityResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanAvailabilityResponse> getAvailabilitiesWithPriceAbove(Integer tourPlanId, BigDecimal price) {
-        return List.of();
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+
+        return availabilityRepository.findByTourPlanAndPriceOverrideGreaterThan(tourPlan, price).stream()
+                .map(TourPlanAvailabilityResponse::new)
+                .toList();
     }
 
     @Override
     public void deleteAllAvailabilitiesByTourPlanId(Integer tourPlanId) {
-
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+        availabilityRepository.deleteByTourPlan(tourPlan);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsAvailabilityForTourPlanAndDate(Integer tourPlanId, LocalDate date) {
-        return false;
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+        return availabilityRepository.existsByTourPlanAndAvailableDate(tourPlan, date);
     }
 
     // Private methods
