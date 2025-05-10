@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@IdClass(TourPlanRegionId.class)
 @Table(name = "tour_plan_regions")
 public class TourPlanRegion {
 

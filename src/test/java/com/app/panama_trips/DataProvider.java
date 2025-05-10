@@ -699,4 +699,58 @@ public class DataProvider {
             new ReservationResponse(reservationTwoMock),
             new ReservationResponse(reservationThreeMock)
     );
+
+    /*
+     * TourPlanImage instances
+     *
+     *
+     */
+
+    public static TourPlanImage tourPlanImageOneMock = TourPlanImage.builder()
+            .id(1)
+            .tourPlan(tourPlanOneMock)
+            .imageUrl("https://example.com/image1.jpg")
+            .altText("Image 1")
+            .isMain(true)
+            .displayOrder(1)
+            .build();
+
+    public static TourPlanImage tourPlanImageTwoMock = TourPlanImage.builder()
+            .id(2)
+            .tourPlan(tourPlanOneMock)
+            .imageUrl("https://example.com/image2.jpg")
+            .altText("Image 2")
+            .isMain(false)
+            .displayOrder(2)
+            .build();
+
+    public static TourPlanImage tourPlanImageThreeMock = TourPlanImage.builder()
+            .id(3)
+            .tourPlan(tourPlanTwoMock)
+            .imageUrl("https://example.com/image3.jpg")
+            .altText("Image 3")
+            .isMain(false)
+            .displayOrder(3)
+            .build();
+
+    public static List<TourPlanImage> tourPlanImageListsMock = List.of(
+            tourPlanImageOneMock,
+            tourPlanImageTwoMock,
+            tourPlanImageThreeMock
+    );
+
+    public static TourPlanImageResponse tourPlanImageResponseMock = new TourPlanImageResponse(tourPlanImageOneMock);
+    public static TourPlanImageRequest tourPlanImageRequestMock = new TourPlanImageRequest(
+            1,
+            "https://example.com/image1.jpg",
+            "Image 1",
+            true,
+            1
+    );
+
+    public static List<TourPlanImageResponse> tourPlanImageResponseListMocks = List.of(
+            new TourPlanImageResponse(tourPlanImageOneMock),
+            new TourPlanImageResponse(tourPlanImageTwoMock),
+            new TourPlanImageResponse(tourPlanImageThreeMock)
+    );
 }
