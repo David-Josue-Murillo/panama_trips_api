@@ -1,5 +1,8 @@
 package com.app.panama_trips.service.implementation;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
+import com.app.panama_trips.persistence.entity.TourPlan;
+import com.app.panama_trips.persistence.entity.TourPlanAvailability;
 import com.app.panama_trips.persistence.repository.TourPlanAvailabilityRepository;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.presentation.dto.TourPlanAvailabilityRequest;
@@ -107,5 +110,41 @@ public class TourPlanAvailabilityService implements ITourPlanAvailabilityService
     @Override
     public boolean existsAvailabilityForTourPlanAndDate(Integer tourPlanId, LocalDate date) {
         return false;
+    }
+
+    // Private methods
+    private void validateTourPlanAvailability(TourPlanAvailabilityRequest request) {
+        // Validate required fields
+        if (request == null) {
+            throw new IllegalArgumentException("Request cannot be null");
+        }
+        if (request.tourPlanId() == null) {
+            throw new IllegalArgumentException("TourPlan ID cannot be null");
+        }
+        if (request.availableDate() == null) {
+            throw new IllegalArgumentException("Date cannot be null");
+        }
+    }
+
+    private TourPlanAvailability buildTourPlanAvailabilityFromRequest(TourPlanAvailabilityRequest request) {
+        return TourPlanAvailability.builder()
+                .tourPlan(findTourPlanOrFail(request.tourPlanId()))
+                .availableDate(request.availableDate())
+                .availableSpots(request.availableSpots())
+                .isAvailable(request.isAvailable())
+                .priceOverride(request.priceOverride())
+                .build();
+    }
+
+    private TourPlan findTourPlanOrFail(Integer tourPlanId) {
+        return this.tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
+    }
+
+    private void updateTourPlanAvailability(TourPlanAvailability availability, TourPlanAvailabilityRequest request) {
+        availability.setAvailableDate(request.availableDate());
+        availability.setAvailableSpots(request.availableSpots());
+        availability.setIsAvailable(request.isAvailable());
+        availability.setPriceOverride(request.priceOverride());
     }
 }
