@@ -29,27 +29,41 @@ public class TourPlanAvailabilityService implements ITourPlanAvailabilityService
     @Override
     @Transactional(readOnly = true)
     public Page<TourPlanAvailabilityResponse> getAllTourPlanAvailabilities(Pageable pageable) {
-        return null;
+        return this.availabilityRepository.findAll(pageable)
+                .map(TourPlanAvailabilityResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TourPlanAvailabilityResponse getTourPlanAvailabilityById(Integer id) {
-        return null;
+        return this.availabilityRepository.findById(id)
+                .map(TourPlanAvailabilityResponse::new)
+                .orElseThrow(() -> new RuntimeException("TourPlanAvailability not found with id: " + id));
     }
 
     @Override
     public TourPlanAvailabilityResponse saveTourPlanAvailability(TourPlanAvailabilityRequest request) {
-        return null;
+        validateTourPlanAvailability(request);
+        TourPlanAvailability availability = buildTourPlanAvailabilityFromRequest(request);
+        return new TourPlanAvailabilityResponse(this.availabilityRepository.save(availability));
     }
 
     @Override
     public TourPlanAvailabilityResponse updateTourPlanAvailability(Integer id, TourPlanAvailabilityRequest request) {
-        return null;
+        TourPlanAvailability existingAvailability = this.availabilityRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlanAvailability with id " + id + " not found"));
+
+        updateTourPlanAvailability(existingAvailability, request);
+        return new TourPlanAvailabilityResponse(this.availabilityRepository.save(existingAvailability));
     }
 
     @Override
     public void deleteTourPlanAvailability(Integer id) {
+        if(!this.availabilityRepository.existsById(id)) {
+            throw new ResourceNotFoundException("TourPlanAvailability with id " + id + " not found");
+        }
 
+        this.availabilityRepository.deleteById(id);
     }
 
     @Override
