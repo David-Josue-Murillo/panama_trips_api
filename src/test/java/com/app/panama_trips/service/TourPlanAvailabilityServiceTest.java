@@ -1,6 +1,5 @@
 package com.app.panama_trips.service;
 
-import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.TourPlanAvailability;
 import com.app.panama_trips.persistence.repository.TourPlanAvailabilityRepository;
