@@ -786,7 +786,7 @@ public class DataProvider {
             .priceOverride(BigDecimal.valueOf(70.00))
             .build();
 
-    public List<TourPlanAvailability> tourPlanAvailabilityListsMock = List.of(
+    public static List<TourPlanAvailability> tourPlanAvailabilityListsMock = List.of(
             tourPlanAvailabilityOneMock,
             tourPlanAvailabilityTwoMock,
             tourPlanAvailabilityThreeMock
