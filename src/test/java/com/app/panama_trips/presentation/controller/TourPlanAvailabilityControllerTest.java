@@ -120,4 +120,145 @@ public class TourPlanAvailabilityControllerTest {
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getTourPlanAvailabilitiesByTourPlanId_success() throws Exception {
+        when(tourPlanAvailabilityService.getTourPlanAvailabilitiesByTourPlanId(any(Integer.class)))
+                .thenReturn(tourPlanAvailabilityResponseListMocks);
+
+        mockMvc.perform(get("/api/tour-plan-availability/tour-plan/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(tourPlanAvailabilityResponseListMocks.getFirst().id()))
+                .andExpect(jsonPath("$[0].tourPlanId").value(tourPlanAvailabilityResponseListMocks.getFirst().tourPlanId()));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAvailableDatesByTourPlanId_success() throws Exception {
+        when(tourPlanAvailabilityService.getAvailableDatesByTourPlanId(any(Integer.class)))
+                .thenReturn(tourPlanAvailabilityResponseListMocks);
+
+        mockMvc.perform(get("/api/tour-plan-availability/tour-plan/1/available"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(tourPlanAvailabilityResponseListMocks.getFirst().id()))
+                .andExpect(jsonPath("$[0].isAvailable").value(tourPlanAvailabilityResponseListMocks.getFirst().isAvailable()));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAvailabilitiesByDateRange_success() throws Exception {
+        when(tourPlanAvailabilityService.getAvailabilitiesByDateRange(any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(tourPlanAvailabilityResponseListMocks);
+
+        mockMvc.perform(get("/api/tour-plan-availability/date-range")
+                        .param("startDate", LocalDate.now().toString())
+                        .param("endDate", LocalDate.now().plusDays(7).toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(tourPlanAvailabilityResponseListMocks.getFirst().id()))
+                .andExpect(jsonPath("$[0].availableDate").value(tourPlanAvailabilityResponseListMocks.getFirst().availableDate().toString()));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAvailabilitiesByTourPlanIdAndDateRange_success() throws Exception {
+        when(tourPlanAvailabilityService.getAvailabilitiesByTourPlanIdAndDateRange(
+                any(Integer.class), any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(tourPlanAvailabilityResponseListMocks);
+
+        mockMvc.perform(get("/api/tour-plan-availability/tour-plan/1/date-range")
+                        .param("startDate", LocalDate.now().toString())
+                        .param("endDate", LocalDate.now().plusDays(7).toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(tourPlanAvailabilityResponseListMocks.getFirst().id()))
+                .andExpect(jsonPath("$[0].tourPlanId").value(tourPlanAvailabilityResponseListMocks.getFirst().tourPlanId()));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAvailabilityByTourPlanIdAndDate_success() throws Exception {
+        TourPlanAvailabilityResponse response = tourPlanAvailabilityResponseMock;
+        when(tourPlanAvailabilityService.getAvailabilityByTourPlanIdAndDate(
+                any(Integer.class), any(LocalDate.class)))
+                .thenReturn(response);
+
+        mockMvc.perform(get("/api/tour-plan-availability/tour-plan/1/date/" + LocalDate.now()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.id()))
+                .andExpect(jsonPath("$.availableDate").value(response.availableDate().toString()));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getUpcomingAvailableDatesByTourPlanId_success() throws Exception {
+        when(tourPlanAvailabilityService.getUpcomingAvailableDatesByTourPlanId(any(Integer.class)))
+                .thenReturn(tourPlanAvailabilityResponseListMocks);
+
+        mockMvc.perform(get("/api/tour-plan-availability/tour-plan/1/upcoming"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(tourPlanAvailabilityResponseListMocks.getFirst().id()));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAvailableDatesWithSufficientSpots_success() throws Exception {
+        when(tourPlanAvailabilityService.getAvailableDatesWithSufficientSpots(any(Integer.class), any(Integer.class)))
+                .thenReturn(tourPlanAvailabilityResponseListMocks);
+
+        mockMvc.perform(get("/api/tour-plan-availability/tour-plan/1/sufficient-spots/5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(tourPlanAvailabilityResponseListMocks.getFirst().id()));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void countUpcomingAvailableDatesByTourPlanId_success() throws Exception {
+        when(tourPlanAvailabilityService.countUpcomingAvailableDatesByTourPlanId(any(Integer.class)))
+                .thenReturn(3L);
+
+        mockMvc.perform(get("/api/tour-plan-availability/tour-plan/1/upcoming/count"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(3));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAvailabilitiesWithPriceOverride_success() throws Exception {
+        when(tourPlanAvailabilityService.getAvailabilitiesWithPriceOverride(any(Integer.class)))
+                .thenReturn(tourPlanAvailabilityResponseListMocks);
+
+        mockMvc.perform(get("/api/tour-plan-availability/tour-plan/1/price-override"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(tourPlanAvailabilityResponseListMocks.getFirst().id()));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAvailabilitiesWithPriceAbove_success() throws Exception {
+        when(tourPlanAvailabilityService.getAvailabilitiesWithPriceAbove(any(Integer.class), any(BigDecimal.class)))
+                .thenReturn(tourPlanAvailabilityResponseListMocks);
+
+        mockMvc.perform(get("/api/tour-plan-availability/tour-plan/1/price-above/50.0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(tourPlanAvailabilityResponseListMocks.getFirst().id()));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void deleteAllAvailabilitiesByTourPlanId_success() throws Exception {
+        mockMvc.perform(delete("/api/tour-plan-availability/tour-plan/1")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void existsAvailabilityForTourPlanAndDate_success() throws Exception {
+        when(tourPlanAvailabilityService.existsAvailabilityForTourPlanAndDate(any(Integer.class), any(LocalDate.class)))
+                .thenReturn(true);
+
+        mockMvc.perform(get("/api/tour-plan-availability/tour-plan/1/exists/" + LocalDate.now()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(true));
+    }
 }
