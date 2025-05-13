@@ -753,4 +753,59 @@ public class DataProvider {
             new TourPlanImageResponse(tourPlanImageTwoMock),
             new TourPlanImageResponse(tourPlanImageThreeMock)
     );
+
+    /*
+    * TourPlanAvailability instances
+    *
+     */
+
+    public static TourPlanAvailability tourPlanAvailabilityOneMock = TourPlanAvailability.builder()
+            .id(1)
+            .tourPlan(tourPlanOneMock)
+            .availableDate(LocalDate.now())
+            .availableSpots(10)
+            .isAvailable(true)
+            .priceOverride(BigDecimal.valueOf(90.00))
+            .build();
+
+    public static TourPlanAvailability tourPlanAvailabilityTwoMock = TourPlanAvailability.builder()
+            .id(2)
+            .tourPlan(tourPlanOneMock)
+            .availableDate(LocalDate.now().plusDays(1))
+            .availableSpots(5)
+            .isAvailable(true)
+            .priceOverride(BigDecimal.valueOf(80.00))
+            .build();
+
+    public static TourPlanAvailability tourPlanAvailabilityThreeMock = TourPlanAvailability.builder()
+            .id(3)
+            .tourPlan(tourPlanTwoMock)
+            .availableDate(LocalDate.now().plusDays(2))
+            .availableSpots(15)
+            .isAvailable(true)
+            .priceOverride(BigDecimal.valueOf(70.00))
+            .build();
+
+    public static List<TourPlanAvailability> tourPlanAvailabilityListsMock = List.of(
+            tourPlanAvailabilityOneMock,
+            tourPlanAvailabilityTwoMock,
+            tourPlanAvailabilityThreeMock
+    );
+
+    public static TourPlanAvailabilityResponse tourPlanAvailabilityResponseMock = new TourPlanAvailabilityResponse(tourPlanAvailabilityOneMock);
+    public static TourPlanAvailabilityRequest tourPlanAvailabilityRequest = new TourPlanAvailabilityRequest(
+            1,
+            1,
+            LocalDate.now(),
+            10,
+            true,
+            BigDecimal.valueOf(90.00)
+    );
+
+    public static List<TourPlanAvailabilityResponse> tourPlanAvailabilityResponseListMocks = List.of(
+            new TourPlanAvailabilityResponse(tourPlanAvailabilityOneMock),
+            new TourPlanAvailabilityResponse(tourPlanAvailabilityTwoMock),
+            new TourPlanAvailabilityResponse(tourPlanAvailabilityThreeMock)
+    );
+
 }

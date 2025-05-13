@@ -112,9 +112,9 @@ public class TourPlanImageServiceTest {
         TourPlanImage updatedImage = new TourPlanImage();
         updatedImage.setId(imageId);
         updatedImage.setTourPlan(DataProvider.tourPlanOneMock);
-        updatedImage.setImageUrl(request.getImageUrl());
-        updatedImage.setDisplayOrder(request.getDisplayOrder());
-        updatedImage.setIsMain(request.getIsMain());
+        updatedImage.setImageUrl(request.imageUrl());
+        updatedImage.setDisplayOrder(request.displayOrder());
+        updatedImage.setIsMain(request.isMain());
 
         when(tourPlanImageRepository.findById(imageId)).thenReturn(Optional.of(existingImage));
         when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlanOneMock));
