@@ -127,8 +127,26 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
         }
     }
 
+    private TourPlanSpecialPrice builderFromRequest(TourPlanSpecialPriceRequest request) {
+        return TourPlanSpecialPrice.builder()
+                .tourPlan(findTourPlanOrFail(request.tourPlanId()))
+                .startDate(request.startDate())
+                .endDate(request.endDate())
+                .price(request.price())
+                .description(request.description())
+                .build();
+    }
+
     private TourPlan findTourPlanOrFail(Integer tourPlanId) {
         return this.tourPlanRepository.findById(tourPlanId)
                 .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
+    }
+
+    private void updateTourPlanSpecialPrice(TourPlanSpecialPrice existingTour, TourPlanSpecialPriceRequest request) {
+        existingTour.setTourPlan(findTourPlanOrFail(request.tourPlanId()));
+        existingTour.setStartDate(request.startDate());
+        existingTour.setEndDate(request.endDate());
+        existingTour.setPrice(request.price());
+        existingTour.setDescription(request.description());
     }
 }
