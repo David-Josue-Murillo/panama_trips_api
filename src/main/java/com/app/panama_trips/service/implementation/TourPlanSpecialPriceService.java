@@ -68,53 +68,85 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanSpecialPriceResponse> findByTourPlan(TourPlan tourPlan) {
-        return List.of();
+        return this.tourPlanSpecialPriceRepository.findByTourPlan(tourPlan)
+                .stream()
+                .map(TourPlanSpecialPriceResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanSpecialPriceResponse> findByTourPlanOrderByStartDateAsc(TourPlan tourPlan) {
-        return List.of();
+        return this.tourPlanSpecialPriceRepository.findByTourPlanOrderByStartDateAsc(tourPlan)
+                .stream()
+                .map(TourPlanSpecialPriceResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanSpecialPriceResponse> findByStartDateBetween(LocalDate startDate, LocalDate endDate) {
-        return List.of();
+        return this.tourPlanSpecialPriceRepository.findByStartDateBetween(startDate, endDate)
+                .stream()
+                .map(TourPlanSpecialPriceResponse::new)
+                .toList();
     }
 
     @Override
-    public List<TourPlanSpecialPriceResponse> findOverlappingPricePeriodsForTourPlan(Integer tourPlanId, LocalDate startDate, LocalDate endDate) {
-        return List.of();
-    }
-
-    @Override
-    public List<TourPlanSpecialPriceResponse> findByTourPlanAndPriceGreaterThan(TourPlan tourPlan, BigDecimal price) {
-        return List.of();
-    }
-
-    @Override
-    public List<TourPlanSpecialPriceResponse> findByTourPlanAndStartDateGreaterThanEqual(TourPlan tourPlan, LocalDate date) {
-        return List.of();
-    }
-
-    @Override
+    @Transactional(readOnly = true)
     public List<TourPlanSpecialPriceResponse> findByEndDateBetween(LocalDate startDate, LocalDate endDate) {
-        return List.of();
+        return this.tourPlanSpecialPriceRepository.findByEndDateBetween(startDate, endDate)
+                .stream()
+                .map(TourPlanSpecialPriceResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<TourPlanSpecialPriceResponse> findByTourPlanIdAndDate(Integer tourPlanId, LocalDate date) {
-        return Optional.empty();
+        return this.tourPlanSpecialPriceRepository.findByTourPlanIdAndDate(tourPlanId, date)
+                .map(TourPlanSpecialPriceResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<TourPlanSpecialPriceResponse> findOverlappingPricePeriodsForTourPlan(Integer tourPlanId, LocalDate startDate, LocalDate endDate) {
+        return this.tourPlanSpecialPriceRepository.findOverlappingPricePeriodsForTourPlan(tourPlanId, startDate, endDate)
+                .stream()
+                .map(TourPlanSpecialPriceResponse::new)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TourPlanSpecialPriceResponse> findByTourPlanAndPriceGreaterThan(TourPlan tourPlan, BigDecimal price) {
+        return this.tourPlanSpecialPriceRepository.findByTourPlanAndPriceGreaterThan(tourPlan, price)
+                .stream()
+                .map(TourPlanSpecialPriceResponse::new)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TourPlanSpecialPriceResponse> findByTourPlanAndStartDateGreaterThanEqual(TourPlan tourPlan, LocalDate date) {
+        return this.tourPlanSpecialPriceRepository.findByTourPlanAndStartDateGreaterThanEqual(tourPlan, date)
+                .stream()
+                .map(TourPlanSpecialPriceResponse::new)
+                .toList();
+    }
+
+    @Override
+    @Transactional
     public void deleteByTourPlan(TourPlan tourPlan) {
-
+        this.tourPlanSpecialPriceRepository.deleteByTourPlan(tourPlan);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByTourPlanAndStartDateAndEndDate(TourPlan tourPlan, LocalDate startDate, LocalDate endDate) {
-        return false;
+        return this.tourPlanSpecialPriceRepository.existsByTourPlanAndStartDateAndEndDate(tourPlan, startDate, endDate);
     }
 
     // Private methods
