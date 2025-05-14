@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,12 +27,14 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
     private final TourPlanRepository tourPlanRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TourPlanSpecialPriceResponse> getAll(Pageable pageable) {
         return this.tourPlanSpecialPriceRepository.findAll(pageable)
                 .map(TourPlanSpecialPriceResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TourPlanSpecialPriceResponse findById(Integer id) {
         return this.tourPlanSpecialPriceRepository.findById(id)
                 .map(TourPlanSpecialPriceResponse::new)
@@ -39,6 +42,7 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
     }
 
     @Override
+    @Transactional
     public TourPlanSpecialPriceResponse save(TourPlanSpecialPriceRequest request) {
         validateTourPlanSpecialService(request);
         TourPlanSpecialPrice tourPlanSpecialPrice = builderFromRequest(request);
@@ -46,16 +50,21 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
     }
 
     @Override
+    @Transactional
     public TourPlanSpecialPriceResponse update(Integer id, TourPlanSpecialPriceRequest tourPlanSpecialPrice) {
         TourPlanSpecialPrice existingTour = this.tourPlanSpecialPriceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TourPlanSpecialPrice with id " + id + " not found"));
         updateTourPlanSpecialPrice(existingTour, tourPlanSpecialPrice);
-        return null;
+        return new TourPlanSpecialPriceResponse(this.tourPlanSpecialPriceRepository.save(existingTour));
     }
 
     @Override
+    @Transactional
     public void deleteById(Integer id) {
-
+        if(!this.tourPlanSpecialPriceRepository.existsById(id)) {
+            throw new ResourceNotFoundException("TourPlanSpecialPrice with id " + id + " not found");
+        }
+        this.tourPlanSpecialPriceRepository.deleteById(id);
     }
 
     @Override
