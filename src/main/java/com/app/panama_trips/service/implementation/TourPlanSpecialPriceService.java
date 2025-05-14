@@ -1,5 +1,6 @@
 package com.app.panama_trips.service.implementation;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.TourPlan;
 import com.app.panama_trips.persistence.entity.TourPlanSpecialPrice;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
@@ -96,5 +97,38 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
     @Override
     public boolean existsByTourPlanAndStartDateAndEndDate(TourPlan tourPlan, LocalDate startDate, LocalDate endDate) {
         return false;
+    }
+
+    // Private methods
+    private void validateTourPlanSpecialService(TourPlanSpecialPriceRequest request) {
+        // Validate if tour plan exists
+        TourPlan tourPlan = findTourPlanOrFail(request.tourPlanId());
+
+        // Check for overlapping date ranges for the same tour plan
+        List<TourPlanSpecialPrice> overlappingPrices = tourPlanSpecialPriceRepository
+                .findOverlappingPricePeriodsForTourPlan(
+                        request.tourPlanId(),
+                        request.startDate(),
+                        request.endDate());
+
+        if (!overlappingPrices.isEmpty()) {
+            throw new IllegalArgumentException("There is already a special price defined for this tour plan during the specified date range");
+        }
+
+        // Check if the special price is lower than the regular tour price
+        if (tourPlan.getPrice() != null && request.price().compareTo(tourPlan.getPrice()) >= 0) {
+            throw new IllegalArgumentException("Special price must be lower than the regular tour price");
+        }
+
+        // Check if the date range is not too long (e.g., maximum 90 days)
+        long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(request.startDate(), request.endDate());
+        if (daysBetween > 90) {
+            throw new IllegalArgumentException("Special price period cannot exceed 90 days");
+        }
+    }
+
+    private TourPlan findTourPlanOrFail(Integer tourPlanId) {
+        return this.tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlan with id " + tourPlanId + " not found"));
     }
 }
