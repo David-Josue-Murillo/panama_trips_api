@@ -40,11 +40,16 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
 
     @Override
     public TourPlanSpecialPriceResponse save(TourPlanSpecialPriceRequest request) {
-        return null;
+        validateTourPlanSpecialService(request);
+        TourPlanSpecialPrice tourPlanSpecialPrice = builderFromRequest(request);
+        return new TourPlanSpecialPriceResponse(this.tourPlanSpecialPriceRepository.save(tourPlanSpecialPrice));
     }
 
     @Override
-    public TourPlanSpecialPriceResponse update(Integer id, TourPlanSpecialPrice tourPlanSpecialPrice) {
+    public TourPlanSpecialPriceResponse update(Integer id, TourPlanSpecialPriceRequest tourPlanSpecialPrice) {
+        TourPlanSpecialPrice existingTour = this.tourPlanSpecialPriceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlanSpecialPrice with id " + id + " not found"));
+        updateTourPlanSpecialPrice(existingTour, tourPlanSpecialPrice);
         return null;
     }
 

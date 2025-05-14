@@ -17,7 +17,7 @@ public interface ITourPlanSpecialPriceService {
     Page<TourPlanSpecialPriceResponse> getAll(Pageable pageable);
     TourPlanSpecialPriceResponse findById(Integer id);
     TourPlanSpecialPriceResponse save(TourPlanSpecialPriceRequest request);
-    TourPlanSpecialPriceResponse update(Integer id, TourPlanSpecialPrice tourPlanSpecialPrice);
+    TourPlanSpecialPriceResponse update(Integer id, TourPlanSpecialPriceRequest tourPlanSpecialPrice);
     void deleteById(Integer id);
 
     // Find operations
