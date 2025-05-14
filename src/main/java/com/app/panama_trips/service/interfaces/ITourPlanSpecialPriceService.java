@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface ITourPlanSpecialPriceService {
     // CRUD operations
     Page<TourPlanSpecialPriceResponse> getAll(Pageable pageable);
-    Optional<TourPlanSpecialPriceResponse> findById(Integer id);
+    TourPlanSpecialPriceResponse findById(Integer id);
     TourPlanSpecialPriceResponse save(TourPlanSpecialPriceRequest request);
     TourPlanSpecialPriceResponse update(Integer id, TourPlanSpecialPrice tourPlanSpecialPrice);
     void deleteById(Integer id);

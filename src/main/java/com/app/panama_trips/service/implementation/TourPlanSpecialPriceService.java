@@ -27,12 +27,15 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
 
     @Override
     public Page<TourPlanSpecialPriceResponse> getAll(Pageable pageable) {
-        return null;
+        return this.tourPlanSpecialPriceRepository.findAll(pageable)
+                .map(TourPlanSpecialPriceResponse::new);
     }
 
     @Override
-    public Optional<TourPlanSpecialPriceResponse> findById(Integer id) {
-        return Optional.empty();
+    public TourPlanSpecialPriceResponse findById(Integer id) {
+        return this.tourPlanSpecialPriceRepository.findById(id)
+                .map(TourPlanSpecialPriceResponse::new)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlanSpecialPrice with id " + id + " not found"));
     }
 
     @Override
