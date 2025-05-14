@@ -10,6 +10,7 @@ import com.app.panama_trips.presentation.dto.TourPlanSpecialPriceResponse;
 import com.app.panama_trips.service.interfaces.ITourPlanSpecialPriceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,7 +26,7 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
     private final TourPlanRepository tourPlanRepository;
 
     @Override
-    public Page<TourPlanSpecialPriceResponse> getAll() {
+    public Page<TourPlanSpecialPriceResponse> getAll(Pageable pageable) {
         return null;
     }
 
