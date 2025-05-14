@@ -9,9 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/tour-plan-special-price")
@@ -21,6 +19,7 @@ public class TourPlanSpecialPriceController {
     private final TourPlanSpecialPriceService service;
 
     // Define your endpoints here, for example:
+    @GetMapping
     public ResponseEntity<Page<TourPlanSpecialPriceResponse>> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -33,19 +32,23 @@ public class TourPlanSpecialPriceController {
         return ResponseEntity.ok(this.service.getAll(pageable));
     }
 
-    public ResponseEntity<TourPlanSpecialPriceResponse> getById(Integer id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<TourPlanSpecialPriceResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(this.service.findById(id));
     }
 
-    public ResponseEntity<TourPlanSpecialPriceResponse> create(TourPlanSpecialPriceRequest request) {
+    @PostMapping
+    public ResponseEntity<TourPlanSpecialPriceResponse> create(@RequestBody TourPlanSpecialPriceRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(request));
     }
 
-    public ResponseEntity<TourPlanSpecialPriceResponse> update(Integer id, TourPlanSpecialPriceRequest request) {
+    @PutMapping("/{id}")
+    public ResponseEntity<TourPlanSpecialPriceResponse> update(@PathVariable Integer id, @RequestBody TourPlanSpecialPriceRequest request) {
         return ResponseEntity.ok(this.service.update(id, request));
     }
 
-    public ResponseEntity<Void> delete(Integer id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         this.service.deleteById(id);
         return ResponseEntity.noContent().build();
     }
