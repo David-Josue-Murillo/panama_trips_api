@@ -849,6 +849,7 @@ public class DataProvider {
     );
 
     public static TourPlanSpecialPriceResponse tourPlanSpecialPriceResponseMock = new TourPlanSpecialPriceResponse(tourPlanSpecialPriceOneMock);
+    public static TourPlanSpecialPriceResponse tourPlanSpecialPriceResponseMockTwo = new TourPlanSpecialPriceResponse(tourPlanSpecialPriceTwoMock);
     public static TourPlanSpecialPriceRequest tourPlanSpecialPriceRequestMock = new TourPlanSpecialPriceRequest(
             1,
             LocalDate.now(),
