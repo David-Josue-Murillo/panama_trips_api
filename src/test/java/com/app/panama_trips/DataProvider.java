@@ -808,4 +808,58 @@ public class DataProvider {
             new TourPlanAvailabilityResponse(tourPlanAvailabilityThreeMock)
     );
 
+
+    /*
+     * TourPlanSpecialPrice instances
+     *
+     *
+     */
+
+    public static TourPlanSpecialPrice tourPlanSpecialPriceOneMock = TourPlanSpecialPrice.builder()
+            .id(1)
+            .tourPlan(tourPlanOneMock)
+            .startDate(LocalDate.now())
+            .endDate(LocalDate.now().plusDays(5))
+            .price(BigDecimal.valueOf(80.00))
+            .description("Description One")
+            .build();
+
+    public static TourPlanSpecialPrice tourPlanSpecialPriceTwoMock = TourPlanSpecialPrice.builder()
+            .id(2)
+            .tourPlan(tourPlanTwoMock)
+            .startDate(LocalDate.now())
+            .endDate(LocalDate.now().plusDays(10))
+            .price(BigDecimal.valueOf(80.00))
+            .description("Description Two")
+            .build();
+
+    public static TourPlanSpecialPrice tourPlanSpecialPriceThreeMock = TourPlanSpecialPrice.builder()
+            .id(3)
+            .tourPlan(tourPlanThreeMock)
+            .startDate(LocalDate.now())
+            .endDate(LocalDate.now().plusDays(15))
+            .price(BigDecimal.valueOf(80.00))
+            .description("Description Three")
+            .build();
+
+    public static List<TourPlanSpecialPrice> tourPlanSpecialPriceListsMock = List.of(
+            tourPlanSpecialPriceOneMock,
+            tourPlanSpecialPriceTwoMock,
+            tourPlanSpecialPriceThreeMock
+    );
+
+    public static TourPlanSpecialPriceResponse tourPlanSpecialPriceResponseMock = new TourPlanSpecialPriceResponse(tourPlanSpecialPriceOneMock);
+    public static TourPlanSpecialPriceRequest tourPlanSpecialPriceRequestMock = new TourPlanSpecialPriceRequest(
+            1,
+            LocalDate.now(),
+            LocalDate.now().plusDays(5),
+            BigDecimal.valueOf(80.00),
+            "Description One"
+    );
+
+    public static List<TourPlanSpecialPriceResponse> tourPlanSpecialPriceResponseListMocks = List.of(
+            new TourPlanSpecialPriceResponse(tourPlanSpecialPriceOneMock),
+            new TourPlanSpecialPriceResponse(tourPlanSpecialPriceTwoMock),
+            new TourPlanSpecialPriceResponse(tourPlanSpecialPriceThreeMock)
+    );
 }
