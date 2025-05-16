@@ -1,5 +1,6 @@
 package com.app.panama_trips.service.implementation;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.CancellationPolicy;
 import com.app.panama_trips.persistence.repository.CancellationPolicyRepository;
 import com.app.panama_trips.presentation.dto.CancellationPolicyRequest;
@@ -9,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,87 +23,172 @@ public class CancellationPolicyService implements ICancellationPolicyService {
     private final CancellationPolicyRepository repository;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<CancellationPolicyResponse> getAllCancellationPolicies(Pageable pageable) {
-        return null;
+        return repository.findAll(pageable)
+                .map(CancellationPolicyResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CancellationPolicyResponse getCancellationPolicyById(Integer id) {
-        return null;
+        return repository.findById(id)
+                .map(CancellationPolicyResponse::new)
+                .orElseThrow(() -> new ResourceNotFoundException("Cancellation Policy not found with id: " + id));
     }
 
     @Override
+    @Transactional
     public CancellationPolicyResponse saveCancellationPolicy(CancellationPolicyRequest request) {
-        return null;
+        validateCancellationPolicy(request, null);
+        CancellationPolicy policy = buildFromRequest(request);
+        return new CancellationPolicyResponse(repository.save(policy));
     }
 
     @Override
+    @Transactional
     public CancellationPolicyResponse updateCancellationPolicy(Integer id, CancellationPolicyRequest request) {
-        return null;
+        validateCancellationPolicy(request, id);
+        CancellationPolicy policy = findCancellationPolicyOrFail(id);
+        updateFromRequest(policy, request);
+        return new CancellationPolicyResponse(repository.save(policy));
     }
 
     @Override
+    @Transactional
     public void deleteCancellationPolicy(Integer id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Cancellation Policy not found with id: " + id);
+        }
 
+        // Could add check to prevent deletion if policy is in use
+        if (isPolicyUsedByAnyTour(id)) {
+            throw new IllegalArgumentException("Cannot delete a cancellation policy that is being used by tours");
+        }
+
+        repository.deleteById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CancellationPolicyResponse> findByRefundPercentageGreaterThanEqual(Integer minRefundPercentage) {
-        return List.of();
+        return repository.findByRefundPercentageGreaterThanEqual(minRefundPercentage)
+                .stream()
+                .map(CancellationPolicyResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CancellationPolicyResponse> findByDaysBeforeTourGreaterThanEqual(Integer minDaysBeforeTour) {
-        return List.of();
+        return repository.findByDaysBeforeTourGreaterThanEqual(minDaysBeforeTour)
+                .stream()
+                .map(CancellationPolicyResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<CancellationPolicyResponse> findByName(String name) {
-        return Optional.empty();
+        return repository.findByName(name)
+                .map(CancellationPolicyResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CancellationPolicyResponse> findEligiblePolicies(Integer minPercentage, Integer maxDays) {
-        return List.of();
+        return repository.findEligiblePolicies(minPercentage, maxDays)
+                .stream()
+                .map(CancellationPolicyResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CancellationPolicyResponse getRecommendedPolicy(Integer daysBeforeTrip) {
-        return null;
+        // Find the policy that offers the highest refund percentage for the given days
+        return repository.findByDaysBeforeTourGreaterThanEqual(daysBeforeTrip)
+                .stream()
+                .max(Comparator.comparing(CancellationPolicy::getRefundPercentage))
+                .map(CancellationPolicyResponse::new)
+                .orElseThrow(() -> new ResourceNotFoundException("No eligible cancellation policy found for " + daysBeforeTrip + " days before tour"));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isPolicyEligibleForRefund(Integer policyId, Integer daysRemaining) {
-        return false;
+        CancellationPolicy policy = findCancellationPolicyOrFail(policyId);
+        return daysRemaining >= policy.getDaysBeforeTour();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Integer calculateRefundAmount(Integer policyId, Integer totalAmount, Integer daysRemaining) {
-        return 0;
+        CancellationPolicy policy = findCancellationPolicyOrFail(policyId);
+
+        // If days remaining is less than policy requirement, no refund
+        if (daysRemaining < policy.getDaysBeforeTour()) {
+            return 0;
+        }
+
+        // Calculate refund based on percentage
+        return (totalAmount * policy.getRefundPercentage()) / 100;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CancellationPolicyResponse> getActivePolicies() {
-        return List.of();
+        // In this context, all policies are considered active
+        // Could be extended with an 'active' flag in the entity if needed
+        return repository.findAll()
+                .stream()
+                .map(CancellationPolicyResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional
     public void bulkCreatePolicies(List<CancellationPolicyRequest> requests) {
+        List<CancellationPolicy> policies = requests.stream()
+                .peek(request -> validateCancellationPolicy(request, null))
+                .map(this::buildFromRequest)
+                .toList();
 
+        repository.saveAll(policies);
     }
 
     @Override
+    @Transactional
     public void bulkUpdatePolicies(List<CancellationPolicyRequest> requests) {
-
+        for (CancellationPolicyRequest request : requests) {
+            // Assuming each request has an id field for updating
+            // This would require extending the DTO or having a different DTO for updates
+            if (request.name() != null) {
+                Optional<CancellationPolicy> existingPolicy = repository.findByName(request.name());
+                if (existingPolicy.isPresent()) {
+                    Integer id = existingPolicy.get().getId();
+                    validateCancellationPolicy(request, id);
+                    updateFromRequest(existingPolicy.get(), request);
+                    repository.save(existingPolicy.get());
+                }
+            }
+        }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsPolicyWithName(String name) {
-        return false;
+        return repository.findByName(name).isPresent();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isPolicyUsedByAnyTour(Integer policyId) {
+        // This would typically check for relationships with tour plans
+        // For now, assuming there's no direct repository method
+        // In a real implementation, you might have a specific query to check this
+
+        // Mock implementation - replace with actual check
         return false;
     }
 
