@@ -118,4 +118,24 @@ public class CancellationPolicyService implements ICancellationPolicyService {
             throw new IllegalArgumentException("High refund percentages (>75%) should typically require at least 7 days notice");
         }
     }
+
+    private CancellationPolicy findCancellationPolicyOrFail(Integer id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cancellation policy not found with ID: " + id));
+    }
+    private CancellationPolicy buildFromRequest(CancellationPolicyRequest request) {
+        return CancellationPolicy.builder()
+                .name(request.name())
+                .description(request.description())
+                .refundPercentage(request.refundPercentage())
+                .daysBeforeTour(request.daysBeforeTour())
+                .build();
+    }
+
+    private void updateFromRequest(CancellationPolicy cancellationPolicy, CancellationPolicyRequest request) {
+        cancellationPolicy.setName(request.name());
+        cancellationPolicy.setDescription(request.description());
+        cancellationPolicy.setRefundPercentage(request.refundPercentage());
+        cancellationPolicy.setDaysBeforeTour(request.daysBeforeTour());
+    }
 }
