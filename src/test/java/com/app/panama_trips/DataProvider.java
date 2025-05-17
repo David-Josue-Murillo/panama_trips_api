@@ -862,4 +862,55 @@ public class DataProvider {
             new TourPlanSpecialPriceResponse(tourPlanSpecialPriceTwoMock),
             new TourPlanSpecialPriceResponse(tourPlanSpecialPriceThreeMock)
     );
+
+
+    /*
+     * CancellationPolicy Instance
+     *
+     *
+     */
+
+    public static CancellationPolicy cancellationPolicyOneMock = CancellationPolicy.builder()
+            .id(1)
+            .name("Test one")
+            .description("Description one")
+            .refundPercentage(20)
+            .daysBeforeTour(5)
+            .build();
+
+    public static CancellationPolicy cancellationPolicyTwoMock = CancellationPolicy.builder()
+            .id(2)
+            .name("Test two")
+            .description("Description two")
+            .refundPercentage(25)
+            .daysBeforeTour(10)
+            .build();
+
+    public static CancellationPolicy cancellationPolicyThreeMock = CancellationPolicy.builder()
+            .id(3)
+            .name("Test three")
+            .description("Description three")
+            .refundPercentage(25)
+            .daysBeforeTour(15)
+            .build();
+
+    public static List<CancellationPolicy> cancellationPolicyListMock = List.of(
+            cancellationPolicyOneMock,
+            cancellationPolicyTwoMock,
+            cancellationPolicyThreeMock
+    );
+
+    public static CancellationPolicyResponse cancellationPolicyResponseMock = new CancellationPolicyResponse(cancellationPolicyOneMock);
+    public static CancellationPolicyRequest cancellationPolicyRequestMock = new CancellationPolicyRequest(
+            "Test one",
+            "Description one",
+            20,
+            5
+    );
+
+    public static List<CancellationPolicyResponse> cancellationPolicyResponseListMock = List.of(
+            new CancellationPolicyResponse(cancellationPolicyOneMock),
+            new CancellationPolicyResponse(cancellationPolicyTwoMock),
+            new CancellationPolicyResponse(cancellationPolicyThreeMock)
+    );
 }
