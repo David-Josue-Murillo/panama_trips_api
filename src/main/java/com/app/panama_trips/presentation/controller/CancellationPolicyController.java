@@ -3,7 +3,7 @@ package com.app.panama_trips.presentation.controller;
 import com.app.panama_trips.presentation.dto.CancellationPolicyRequest;
 import com.app.panama_trips.presentation.dto.CancellationPolicyResponse;
 import com.app.panama_trips.service.implementation.CancellationPolicyService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
