@@ -28,6 +28,7 @@ public class CampaignTour {
     private TourPlan tourPlan;
 
     @Column(name = "featured_order")
+    @Builder.Default
     private Integer featuredOrder = 0;
 
     @Column(name = "special_price", precision = 10, scale = 2)

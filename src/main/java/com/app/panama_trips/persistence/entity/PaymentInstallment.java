@@ -35,9 +35,11 @@ public class PaymentInstallment {
     private Payment payment;
 
     @Column(name = "status", length = 20, nullable = false)
+    @Builder.Default    
     private String status = "PENDING";
 
     @Column(name = "reminder_sent", nullable = false)
+    @Builder.Default
     private Boolean reminderSent = false;
 
     @CreationTimestamp

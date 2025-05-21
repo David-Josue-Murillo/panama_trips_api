@@ -32,6 +32,7 @@ public class TourPlanAvailability {
     private Integer availableSpots;
 
     @Column(name = "is_available", nullable = false)
+    @Builder.Default
     private Boolean isAvailable = true;
 
     @Column(name = "price_override", precision = 10, scale = 2)

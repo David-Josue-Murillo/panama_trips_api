@@ -30,6 +30,7 @@ public class TourPriceHistory {
     private BigDecimal newPrice;
 
     @Column(name = "changed_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Builder.Default
     private LocalDateTime changedAt = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)

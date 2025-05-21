@@ -20,18 +20,23 @@ public class DailyStatistics {
     private LocalDate date;
 
     @Column(name = "total_reservations")
+    @Builder.Default
     private Integer totalReservations = 0;
 
     @Column(name = "completed_reservations")
+    @Builder.Default
     private Integer completedReservations = 0;
 
     @Column(name = "cancelled_reservations")
+    @Builder.Default
     private Integer cancelledReservations = 0;
 
     @Column(name = "total_revenue", precision = 12, scale = 2)
+    @Builder.Default
     private BigDecimal totalRevenue = BigDecimal.ZERO;
 
     @Column(name = "new_users")
+    @Builder.Default
     private Integer newUsers = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)

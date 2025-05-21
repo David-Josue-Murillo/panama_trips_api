@@ -31,6 +31,7 @@ public class Reservation {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "reservation_status", nullable = false)
+    @Builder.Default
     private ReservationStatus reservationStatus = ReservationStatus.pending;
 
     @Column(name = "reservation_date", nullable = false)
@@ -41,12 +42,15 @@ public class Reservation {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "number_of_persons", nullable = false, columnDefinition = "INTEGER DEFAULT 1")
+    @Builder.Default
     private Integer numberOfPersons = 1;
 
     @Column(name = "number_of_children", nullable = false, columnDefinition = "INTEGER DEFAULT 0")
+    @Builder.Default
     private Integer numberOfChildren = 0;
 
     @Column(name = "special_requests", columnDefinition = "TEXT")
