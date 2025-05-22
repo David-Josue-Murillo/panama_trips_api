@@ -32,6 +32,7 @@ public class AuditLog {
     private UserEntity user;
 
     @Column(name = "action_timestamp", nullable = false)
+    @Builder.Default
     private LocalDateTime actionTimestamp = LocalDateTime.now();
 
     @Column(name = "old_values", columnDefinition = "jsonb")

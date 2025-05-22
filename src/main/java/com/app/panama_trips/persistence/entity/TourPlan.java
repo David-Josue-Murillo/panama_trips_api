@@ -47,6 +47,7 @@ public class TourPlan {
     private Integer availableSpots;
 
     @Column(name = "status", length = 20)
+    @Builder.Default
     private String status = "ACTIVE";
 
     @ManyToOne
@@ -71,6 +72,7 @@ public class TourPlan {
     private String availableDays;
 
     @Column(name = "is_seasonal")
+    @Builder.Default
     private Boolean isSeasonal = false;
 
     @Column(name = "season_start_date")
@@ -95,42 +97,55 @@ public class TourPlan {
     private BigDecimal childPrice;
 
     @Column(name = "min_participants")
+    @Builder.Default
     private Integer minParticipants = 1;
 
     @Column(name = "max_participants")
+    @Builder.Default
     private Integer maxParticipants = 10;
 
     @Column(name = "currency", length = 3)
+    @Builder.Default
     private String currency = "USD";
 
     @Column(name = "discount_percentage", precision = 5, scale = 2)
+    @Builder.Default
     private BigDecimal discountPercentage = BigDecimal.ZERO;
 
     @Column(name = "tax_percentage", precision = 5, scale = 2)
+    @Builder.Default
     private BigDecimal taxPercentage = BigDecimal.ZERO;
 
     @Column(name = "booking_deadline_hours")
+    @Builder.Default
     private Integer bookingDeadlineHours = 24;
 
     @Column(name = "min_advance_booking_days")
+    @Builder.Default
     private Integer minAdvanceBookingDays = 1;
 
     @Column(name = "max_advance_booking_days")
+    @Builder.Default
     private Integer maxAdvanceBookingDays = 90;
 
     @Column(name = "requires_approval")
+    @Builder.Default
     private Boolean requiresApproval = false;
 
     @Column(name = "allow_instant_booking")
+    @Builder.Default
     private Boolean allowInstantBooking = true;
 
     @Column(name = "difficulty_level", length = 20)
+    @Builder.Default
     private String difficultyLevel = "EASY";
 
     @Column(name = "recommended_age", length = 20)
+    @Builder.Default
     private String recommendedAge = "All ages";
 
     @Column(name = "wheelchair_accessible")
+    @Builder.Default
     private Boolean wheelchairAccessible = false;
 
     @Column(name = "included_services", columnDefinition = "JSONB")
@@ -170,18 +185,22 @@ public class TourPlan {
     private String seoKeywords;
 
     @Column(name = "featured", nullable = false)
+    @Builder.Default
     private Boolean featured = false;
 
     @Column(name = "featured_order")
     private Integer featuredOrder;
 
     @Column(name = "average_rating", precision = 3, scale = 2)
+    @Builder.Default
     private BigDecimal averageRating = BigDecimal.ZERO;
 
     @Column(name = "total_reviews")
+    @Builder.Default
     private Integer totalReviews = 0;
 
     @Column(name = "total_bookings")
+    @Builder.Default
     private Integer totalBookings = 0;
 
     @Column(name = "external_id", length = 100)

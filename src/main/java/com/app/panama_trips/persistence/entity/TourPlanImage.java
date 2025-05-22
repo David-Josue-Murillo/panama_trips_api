@@ -27,8 +27,10 @@ public class TourPlanImage {
     private String altText;
 
     @Column(name = "is_main", nullable = false)
+    @Builder.Default
     private Boolean isMain = false;
 
     @Column(name = "display_order", nullable = false)
+    @Builder.Default
     private Integer displayOrder = 0;
 }

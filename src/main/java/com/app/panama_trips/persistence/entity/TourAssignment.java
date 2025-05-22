@@ -31,6 +31,7 @@ public class TourAssignment {
     private LocalDate reservationDate;
 
     @Column(name = "status", length = 20, nullable = false)
+    @Builder.Default
     private String status = "ASSIGNED";
 
     @Column(name = "notes", columnDefinition = "TEXT")

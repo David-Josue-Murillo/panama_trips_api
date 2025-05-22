@@ -26,5 +26,6 @@ public class RoleEntity {
     @JoinTable(name = "roles_permissions",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id"))
+    @Builder.Default
     private Set<PermissionEntity> permissions = new HashSet<>();
 }
