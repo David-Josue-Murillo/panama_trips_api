@@ -1,6 +1,5 @@
 package com.app.panama_trips.presentation.controller;
 
-import com.app.panama_trips.persistence.entity.TourPlan;
 import com.app.panama_trips.presentation.dto.TourPlanAvailabilityRequest;
 import com.app.panama_trips.presentation.dto.TourPlanAvailabilityResponse;
 import com.app.panama_trips.service.implementation.TourPlanAvailabilityService;

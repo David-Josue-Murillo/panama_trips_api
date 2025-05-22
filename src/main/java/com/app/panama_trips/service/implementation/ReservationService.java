@@ -6,7 +6,6 @@ import com.app.panama_trips.exception.UnauthorizedException;
 import com.app.panama_trips.exception.UserNotFoundException;
 import com.app.panama_trips.persistence.entity.*;
 import com.app.panama_trips.persistence.repository.ReservationRepository;
-import com.app.panama_trips.persistence.repository.RoleRepository;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
 import com.app.panama_trips.presentation.dto.ReservationRequest;
@@ -29,7 +28,6 @@ public class ReservationService implements IReservationService {
     private final ReservationRepository reservationRepository;
     private final UserEntityRepository userEntityRepository;
     private final TourPlanRepository tourPlanRepository;
-    private final RoleRepository roleRepository;
 
     @Override
     @Transactional(readOnly = true)

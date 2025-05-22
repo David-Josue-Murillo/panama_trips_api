@@ -46,7 +46,6 @@ public class CancellationPolicyServiceTest {
 
     private CancellationPolicy cancellationPolicy;
     private CancellationPolicyRequest request;
-    private CancellationPolicyResponse response;
     private List<CancellationPolicy> cancellationPolicies;
 
     @BeforeEach
@@ -54,7 +53,6 @@ public class CancellationPolicyServiceTest {
         cancellationPolicy = cancellationPolicyOneMock;
         cancellationPolicies = cancellationPolicyListMock;
         request = cancellationPolicyRequestMock;
-        response = cancellationPolicyResponseMock;
     }
 
     @Test
