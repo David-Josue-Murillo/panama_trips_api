@@ -25,10 +25,10 @@ public class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-
-        assertEquals("User not found", response.getBody().message());
-        assertEquals(404, response.getBody().status());
+        ErrorResponse body = response.getBody();
+        assertNotNull(body, "Response body should not be null");
+        assertEquals("User not found", body.message());
+        assertEquals(404, body.status());
     }
 
     @Test
@@ -41,10 +41,10 @@ public class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-
-        assertEquals("Invalid input data", response.getBody().message());
-        assertEquals(400, response.getBody().status());
+        ErrorResponse body = response.getBody();
+        assertNotNull(body, "Response body should not be null");
+        assertEquals("Invalid input data", body.message());
+        assertEquals(400, body.status());
     }
 
     @Test
@@ -57,10 +57,10 @@ public class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-
-        assertEquals("Resource not found", response.getBody().message());
-        assertEquals(404, response.getBody().status());
+        ErrorResponse body = response.getBody();
+        assertNotNull(body, "Response body should not be null");
+        assertEquals("Resource not found", body.message());
+        assertEquals(404, body.status());
     }
 
     @Test
@@ -73,9 +73,9 @@ public class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-
-        assertEquals("Invalid argument", response.getBody().message());
-        assertEquals(400, response.getBody().status());
+        ErrorResponse body = response.getBody();
+        assertNotNull(body, "Response body should not be null");
+        assertEquals("Invalid argument", body.message());
+        assertEquals(400, body.status());
     }
 }
