@@ -14,20 +14,21 @@ public class SecurityConfigIntegrationTest {
     private int port;
 
     private final TestRestTemplate restTemplate = new TestRestTemplate();
-    private final String JWT_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJwYW5hbWEtdHJpcHMiLCJzdWIiOiJhZG1pbiIsImF1dGhvcml0aWVzIjoiQk9PS0lOR19DUkVBVEUsQk9PS0lOR19ERUxFVEUsQk9PS0lOR19SRUFELEJPT0tJTkdfVVBEQVRFLENPTlRFTlRfQ1JFQVRFLENPTlRFTlRfREVMRVRFLENPTlRFTlRfVVBEQVRFLFBBWU1FTlRfUkVBRCxQQVlNRU5UX1JFRlVORCxST0xFX0FETUlOLFNVUFBPUlRfVElDS0VUX1JFQUQsU1VQUE9SVF9USUNLRVRfUkVTUE9ORCxTWVNURU1fTE9HX1JFQUQsVVNFUl9DUkVBVEUsVVNFUl9ERUxFVEUsVVNFUl9SRUFELFVTRVJfVVBEQVRFIiwiaWF0IjoxNzQwNDI3NDg4LCJleHAiOjE3NDA0MjkyODgsImp0aSI6IjZkMjI0YTYwLTM4MjUtNDg0MC1iNDdiLThhYjUyNTZjZWM3MyIsIm5iZiI6MTc0MDQyNzQ4OH0.LLWT0vGqYCJbfjndWHiD0pJ_VKLxxhNOfzCHZ1hO6U4";
 
     @Test
-    void shouldAllowAccessToAuthEndpointsWithoutAuthentication() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(JWT_TOKEN);
+    void shouldRedirectToLoginForProtectedEndpoints() {
+        // Given
+        HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders());
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+        // When
         ResponseEntity<String> response = restTemplate.exchange(
-                "http://localhost:" + port + "/api/user",
-                HttpMethod.GET,
+                "http://localhost:" + port + "/api/auth/login",
+                HttpMethod.POST,
                 entity,
                 String.class
         );
+
+        // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }
