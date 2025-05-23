@@ -4,6 +4,9 @@ import jakarta.validation.constraints.*;
 import java.util.List;
 
 public record GuideRequest(
+        @NotNull(message = "El ID del usuario es requerido")
+        Long userId,
+
         @NotNull(message = "El ID del proveedor es requerido")
         Integer providerId,
 
