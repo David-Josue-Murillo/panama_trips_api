@@ -913,4 +913,70 @@ public class DataProvider {
             new CancellationPolicyResponse(cancellationPolicyTwoMock),
             new CancellationPolicyResponse(cancellationPolicyThreeMock)
     );
+
+    /*
+    * Guide instances
+    *
+    *
+    */
+
+   public static Guide guideOneMock = Guide.builder()
+        .id(1)
+        .user(userAdmin())
+        .provider(providerOneMock)
+        .bio("Bio one")
+        .specialties("Specialty one, Specialty two, Specialty three")
+        .languages("Language one, Language two, Language three")
+        .yearsExperience(5)
+        .certificationDetails("Certification one, Certification two, Certification three")
+        .isActive(true)
+        .build();
+
+    public static Guide guideTwoMock = Guide.builder()
+            .id(2)
+            .user(userOperator())
+            .provider(providerTwoMock)
+            .bio("Bio two")
+            .specialties("Specialty one, Specialty two, Specialty three")
+            .languages("Language one, Language two, Language three")
+            .yearsExperience(5)
+            .certificationDetails("Certification one, Certification two, Certification three")
+            .isActive(true)
+            .build();
+
+    public static Guide guideThreeMock = Guide.builder()
+            .id(3)
+            .user(userCustomer())
+            .provider(providerThreeMock)
+            .bio("Bio three")
+            .specialties("Specialty one, Specialty two, Specialty three")
+            .languages("Language one, Language two, Language three")
+            .yearsExperience(5)
+            .certificationDetails("Certification one, Certification two, Certification three")
+            .isActive(true)
+            .build();
+
+    public static List<Guide> guideListMock = List.of(
+            guideOneMock,
+            guideTwoMock,
+            guideThreeMock
+    );
+
+    public static GuideResponse guideResponseMock = new GuideResponse(guideOneMock);
+    public static GuideRequest guideRequestMock = new GuideRequest(
+            1L,
+            1,
+            "Bio one",
+            List.of("Specialty one", "Specialty two", "Specialty three"),
+            List.of("Language one", "Language two", "Language three"),
+            5,
+            "Certification one, Certification two, Certification three",
+            true
+    );
+
+    public static List<GuideResponse> guideResponseListMock = List.of(
+            new GuideResponse(guideOneMock),
+            new GuideResponse(guideTwoMock),
+            new GuideResponse(guideThreeMock)
+    );
 }
