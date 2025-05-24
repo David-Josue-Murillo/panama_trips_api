@@ -1,7 +1,6 @@
 package com.app.panama_trips.service;
 
 import com.app.panama_trips.DataProvider;
-import com.app.panama_trips.persistence.entity.RoleEnum;
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
 import com.app.panama_trips.service.implementation.UserDetailServiceImpl;

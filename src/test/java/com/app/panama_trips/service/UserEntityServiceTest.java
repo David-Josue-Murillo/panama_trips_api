@@ -175,9 +175,6 @@ public class UserEntityServiceTest {
 
     @Test
     void deleteUser_shouldDeleteUserWhenUserExists() {
-        // Given
-        UserEntity user = DataProvider.userAdmin();
-
         // When
         when(userEntityRepository.existsById(1L)).thenReturn(true);
         doNothing().when(userEntityRepository).deleteById(anyLong());

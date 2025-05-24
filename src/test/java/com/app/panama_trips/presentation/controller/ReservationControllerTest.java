@@ -1,11 +1,8 @@
 package com.app.panama_trips.presentation.controller;
 
-import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.persistence.entity.ReservationStatus;
-import com.app.panama_trips.persistence.entity.TourPlan;
 import com.app.panama_trips.presentation.dto.ReservationRequest;
 import com.app.panama_trips.presentation.dto.ReservationResponse;
-import com.app.panama_trips.presentation.dto.TourPlanResponse;
 import com.app.panama_trips.service.implementation.ReservationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

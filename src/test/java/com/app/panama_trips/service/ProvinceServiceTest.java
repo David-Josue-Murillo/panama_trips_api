@@ -141,7 +141,6 @@ public class ProvinceServiceTest {
     @Test
     void updateProvince_shouldThrowExceptionWhenProvinceNotExist() {
         // Given
-        Province provinceBocas = DataProvider.provinceBocasMock;
         when(provinceRepository.findById(1)).thenReturn(Optional.empty());
 
         // When

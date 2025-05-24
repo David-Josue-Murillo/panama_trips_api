@@ -2,7 +2,6 @@ package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.presentation.dto.TourPlanImageRequest;
 import com.app.panama_trips.presentation.dto.TourPlanImageResponse;
-import com.app.panama_trips.presentation.dto.TourPlanResponse;
 import com.app.panama_trips.service.implementation.TourPlanImageService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

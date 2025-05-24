@@ -169,9 +169,6 @@ public class AddressServiceTest {
 
     @Test
     void deleteAddress_shouldDeleteAddressWhenAddressExists() {
-        // Given
-        Address address = DataProvider.addressOneMock;
-
         // When
         when(addressRepository.existsById(anyInt())).thenReturn(true);
 

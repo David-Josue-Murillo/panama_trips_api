@@ -5,7 +5,6 @@ import com.app.panama_trips.security.filter.JwtTokenValidator;
 import com.app.panama_trips.service.implementation.UserDetailServiceImpl;
 import com.app.panama_trips.utility.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
