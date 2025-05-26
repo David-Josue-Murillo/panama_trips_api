@@ -28,74 +28,101 @@ public class TourAssignmentService implements ITourAssignmentService{
     private final TourPlanRepository tourPlanRepository;
     private final TourAssignmentRepository repository;
 
+    @Override
     public Page<TourAssignmentResponse> getAllAssignments(Pageable pageable) {
         return this.repository.findAll(pageable)
             .map(TourAssignmentResponse::new);
     }
 
-    public Optional<TourAssignmentResponse> getAssignmentById(Integer assignmentId) {
-        return this.repository.findById(assignmentId)
+    @Override
+    public Optional<TourAssignmentResponse> getAssignmentById(Integer id) {
+        return this.repository.findById(id)
             .map(TourAssignmentResponse::new);
     }
 
-    public TourAssignmentResponse createAssignment(TourAssignmentRequest assignment) {
-        return null;
+    @Override
+    public TourAssignmentResponse createAssignment(TourAssignmentRequest request) {
+        validateRequest(request);
+        TourAssignment newAssignment = buildFromRequest(request);
+        return new TourAssignmentResponse(this.repository.save(newAssignment));
     }
 
-    public TourAssignmentResponse updateAssignment(TourAssignmentRequest assignment) {
-        return null;
+    @Override
+    public TourAssignmentResponse updateAssignment(Integer id,TourAssignmentRequest request) {
+        TourAssignment existingAssignment = this.repository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("TourAssignment not found with id: " + id));
+        updateFromRequest(existingAssignment, request);
+        return new TourAssignmentResponse(this.repository.save(existingAssignment));
     }
 
+    @Override
     public void deleteAssignment(Integer id) {
+        if(!this.repository.existsById(id)) {
+            throw new ResourceNotFoundException("TourAssignment not found with id: " + id);
+        }
+        this.repository.deleteById(id);
     }
 
+    @Override
     public List<TourAssignmentResponse> getAssignmentsByGuide(Guide guide) {
         return null;
     }    
+    @Override
     public List<TourAssignmentResponse> getAssignmentsByTourPlan(TourPlan tourPlan) {
         return null;
     }
     
+    @Override
     public List<TourAssignmentResponse> getAssignmentsByStatus(String status) {
         return null;
     }
     
+    @Override
     public List<TourAssignmentResponse> getAssignmentsByDate(LocalDate date) {
         return null;
     }
     
+    @Override
     public List<TourAssignmentResponse> getAssignmentsByDateRange(LocalDate startDate, LocalDate endDate) {
         return null;
     }
     
+    @Override
     public List<TourAssignmentResponse> getAssignmentsByGuideAndStatus(Guide guide, String status) {
         return null;
     }
     
+    @Override
     public List<TourAssignmentResponse> getAssignmentsByTourPlanAndDateRange(TourPlan tourPlan, LocalDate startDate, LocalDate endDate) {
         return null;
     }
     
+    @Override
     public Optional<TourAssignmentResponse> getAssignmentByGuideTourPlanAndDate(Guide guide, TourPlan tourPlan, LocalDate date) {
         return null;
     }
 
+    @Override
     public List<TourAssignmentResponse> getUpcomingAssignmentsByGuide(Integer guideId, LocalDate startDate) {
         return null;
     }
 
+    @Override
     public Long countAssignmentsByGuideAndStatus(Integer guideId, String status) {
         return null;
     }
 
+    @Override
     public boolean isGuideAvailableForDate(Guide guide, LocalDate date) {
         return false;
     }
 
+    @Override
     public TourAssignmentResponse updateAssignmentStatus(Integer assignmentId, String newStatus) {
         return null;
     }
 
+    @Override
     public TourAssignmentResponse addNotesToAssignment(Integer assignmentId, String notes) {
         return null;
     }
