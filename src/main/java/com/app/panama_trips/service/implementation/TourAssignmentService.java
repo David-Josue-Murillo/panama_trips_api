@@ -1,5 +1,11 @@
 package com.app.panama_trips.service.implementation;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.app.panama_trips.exception.ResourceNotFoundException;
@@ -10,17 +16,89 @@ import com.app.panama_trips.persistence.repository.GuideRepository;
 import com.app.panama_trips.persistence.repository.TourAssignmentRepository;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.presentation.dto.TourAssignmentRequest;
-
+import com.app.panama_trips.presentation.dto.TourAssignmentResponse;
+import com.app.panama_trips.service.interfaces.ITourAssignmentService;
 import lombok.RequiredArgsConstructor;
-import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
-public class TourAssignmentService {
+public class TourAssignmentService implements ITourAssignmentService{
 
     private final GuideRepository guideRepository;
     private final TourPlanRepository tourPlanRepository;
     private final TourAssignmentRepository repository;
+
+    public Page<TourAssignmentResponse> getAllAssignments(Pageable pageable) {
+        return this.repository.findAll(pageable)
+            .map(TourAssignmentResponse::new);
+    }
+
+    public Optional<TourAssignmentResponse> getAssignmentById(Integer assignmentId) {
+        return this.repository.findById(assignmentId)
+            .map(TourAssignmentResponse::new);
+    }
+
+    public TourAssignmentResponse createAssignment(TourAssignmentRequest assignment) {
+        return null;
+    }
+
+    public TourAssignmentResponse updateAssignment(TourAssignmentRequest assignment) {
+        return null;
+    }
+
+    public void deleteAssignment(Integer id) {
+    }
+
+    public List<TourAssignmentResponse> getAssignmentsByGuide(Guide guide) {
+        return null;
+    }    
+    public List<TourAssignmentResponse> getAssignmentsByTourPlan(TourPlan tourPlan) {
+        return null;
+    }
+    
+    public List<TourAssignmentResponse> getAssignmentsByStatus(String status) {
+        return null;
+    }
+    
+    public List<TourAssignmentResponse> getAssignmentsByDate(LocalDate date) {
+        return null;
+    }
+    
+    public List<TourAssignmentResponse> getAssignmentsByDateRange(LocalDate startDate, LocalDate endDate) {
+        return null;
+    }
+    
+    public List<TourAssignmentResponse> getAssignmentsByGuideAndStatus(Guide guide, String status) {
+        return null;
+    }
+    
+    public List<TourAssignmentResponse> getAssignmentsByTourPlanAndDateRange(TourPlan tourPlan, LocalDate startDate, LocalDate endDate) {
+        return null;
+    }
+    
+    public Optional<TourAssignmentResponse> getAssignmentByGuideTourPlanAndDate(Guide guide, TourPlan tourPlan, LocalDate date) {
+        return null;
+    }
+
+    public List<TourAssignmentResponse> getUpcomingAssignmentsByGuide(Integer guideId, LocalDate startDate) {
+        return null;
+    }
+
+    public Long countAssignmentsByGuideAndStatus(Integer guideId, String status) {
+        return null;
+    }
+
+    public boolean isGuideAvailableForDate(Guide guide, LocalDate date) {
+        return false;
+    }
+
+    public TourAssignmentResponse updateAssignmentStatus(Integer assignmentId, String newStatus) {
+        return null;
+    }
+
+    public TourAssignmentResponse addNotesToAssignment(Integer assignmentId, String notes) {
+        return null;
+    }
 
     // Private methods
     private void validateRequest(TourAssignmentRequest request) {
