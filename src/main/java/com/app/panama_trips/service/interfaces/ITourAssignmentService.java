@@ -17,8 +17,8 @@ public interface ITourAssignmentService {
     // Basic CRUD operations
     Page<TourAssignmentResponse> getAllAssignments(Pageable pageable);
     Optional<TourAssignmentResponse> getAssignmentById(Integer id);
-    TourAssignmentResponse createAssignment(TourAssignmentRequest assignment);
-    TourAssignmentResponse updateAssignment(TourAssignmentRequest assignment);
+    TourAssignmentResponse createAssignment(TourAssignmentRequest request);
+    TourAssignmentResponse updateAssignment(Integer id, TourAssignmentRequest request);
     void deleteAssignment(Integer id);
     
     // Business operations
