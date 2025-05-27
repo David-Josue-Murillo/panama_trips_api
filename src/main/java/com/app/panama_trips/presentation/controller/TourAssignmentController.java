@@ -7,7 +7,6 @@ import com.app.panama_trips.presentation.dto.TourAssignmentResponse;
 import com.app.panama_trips.service.implementation.TourAssignmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
