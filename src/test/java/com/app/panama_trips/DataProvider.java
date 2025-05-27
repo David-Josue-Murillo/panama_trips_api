@@ -979,4 +979,59 @@ public class DataProvider {
             new GuideResponse(guideTwoMock),
             new GuideResponse(guideThreeMock)
     );
+
+    /*
+     * TourAssignment instances
+     */
+    public static TourAssignment tourAssignmentOneMock = TourAssignment.builder()
+            .id(1)
+            .guide(guideOneMock)
+            .tourPlan(tourPlanOneMock)
+            .reservationDate(LocalDate.now().plusDays(7))
+            .status("ASSIGNED")
+            .notes("Test notes for assignment one")
+            .createdAt(LocalDate.now())
+            .build();
+
+    public static TourAssignment tourAssignmentTwoMock = TourAssignment.builder()
+            .id(2)
+            .guide(guideTwoMock)
+            .tourPlan(tourPlanTwoMock)
+            .reservationDate(LocalDate.now().plusDays(14))
+            .status("COMPLETED")
+            .notes("Test notes for assignment two")
+            .createdAt(LocalDate.now())
+            .build();
+
+    public static TourAssignment tourAssignmentThreeMock = TourAssignment.builder()
+            .id(3)
+            .guide(guideThreeMock)
+            .tourPlan(tourPlanThreeMock)
+            .reservationDate(LocalDate.now().plusDays(21))
+            .status("CANCELLED")
+            .notes("Test notes for assignment three")
+            .createdAt(LocalDate.now())
+            .build();
+
+    public static List<TourAssignment> tourAssignmentListMock = List.of(
+            tourAssignmentOneMock,
+            tourAssignmentTwoMock,
+            tourAssignmentThreeMock
+    );
+
+    public static TourAssignmentRequest tourAssignmentRequestMock = new TourAssignmentRequest(
+            1,  // guideId
+            1,  // tourPlanId
+            LocalDate.now().plusDays(7),  // reservationDate
+            "ASSIGNED",  // status
+            "Test notes for new assignment"  // notes
+    );
+
+    public static TourAssignmentResponse tourAssignmentResponseMock = new TourAssignmentResponse(tourAssignmentOneMock);
+
+    public static List<TourAssignmentResponse> tourAssignmentResponseListMock = List.of(
+        tourAssignmentResponseMock,
+        new TourAssignmentResponse(tourAssignmentTwoMock),
+        new TourAssignmentResponse(tourAssignmentThreeMock)
+    );
 }
