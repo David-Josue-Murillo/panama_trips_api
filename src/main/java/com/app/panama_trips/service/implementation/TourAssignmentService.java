@@ -18,6 +18,7 @@ import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.presentation.dto.TourAssignmentRequest;
 import com.app.panama_trips.presentation.dto.TourAssignmentResponse;
 import com.app.panama_trips.service.interfaces.ITourAssignmentService;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -65,66 +66,98 @@ public class TourAssignmentService implements ITourAssignmentService{
 
     @Override
     public List<TourAssignmentResponse> getAssignmentsByGuide(Guide guide) {
-        return null;
+        return this.repository.findByGuide(guide)
+            .stream()
+            .map(TourAssignmentResponse::new)
+            .toList();
     }    
+
     @Override
     public List<TourAssignmentResponse> getAssignmentsByTourPlan(TourPlan tourPlan) {
-        return null;
+        return this.repository.findByTourPlan(tourPlan)
+            .stream()
+            .map(TourAssignmentResponse::new)
+            .toList();
     }
     
     @Override
     public List<TourAssignmentResponse> getAssignmentsByStatus(String status) {
-        return null;
+        return this.repository.findByStatus(status)
+            .stream()
+            .map(TourAssignmentResponse::new)
+            .toList();
     }
     
     @Override
     public List<TourAssignmentResponse> getAssignmentsByDate(LocalDate date) {
-        return null;
+        return this.repository.findByReservationDate(date)
+            .stream()
+            .map(TourAssignmentResponse::new)
+            .toList();
     }
     
     @Override
     public List<TourAssignmentResponse> getAssignmentsByDateRange(LocalDate startDate, LocalDate endDate) {
-        return null;
+        return this.repository.findByReservationDateBetween(startDate, endDate)
+            .stream()
+            .map(TourAssignmentResponse::new)
+            .toList();
     }
     
     @Override
     public List<TourAssignmentResponse> getAssignmentsByGuideAndStatus(Guide guide, String status) {
-        return null;
+        return this.repository.findByGuideAndStatus(guide, status)
+            .stream()
+            .map(TourAssignmentResponse::new)
+            .toList();
     }
     
     @Override
     public List<TourAssignmentResponse> getAssignmentsByTourPlanAndDateRange(TourPlan tourPlan, LocalDate startDate, LocalDate endDate) {
-        return null;
+        return this.repository.findByTourPlanAndReservationDateBetween(tourPlan, startDate, endDate)
+            .stream()
+            .map(TourAssignmentResponse::new)
+            .toList();
     }
     
     @Override
     public Optional<TourAssignmentResponse> getAssignmentByGuideTourPlanAndDate(Guide guide, TourPlan tourPlan, LocalDate date) {
-        return null;
+        return this.repository.findByGuideAndTourPlanAndReservationDate(guide, tourPlan, date)
+            .map(TourAssignmentResponse::new);
     }
 
     @Override
     public List<TourAssignmentResponse> getUpcomingAssignmentsByGuide(Integer guideId, LocalDate startDate) {
-        return null;
+        return this.repository.findUpcomingAssignmentsByGuide(guideId, startDate)
+            .stream()
+            .map(TourAssignmentResponse::new)
+            .toList();
     }
 
     @Override
     public Long countAssignmentsByGuideAndStatus(Integer guideId, String status) {
-        return null;
+        return this.repository.countAssignmentsByGuideAndStatus(guideId, status);
     }
 
     @Override
     public boolean isGuideAvailableForDate(Guide guide, LocalDate date) {
-        return false;
+        return this.repository.existsByGuideAndReservationDate(guide, date);
     }
 
     @Override
     public TourAssignmentResponse updateAssignmentStatus(Integer assignmentId, String newStatus) {
-        return null;
+        TourAssignment assignment = repository.findById(assignmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment not found with id: " + assignmentId));
+        assignment.setStatus(newStatus);
+        return new TourAssignmentResponse(repository.save(assignment));
     }
 
     @Override
     public TourAssignmentResponse addNotesToAssignment(Integer assignmentId, String notes) {
-        return null;
+        TourAssignment assignment = repository.findById(assignmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment not found with id: " + assignmentId));
+        assignment.setNotes(notes);
+        return new TourAssignmentResponse(repository.save(assignment));
     }
 
     // Private methods
