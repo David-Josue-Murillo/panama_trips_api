@@ -2,7 +2,6 @@ package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.persistence.entity.Guide;
 import com.app.panama_trips.persistence.entity.TourPlan;
-import com.app.panama_trips.presentation.controller.TourAssignmentController;
 import com.app.panama_trips.presentation.dto.TourAssignmentRequest;
 import com.app.panama_trips.presentation.dto.TourAssignmentResponse;
 import com.app.panama_trips.service.implementation.TourAssignmentService;
