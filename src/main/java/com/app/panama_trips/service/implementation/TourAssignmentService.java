@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.Guide;
@@ -30,18 +31,21 @@ public class TourAssignmentService implements ITourAssignmentService{
     private final TourAssignmentRepository repository;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TourAssignmentResponse> getAllAssignments(Pageable pageable) {
         return this.repository.findAll(pageable)
             .map(TourAssignmentResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<TourAssignmentResponse> getAssignmentById(Integer id) {
         return this.repository.findById(id)
             .map(TourAssignmentResponse::new);
     }
 
     @Override
+    @Transactional
     public TourAssignmentResponse createAssignment(TourAssignmentRequest request) {
         validateRequest(request);
         TourAssignment newAssignment = buildFromRequest(request);
@@ -49,6 +53,7 @@ public class TourAssignmentService implements ITourAssignmentService{
     }
 
     @Override
+    @Transactional
     public TourAssignmentResponse updateAssignment(Integer id,TourAssignmentRequest request) {
         TourAssignment existingAssignment = this.repository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("TourAssignment not found with id: " + id));
@@ -57,6 +62,7 @@ public class TourAssignmentService implements ITourAssignmentService{
     }
 
     @Override
+    @Transactional
     public void deleteAssignment(Integer id) {
         if(!this.repository.existsById(id)) {
             throw new ResourceNotFoundException("TourAssignment not found with id: " + id);
@@ -65,6 +71,7 @@ public class TourAssignmentService implements ITourAssignmentService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourAssignmentResponse> getAssignmentsByGuide(Guide guide) {
         return this.repository.findByGuide(guide)
             .stream()
@@ -73,6 +80,7 @@ public class TourAssignmentService implements ITourAssignmentService{
     }    
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourAssignmentResponse> getAssignmentsByTourPlan(TourPlan tourPlan) {
         return this.repository.findByTourPlan(tourPlan)
             .stream()
@@ -81,6 +89,7 @@ public class TourAssignmentService implements ITourAssignmentService{
     }
     
     @Override
+    @Transactional(readOnly = true)
     public List<TourAssignmentResponse> getAssignmentsByStatus(String status) {
         return this.repository.findByStatus(status)
             .stream()
@@ -89,6 +98,7 @@ public class TourAssignmentService implements ITourAssignmentService{
     }
     
     @Override
+    @Transactional(readOnly = true)
     public List<TourAssignmentResponse> getAssignmentsByDate(LocalDate date) {
         return this.repository.findByReservationDate(date)
             .stream()
@@ -97,6 +107,7 @@ public class TourAssignmentService implements ITourAssignmentService{
     }
     
     @Override
+    @Transactional(readOnly = true)
     public List<TourAssignmentResponse> getAssignmentsByDateRange(LocalDate startDate, LocalDate endDate) {
         return this.repository.findByReservationDateBetween(startDate, endDate)
             .stream()
@@ -105,6 +116,7 @@ public class TourAssignmentService implements ITourAssignmentService{
     }
     
     @Override
+    @Transactional(readOnly = true)
     public List<TourAssignmentResponse> getAssignmentsByGuideAndStatus(Guide guide, String status) {
         return this.repository.findByGuideAndStatus(guide, status)
             .stream()
@@ -113,6 +125,7 @@ public class TourAssignmentService implements ITourAssignmentService{
     }
     
     @Override
+    @Transactional(readOnly = true)
     public List<TourAssignmentResponse> getAssignmentsByTourPlanAndDateRange(TourPlan tourPlan, LocalDate startDate, LocalDate endDate) {
         return this.repository.findByTourPlanAndReservationDateBetween(tourPlan, startDate, endDate)
             .stream()
@@ -121,12 +134,14 @@ public class TourAssignmentService implements ITourAssignmentService{
     }
     
     @Override
+    @Transactional(readOnly = true)
     public Optional<TourAssignmentResponse> getAssignmentByGuideTourPlanAndDate(Guide guide, TourPlan tourPlan, LocalDate date) {
         return this.repository.findByGuideAndTourPlanAndReservationDate(guide, tourPlan, date)
             .map(TourAssignmentResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourAssignmentResponse> getUpcomingAssignmentsByGuide(Integer guideId, LocalDate startDate) {
         return this.repository.findUpcomingAssignmentsByGuide(guideId, startDate)
             .stream()
@@ -135,16 +150,19 @@ public class TourAssignmentService implements ITourAssignmentService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long countAssignmentsByGuideAndStatus(Integer guideId, String status) {
         return this.repository.countAssignmentsByGuideAndStatus(guideId, status);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isGuideAvailableForDate(Guide guide, LocalDate date) {
         return this.repository.existsByGuideAndReservationDate(guide, date);
     }
 
     @Override
+    @Transactional
     public TourAssignmentResponse updateAssignmentStatus(Integer assignmentId, String newStatus) {
         TourAssignment assignment = repository.findById(assignmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Assignment not found with id: " + assignmentId));
@@ -153,6 +171,7 @@ public class TourAssignmentService implements ITourAssignmentService{
     }
 
     @Override
+    @Transactional
     public TourAssignmentResponse addNotesToAssignment(Integer assignmentId, String notes) {
         TourAssignment assignment = repository.findById(assignmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Assignment not found with id: " + assignmentId));

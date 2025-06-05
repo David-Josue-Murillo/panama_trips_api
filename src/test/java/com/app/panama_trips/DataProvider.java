@@ -1034,4 +1034,67 @@ public class DataProvider {
         new TourAssignmentResponse(tourAssignmentTwoMock),
         new TourAssignmentResponse(tourAssignmentThreeMock)
     );
+
+
+    /*
+     * NotificationTemplate instances
+     * 
+     * 
+     */
+
+     public static NotificationTemplate notificationTemplateOneMock() {
+        return NotificationTemplate.builder()
+                .id(1)
+                .name("Test one")
+                .subject("Subject one")
+                .body("Hello ${name}, your email is ${email}")
+                .type("EMAIL")
+                .variables("name,email")
+                .build();
+     }
+
+     public static NotificationTemplate notificationTemplateTwoMock() {
+        return NotificationTemplate.builder()
+                .id(2)
+                .name("Test two")
+                .subject("Subject two")
+                .body("Hello ${name}, your email is ${email}")
+                .type("EMAIL")
+                .variables("name,email")
+                .build();
+     }
+
+     public static NotificationTemplate notificationTemplateThreeMock() {
+        return NotificationTemplate.builder()
+                .id(3)
+                .name("Test three")
+                .subject("Subject three")
+                .body("Hello ${name}, your email is ${email}")
+                .type("EMAIL")
+                .variables("name,email")
+                .build();
+     }
+
+     public static List<NotificationTemplate> notificationTemplateListMock() {
+        return List.of(
+                notificationTemplateOneMock(),
+                notificationTemplateTwoMock(),
+                notificationTemplateThreeMock()
+        );
+     }
+
+     public static NotificationTemplateResponse notificationTemplateResponseMock = new NotificationTemplateResponse(notificationTemplateOneMock());
+     public static NotificationTemplateRequest notificationTemplateRequestMock = new NotificationTemplateRequest(
+            "Test one",
+            "Subject one",
+            "Hello ${name}, your email is ${email}",
+            "EMAIL",
+            "name,email"
+     );
+
+     public static List<NotificationTemplateResponse> notificationTemplateResponseListMock = List.of(
+            new NotificationTemplateResponse(notificationTemplateOneMock()),
+            new NotificationTemplateResponse(notificationTemplateTwoMock()),
+            new NotificationTemplateResponse(notificationTemplateThreeMock())
+     );
 }
