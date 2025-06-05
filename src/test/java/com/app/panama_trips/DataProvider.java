@@ -1047,7 +1047,7 @@ public class DataProvider {
                 .id(1)
                 .name("Test one")
                 .subject("Subject one")
-                .body("Body one")
+                .body("Hello ${name}, your email is ${email}")
                 .type("EMAIL")
                 .variables("name,email")
                 .build();
@@ -1058,7 +1058,7 @@ public class DataProvider {
                 .id(2)
                 .name("Test two")
                 .subject("Subject two")
-                .body("Body two")
+                .body("Hello ${name}, your email is ${email}")
                 .type("EMAIL")
                 .variables("name,email")
                 .build();
@@ -1069,7 +1069,7 @@ public class DataProvider {
                 .id(3)
                 .name("Test three")
                 .subject("Subject three")
-                .body("Body three")
+                .body("Hello ${name}, your email is ${email}")
                 .type("EMAIL")
                 .variables("name,email")
                 .build();
@@ -1087,7 +1087,7 @@ public class DataProvider {
      public static NotificationTemplateRequest notificationTemplateRequestMock = new NotificationTemplateRequest(
             "Test one",
             "Subject one",
-            "Body one",
+            "Hello ${name}, your email is ${email}",
             "EMAIL",
             "name,email"
      );
