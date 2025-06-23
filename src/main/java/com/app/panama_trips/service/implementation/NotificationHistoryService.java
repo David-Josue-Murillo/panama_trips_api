@@ -298,14 +298,14 @@ public class NotificationHistoryService implements INotificationHistoryService {
     // Helper method
     private void validateRequest(NotificationHistoryRequest request) {
         if (!notificationTemplateRepository.existsById(request.templateId())) {
-            throw new com.app.panama_trips.exception.ResourceNotFoundException("Template not found");
+            throw new ResourceNotFoundException("Template not found");
         }
         if (!userEntityRepository.existsById(request.userId())) {
-            throw new com.app.panama_trips.exception.ResourceNotFoundException("User not found");
+            throw new ResourceNotFoundException("User not found");
         }
         // Si hay reservationId, validar existencia
         if (request.reservationId() != null && !reservationRepository.existsById(request.reservationId())) {
-            throw new com.app.panama_trips.exception.ResourceNotFoundException("Reservation not found");
+            throw new ResourceNotFoundException("Reservation not found");
         }
     }
 
