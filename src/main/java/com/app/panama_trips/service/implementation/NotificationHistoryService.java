@@ -75,22 +75,34 @@ public class NotificationHistoryService implements INotificationHistoryService {
     // Find operations
     @Override
     public List<NotificationHistoryResponse> findByUserId(Long userId) {
-        return null;
+        UserEntity user = findUserOrFail(userId);
+        return repository.findByUser(user).stream()
+            .map(NotificationHistoryResponse::new)
+            .toList();
     }
 
     @Override
     public List<NotificationHistoryResponse> findByTemplateId(Integer templateId) {
-        return null;
+        NotificationTemplate template = findTemplateOrFail(templateId);
+        return repository.findByTemplate(template).stream()
+            .map(NotificationHistoryResponse::new)
+            .toList();
     }
 
     @Override
     public List<NotificationHistoryResponse> findByReservationId(Integer reservationId) {
-        return null;
+        Reservation reservation = findReservationOrFail(reservationId);
+        return repository.findByReservation(reservation).stream()
+            .map(NotificationHistoryResponse::new)
+            .toList();
     }
 
     @Override
     public List<NotificationHistoryResponse> findByDeliveryStatus(String deliveryStatus) {
-        return null;
+        validateDeliveryStatus(deliveryStatus);
+        return repository.findByDeliveryStatus(deliveryStatus).stream()
+            .map(NotificationHistoryResponse::new)
+            .toList();
     }
 
     @Override
@@ -145,7 +157,13 @@ public class NotificationHistoryService implements INotificationHistoryService {
 
     @Override
     public List<NotificationHistoryResponse> getRecentNotifications(int limit) {
-        return null;
+        // Suponiendo que quieres los más recientes de todos los usuarios
+        List<NotificationHistory> all = repository.findAll();
+        return all.stream()
+            .sorted((a, b) -> b.getSentAt().compareTo(a.getSentAt()))
+            .limit(limit)
+            .map(NotificationHistoryResponse::new)
+            .toList();
     }
 
     // Bulk operations
@@ -183,17 +201,20 @@ public class NotificationHistoryService implements INotificationHistoryService {
 
     @Override
     public long countByUserId(Long userId) {
-        return 0;
+        UserEntity user = findUserOrFail(userId);
+        return repository.findByUser(user).size();
     }
 
     @Override
     public long countByDeliveryStatus(String deliveryStatus) {
-        return 0;
+        validateDeliveryStatus(deliveryStatus);
+        return repository.findByDeliveryStatus(deliveryStatus).size();
     }
 
     @Override
     public long countByChannel(String channel) {
-        return 0;
+        validateChannel(channel);
+        return repository.findByChannel(channel).size();
     }
 
     @Override
@@ -269,12 +290,20 @@ public class NotificationHistoryService implements INotificationHistoryService {
 
     @Override
     public List<NotificationHistoryResponse> searchNotificationsByContent(String keyword) {
-        return null;
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new IllegalArgumentException("Keyword must not be empty");
+        }
+        return repository.searchByContent(keyword).stream()
+            .map(NotificationHistoryResponse::new)
+            .toList();
     }
 
     @Override
     public Optional<NotificationHistoryResponse> findLatestNotificationByUser(Long userId) {
-        return null;
+        UserEntity user = findUserOrFail(userId);
+        return repository.findByUser(user).stream()
+            .max((a, b) -> a.getSentAt().compareTo(b.getSentAt()))
+            .map(NotificationHistoryResponse::new);
     }
 
     // Helper method
@@ -332,5 +361,20 @@ public class NotificationHistoryService implements INotificationHistoryService {
         existingNotification.setDeliveryStatus(request.deliveryStatus());
         existingNotification.setContent(request.content());
         existingNotification.setChannel(request.channel());
+    }
+
+     // Métodos de validación auxiliares (si no existen)
+     private void validateDeliveryStatus(String status) {
+        List<String> validStatuses = List.of("PENDING", "DELIVERED", "FAILED");
+        if (status == null || !validStatuses.contains(status)) {
+            throw new IllegalArgumentException("Invalid delivery status: " + status);
+        }
+    }
+
+    private void validateChannel(String channel) {
+        List<String> validChannels = List.of("EMAIL", "SMS", "PUSH");
+        if (channel == null || !validChannels.contains(channel)) {
+            throw new IllegalArgumentException("Invalid channel: " + channel);
+        }
     }
 }
