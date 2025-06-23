@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.NotificationHistory;
 import com.app.panama_trips.persistence.entity.NotificationTemplate;
 import com.app.panama_trips.persistence.entity.Reservation;
@@ -168,10 +169,7 @@ public class NotificationHistoryService implements INotificationHistoryService {
     // Bulk operations
     @Override
     public void bulkCreateNotificationHistory(List<NotificationHistoryRequest> requests) {
-        List<NotificationHistory> notifications = requests.stream()
-                .map(this::convertToEntity)
-                .collect(Collectors.toList());
-        repository.saveAll(notifications);
+        
     }
 
     @Override
@@ -329,7 +327,7 @@ public class NotificationHistoryService implements INotificationHistoryService {
         }
     }
 
-    private NotificationHistory convertToEntity(NotificationHistoryRequest request) {
+    private NotificationHistory builderFromRequest(NotificationHistoryRequest request) {
         NotificationTemplate template = findTemplateOrFail(request.templateId());
         UserEntity user = findUserOrFail(request.userId());
         Optional<Reservation> reservation = Optional.empty();
@@ -356,5 +354,19 @@ public class NotificationHistoryService implements INotificationHistoryService {
     private UserEntity findUserOrFail(Long userId) {
         return userEntityRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    private Reservation findReservationOrFail(Integer reservationId) {
+        return reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+    }
+
+    private void updateFromRequest(NotificationHistory existingNotification, NotificationHistoryRequest request) {
+        existingNotification.setTemplate(findTemplateOrFail(request.templateId()));
+        existingNotification.setUser(findUserOrFail(request.userId()));
+        existingNotification.setReservation(findReservationOrFail(request.reservationId()));
+        existingNotification.setDeliveryStatus(request.deliveryStatus());
+        existingNotification.setContent(request.content());
+        existingNotification.setChannel(request.channel());
     }
 }
