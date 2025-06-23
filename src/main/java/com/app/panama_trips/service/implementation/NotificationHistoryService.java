@@ -48,11 +48,12 @@ public class NotificationHistoryService implements INotificationHistoryService {
 
     @Override
     public NotificationHistoryResponse saveNotificationHistory(NotificationHistoryRequest request) {
+        validateRequest(request);
         NotificationTemplate template = notificationTemplateRepository.findById(request.templateId())
                 .orElseThrow(() -> new RuntimeException("Template not found"));
         UserEntity user = userEntityRepository.findById(request.userId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         Optional<Reservation> reservation = Optional.empty();
         if (request.reservationId() != null) {
             reservation = reservationRepository.findById(request.reservationId());
@@ -72,13 +73,14 @@ public class NotificationHistoryService implements INotificationHistoryService {
 
     @Override
     public NotificationHistoryResponse updateNotificationHistory(Integer id, NotificationHistoryRequest request) {
+        validateRequest(request);
         NotificationHistory existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Notification history not found"));
-        
+
         existing.setDeliveryStatus(request.deliveryStatus());
         existing.setContent(request.content());
         existing.setChannel(request.channel());
-        
+
         return new NotificationHistoryResponse(repository.save(existing));
     }
 
@@ -123,7 +125,8 @@ public class NotificationHistoryService implements INotificationHistoryService {
     }
 
     @Override
-    public List<NotificationHistoryResponse> findByDateRangeAndUser(LocalDateTime startDate, LocalDateTime endDate, Long userId) {
+    public List<NotificationHistoryResponse> findByDateRangeAndUser(LocalDateTime startDate, LocalDateTime endDate,
+            Long userId) {
         return null;
     }
 
@@ -144,14 +147,16 @@ public class NotificationHistoryService implements INotificationHistoryService {
     }
 
     @Override
-    public List<NotificationHistoryResponse> getNotificationsByUserAndDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
+    public List<NotificationHistoryResponse> getNotificationsByUserAndDateRange(Long userId, LocalDate startDate,
+            LocalDate endDate) {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
         return findByDateRangeAndUser(startDateTime, endDateTime, userId);
     }
 
     @Override
-    public List<NotificationHistoryResponse> getNotificationsByReservationAndChannel(Integer reservationId, String channel) {
+    public List<NotificationHistoryResponse> getNotificationsByReservationAndChannel(Integer reservationId,
+            String channel) {
         return null;
     }
 
@@ -182,7 +187,7 @@ public class NotificationHistoryService implements INotificationHistoryService {
 
     @Override
     public void bulkUpdateDeliveryStatus(List<Integer> notificationIds, String newStatus) {
-        
+
     }
 
     // Check operations
@@ -235,7 +240,8 @@ public class NotificationHistoryService implements INotificationHistoryService {
     @Override
     public double getDeliverySuccessRate() {
         long total = getTotalNotificationsSent();
-        if (total == 0) return 0.0;
+        if (total == 0)
+            return 0.0;
         long delivered = getTotalNotificationsDelivered();
         return (double) delivered / total * 100;
     }
@@ -258,12 +264,12 @@ public class NotificationHistoryService implements INotificationHistoryService {
     // Utility operations
     @Override
     public void markAsDelivered(Integer notificationId) {
-        
+
     }
 
     @Override
     public void markAsFailed(Integer notificationId, String failureReason) {
-        
+
         // Note: failureReason would need to be stored in a separate field
     }
 
@@ -278,7 +284,7 @@ public class NotificationHistoryService implements INotificationHistoryService {
 
     @Override
     public void cleanupOldNotifications(int daysToKeep) {
-        
+
     }
 
     @Override
@@ -292,13 +298,42 @@ public class NotificationHistoryService implements INotificationHistoryService {
     }
 
     // Helper method
+    private void validateRequest(NotificationHistoryRequest request) {
+        if (!notificationTemplateRepository.existsById(request.templateId())) {
+            throw new com.app.panama_trips.exception.ResourceNotFoundException("Template not found");
+        }
+        if (!userEntityRepository.existsById(request.userId())) {
+            throw new com.app.panama_trips.exception.ResourceNotFoundException("User not found");
+        }
+        // Si hay reservationId, validar existencia
+        if (request.reservationId() != null && !reservationRepository.existsById(request.reservationId())) {
+            throw new com.app.panama_trips.exception.ResourceNotFoundException("Reservation not found");
+        }
+        // Validar deliveryStatus permitido
+        if (request.deliveryStatus() == null ||
+                !(request.deliveryStatus().equals("PENDING") ||
+                  request.deliveryStatus().equals("DELIVERED") ||
+                  request.deliveryStatus().equals("FAILED"))) {
+            throw new com.app.panama_trips.exception.BusinessRuleException("Invalid delivery status");
+        }
+        // Validar canal permitido
+        if (request.channel() == null ||
+                !(request.channel().equals("EMAIL") ||
+                  request.channel().equals("SMS") ||
+                  request.channel().equals("PUSH"))) {
+            throw new com.app.panama_trips.exception.BusinessRuleException("Invalid channel");
+        }
+        // Validar contenido no nulo ni vacío
+        if (request.content() == null || request.content().trim().isEmpty()) {
+            throw new com.app.panama_trips.exception.ValidationException("Content must not be empty");
+        }
+    }
+
     private NotificationHistory convertToEntity(NotificationHistoryRequest request) {
-        NotificationTemplate template = notificationTemplateRepository.findById(request.templateId())
-                .orElseThrow(() -> new RuntimeException("Template not found"));
-        UserEntity user = userEntityRepository.findById(request.userId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
+        NotificationTemplate template = findTemplateOrFail(request.templateId());
+        UserEntity user = findUserOrFail(request.userId());
         Optional<Reservation> reservation = Optional.empty();
+        
         if (request.reservationId() != null) {
             reservation = reservationRepository.findById(request.reservationId());
         }
@@ -312,4 +347,14 @@ public class NotificationHistoryService implements INotificationHistoryService {
                 .channel(request.channel())
                 .build();
     }
-} 
+
+    private NotificationTemplate findTemplateOrFail(Integer templateId) {
+        return notificationTemplateRepository.findById(templateId)
+                .orElseThrow(() -> new RuntimeException("Template not found"));
+    }
+
+    private UserEntity findUserOrFail(Long userId) {
+        return userEntityRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+}
