@@ -307,24 +307,6 @@ public class NotificationHistoryService implements INotificationHistoryService {
         if (request.reservationId() != null && !reservationRepository.existsById(request.reservationId())) {
             throw new com.app.panama_trips.exception.ResourceNotFoundException("Reservation not found");
         }
-        // Validar deliveryStatus permitido
-        if (request.deliveryStatus() == null ||
-                !(request.deliveryStatus().equals("PENDING") ||
-                  request.deliveryStatus().equals("DELIVERED") ||
-                  request.deliveryStatus().equals("FAILED"))) {
-            throw new com.app.panama_trips.exception.BusinessRuleException("Invalid delivery status");
-        }
-        // Validar canal permitido
-        if (request.channel() == null ||
-                !(request.channel().equals("EMAIL") ||
-                  request.channel().equals("SMS") ||
-                  request.channel().equals("PUSH"))) {
-            throw new com.app.panama_trips.exception.BusinessRuleException("Invalid channel");
-        }
-        // Validar contenido no nulo ni vacío
-        if (request.content() == null || request.content().trim().isEmpty()) {
-            throw new com.app.panama_trips.exception.ValidationException("Content must not be empty");
-        }
     }
 
     private NotificationHistory builderFromRequest(NotificationHistoryRequest request) {
