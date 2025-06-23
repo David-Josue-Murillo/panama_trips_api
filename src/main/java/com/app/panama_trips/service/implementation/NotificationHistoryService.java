@@ -50,25 +50,7 @@ public class NotificationHistoryService implements INotificationHistoryService {
     @Override
     public NotificationHistoryResponse saveNotificationHistory(NotificationHistoryRequest request) {
         validateRequest(request);
-        NotificationTemplate template = notificationTemplateRepository.findById(request.templateId())
-                .orElseThrow(() -> new RuntimeException("Template not found"));
-        UserEntity user = userEntityRepository.findById(request.userId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Optional<Reservation> reservation = Optional.empty();
-        if (request.reservationId() != null) {
-            reservation = reservationRepository.findById(request.reservationId());
-        }
-
-        NotificationHistory notification = NotificationHistory.builder()
-                .template(template)
-                .user(user)
-                .reservation(reservation.orElse(null))
-                .deliveryStatus(request.deliveryStatus())
-                .content(request.content())
-                .channel(request.channel())
-                .build();
-
+        NotificationHistory notification = builderFromRequest(request);
         return new NotificationHistoryResponse(repository.save(notification));
     }
 
@@ -78,15 +60,15 @@ public class NotificationHistoryService implements INotificationHistoryService {
         NotificationHistory existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Notification history not found"));
 
-        existing.setDeliveryStatus(request.deliveryStatus());
-        existing.setContent(request.content());
-        existing.setChannel(request.channel());
-
+        updateFromRequest(existing, request);
         return new NotificationHistoryResponse(repository.save(existing));
     }
 
     @Override
     public void deleteNotificationHistory(Integer id) {
+        if(!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Notification history not found with: " + id);
+        }
         repository.deleteById(id);
     }
 
