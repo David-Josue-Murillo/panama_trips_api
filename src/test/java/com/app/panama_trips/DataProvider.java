@@ -6,6 +6,7 @@ import com.app.panama_trips.presentation.dto.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -1097,4 +1098,71 @@ public class DataProvider {
             new NotificationTemplateResponse(notificationTemplateTwoMock()),
             new NotificationTemplateResponse(notificationTemplateThreeMock())
      );
+
+     /*
+     * NotificationHistory instances
+     * 
+     * 
+     */
+    public static NotificationHistory notificationHistoryOneMock() {
+        return NotificationHistory.builder()
+            .id(1)
+            .template(notificationTemplateOneMock())
+            .user(userAdmin())
+            .reservation(reservationOneMock)
+            .sentAt(LocalDateTime.now())
+            .deliveryStatus("PENDING")
+            .content("Test Content")
+            .channel("Channel one")
+            .build();}
+
+    public static NotificationHistory notificationHistoryTwoMock() {
+        return NotificationHistory.builder()
+            .id(2)
+            .template(notificationTemplateTwoMock()) 
+            .user(userContentManager())
+            .reservation(reservationTwoMock) 
+            .sentAt(LocalDateTime.now().minusDays(1))
+            .deliveryStatus("DELIVERED")
+            .content("Contenido de prueba 2")
+            .channel("Channel two")
+            .build();
+    }
+    
+    public static NotificationHistory notificationHistoryThreeMock() {
+        return NotificationHistory.builder()
+            .id(3)
+            .template(notificationTemplateThreeMock()) 
+            .user(userCustomer())
+            .reservation(reservationThreeMock) 
+            .sentAt(LocalDateTime.now().minusHours(5))
+            .deliveryStatus("FAILED")
+            .content("Contenido de prueba 3")
+            .channel("Channel three")
+            .build();
+            }
+
+    public static List<NotificationHistory> notificationHistoriesListMock() {
+        return List.of(
+            notificationHistoryTwoMock(),
+            notificationHistoryTwoMock(),
+            notificationHistoryThreeMock()
+        );
+    }
+
+    public static NotificationHistoryResponse notificationHistoryResponse = new NotificationHistoryResponse(notificationHistoryOneMock());
+    public static NotificationHistoryRequest notificationHistoryRequest = new NotificationHistoryRequest(
+        1,
+        1L,
+        1,
+        "PENDING",
+        "Test Content",
+        "Channel one"
+    );
+
+    public static List<NotificationHistoryResponse> notificationHistoryListResponse = List.of(
+        notificationHistoryResponse,
+        new NotificationHistoryResponse(notificationHistoryTwoMock()),
+        new NotificationHistoryResponse(notificationHistoryThreeMock())
+    );
 }
