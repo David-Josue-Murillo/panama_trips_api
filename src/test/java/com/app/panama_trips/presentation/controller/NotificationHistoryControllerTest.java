@@ -8,10 +8,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.presentation.dto.NotificationHistoryRequest;
 import com.app.panama_trips.presentation.dto.NotificationHistoryResponse;
 import com.app.panama_trips.service.implementation.NotificationHistoryService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import static com.app.panama_trips.DataProvider.*;
 
