@@ -1141,4 +1141,28 @@ public class DataProvider {
             .channel("Channel three")
             .build();
             }
+
+    public static List<NotificationHistory> notificationHistoriesListMock() {
+        return List.of(
+            notificationHistoryTwoMock(),
+            notificationHistoryTwoMock(),
+            notificationHistoryThreeMock()
+        );
+    }
+
+    public static NotificationHistoryResponse notificationHistoryResponse = new NotificationHistoryResponse(notificationHistoryOneMock());
+    public static NotificationHistoryRequest notificationHistoryRequest = new NotificationHistoryRequest(
+        1,
+        1L,
+        1,
+        "pendig",
+        "Test Content",
+        "Channel one"
+    );
+
+    public static List<NotificationHistoryResponse> notificationHistoryListResponse = List.of(
+        notificationHistoryResponse,
+        new NotificationHistoryResponse(notificationHistoryTwoMock()),
+        new NotificationHistoryResponse(notificationHistoryThreeMock())
+    );
 }
