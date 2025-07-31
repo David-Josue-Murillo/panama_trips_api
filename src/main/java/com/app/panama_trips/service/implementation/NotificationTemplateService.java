@@ -106,7 +106,7 @@ public class NotificationTemplateService implements INotificationTemplateService
     // Specialized queries
     @Override
     @Transactional(readOnly = true)
-    public List<NotificationTemplateResponse> getTemplatesByTypeAndContent(String type, String content) {
+    public List<NotificationTemplateResponse>   getTemplatesByTypeAndContent(String type, String content) {
         return notificationTemplateRepository.findByTypeAndNameContaining(type, content)
                 .stream()
                 .filter(template -> template.getSubject().contains(content) || template.getBody().contains(content))
