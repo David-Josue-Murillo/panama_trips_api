@@ -1111,7 +1111,7 @@ public class DataProvider {
             .user(userAdmin())
             .reservation(reservationOneMock)
             .sentAt(LocalDateTime.now())
-            .deliveryStatus("pending")
+            .deliveryStatus("PENDING")
             .content("Test Content")
             .channel("Channel one")
             .build();}
@@ -1123,7 +1123,7 @@ public class DataProvider {
             .user(userContentManager())
             .reservation(reservationTwoMock) 
             .sentAt(LocalDateTime.now().minusDays(1))
-            .deliveryStatus("delivered")
+            .deliveryStatus("DELIVERED")
             .content("Contenido de prueba 2")
             .channel("Channel two")
             .build();
@@ -1136,7 +1136,7 @@ public class DataProvider {
             .user(userCustomer())
             .reservation(reservationThreeMock) 
             .sentAt(LocalDateTime.now().minusHours(5))
-            .deliveryStatus("failed")
+            .deliveryStatus("FAILED")
             .content("Contenido de prueba 3")
             .channel("Channel three")
             .build();
@@ -1155,7 +1155,7 @@ public class DataProvider {
         1,
         1L,
         1,
-        "pendig",
+        "PENDING",
         "Test Content",
         "Channel one"
     );
