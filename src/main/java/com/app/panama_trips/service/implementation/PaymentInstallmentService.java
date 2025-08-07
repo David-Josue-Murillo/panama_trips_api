@@ -287,37 +287,42 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     // Check operations
     @Override
     public boolean existsById(Integer id) {
-        return false;
+        return repository.existsById(id);
     }
 
     @Override
     public boolean existsByReservationId(Integer reservationId) {
-        return false;
+        return repository.findAll().stream()
+                .anyMatch(installment -> installment.getReservation().getId().equals(reservationId));
     }
 
     @Override
     public boolean existsByPaymentId(Integer paymentId) {
-        return false;
+        return repository.findAll().stream()
+                .anyMatch(installment -> installment.getPayment() != null &&
+                        installment.getPayment().getId().equals(paymentId));
     }
 
     @Override
     public long countByReservationId(Integer reservationId) {
-        return 1L;
+        return repository.findAll().stream()
+                .filter(installment -> installment.getReservation().getId().equals(reservationId))
+                .count();
     }
 
     @Override
     public long countByStatus(String status) {
-        return 1L;
+        return repository.findByStatus(status).size();
     }
 
     @Override
     public long countByDueDateBefore(LocalDate date) {
-        return 1L;
+        return repository.findByDueDateBefore(date).size();
     }
 
     @Override
     public long countByReminderSent(Boolean reminderSent) {
-        return 1L;
+        return repository.findByReminderSent(reminderSent).size();
     }
 
     // Financial operations
