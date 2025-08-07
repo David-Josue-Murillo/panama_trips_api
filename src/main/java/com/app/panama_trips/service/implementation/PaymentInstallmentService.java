@@ -3,6 +3,7 @@ package com.app.panama_trips.service.implementation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.PaymentInstallment;
@@ -33,11 +34,13 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
 
     // CRUD operations
     @Override
+    @Transactional(readOnly = true)
     public Page<PaymentInstallmentResponse> getAllPaymentInstallments(Pageable pageable) {
         return repository.findAll(pageable).map(PaymentInstallmentResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PaymentInstallmentResponse getPaymentInstallmentById(Integer id) {
         return repository.findById(id)
                 .map(PaymentInstallmentResponse::new)
@@ -45,12 +48,14 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     }
 
     @Override
+    @Transactional
     public PaymentInstallmentResponse savePaymentInstallment(PaymentInstallmentRequest request) {
         PaymentInstallment installment = buildFromRequest(request);
         return new PaymentInstallmentResponse(repository.save(installment));
     }
 
     @Override
+    @Transactional
     public PaymentInstallmentResponse updatePaymentInstallment(Integer id, PaymentInstallmentRequest request) {
         PaymentInstallment existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
@@ -59,6 +64,7 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     }
 
     @Override
+    @Transactional
     public void deletePaymentInstallment(Integer id) {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException("Payment installment not found");
