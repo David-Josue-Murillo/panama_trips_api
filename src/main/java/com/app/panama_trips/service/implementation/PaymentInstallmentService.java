@@ -613,10 +613,40 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
 
     // Helper methods
     private PaymentInstallment buildFromRequest(PaymentInstallmentRequest request) {
-        return null;
+        Reservation reservation = reservationRepository.findById(request.reservationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+
+        Payment payment = null;
+        if (request.paymentId() != null) {
+            payment = paymentRepository.findById(request.paymentId().longValue())
+                    .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
+        }
+
+        return PaymentInstallment.builder()
+                .reservation(reservation)
+                .payment(payment)
+                .amount(request.amount())
+                .dueDate(request.dueDate())
+                .status(request.status())
+                .reminderSent(request.reminderSent() != null ? request.reminderSent() : false)
+                .build();
     }
 
     private void updateFromRequest(PaymentInstallment existing, PaymentInstallmentRequest request) {
+        Reservation reservation = reservationRepository.findById(request.reservationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
 
+        Payment payment = null;
+        if (request.paymentId() != null) {
+            payment = paymentRepository.findById(request.paymentId().longValue())
+                    .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
+        }
+
+        existing.setReservation(reservation);
+        existing.setPayment(payment);
+        existing.setAmount(request.amount());
+        existing.setDueDate(request.dueDate());
+        existing.setStatus(request.status());
+        existing.setReminderSent(request.reminderSent() != null ? request.reminderSent() : false);
     }
 }
