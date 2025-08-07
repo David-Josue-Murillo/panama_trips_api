@@ -328,28 +328,49 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     // Financial operations
     @Override
     public BigDecimal calculateTotalAmountForReservation(Integer reservationId) {
-        return null;
+        return repository.findAll()
+                .stream()
+                .filter(installment -> installment.getReservation().getId().equals(reservationId))
+                .map(PaymentInstallment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
     public BigDecimal calculateTotalPendingAmountForReservation(Integer reservationId) {
-        return null;
+        return repository.sumPendingAmountByReservation(reservationId);
     }
 
     @Override
     public BigDecimal calculateTotalOverdueAmountForReservation(Integer reservationId) {
-        return null;
+        return repository.findAll()
+                .stream()
+                .filter(installment -> installment.getReservation().getId().equals(reservationId) &&
+                        "OVERDUE".equals(installment.getStatus()))
+                .map(PaymentInstallment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
     public BigDecimal calculateTotalLateFeesForReservation(Integer reservationId) {
         // Basic implementation - calculate late fees based on overdue days
-        return null;
+        return repository.findAll()
+                .stream()
+                .filter(installment -> installment.getReservation().getId().equals(reservationId) &&
+                        installment.isOverdue())
+                .map(installment -> {
+                    long daysOverdue = installment.getDaysOverdue();
+                    return installment.getAmount().multiply(BigDecimal.valueOf(0.05))
+                            .multiply(BigDecimal.valueOf(daysOverdue));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
     public BigDecimal calculateTotalAmountByDateRange(LocalDate startDate, LocalDate endDate) {
-        return null;
+        return repository.findByDueDateBetween(startDate, endDate)
+                .stream()
+                .map(PaymentInstallment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     // Statistics and analytics
