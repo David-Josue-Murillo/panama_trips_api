@@ -127,22 +127,28 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     // Specialized queries from repository
     @Override
     public List<PaymentInstallmentResponse> findByReservationIdAndStatus(Integer reservationId, String status) {
-        return null;
+        return repository.findByReservationIdAndStatus(reservationId, status)
+                .stream()
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public List<PaymentInstallmentResponse> findPendingInstallmentsWithoutReminder(LocalDate date) {
-        return null;
+        return repository.findPendingInstallmentsWithoutReminder(date)
+                .stream()
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public BigDecimal sumPendingAmountByReservation(Integer reservationId) {
-        return null;
+        return repository.sumPendingAmountByReservation(reservationId);
     }
 
     @Override
     public Long countOverdueInstallments(String status, LocalDate date) {
-        return null;
+        return repository.countOverdueInstallments(status, date);
     }
 
     // Business logic operations
