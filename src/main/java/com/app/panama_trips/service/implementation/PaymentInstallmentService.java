@@ -476,32 +476,53 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     // Status management operations
     @Override
     public PaymentInstallmentResponse markAsPaid(Integer installmentId) {
-        return null;
+        PaymentInstallment installment = repository.findById(installmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
+        installment.setStatus("PAID");
+        return new PaymentInstallmentResponse(repository.save(installment));
     }
 
     @Override
     public PaymentInstallmentResponse markAsOverdue(Integer installmentId) {
-        return null;
+        PaymentInstallment installment = repository.findById(installmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
+        installment.setStatus("OVERDUE");
+        return new PaymentInstallmentResponse(repository.save(installment));
     }
 
     @Override
     public PaymentInstallmentResponse markAsCancelled(Integer installmentId) {
-        return null;
+        PaymentInstallment installment = repository.findById(installmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
+        installment.setStatus("CANCELLED");
+        return new PaymentInstallmentResponse(repository.save(installment));
     }
 
     @Override
     public PaymentInstallmentResponse markAsPending(Integer installmentId) {
-        return null;
+        PaymentInstallment installment = repository.findById(installmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
+        installment.setStatus("PENDING");
+        return new PaymentInstallmentResponse(repository.save(installment));
     }
 
     @Override
     public boolean isValidStatusTransition(Integer installmentId, String newStatus) {
-        return false;
+        return getValidStatusTransitions(installmentId).contains(newStatus);
     }
 
     @Override
     public List<String> getValidStatusTransitions(Integer installmentId) {
-        return null;
+        PaymentInstallment installment = repository.findById(installmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
+
+        return switch (installment.getStatus()) {
+            case "PENDING" -> List.of("PAID", "OVERDUE", "CANCELLED");
+            case "OVERDUE" -> List.of("PAID", "CANCELLED");
+            case "PAID" -> List.of("CANCELLED");
+            case "CANCELLED" -> List.of();
+            default -> List.of();
+        };
     }
 
     // Reminder operations
