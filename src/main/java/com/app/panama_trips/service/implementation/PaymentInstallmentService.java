@@ -555,7 +555,15 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     // Utility operations
     @Override
     public void recalculateOverdueStatus() {
+        List<PaymentInstallment> pendingInstallments = repository.findByStatus("PENDING");
+        LocalDate today = LocalDate.now();
 
+        pendingInstallments.stream()
+                .filter(installment -> installment.getDueDate().isBefore(today))
+                .forEach(installment -> {
+                    installment.setStatus("OVERDUE");
+                    repository.save(installment);
+                });
     }
 
     @Override
@@ -565,22 +573,42 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
 
     @Override
     public List<PaymentInstallmentResponse> searchInstallmentsByAmount(BigDecimal amount) {
-        return null;
+        return repository.findAll()
+                .stream()
+                .filter(installment -> installment.getAmount().equals(amount))
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public Optional<PaymentInstallmentResponse> findLatestInstallmentByReservation(Integer reservationId) {
-        return null;
+        return repository.findAll()
+                .stream()
+                .filter(installment -> installment.getReservation().getId().equals(reservationId))
+                .max((a, b) -> a.getDueDate().compareTo(b.getDueDate()))
+                .map(PaymentInstallmentResponse::new);
     }
 
     @Override
     public List<PaymentInstallmentResponse> getInstallmentsWithLateFees() {
-        return null;
+        return repository.findAll()
+                .stream()
+                .filter(PaymentInstallment::isOverdue)
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public BigDecimal calculateLateFeeForInstallment(Integer installmentId) {
-        return null;
+        PaymentInstallment installment = repository.findById(installmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
+
+        if (installment.getStatus().equals("OVERDUE")) {
+            LocalDate today = LocalDate.now();
+            long daysOverdue = java.time.temporal.ChronoUnit.DAYS.between(installment.getDueDate(), today);
+            return installment.getAmount().multiply(BigDecimal.valueOf(0.05)).multiply(BigDecimal.valueOf(daysOverdue));
+        }
+        return BigDecimal.ZERO;
     }
 
     // Helper methods
