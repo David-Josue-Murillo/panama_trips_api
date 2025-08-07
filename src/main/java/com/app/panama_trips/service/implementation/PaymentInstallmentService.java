@@ -213,25 +213,42 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     @Override
     public List<PaymentInstallmentResponse> getRecentInstallments(int limit) {
         // Basic implementation - return all installments and limit the result
-        return null;
+        return repository.findAll()
+                .stream()
+                .limit(limit)
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public List<PaymentInstallmentResponse> getInstallmentsByAmountRange(BigDecimal minAmount, BigDecimal maxAmount) {
         // Basic implementation - filter all installments by amount range
-        return null;
+        return repository.findAll()
+                .stream()
+                .filter(installment -> installment.getAmount().compareTo(minAmount) >= 0 &&
+                        installment.getAmount().compareTo(maxAmount) <= 0)
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public List<PaymentInstallmentResponse> getInstallmentsByUser(Long userId) {
         // Basic implementation - filter all installments by user
-        return null;
+        return repository.findAll()
+                .stream()
+                .filter(installment -> installment.getReservation().getUser().getId().equals(userId))
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public List<PaymentInstallmentResponse> getInstallmentsByTourPlan(Integer tourPlanId) {
         // Basic implementation - filter all installments by tour plan
-        return null;
+        return repository.findAll()
+                .stream()
+                .filter(installment -> installment.getReservation().getTourPlan().getId().equals(tourPlanId))
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     // Bulk operations
