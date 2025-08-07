@@ -376,67 +376,101 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     // Statistics and analytics
     @Override
     public long getTotalInstallments() {
-        return 1L;
+        return repository.count();
     }
 
     @Override
     public long getTotalPendingInstallments() {
-        return 1L;
+        return repository.findByStatus("PENDING").size();
     }
 
     @Override
     public long getTotalPaidInstallments() {
-        return 1L;
+        return repository.findByStatus("PAID").size();
     }
 
     @Override
     public long getTotalOverdueInstallments() {
-        return 1L;
+        return repository.findByStatus("OVERDUE").size();
     }
 
     @Override
     public long getTotalCancelledInstallments() {
-        return 1L;
+        return repository.findByStatus("CANCELLED").size();
     }
 
     @Override
     public BigDecimal getTotalAmountPending() {
-        return null;
+        return repository.findByStatus("PENDING")
+                .stream()
+                .map(PaymentInstallment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
     public BigDecimal getTotalAmountPaid() {
-        return null;
+        return repository.findByStatus("PAID")
+                .stream()
+                .map(PaymentInstallment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
     public BigDecimal getTotalAmountOverdue() {
-        return null;
+        return repository.findByStatus("OVERDUE")
+                .stream()
+                .map(PaymentInstallment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
     public BigDecimal getTotalLateFees() {
-        return null;
+        return repository.findAll()
+                .stream()
+                .filter(PaymentInstallment::isOverdue)
+                .map(installment -> {
+                    long daysOverdue = installment.getDaysOverdue();
+                    return installment.getAmount().multiply(BigDecimal.valueOf(0.05))
+                            .multiply(BigDecimal.valueOf(daysOverdue));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
     public double getPaymentSuccessRate() {
-        return 1.1;
+        long total = getTotalInstallments();
+        if (total == 0)
+            return 0.0;
+        long paid = getTotalPaidInstallments();
+        return (double) paid / total * 100;
     }
 
     @Override
     public List<PaymentInstallmentResponse> getTopReservationsByInstallmentCount(int limit) {
-        return null;
+        // Basic implementation - return all installments limited by count
+        return repository.findAll()
+                .stream()
+                .limit(limit)
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public List<PaymentInstallmentResponse> getInstallmentsByMonth() {
-        return null;
+        // Basic implementation - return all installments
+        return repository.findAll()
+                .stream()
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public List<PaymentInstallmentResponse> getInstallmentsByDayOfWeek() {
-        return null;
+        // Basic implementation - return all installments
+        return repository.findAll()
+                .stream()
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     // Status management operations
