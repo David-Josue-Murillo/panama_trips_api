@@ -154,38 +154,59 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     // Business logic operations
     @Override
     public List<PaymentInstallmentResponse> getOverdueInstallments() {
-        return null;
+        return repository.findByStatus("OVERDUE")
+                .stream()
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public List<PaymentInstallmentResponse> getPendingInstallments() {
-        return null;
+        return repository.findByStatus("PENDING")
+                .stream()
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public List<PaymentInstallmentResponse> getPaidInstallments() {
-        return null;
+        return repository.findByStatus("PAID")
+                .stream()
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public List<PaymentInstallmentResponse> getCancelledInstallments() {
-        return null;
+        return repository.findByStatus("CANCELLED")
+                .stream()
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public List<PaymentInstallmentResponse> getInstallmentsRequiringReminder() {
-        return null;
+        return repository.findByReminderSent(false)
+                .stream()
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public List<PaymentInstallmentResponse> getInstallmentsByDateRange(LocalDate startDate, LocalDate endDate) {
-        return null;
+        return repository.findByDueDateBetween(startDate, endDate)
+                .stream()
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     @Override
     public List<PaymentInstallmentResponse> getInstallmentsByReservationAndStatus(Integer reservationId,
             String status) {
-        return null;
+        return repository.findByReservationIdAndStatus(reservationId, status)
+                .stream()
+                .map(PaymentInstallmentResponse::new)
+                .toList();
     }
 
     // Advanced queries
