@@ -254,7 +254,10 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     // Bulk operations
     @Override
     public void bulkCreatePaymentInstallments(List<PaymentInstallmentRequest> requests) {
-
+        List<PaymentInstallment> installments = requests.stream()
+                .map(this::buildFromRequest)
+                .toList();
+        repository.saveAll(installments);
     }
 
     @Override
@@ -264,17 +267,21 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
 
     @Override
     public void bulkDeletePaymentInstallments(List<Integer> installmentIds) {
-
+        repository.deleteAllById(installmentIds);
     }
 
     @Override
     public void bulkUpdateStatus(List<Integer> installmentIds, String newStatus) {
-
+        List<PaymentInstallment> installments = repository.findAllById(installmentIds);
+        installments.forEach(installment -> installment.setStatus(newStatus));
+        repository.saveAll(installments);
     }
 
     @Override
     public void bulkMarkAsReminderSent(List<Integer> installmentIds) {
-
+        List<PaymentInstallment> installments = repository.findAllById(installmentIds);
+        installments.forEach(installment -> installment.setReminderSent(true));
+        repository.saveAll(installments);
     }
 
     // Check operations
