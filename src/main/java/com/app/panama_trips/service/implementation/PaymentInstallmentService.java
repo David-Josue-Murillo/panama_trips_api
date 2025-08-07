@@ -528,12 +528,18 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     // Reminder operations
     @Override
     public PaymentInstallmentResponse markReminderAsSent(Integer installmentId) {
-        return null;
+        PaymentInstallment installment = repository.findById(installmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
+        installment.setReminderSent(true);
+        return new PaymentInstallmentResponse(repository.save(installment));
     }
 
     @Override
     public List<PaymentInstallmentResponse> getInstallmentsNeedingReminder() {
-        return null;
+        return repository.findByReminderSent(false)
+                .stream()
+                .map(PaymentInstallmentResponse::new)
+                .collect(Collectors.toList());
     }
 
     @Override
