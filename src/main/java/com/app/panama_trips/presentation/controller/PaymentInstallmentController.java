@@ -235,4 +235,31 @@ public class PaymentInstallmentController {
     public ResponseEntity<Long> countByReminderSent(@PathVariable Boolean reminderSent) {
         return ResponseEntity.ok(service.countByReminderSent(reminderSent));
     }
+
+    // Financial operations
+    @GetMapping("/total-amount/reservation/{reservationId}")
+    public ResponseEntity<BigDecimal> calculateTotalAmountForReservation(@PathVariable Integer reservationId) {
+        return ResponseEntity.ok(service.calculateTotalAmountForReservation(reservationId));
+    }
+
+    @GetMapping("/total-pending/reservation/{reservationId}")
+    public ResponseEntity<BigDecimal> calculateTotalPendingAmountForReservation(@PathVariable Integer reservationId) {
+        return ResponseEntity.ok(service.calculateTotalPendingAmountForReservation(reservationId));
+    }
+
+    @GetMapping("/total-overdue/reservation/{reservationId}")
+    public ResponseEntity<BigDecimal> calculateTotalOverdueAmountForReservation(@PathVariable Integer reservationId) {
+        return ResponseEntity.ok(service.calculateTotalOverdueAmountForReservation(reservationId));
+    }
+
+    @GetMapping("/total-late-fees/reservation/{reservationId}")
+    public ResponseEntity<BigDecimal> calculateTotalLateFeesForReservation(@PathVariable Integer reservationId) {
+        return ResponseEntity.ok(service.calculateTotalLateFeesForReservation(reservationId));
+    }
+
+    @GetMapping("/total-amount/date-range")
+    public ResponseEntity<BigDecimal> calculateTotalAmountByDateRange(
+            @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return ResponseEntity.ok(service.calculateTotalAmountByDateRange(startDate, endDate));
+    }
 }
