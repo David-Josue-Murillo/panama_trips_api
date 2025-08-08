@@ -167,4 +167,36 @@ public class PaymentInstallmentController {
             @PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(service.getInstallmentsByTourPlan(tourPlanId));
     }
+
+    // Bulk operations
+    @PostMapping("/bulk")
+    public ResponseEntity<Void> bulkCreate(@RequestBody List<PaymentInstallmentRequest> requests) {
+        service.bulkCreatePaymentInstallments(requests);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/bulk")
+    public ResponseEntity<Void> bulkUpdate(@RequestBody List<PaymentInstallmentRequest> requests) {
+        service.bulkUpdatePaymentInstallments(requests);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/bulk")
+    public ResponseEntity<Void> bulkDelete(@RequestBody List<Integer> installmentIds) {
+        service.bulkDeletePaymentInstallments(installmentIds);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/bulk/status")
+    public ResponseEntity<Void> bulkUpdateStatus(@RequestBody List<Integer> installmentIds,
+            @RequestParam String newStatus) {
+        service.bulkUpdateStatus(installmentIds, newStatus);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/bulk/reminder-sent")
+    public ResponseEntity<Void> bulkMarkAsReminderSent(@RequestBody List<Integer> installmentIds) {
+        service.bulkMarkAsReminderSent(installmentIds);
+        return ResponseEntity.ok().build();
+    }
 }
