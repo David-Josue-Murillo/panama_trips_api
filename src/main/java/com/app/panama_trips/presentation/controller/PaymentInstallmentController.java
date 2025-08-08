@@ -83,4 +83,27 @@ public class PaymentInstallmentController {
     public ResponseEntity<List<PaymentInstallmentResponse>> findByReminderSent(@PathVariable Boolean reminderSent) {
         return ResponseEntity.ok(service.findByReminderSent(reminderSent));
     }
+
+    // Specialized queries
+    @GetMapping("/reservation/{reservationId}/status/{status}")
+    public ResponseEntity<List<PaymentInstallmentResponse>> findByReservationIdAndStatus(
+            @PathVariable Integer reservationId, @PathVariable String status) {
+        return ResponseEntity.ok(service.findByReservationIdAndStatus(reservationId, status));
+    }
+
+    @GetMapping("/pending-without-reminder/{date}")
+    public ResponseEntity<List<PaymentInstallmentResponse>> findPendingInstallmentsWithoutReminder(
+            @PathVariable LocalDate date) {
+        return ResponseEntity.ok(service.findPendingInstallmentsWithoutReminder(date));
+    }
+
+    @GetMapping("/sum-pending/{reservationId}")
+    public ResponseEntity<BigDecimal> sumPendingAmountByReservation(@PathVariable Integer reservationId) {
+        return ResponseEntity.ok(service.sumPendingAmountByReservation(reservationId));
+    }
+
+    @GetMapping("/count-overdue/{status}/{date}")
+    public ResponseEntity<Long> countOverdueInstallments(@PathVariable String status, @PathVariable LocalDate date) {
+        return ResponseEntity.ok(service.countOverdueInstallments(status, date));
+    }
 }
