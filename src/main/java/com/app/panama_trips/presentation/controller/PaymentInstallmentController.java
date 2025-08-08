@@ -106,4 +106,43 @@ public class PaymentInstallmentController {
     public ResponseEntity<Long> countOverdueInstallments(@PathVariable String status, @PathVariable LocalDate date) {
         return ResponseEntity.ok(service.countOverdueInstallments(status, date));
     }
+
+    // Business logic operations
+    @GetMapping("/overdue")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getOverdueInstallments() {
+        return ResponseEntity.ok(service.getOverdueInstallments());
+    }
+
+    @GetMapping("/pending")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getPendingInstallments() {
+        return ResponseEntity.ok(service.getPendingInstallments());
+    }
+
+    @GetMapping("/paid")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getPaidInstallments() {
+        return ResponseEntity.ok(service.getPaidInstallments());
+    }
+
+    @GetMapping("/cancelled")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getCancelledInstallments() {
+        return ResponseEntity.ok(service.getCancelledInstallments());
+    }
+
+    @GetMapping("/requiring-reminder")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getInstallmentsRequiringReminder() {
+        return ResponseEntity.ok(service.getInstallmentsRequiringReminder());
+    }
+
+    @GetMapping("/date-range")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getInstallmentsByDateRange(
+            @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return ResponseEntity.ok(service.getInstallmentsByDateRange(startDate, endDate));
+    }
+
+    @GetMapping("/reservation/{reservationId}/status/{status}/installments")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getInstallmentsByReservationAndStatus(
+            @PathVariable Integer reservationId, @PathVariable String status) {
+        return ResponseEntity.ok(service.getInstallmentsByReservationAndStatus(reservationId, status));
+    }
+
 }
