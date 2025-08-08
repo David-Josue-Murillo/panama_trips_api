@@ -145,4 +145,26 @@ public class PaymentInstallmentController {
         return ResponseEntity.ok(service.getInstallmentsByReservationAndStatus(reservationId, status));
     }
 
+    // Advanced queries
+    @GetMapping("/recent/{limit}")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getRecentInstallments(@PathVariable int limit) {
+        return ResponseEntity.ok(service.getRecentInstallments(limit));
+    }
+
+    @GetMapping("/amount-range")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getInstallmentsByAmountRange(
+            @RequestParam BigDecimal minAmount, @RequestParam BigDecimal maxAmount) {
+        return ResponseEntity.ok(service.getInstallmentsByAmountRange(minAmount, maxAmount));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getInstallmentsByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(service.getInstallmentsByUser(userId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getInstallmentsByTourPlan(
+            @PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.getInstallmentsByTourPlan(tourPlanId));
+    }
 }
