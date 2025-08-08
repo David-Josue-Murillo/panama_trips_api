@@ -53,5 +53,34 @@ public class PaymentInstallmentController {
     }
 
     // Find operations by entity relationships
-  
+    @GetMapping("/reservation/{reservationId}")
+    public ResponseEntity<List<PaymentInstallmentResponse>> findByReservationId(@PathVariable Integer reservationId) {
+        return ResponseEntity.ok(service.findByReservationId(reservationId));
+    }
+
+    @GetMapping("/payment/{paymentId}")
+    public ResponseEntity<List<PaymentInstallmentResponse>> findByPaymentId(@PathVariable Integer paymentId) {
+        return ResponseEntity.ok(service.findByPaymentId(paymentId));
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<PaymentInstallmentResponse>> findByStatus(@PathVariable String status) {
+        return ResponseEntity.ok(service.findByStatus(status));
+    }
+
+    @GetMapping("/due-before/{date}")
+    public ResponseEntity<List<PaymentInstallmentResponse>> findByDueDateBefore(@PathVariable LocalDate date) {
+        return ResponseEntity.ok(service.findByDueDateBefore(date));
+    }
+
+    @GetMapping("/due-between")
+    public ResponseEntity<List<PaymentInstallmentResponse>> findByDueDateBetween(
+            @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return ResponseEntity.ok(service.findByDueDateBetween(startDate, endDate));
+    }
+
+    @GetMapping("/reminder-sent/{reminderSent}")
+    public ResponseEntity<List<PaymentInstallmentResponse>> findByReminderSent(@PathVariable Boolean reminderSent) {
+        return ResponseEntity.ok(service.findByReminderSent(reminderSent));
+    }
 }
