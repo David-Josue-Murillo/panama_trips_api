@@ -383,4 +383,40 @@ public class PaymentInstallmentController {
         service.sendRemindersForOverdueInstallments();
         return ResponseEntity.ok().build();
     }
+
+    // Utility operations
+    @PostMapping("/recalculate-overdue")
+    public ResponseEntity<Void> recalculateOverdueStatus() {
+        service.recalculateOverdueStatus();
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/cleanup/{daysToKeep}")
+    public ResponseEntity<Void> cleanupOldInstallments(@PathVariable int daysToKeep) {
+        service.cleanupOldInstallments(daysToKeep);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/search/amount/{amount}")
+    public ResponseEntity<List<PaymentInstallmentResponse>> searchInstallmentsByAmount(
+            @PathVariable BigDecimal amount) {
+        return ResponseEntity.ok(service.searchInstallmentsByAmount(amount));
+    }
+
+    @GetMapping("/latest/reservation/{reservationId}")
+    public ResponseEntity<PaymentInstallmentResponse> findLatestInstallmentByReservation(
+            @PathVariable Integer reservationId) {
+        Optional<PaymentInstallmentResponse> result = service.findLatestInstallmentByReservation(reservationId);
+        return result.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/with-late-fees")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getInstallmentsWithLateFees() {
+        return ResponseEntity.ok(service.getInstallmentsWithLateFees());
+    }
+
+    @GetMapping("/{id}/late-fee")
+    public ResponseEntity<BigDecimal> calculateLateFeeForInstallment(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.calculateLateFeeForInstallment(id));
+    }
 }
