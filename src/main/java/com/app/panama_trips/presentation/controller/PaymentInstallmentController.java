@@ -329,4 +329,35 @@ public class PaymentInstallmentController {
     public ResponseEntity<List<PaymentInstallmentResponse>> getInstallmentsByDayOfWeek() {
         return ResponseEntity.ok(service.getInstallmentsByDayOfWeek());
     }
+
+    // Status management operations
+    @PutMapping("/{id}/mark-as-paid")
+    public ResponseEntity<PaymentInstallmentResponse> markAsPaid(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.markAsPaid(id));
+    }
+
+    @PutMapping("/{id}/mark-as-overdue")
+    public ResponseEntity<PaymentInstallmentResponse> markAsOverdue(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.markAsOverdue(id));
+    }
+
+    @PutMapping("/{id}/mark-as-cancelled")
+    public ResponseEntity<PaymentInstallmentResponse> markAsCancelled(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.markAsCancelled(id));
+    }
+
+    @PutMapping("/{id}/mark-as-pending")
+    public ResponseEntity<PaymentInstallmentResponse> markAsPending(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.markAsPending(id));
+    }
+
+    @GetMapping("/{id}/valid-transitions")
+    public ResponseEntity<List<String>> getValidStatusTransitions(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.getValidStatusTransitions(id));
+    }
+
+    @GetMapping("/{id}/is-valid-transition")
+    public ResponseEntity<Boolean> isValidStatusTransition(@PathVariable Integer id, @RequestParam String newStatus) {
+        return ResponseEntity.ok(service.isValidStatusTransition(id, newStatus));
+    }
 }
