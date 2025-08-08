@@ -199,4 +199,40 @@ public class PaymentInstallmentController {
         service.bulkMarkAsReminderSent(installmentIds);
         return ResponseEntity.ok().build();
     }
+
+    // Check operations
+    @GetMapping("/exists/{id}")
+    public ResponseEntity<Boolean> existsById(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.existsById(id));
+    }
+
+    @GetMapping("/exists/reservation/{reservationId}")
+    public ResponseEntity<Boolean> existsByReservationId(@PathVariable Integer reservationId) {
+        return ResponseEntity.ok(service.existsByReservationId(reservationId));
+    }
+
+    @GetMapping("/exists/payment/{paymentId}")
+    public ResponseEntity<Boolean> existsByPaymentId(@PathVariable Integer paymentId) {
+        return ResponseEntity.ok(service.existsByPaymentId(paymentId));
+    }
+
+    @GetMapping("/count/reservation/{reservationId}")
+    public ResponseEntity<Long> countByReservationId(@PathVariable Integer reservationId) {
+        return ResponseEntity.ok(service.countByReservationId(reservationId));
+    }
+
+    @GetMapping("/count/status/{status}")
+    public ResponseEntity<Long> countByStatus(@PathVariable String status) {
+        return ResponseEntity.ok(service.countByStatus(status));
+    }
+
+    @GetMapping("/count/due-before/{date}")
+    public ResponseEntity<Long> countByDueDateBefore(@PathVariable LocalDate date) {
+        return ResponseEntity.ok(service.countByDueDateBefore(date));
+    }
+
+    @GetMapping("/count/reminder-sent/{reminderSent}")
+    public ResponseEntity<Long> countByReminderSent(@PathVariable Boolean reminderSent) {
+        return ResponseEntity.ok(service.countByReminderSent(reminderSent));
+    }
 }
