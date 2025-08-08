@@ -262,4 +262,71 @@ public class PaymentInstallmentController {
             @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         return ResponseEntity.ok(service.calculateTotalAmountByDateRange(startDate, endDate));
     }
+
+    // Statistics and analytics
+    @GetMapping("/stats/total")
+    public ResponseEntity<Long> getTotalInstallments() {
+        return ResponseEntity.ok(service.getTotalInstallments());
+    }
+
+    @GetMapping("/stats/pending")
+    public ResponseEntity<Long> getTotalPendingInstallments() {
+        return ResponseEntity.ok(service.getTotalPendingInstallments());
+    }
+
+    @GetMapping("/stats/paid")
+    public ResponseEntity<Long> getTotalPaidInstallments() {
+        return ResponseEntity.ok(service.getTotalPaidInstallments());
+    }
+
+    @GetMapping("/stats/overdue")
+    public ResponseEntity<Long> getTotalOverdueInstallments() {
+        return ResponseEntity.ok(service.getTotalOverdueInstallments());
+    }
+
+    @GetMapping("/stats/cancelled")
+    public ResponseEntity<Long> getTotalCancelledInstallments() {
+        return ResponseEntity.ok(service.getTotalCancelledInstallments());
+    }
+
+    @GetMapping("/stats/amount-pending")
+    public ResponseEntity<BigDecimal> getTotalAmountPending() {
+        return ResponseEntity.ok(service.getTotalAmountPending());
+    }
+
+    @GetMapping("/stats/amount-paid")
+    public ResponseEntity<BigDecimal> getTotalAmountPaid() {
+        return ResponseEntity.ok(service.getTotalAmountPaid());
+    }
+
+    @GetMapping("/stats/amount-overdue")
+    public ResponseEntity<BigDecimal> getTotalAmountOverdue() {
+        return ResponseEntity.ok(service.getTotalAmountOverdue());
+    }
+
+    @GetMapping("/stats/late-fees")
+    public ResponseEntity<BigDecimal> getTotalLateFees() {
+        return ResponseEntity.ok(service.getTotalLateFees());
+    }
+
+    @GetMapping("/stats/success-rate")
+    public ResponseEntity<Double> getPaymentSuccessRate() {
+        return ResponseEntity.ok(service.getPaymentSuccessRate());
+    }
+
+    @GetMapping("/stats/top-reservations/{limit}")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getTopReservationsByInstallmentCount(
+            @PathVariable int limit) {
+        return ResponseEntity.ok(service.getTopReservationsByInstallmentCount(limit));
+    }
+
+    @GetMapping("/stats/by-month")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getInstallmentsByMonth() {
+        return ResponseEntity.ok(service.getInstallmentsByMonth());
+    }
+
+    @GetMapping("/stats/by-day-of-week")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getInstallmentsByDayOfWeek() {
+        return ResponseEntity.ok(service.getInstallmentsByDayOfWeek());
+    }
 }
