@@ -360,4 +360,27 @@ public class PaymentInstallmentController {
     public ResponseEntity<Boolean> isValidStatusTransition(@PathVariable Integer id, @RequestParam String newStatus) {
         return ResponseEntity.ok(service.isValidStatusTransition(id, newStatus));
     }
+
+    // Reminder operations
+    @PutMapping("/{id}/mark-reminder-sent")
+    public ResponseEntity<PaymentInstallmentResponse> markReminderAsSent(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.markReminderAsSent(id));
+    }
+
+    @GetMapping("/needing-reminder")
+    public ResponseEntity<List<PaymentInstallmentResponse>> getInstallmentsNeedingReminder() {
+        return ResponseEntity.ok(service.getInstallmentsNeedingReminder());
+    }
+
+    @PostMapping("/send-reminders-due")
+    public ResponseEntity<Void> sendRemindersForDueInstallments() {
+        service.sendRemindersForDueInstallments();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/send-reminders-overdue")
+    public ResponseEntity<Void> sendRemindersForOverdueInstallments() {
+        service.sendRemindersForOverdueInstallments();
+        return ResponseEntity.ok().build();
+    }
 }
