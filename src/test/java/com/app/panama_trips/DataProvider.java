@@ -1287,5 +1287,27 @@ public class DataProvider {
         .build();
   }
 
-  
+  public static List<PaymentInstallment> pendingInstallmentsListMock() {
+    return List.of(
+        paymentInstallmentOneMock(),
+        pendingInstallmentMock());
+  }
+
+  public static List<PaymentInstallment> overdueInstallmentsListMock() {
+    return List.of(
+        paymentInstallmentTwoMock(),
+        overdueInstallmentMock());
+  }
+
+  public static List<PaymentInstallment> paidInstallmentsListMock() {
+    return List.of(
+        paymentInstallmentThreeMock(),
+        paidInstallmentMock());
+  }
+
+  public static List<PaymentInstallment> cancelledInstallmentsListMock() {
+    return List.of(
+        paymentInstallmentOneMock(),
+        cancelledInstallmentMock());
+  }
 }
