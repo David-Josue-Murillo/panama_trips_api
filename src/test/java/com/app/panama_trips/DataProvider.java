@@ -6,7 +6,6 @@ import com.app.panama_trips.presentation.dto.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -1164,5 +1163,74 @@ public class DataProvider {
         notificationHistoryResponse,
         new NotificationHistoryResponse(notificationHistoryTwoMock()),
         new NotificationHistoryResponse(notificationHistoryThreeMock())
+    );
+
+  /*
+   * PaymentInstallment instances
+   * 
+   * 
+   */
+  public static PaymentInstallment paymentInstallmentOneMock() {
+    return PaymentInstallment.builder()
+        .id(1)
+        .reservation(reservationOneMock)
+        .amount(BigDecimal.valueOf(100.00))
+        .dueDate(LocalDate.now().plusDays(30))
+        .payment(null)
+        .status("PENDING")
+        .reminderSent(false)
+        .createdAt(LocalDate.now())
+        .build();
+  }
+
+  public static PaymentInstallment paymentInstallmentTwoMock() {
+    return PaymentInstallment.builder()
+        .id(2)
+        .reservation(reservationTwoMock)
+        .amount(BigDecimal.valueOf(200.00))
+        .dueDate(LocalDate.now().minusDays(5))
+        .payment(null)
+        .status("OVERDUE")
+        .reminderSent(true)
+        .createdAt(LocalDate.now().minusDays(10))
+        .build();
+  }
+
+  public static PaymentInstallment paymentInstallmentThreeMock() {
+    return PaymentInstallment.builder()
+        .id(3)
+        .reservation(reservationThreeMock)
+        .amount(BigDecimal.valueOf(150.00))
+        .dueDate(LocalDate.now().plusDays(15))
+        .payment(null)
+        .status("PAID")
+        .reminderSent(false)
+        .createdAt(LocalDate.now().minusDays(5))
+        .build();
+  }
+
+  public static List<PaymentInstallment> paymentInstallmentListMock() {
+    return List.of(
+        paymentInstallmentOneMock(),
+        paymentInstallmentTwoMock(),
+        paymentInstallmentThreeMock()
+        );
+  }
+
+  public static PaymentInstallmentResponse paymentInstallmentResponseMock = new PaymentInstallmentResponse(
+      paymentInstallmentOneMock());
+
+  public static PaymentInstallmentRequest paymentInstallmentRequestMock = new PaymentInstallmentRequest(
+      1,
+      BigDecimal.valueOf(100.00),
+      LocalDate.now().plusDays(30),
+      null,
+      "PENDING",
+      false);
+
+  public static List<PaymentInstallmentResponse> paymentInstallmentResponseListMock = List.of(
+      new PaymentInstallmentResponse(paymentInstallmentOneMock()),
+      new PaymentInstallmentResponse(paymentInstallmentTwoMock()),
+      new PaymentInstallmentResponse(paymentInstallmentThreeMock())
     );
 }
