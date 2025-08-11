@@ -1233,4 +1233,59 @@ public class DataProvider {
       new PaymentInstallmentResponse(paymentInstallmentTwoMock()),
       new PaymentInstallmentResponse(paymentInstallmentThreeMock())
     );
+
+    // Additional mock data for specific test scenarios
+  public static PaymentInstallment pendingInstallmentMock() {
+    return PaymentInstallment.builder()
+        .id(7)
+        .reservation(reservationOneMock)
+        .amount(BigDecimal.valueOf(50.00))
+        .dueDate(LocalDate.now().plusDays(5))
+        .payment(null)
+        .status("PENDING")
+        .reminderSent(false)
+        .createdAt(LocalDate.now())
+        .build();
+  }
+
+  public static PaymentInstallment overdueInstallmentMock() {
+    return PaymentInstallment.builder()
+        .id(8)
+        .reservation(reservationTwoMock)
+        .amount(BigDecimal.valueOf(175.00))
+        .dueDate(LocalDate.now().minusDays(10))
+        .payment(null)
+        .status("OVERDUE")
+        .reminderSent(true)
+        .createdAt(LocalDate.now().minusDays(15))
+        .build();
+  }
+
+  public static PaymentInstallment paidInstallmentMock() {
+    return PaymentInstallment.builder()
+        .id(9)
+        .reservation(reservationThreeMock)
+        .amount(BigDecimal.valueOf(250.00))
+        .dueDate(LocalDate.now().minusDays(1))
+        .payment(null)
+        .status("PAID")
+        .reminderSent(false)
+        .createdAt(LocalDate.now().minusDays(10))
+        .build();
+  }
+
+  public static PaymentInstallment cancelledInstallmentMock() {
+    return PaymentInstallment.builder()
+        .id(10)
+        .reservation(reservationOneMock)
+        .amount(BigDecimal.valueOf(90.00))
+        .dueDate(LocalDate.now().plusDays(20))
+        .payment(null)
+        .status("CANCELLED")
+        .reminderSent(false)
+        .createdAt(LocalDate.now().minusDays(5))
+        .build();
+  }
+
+  
 }
