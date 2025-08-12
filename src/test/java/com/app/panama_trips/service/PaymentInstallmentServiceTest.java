@@ -406,4 +406,71 @@ public class PaymentInstallmentServiceTest {
     assertEquals(1, result.size());
     verify(repository).findByReminderSent(false);
   }
+
+  // Specialized Queries Tests
+  @Test
+  @DisplayName("Should find payment installments by reservation id and status")
+  void findByReservationIdAndStatus_shouldReturnMatchingInstallments() {
+    // Given
+    Integer reservationId = 1;
+    String status = "PENDING";
+    when(repository.findByReservationIdAndStatus(reservationId, status))
+        .thenReturn(List.of(paymentInstallmentOneMock()));
+
+    // When
+    List<PaymentInstallmentResponse> result = service.findByReservationIdAndStatus(reservationId, status);
+
+    // Then
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    verify(repository).findByReservationIdAndStatus(reservationId, status);
+  }
+
+  @Test
+  @DisplayName("Should find pending installments without reminder")
+  void findPendingInstallmentsWithoutReminder_shouldReturnMatchingInstallments() {
+    // Given
+    LocalDate date = LocalDate.now();
+    when(repository.findPendingInstallmentsWithoutReminder(date)).thenReturn(List.of(paymentInstallmentOneMock()));
+
+    // When
+    List<PaymentInstallmentResponse> result = service.findPendingInstallmentsWithoutReminder(date);
+
+    // Then
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    verify(repository).findPendingInstallmentsWithoutReminder(date);
+  }
+
+  @Test
+  @DisplayName("Should sum pending amount by reservation")
+  void sumPendingAmountByReservation_shouldReturnCorrectAmount() {
+    // Given
+    Integer reservationId = 1;
+    BigDecimal expectedAmount = BigDecimal.valueOf(150.00);
+    when(repository.sumPendingAmountByReservation(reservationId)).thenReturn(expectedAmount);
+
+    // When
+    BigDecimal result = service.sumPendingAmountByReservation(reservationId);
+
+    // Then
+    assertEquals(expectedAmount, result);
+    verify(repository).sumPendingAmountByReservation(reservationId);
+  }
+
+  @Test
+  @DisplayName("Should count overdue installments")
+  void countOverdueInstallments_shouldReturnCorrectCount() {
+    // Given
+    String status = "OVERDUE";
+    LocalDate date = LocalDate.now();
+    when(repository.countOverdueInstallments(status, date)).thenReturn(2L);
+
+    // When
+    Long result = service.countOverdueInstallments(status, date);
+
+    // Then
+    assertEquals(2L, result);
+    verify(repository).countOverdueInstallments(status, date);
+  }
 }
