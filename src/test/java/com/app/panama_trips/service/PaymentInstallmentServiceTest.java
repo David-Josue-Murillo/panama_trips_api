@@ -802,4 +802,39 @@ public class PaymentInstallmentServiceTest {
     PaymentInstallment savedInstallment = installmentCaptor.getValue();
     assertEquals("PENDING", savedInstallment.getStatus());
   }
+
+  // Reminder Operations Tests
+  @Test
+  @DisplayName("Should mark reminder as sent")
+  void markReminderAsSent_shouldUpdateReminderSent() {
+    // Given
+    Integer id = 1;
+    when(repository.findById(id)).thenReturn(Optional.of(paymentInstallment));
+    when(repository.save(any(PaymentInstallment.class))).thenReturn(paymentInstallment);
+
+    // When
+    PaymentInstallmentResponse result = service.markReminderAsSent(id);
+
+    // Then
+    assertNotNull(result);
+    verify(repository).findById(id);
+    verify(repository).save(installmentCaptor.capture());
+    PaymentInstallment savedInstallment = installmentCaptor.getValue();
+    assertTrue(savedInstallment.getReminderSent());
+  }
+
+  @Test
+  @DisplayName("Should get installments needing reminder")
+  void getInstallmentsNeedingReminder_shouldReturnInstallmentsWithoutReminder() {
+    // Given
+    when(repository.findByReminderSent(false)).thenReturn(List.of(paymentInstallmentOneMock()));
+
+    // When
+    List<PaymentInstallmentResponse> result = service.getInstallmentsNeedingReminder();
+
+    // Then
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    verify(repository).findByReminderSent(false);
+  }
 }
