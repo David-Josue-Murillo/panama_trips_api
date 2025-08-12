@@ -537,4 +537,65 @@ public class PaymentInstallmentServiceTest {
     verify(repository).saveAll(paymentInstallments);
     paymentInstallments.forEach(installment -> assertTrue(installment.getReminderSent()));
   }
+
+  // Check Operations Tests
+  @Test
+  @DisplayName("Should check if payment installment exists by id")
+  void existsById_whenExists_returnsTrue() {
+    // Given
+    Integer id = 1;
+    when(repository.existsById(id)).thenReturn(true);
+
+    // When
+    boolean result = service.existsById(id);
+
+    // Then
+    assertTrue(result);
+    verify(repository).existsById(id);
+  }
+
+  @Test
+  @DisplayName("Should check if payment installment does not exist by id")
+  void existsById_whenNotExists_returnsFalse() {
+    // Given
+    Integer id = 999;
+    when(repository.existsById(id)).thenReturn(false);
+
+    // When
+    boolean result = service.existsById(id);
+
+    // Then
+    assertFalse(result);
+    verify(repository).existsById(id);
+  }
+
+  @Test
+  @DisplayName("Should count by reservation id")
+  void countByReservationId_shouldReturnCorrectCount() {
+    // Given
+    Integer reservationId = 1;
+    when(repository.findAll()).thenReturn(paymentInstallments);
+
+    // When
+    long result = service.countByReservationId(reservationId);
+
+    // Then
+    assertEquals(1, result); // Only one installment has reservationOneMock (id=1)
+    verify(repository).findAll();
+  }
+
+  @Test
+  @DisplayName("Should count by status")
+  void countByStatus_shouldReturnCorrectCount() {
+    // Given
+    String status = "PENDING";
+    when(repository.findByStatus(status)).thenReturn(pendingInstallmentsListMock());
+
+    // When
+    long result = service.countByStatus(status);
+
+    // Then
+    assertEquals(2, result);
+    verify(repository).findByStatus(status);
+  }
 }
