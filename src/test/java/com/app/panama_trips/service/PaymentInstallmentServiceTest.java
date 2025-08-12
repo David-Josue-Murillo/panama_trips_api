@@ -837,4 +837,98 @@ public class PaymentInstallmentServiceTest {
     assertEquals(1, result.size());
     verify(repository).findByReminderSent(false);
   }
+
+  // Utility Operations Tests
+  @Test
+  @DisplayName("Should recalculate overdue status")
+  void recalculateOverdueStatus_shouldUpdateOverdueInstallments() {
+    // Given
+    when(repository.findByStatus("PENDING")).thenReturn(List.of(paymentInstallmentTwoMock())); // overdue installment
+
+    // When
+    service.recalculateOverdueStatus();
+
+    // Then
+    verify(repository).findByStatus("PENDING");
+    verify(repository).save(any(PaymentInstallment.class));
+  }
+
+  @Test
+  @DisplayName("Should search installments by amount")
+  void searchInstallmentsByAmount_shouldReturnMatchingInstallments() {
+    // Given
+    BigDecimal amount = BigDecimal.valueOf(100.00);
+    when(repository.findAll()).thenReturn(paymentInstallments);
+
+    // When
+    List<PaymentInstallmentResponse> result = service.searchInstallmentsByAmount(amount);
+
+    // Then
+    assertNotNull(result);
+    assertEquals(1, result.size()); // Only one installment has amount 100.00
+    verify(repository).findAll();
+  }
+
+  @Test
+  @DisplayName("Should find latest installment by reservation")
+  void findLatestInstallmentByReservation_shouldReturnLatestInstallment() {
+    // Given
+    Integer reservationId = 1;
+    when(repository.findAll()).thenReturn(paymentInstallments);
+
+    // When
+    Optional<PaymentInstallmentResponse> result = service.findLatestInstallmentByReservation(reservationId);
+
+    // Then
+    assertTrue(result.isPresent());
+    verify(repository).findAll();
+  }
+
+  @Test
+  @DisplayName("Should get installments with late fees")
+  void getInstallmentsWithLateFees_shouldReturnOverdueInstallments() {
+    // Given
+    when(repository.findAll()).thenReturn(overdueInstallmentsListMock());
+
+    // When
+    List<PaymentInstallmentResponse> result = service.getInstallmentsWithLateFees();
+
+    // Then
+    assertNotNull(result);
+    assertEquals(2, result.size());
+    verify(repository).findAll();
+  }
+
+  @Test
+  @DisplayName("Should calculate late fee for overdue installment")
+  void calculateLateFeeForInstallment_whenOverdue_shouldReturnLateFee() {
+    // Given
+    Integer id = 1;
+    PaymentInstallment overdueInstallment = paymentInstallmentTwoMock(); // overdue installment
+    when(repository.findById(id)).thenReturn(Optional.of(overdueInstallment));
+
+    // When
+    BigDecimal result = service.calculateLateFeeForInstallment(id);
+
+    // Then
+    assertNotNull(result);
+    assertTrue(result.compareTo(BigDecimal.ZERO) > 0);
+    verify(repository).findById(id);
+  }
+
+  @Test
+  @DisplayName("Should return zero late fee for non-overdue installment")
+  void calculateLateFeeForInstallment_whenNotOverdue_shouldReturnZero() {
+    // Given
+    Integer id = 1;
+    PaymentInstallment pendingInstallment = paymentInstallmentOneMock(); // pending installment
+    when(repository.findById(id)).thenReturn(Optional.of(pendingInstallment));
+
+    // When
+    BigDecimal result = service.calculateLateFeeForInstallment(id);
+
+    // Then
+    assertEquals(BigDecimal.ZERO, result);
+    verify(repository).findById(id);
+  }
 }
