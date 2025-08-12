@@ -725,4 +725,81 @@ public class PaymentInstallmentServiceTest {
     assertEquals(0.0, result);
     verify(repository).count();
   }
+
+  // Status Management Tests
+  @Test
+  @DisplayName("Should mark installment as paid")
+  void markAsPaid_shouldUpdateStatus() {
+    // Given
+    Integer id = 1;
+    when(repository.findById(id)).thenReturn(Optional.of(paymentInstallment));
+    when(repository.save(any(PaymentInstallment.class))).thenReturn(paymentInstallment);
+
+    // When
+    PaymentInstallmentResponse result = service.markAsPaid(id);
+
+    // Then
+    assertNotNull(result);
+    verify(repository).findById(id);
+    verify(repository).save(installmentCaptor.capture());
+    PaymentInstallment savedInstallment = installmentCaptor.getValue();
+    assertEquals("PAID", savedInstallment.getStatus());
+  }
+
+  @Test
+  @DisplayName("Should mark installment as overdue")
+  void markAsOverdue_shouldUpdateStatus() {
+    // Given
+    Integer id = 1;
+    when(repository.findById(id)).thenReturn(Optional.of(paymentInstallment));
+    when(repository.save(any(PaymentInstallment.class))).thenReturn(paymentInstallment);
+
+    // When
+    PaymentInstallmentResponse result = service.markAsOverdue(id);
+
+    // Then
+    assertNotNull(result);
+    verify(repository).findById(id);
+    verify(repository).save(installmentCaptor.capture());
+    PaymentInstallment savedInstallment = installmentCaptor.getValue();
+    assertEquals("OVERDUE", savedInstallment.getStatus());
+  }
+
+  @Test
+  @DisplayName("Should mark installment as cancelled")
+  void markAsCancelled_shouldUpdateStatus() {
+    // Given
+    Integer id = 1;
+    when(repository.findById(id)).thenReturn(Optional.of(paymentInstallment));
+    when(repository.save(any(PaymentInstallment.class))).thenReturn(paymentInstallment);
+
+    // When
+    PaymentInstallmentResponse result = service.markAsCancelled(id);
+
+    // Then
+    assertNotNull(result);
+    verify(repository).findById(id);
+    verify(repository).save(installmentCaptor.capture());
+    PaymentInstallment savedInstallment = installmentCaptor.getValue();
+    assertEquals("CANCELLED", savedInstallment.getStatus());
+  }
+
+  @Test
+  @DisplayName("Should mark installment as pending")
+  void markAsPending_shouldUpdateStatus() {
+    // Given
+    Integer id = 1;
+    when(repository.findById(id)).thenReturn(Optional.of(paymentInstallment));
+    when(repository.save(any(PaymentInstallment.class))).thenReturn(paymentInstallment);
+
+    // When
+    PaymentInstallmentResponse result = service.markAsPending(id);
+
+    // Then
+    assertNotNull(result);
+    verify(repository).findById(id);
+    verify(repository).save(installmentCaptor.capture());
+    PaymentInstallment savedInstallment = installmentCaptor.getValue();
+    assertEquals("PENDING", savedInstallment.getStatus());
+  }
 }
