@@ -231,4 +231,103 @@ public class PaymentInstallmentServiceTest {
     verify(repository).existsById(id);
     verify(repository, never()).deleteById(anyInt());
   }
+  
+  // Find Operations Tests
+  @Test
+  @DisplayName("Should find payment installments by reservation id")
+  void findByReservationId_shouldReturnMatchingInstallments() {
+    // Given
+    Integer reservationId = 1;
+    when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservationOneMock));
+    when(repository.findByReservation(reservationOneMock)).thenReturn(paymentInstallments);
+
+    // When
+    List<PaymentInstallmentResponse> result = service.findByReservationId(reservationId);
+
+    // Then
+    assertNotNull(result);
+    assertEquals(paymentInstallments.size(), result.size());
+    verify(reservationRepository).findById(reservationId);
+    verify(repository).findByReservation(reservationOneMock);
+  }
+
+  @Test
+  @DisplayName("Should throw exception when finding by non-existent reservation id")
+  void findByReservationId_withNonExistentReservation_shouldThrowException() {
+    // Given
+    Integer reservationId = 999;
+    when(reservationRepository.findById(reservationId)).thenReturn(Optional.empty());
+
+    // When/Then
+    ResourceNotFoundException exception = assertThrows(
+        ResourceNotFoundException.class,
+        () -> service.findByReservationId(reservationId));
+    assertEquals("Reservation not found", exception.getMessage());
+    verify(reservationRepository).findById(reservationId);
+  }
+
+  @Test
+  @DisplayName("Should find payment installments by status")
+  void findByStatus_shouldReturnMatchingInstallments() {
+    // Given
+    String status = "PENDING";
+    when(repository.findByStatus(status)).thenReturn(pendingInstallmentsListMock());
+
+    // When
+    List<PaymentInstallmentResponse> result = service.findByStatus(status);
+
+    // Then
+    assertNotNull(result);
+    assertEquals(2, result.size());
+    verify(repository).findByStatus(status);
+  }
+
+  @Test
+  @DisplayName("Should find payment installments by due date before")
+  void findByDueDateBefore_shouldReturnMatchingInstallments() {
+    // Given
+    LocalDate date = LocalDate.now();
+    when(repository.findByDueDateBefore(date)).thenReturn(overdueInstallmentsListMock());
+
+    // When
+    List<PaymentInstallmentResponse> result = service.findByDueDateBefore(date);
+
+    // Then
+    assertNotNull(result);
+    assertEquals(2, result.size());
+    verify(repository).findByDueDateBefore(date);
+  }
+
+  @Test
+  @DisplayName("Should find payment installments by due date between")
+  void findByDueDateBetween_shouldReturnMatchingInstallments() {
+    // Given
+    LocalDate startDate = LocalDate.now().minusDays(10);
+    LocalDate endDate = LocalDate.now().plusDays(10);
+    when(repository.findByDueDateBetween(startDate, endDate)).thenReturn(paymentInstallments);
+
+    // When
+    List<PaymentInstallmentResponse> result = service.findByDueDateBetween(startDate, endDate);
+
+    // Then
+    assertNotNull(result);
+    assertEquals(paymentInstallments.size(), result.size());
+    verify(repository).findByDueDateBetween(startDate, endDate);
+  }
+
+  @Test
+  @DisplayName("Should find payment installments by reminder sent")
+  void findByReminderSent_shouldReturnMatchingInstallments() {
+    // Given
+    Boolean reminderSent = true;
+    when(repository.findByReminderSent(reminderSent)).thenReturn(List.of(paymentInstallmentTwoMock()));
+
+    // When
+    List<PaymentInstallmentResponse> result = service.findByReminderSent(reminderSent);
+
+    // Then
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    verify(repository).findByReminderSent(reminderSent);
+  }
 }
