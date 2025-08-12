@@ -473,4 +473,68 @@ public class PaymentInstallmentServiceTest {
     assertEquals(2L, result);
     verify(repository).countOverdueInstallments(status, date);
   }
+
+  // Bulk Operations Tests
+  @Test
+  @DisplayName("Should bulk create payment installments")
+  void bulkCreatePaymentInstallments_success() {
+    // Given
+    List<PaymentInstallmentRequest> requests = List.of(request, request);
+    when(reservationRepository.findById(anyInt())).thenReturn(Optional.of(reservationOneMock));
+
+    // When
+    service.bulkCreatePaymentInstallments(requests);
+
+    // Then
+    verify(reservationRepository, times(2)).findById(anyInt());
+    verify(repository).saveAll(installmentsCaptor.capture());
+    List<PaymentInstallment> savedInstallments = installmentsCaptor.getValue();
+    assertEquals(2, savedInstallments.size());
+  }
+
+  @Test
+  @DisplayName("Should bulk delete payment installments")
+  void bulkDeletePaymentInstallments_success() {
+    // Given
+    List<Integer> installmentIds = List.of(1, 2, 3);
+
+    // When
+    service.bulkDeletePaymentInstallments(installmentIds);
+
+    // Then
+    verify(repository).deleteAllById(installmentIds);
+  }
+
+  @Test
+  @DisplayName("Should bulk update status")
+  void bulkUpdateStatus_success() {
+    // Given
+    List<Integer> installmentIds = List.of(1, 2);
+    String newStatus = "PAID";
+    when(repository.findAllById(installmentIds)).thenReturn(paymentInstallments);
+
+    // When
+    service.bulkUpdateStatus(installmentIds, newStatus);
+
+    // Then
+    verify(repository).findAllById(installmentIds);
+    verify(repository).saveAll(paymentInstallments);
+    paymentInstallments.forEach(installment -> assertEquals(newStatus, installment.getStatus()));
+  }
+
+  @Test
+  @DisplayName("Should bulk mark as reminder sent")
+  void bulkMarkAsReminderSent_success() {
+    // Given
+    List<Integer> installmentIds = List.of(1, 2);
+    when(repository.findAllById(installmentIds)).thenReturn(paymentInstallments);
+
+    // When
+    service.bulkMarkAsReminderSent(installmentIds);
+
+    // Then
+    verify(repository).findAllById(installmentIds);
+    verify(repository).saveAll(paymentInstallments);
+    paymentInstallments.forEach(installment -> assertTrue(installment.getReminderSent()));
+  }
 }
