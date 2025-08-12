@@ -649,4 +649,80 @@ public class PaymentInstallmentServiceTest {
     assertEquals(expectedAmount, result);
     verify(repository).findByDueDateBetween(startDate, endDate);
   }
+
+  // Statistics Tests
+  @Test
+  @DisplayName("Should get total installments count")
+  void getTotalInstallments_shouldReturnCorrectCount() {
+    // Given
+    when(repository.count()).thenReturn(3L);
+
+    // When
+    long result = service.getTotalInstallments();
+
+    // Then
+    assertEquals(3L, result);
+    verify(repository).count();
+  }
+
+  @Test
+  @DisplayName("Should get total pending installments count")
+  void getTotalPendingInstallments_shouldReturnCorrectCount() {
+    // Given
+    when(repository.findByStatus("PENDING")).thenReturn(pendingInstallmentsListMock());
+
+    // When
+    long result = service.getTotalPendingInstallments();
+
+    // Then
+    assertEquals(2, result);
+    verify(repository).findByStatus("PENDING");
+  }
+
+  @Test
+  @DisplayName("Should get total amount pending")
+  void getTotalAmountPending_shouldReturnCorrectAmount() {
+    // Given
+    when(repository.findByStatus("PENDING")).thenReturn(pendingInstallmentsListMock());
+
+    // When
+    BigDecimal result = service.getTotalAmountPending();
+
+    // Then
+    BigDecimal expectedAmount = pendingInstallmentsListMock().stream()
+        .map(PaymentInstallment::getAmount)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+    assertEquals(expectedAmount, result);
+    verify(repository).findByStatus("PENDING");
+  }
+
+  @Test
+  @DisplayName("Should calculate payment success rate")
+  void getPaymentSuccessRate_shouldReturnCorrectRate() {
+    // Given
+    when(repository.count()).thenReturn(4L);
+    when(repository.findByStatus("PAID")).thenReturn(paidInstallmentsListMock());
+
+    // When
+    double result = service.getPaymentSuccessRate();
+
+    // Then
+    assertEquals(50.0, result); // 2 paid out of 4 total = 50%
+    verify(repository).count();
+    verify(repository).findByStatus("PAID");
+  }
+
+  @Test
+  @DisplayName("Should return zero payment success rate when no installments")
+  void getPaymentSuccessRate_whenNoInstallments_shouldReturnZero() {
+    // Given
+    when(repository.count()).thenReturn(0L);
+
+    // When
+    double result = service.getPaymentSuccessRate();
+
+    // Then
+    assertEquals(0.0, result);
+    verify(repository).count();
+  }
 }
