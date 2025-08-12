@@ -598,4 +598,55 @@ public class PaymentInstallmentServiceTest {
     assertEquals(2, result);
     verify(repository).findByStatus(status);
   }
+
+  // Financial Operations Tests
+  @Test
+  @DisplayName("Should calculate total amount for reservation")
+  void calculateTotalAmountForReservation_shouldReturnCorrectAmount() {
+    // Given
+    Integer reservationId = 1;
+    when(repository.findAll()).thenReturn(paymentInstallments);
+
+    // When
+    BigDecimal result = service.calculateTotalAmountForReservation(reservationId);
+
+    // Then
+    assertEquals(BigDecimal.valueOf(100.00), result); // Only one installment has reservationOneMock
+    verify(repository).findAll();
+  }
+
+  @Test
+  @DisplayName("Should calculate total pending amount for reservation")
+  void calculateTotalPendingAmountForReservation_shouldReturnCorrectAmount() {
+    // Given
+    Integer reservationId = 1;
+    BigDecimal expectedAmount = BigDecimal.valueOf(150.00);
+    when(repository.sumPendingAmountByReservation(reservationId)).thenReturn(expectedAmount);
+
+    // When
+    BigDecimal result = service.calculateTotalPendingAmountForReservation(reservationId);
+
+    // Then
+    assertEquals(expectedAmount, result);
+    verify(repository).sumPendingAmountByReservation(reservationId);
+  }
+
+  @Test
+  @DisplayName("Should calculate total amount by date range")
+  void calculateTotalAmountByDateRange_shouldReturnCorrectAmount() {
+    // Given
+    LocalDate startDate = LocalDate.now().minusDays(10);
+    LocalDate endDate = LocalDate.now().plusDays(10);
+    when(repository.findByDueDateBetween(startDate, endDate)).thenReturn(paymentInstallments);
+
+    // When
+    BigDecimal result = service.calculateTotalAmountByDateRange(startDate, endDate);
+
+    // Then
+    BigDecimal expectedAmount = paymentInstallments.stream()
+        .map(PaymentInstallment::getAmount)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+    assertEquals(expectedAmount, result);
+    verify(repository).findByDueDateBetween(startDate, endDate);
+  }
 }
