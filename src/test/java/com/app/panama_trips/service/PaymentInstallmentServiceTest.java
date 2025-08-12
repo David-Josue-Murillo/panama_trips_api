@@ -330,4 +330,80 @@ public class PaymentInstallmentServiceTest {
     assertEquals(1, result.size());
     verify(repository).findByReminderSent(reminderSent);
   }
+
+  // Business Logic Operations Tests
+  @Test
+  @DisplayName("Should get overdue installments")
+  void getOverdueInstallments_shouldReturnOverdueInstallments() {
+    // Given
+    when(repository.findByStatus("OVERDUE")).thenReturn(overdueInstallmentsListMock());
+
+    // When
+    List<PaymentInstallmentResponse> result = service.getOverdueInstallments();
+
+    // Then
+    assertNotNull(result);
+    assertEquals(2, result.size());
+    verify(repository).findByStatus("OVERDUE");
+  }
+
+  @Test
+  @DisplayName("Should get pending installments")
+  void getPendingInstallments_shouldReturnPendingInstallments() {
+    // Given
+    when(repository.findByStatus("PENDING")).thenReturn(pendingInstallmentsListMock());
+
+    // When
+    List<PaymentInstallmentResponse> result = service.getPendingInstallments();
+
+    // Then
+    assertNotNull(result);
+    assertEquals(2, result.size());
+    verify(repository).findByStatus("PENDING");
+  }
+
+  @Test
+  @DisplayName("Should get paid installments")
+  void getPaidInstallments_shouldReturnPaidInstallments() {
+    // Given
+    when(repository.findByStatus("PAID")).thenReturn(paidInstallmentsListMock());
+
+    // When
+    List<PaymentInstallmentResponse> result = service.getPaidInstallments();
+
+    // Then
+    assertNotNull(result);
+    assertEquals(2, result.size());
+    verify(repository).findByStatus("PAID");
+  }
+
+  @Test
+  @DisplayName("Should get cancelled installments")
+  void getCancelledInstallments_shouldReturnCancelledInstallments() {
+    // Given
+    when(repository.findByStatus("CANCELLED")).thenReturn(cancelledInstallmentsListMock());
+
+    // When
+    List<PaymentInstallmentResponse> result = service.getCancelledInstallments();
+
+    // Then
+    assertNotNull(result);
+    assertEquals(2, result.size());
+    verify(repository).findByStatus("CANCELLED");
+  }
+
+  @Test
+  @DisplayName("Should get installments requiring reminder")
+  void getInstallmentsRequiringReminder_shouldReturnInstallmentsWithoutReminder() {
+    // Given
+    when(repository.findByReminderSent(false)).thenReturn(List.of(paymentInstallmentOneMock()));
+
+    // When
+    List<PaymentInstallmentResponse> result = service.getInstallmentsRequiringReminder();
+
+    // Then
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    verify(repository).findByReminderSent(false);
+  }
 }
