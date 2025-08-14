@@ -317,4 +317,117 @@ public class PaymentInstallmentControllerTest {
 
         verify(service).countOverdueInstallments(status, date);
     }
+
+    // Business logic operations
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get overdue installments when getOverdueInstallments is called")
+    void getOverdueInstallments_success() throws Exception {
+        // Given
+        when(service.getOverdueInstallments()).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/overdue"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getOverdueInstallments();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get pending installments when getPendingInstallments is called")
+    void getPendingInstallments_success() throws Exception {
+        // Given
+        when(service.getPendingInstallments()).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/pending"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getPendingInstallments();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get paid installments when getPaidInstallments is called")
+    void getPaidInstallments_success() throws Exception {
+        // Given
+        when(service.getPaidInstallments()).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/paid"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getPaidInstallments();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get cancelled installments when getCancelledInstallments is called")
+    void getCancelledInstallments_success() throws Exception {
+        // Given
+        when(service.getCancelledInstallments()).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/cancelled"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getCancelledInstallments();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get installments requiring reminder when getInstallmentsRequiringReminder is called")
+    void getInstallmentsRequiringReminder_success() throws Exception {
+        // Given
+        when(service.getInstallmentsRequiringReminder()).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/requiring-reminder"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getInstallmentsRequiringReminder();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get installments by date range when getInstallmentsByDateRange is called")
+    void getInstallmentsByDateRange_success() throws Exception {
+        // Given
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now().plusDays(30);
+        when(service.getInstallmentsByDateRange(startDate, endDate)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/date-range")
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getInstallmentsByDateRange(startDate, endDate);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get installments by reservation and status when getInstallmentsByReservationAndStatus is called")
+    void getInstallmentsByReservationAndStatus_success() throws Exception {
+        // Given
+        Integer reservationId = 1;
+        String status = "PENDING";
+        when(service.getInstallmentsByReservationAndStatus(reservationId, status)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/reservation/{reservationId}/status/{status}/installments",
+                reservationId, status))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getInstallmentsByReservationAndStatus(reservationId, status);
+    }
 }
