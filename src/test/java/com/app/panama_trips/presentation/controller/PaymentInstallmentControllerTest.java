@@ -248,4 +248,73 @@ public class PaymentInstallmentControllerTest {
         verify(service).findByReminderSent(reminderSent);
     }
 
+    // Specialized queries
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find payment installments by reservation id and status when findByReservationIdAndStatus is called")
+    void findByReservationIdAndStatus_success() throws Exception {
+        // Given
+        Integer reservationId = 1;
+        String status = "PENDING";
+        when(service.findByReservationIdAndStatus(reservationId, status)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(
+                get("/api/payment-installments/reservation/{reservationId}/status/{status}", reservationId, status))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByReservationIdAndStatus(reservationId, status);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find pending installments without reminder when findPendingInstallmentsWithoutReminder is called")
+    void findPendingInstallmentsWithoutReminder_success() throws Exception {
+        // Given
+        LocalDate date = LocalDate.now();
+        when(service.findPendingInstallmentsWithoutReminder(date)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/pending-without-reminder/{date}", date))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findPendingInstallmentsWithoutReminder(date);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should sum pending amount by reservation when sumPendingAmountByReservation is called")
+    void sumPendingAmountByReservation_success() throws Exception {
+        // Given
+        Integer reservationId = 1;
+        BigDecimal expectedAmount = new BigDecimal("1000.00");
+        when(service.sumPendingAmountByReservation(reservationId)).thenReturn(expectedAmount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/sum-pending/{reservationId}", reservationId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedAmount.toString()));
+
+        verify(service).sumPendingAmountByReservation(reservationId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count overdue installments when countOverdueInstallments is called")
+    void countOverdueInstallments_success() throws Exception {
+        // Given
+        String status = "OVERDUE";
+        LocalDate date = LocalDate.now();
+        Long expectedCount = 5L;
+        when(service.countOverdueInstallments(status, date)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/count-overdue/{status}/{date}", status, date))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countOverdueInstallments(status, date);
+    }
 }
