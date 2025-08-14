@@ -591,4 +591,121 @@ public class PaymentInstallmentControllerTest {
 
         verify(service).bulkMarkAsReminderSent(anyList());
     }    
+
+    // Check operations
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if payment installment exists by id when existsById is called")
+    void existsById_success() throws Exception {
+        // Given
+        Integer id = 1;
+        when(service.existsById(id)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/exists/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).existsById(id);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if payment installment exists by reservation id when existsByReservationId is called")
+    void existsByReservationId_success() throws Exception {
+        // Given
+        Integer reservationId = 1;
+        when(service.existsByReservationId(reservationId)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/exists/reservation/{reservationId}", reservationId))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).existsByReservationId(reservationId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if payment installment exists by payment id when existsByPaymentId is called")
+    void existsByPaymentId_success() throws Exception {
+        // Given
+        Integer paymentId = 1;
+        when(service.existsByPaymentId(paymentId)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/exists/payment/{paymentId}", paymentId))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).existsByPaymentId(paymentId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count payment installments by reservation id when countByReservationId is called")
+    void countByReservationId_success() throws Exception {
+        // Given
+        Integer reservationId = 1;
+        Long expectedCount = 5L;
+        when(service.countByReservationId(reservationId)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/count/reservation/{reservationId}", reservationId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countByReservationId(reservationId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count payment installments by status when countByStatus is called")
+    void countByStatus_success() throws Exception {
+        // Given
+        String status = "PENDING";
+        Long expectedCount = 10L;
+        when(service.countByStatus(status)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/count/status/{status}", status))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countByStatus(status);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count payment installments by due date before when countByDueDateBefore is called")
+    void countByDueDateBefore_success() throws Exception {
+        // Given
+        LocalDate date = LocalDate.now();
+        Long expectedCount = 3L;
+        when(service.countByDueDateBefore(date)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/count/due-before/{date}", date))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countByDueDateBefore(date);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count payment installments by reminder sent when countByReminderSent is called")
+    void countByReminderSent_success() throws Exception {
+        // Given
+        Boolean reminderSent = true;
+        Long expectedCount = 7L;
+        when(service.countByReminderSent(reminderSent)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/count/reminder-sent/{reminderSent}", reminderSent))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countByReminderSent(reminderSent);
+    }
 }
