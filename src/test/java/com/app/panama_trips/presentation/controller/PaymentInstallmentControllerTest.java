@@ -1173,4 +1173,115 @@ public class PaymentInstallmentControllerTest {
 
         verify(service).sendRemindersForOverdueInstallments();
     }
+
+    // Utility operations
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should recalculate overdue status when recalculateOverdueStatus is called")
+    void recalculateOverdueStatus_success() throws Exception {
+        // Given
+        doNothing().when(service).recalculateOverdueStatus();
+
+        // When/Then
+        mockMvc.perform(post("/api/payment-installments/recalculate-overdue")
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk());
+
+        verify(service).recalculateOverdueStatus();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should cleanup old installments when cleanupOldInstallments is called")
+    void cleanupOldInstallments_success() throws Exception {
+        // Given
+        int daysToKeep = 30;
+        doNothing().when(service).cleanupOldInstallments(daysToKeep);
+
+        // When/Then
+        mockMvc.perform(delete("/api/payment-installments/cleanup/{daysToKeep}", daysToKeep)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk());
+
+        verify(service).cleanupOldInstallments(daysToKeep);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should search installments by amount when searchInstallmentsByAmount is called")
+    void searchInstallmentsByAmount_success() throws Exception {
+        // Given
+        BigDecimal amount = new BigDecimal("500.00");
+        when(service.searchInstallmentsByAmount(amount)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/search/amount/{amount}", amount))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).searchInstallmentsByAmount(amount);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find latest installment by reservation when found")
+    void findLatestInstallmentByReservation_whenFound_success() throws Exception {
+        // Given
+        Integer reservationId = 1;
+        when(service.findLatestInstallmentByReservation(reservationId)).thenReturn(Optional.of(response));
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/latest/reservation/{reservationId}", reservationId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.id()));
+
+        verify(service).findLatestInstallmentByReservation(reservationId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return 404 when latest installment by reservation not found")
+    void findLatestInstallmentByReservation_whenNotFound_returns404() throws Exception {
+        // Given
+        Integer reservationId = 1;
+        when(service.findLatestInstallmentByReservation(reservationId)).thenReturn(Optional.empty());
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/latest/reservation/{reservationId}", reservationId))
+                .andExpect(status().isNotFound());
+
+        verify(service).findLatestInstallmentByReservation(reservationId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get installments with late fees when getInstallmentsWithLateFees is called")
+    void getInstallmentsWithLateFees_success() throws Exception {
+        // Given
+        when(service.getInstallmentsWithLateFees()).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/with-late-fees"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getInstallmentsWithLateFees();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should calculate late fee for installment when calculateLateFeeForInstallment is called")
+    void calculateLateFeeForInstallment_success() throws Exception {
+        // Given
+        Integer id = 1;
+        BigDecimal expectedLateFee = new BigDecimal("25.00");
+        when(service.calculateLateFeeForInstallment(id)).thenReturn(expectedLateFee);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/{id}/late-fee", id))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedLateFee.toString()));
+
+        verify(service).calculateLateFeeForInstallment(id);
+    }
 }
