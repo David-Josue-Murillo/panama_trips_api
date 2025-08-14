@@ -430,4 +430,165 @@ public class PaymentInstallmentControllerTest {
 
         verify(service).getInstallmentsByReservationAndStatus(reservationId, status);
     }
+
+    // Advanced queries
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get recent installments when getRecentInstallments is called")
+    void getRecentInstallments_success() throws Exception {
+        // Given
+        int limit = 10;
+        when(service.getRecentInstallments(limit)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/recent/{limit}", limit))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getRecentInstallments(limit);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get installments by amount range when getInstallmentsByAmountRange is called")
+    void getInstallmentsByAmountRange_success() throws Exception {
+        // Given
+        BigDecimal minAmount = new BigDecimal("100.00");
+        BigDecimal maxAmount = new BigDecimal("1000.00");
+        when(service.getInstallmentsByAmountRange(minAmount, maxAmount)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/amount-range")
+                .param("minAmount", minAmount.toString())
+                .param("maxAmount", maxAmount.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getInstallmentsByAmountRange(minAmount, maxAmount);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get installments by user when getInstallmentsByUser is called")
+    void getInstallmentsByUser_success() throws Exception {
+        // Given
+        Long userId = 1L;
+        when(service.getInstallmentsByUser(userId)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/user/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getInstallmentsByUser(userId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get installments by tour plan when getInstallmentsByTourPlan is called")
+    void getInstallmentsByTourPlan_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        when(service.getInstallmentsByTourPlan(tourPlanId)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/tour-plan/{tourPlanId}", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getInstallmentsByTourPlan(tourPlanId);
+    }
+
+    // Bulk operations
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should create multiple payment installments in bulk when bulkCreate is called")
+    void bulkCreate_success() throws Exception {
+        // Given
+        List<PaymentInstallmentRequest> requests = Collections.singletonList(request);
+        doNothing().when(service).bulkCreatePaymentInstallments(anyList());
+
+        // When/Then
+        mockMvc.perform(post("/api/payment-installments/bulk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(requests))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isCreated());
+
+        verify(service).bulkCreatePaymentInstallments(anyList());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should update multiple payment installments in bulk when bulkUpdate is called")
+    void bulkUpdate_success() throws Exception {
+        // Given
+        List<PaymentInstallmentRequest> requests = Collections.singletonList(request);
+        doNothing().when(service).bulkUpdatePaymentInstallments(anyList());
+
+        // When/Then
+        mockMvc.perform(put("/api/payment-installments/bulk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(requests))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk());
+
+        verify(service).bulkUpdatePaymentInstallments(anyList());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should delete multiple payment installments in bulk when bulkDelete is called")
+    void bulkDelete_success() throws Exception {
+        // Given
+        List<Integer> installmentIds = Collections.singletonList(1);
+        doNothing().when(service).bulkDeletePaymentInstallments(anyList());
+
+        // When/Then
+        mockMvc.perform(delete("/api/payment-installments/bulk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(installmentIds))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(service).bulkDeletePaymentInstallments(anyList());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should update status of multiple payment installments in bulk when bulkUpdateStatus is called")
+    void bulkUpdateStatus_success() throws Exception {
+        // Given
+        List<Integer> installmentIds = Collections.singletonList(1);
+        String newStatus = "PAID";
+        doNothing().when(service).bulkUpdateStatus(anyList(), eq(newStatus));
+
+        // When/Then
+        mockMvc.perform(put("/api/payment-installments/bulk/status")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(installmentIds))
+                .param("newStatus", newStatus)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk());
+
+        verify(service).bulkUpdateStatus(anyList(), eq(newStatus));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should mark multiple payment installments as reminder sent in bulk when bulkMarkAsReminderSent is called")
+    void bulkMarkAsReminderSent_success() throws Exception {
+        // Given
+        List<Integer> installmentIds = Collections.singletonList(1);
+        doNothing().when(service).bulkMarkAsReminderSent(anyList());
+
+        // When/Then
+        mockMvc.perform(put("/api/payment-installments/bulk/reminder-sent")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(installmentIds))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk());
+
+        verify(service).bulkMarkAsReminderSent(anyList());
+    }    
 }
