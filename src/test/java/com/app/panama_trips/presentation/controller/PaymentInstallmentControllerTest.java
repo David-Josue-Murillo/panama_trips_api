@@ -147,4 +147,105 @@ public class PaymentInstallmentControllerTest {
 
         verify(service).deletePaymentInstallment(id);
     }
+
+    // Find operations by entity relationships
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find payment installments by reservation id when findByReservationId is called")
+    void findByReservationId_success() throws Exception {
+        // Given
+        Integer reservationId = 1;
+        when(service.findByReservationId(reservationId)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/reservation/{reservationId}", reservationId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByReservationId(reservationId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find payment installments by payment id when findByPaymentId is called")
+    void findByPaymentId_success() throws Exception {
+        // Given
+        Integer paymentId = 1;
+        when(service.findByPaymentId(paymentId)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/payment/{paymentId}", paymentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByPaymentId(paymentId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find payment installments by status when findByStatus is called")
+    void findByStatus_success() throws Exception {
+        // Given
+        String status = "PENDING";
+        when(service.findByStatus(status)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/status/{status}", status))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByStatus(status);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find payment installments by due date before when findByDueDateBefore is called")
+    void findByDueDateBefore_success() throws Exception {
+        // Given
+        LocalDate date = LocalDate.now();
+        when(service.findByDueDateBefore(date)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/due-before/{date}", date))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByDueDateBefore(date);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find payment installments by due date between when findByDueDateBetween is called")
+    void findByDueDateBetween_success() throws Exception {
+        // Given
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now().plusDays(30);
+        when(service.findByDueDateBetween(startDate, endDate)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/due-between")
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByDueDateBetween(startDate, endDate);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find payment installments by reminder sent when findByReminderSent is called")
+    void findByReminderSent_success() throws Exception {
+        // Given
+        Boolean reminderSent = true;
+        when(service.findByReminderSent(reminderSent)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/reminder-sent/{reminderSent}", reminderSent))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByReminderSent(reminderSent);
+    }
+
 }
