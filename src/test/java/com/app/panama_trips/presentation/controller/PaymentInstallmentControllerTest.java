@@ -708,4 +708,93 @@ public class PaymentInstallmentControllerTest {
 
         verify(service).countByReminderSent(reminderSent);
     }
+
+    // Financial operations
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should calculate total amount for reservation when calculateTotalAmountForReservation is called")
+    void calculateTotalAmountForReservation_success() throws Exception {
+        // Given
+        Integer reservationId = 1;
+        BigDecimal expectedAmount = new BigDecimal("2500.00");
+        when(service.calculateTotalAmountForReservation(reservationId)).thenReturn(expectedAmount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/total-amount/reservation/{reservationId}", reservationId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedAmount.toString()));
+
+        verify(service).calculateTotalAmountForReservation(reservationId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should calculate total pending amount for reservation when calculateTotalPendingAmountForReservation is called")
+    void calculateTotalPendingAmountForReservation_success() throws Exception {
+        // Given
+        Integer reservationId = 1;
+        BigDecimal expectedAmount = new BigDecimal("1500.00");
+        when(service.calculateTotalPendingAmountForReservation(reservationId)).thenReturn(expectedAmount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/total-pending/reservation/{reservationId}", reservationId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedAmount.toString()));
+
+        verify(service).calculateTotalPendingAmountForReservation(reservationId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should calculate total overdue amount for reservation when calculateTotalOverdueAmountForReservation is called")
+    void calculateTotalOverdueAmountForReservation_success() throws Exception {
+        // Given
+        Integer reservationId = 1;
+        BigDecimal expectedAmount = new BigDecimal("500.00");
+        when(service.calculateTotalOverdueAmountForReservation(reservationId)).thenReturn(expectedAmount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/total-overdue/reservation/{reservationId}", reservationId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedAmount.toString()));
+
+        verify(service).calculateTotalOverdueAmountForReservation(reservationId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should calculate total late fees for reservation when calculateTotalLateFeesForReservation is called")
+    void calculateTotalLateFeesForReservation_success() throws Exception {
+        // Given
+        Integer reservationId = 1;
+        BigDecimal expectedAmount = new BigDecimal("75.00");
+        when(service.calculateTotalLateFeesForReservation(reservationId)).thenReturn(expectedAmount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/total-late-fees/reservation/{reservationId}", reservationId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedAmount.toString()));
+
+        verify(service).calculateTotalLateFeesForReservation(reservationId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should calculate total amount by date range when calculateTotalAmountByDateRange is called")
+    void calculateTotalAmountByDateRange_success() throws Exception {
+        // Given
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now().plusDays(30);
+        BigDecimal expectedAmount = new BigDecimal("5000.00");
+        when(service.calculateTotalAmountByDateRange(startDate, endDate)).thenReturn(expectedAmount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/total-amount/date-range")
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedAmount.toString()));
+
+        verify(service).calculateTotalAmountByDateRange(startDate, endDate);
+    }
 }
