@@ -78,4 +78,73 @@ public class PaymentInstallmentControllerTest {
 
         verify(service).getAllPaymentInstallments(any(Pageable.class));
     }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return payment installment by id when getById is called")
+    void getById_success() throws Exception {
+        // Given
+        Integer id = 1;
+        when(service.getPaymentInstallmentById(id)).thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.id()));
+
+        verify(service).getPaymentInstallmentById(id);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should create payment installment when create is called")
+    void create_success() throws Exception {
+        // Given
+        when(service.savePaymentInstallment(any(PaymentInstallmentRequest.class))).thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(post("/api/payment-installments")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(response.id()));
+
+        verify(service).savePaymentInstallment(any(PaymentInstallmentRequest.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should update payment installment when update is called")
+    void update_success() throws Exception {
+        // Given
+        Integer id = 1;
+        when(service.updatePaymentInstallment(eq(id), any(PaymentInstallmentRequest.class))).thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(put("/api/payment-installments/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.id()));
+
+        verify(service).updatePaymentInstallment(eq(id), any(PaymentInstallmentRequest.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should delete payment installment when delete is called")
+    void delete_success() throws Exception {
+        // Given
+        Integer id = 1;
+        doNothing().when(service).deletePaymentInstallment(id);
+
+        // When/Then
+        mockMvc.perform(delete("/api/payment-installments/{id}", id)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(service).deletePaymentInstallment(id);
+    }
 }
