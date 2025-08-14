@@ -1110,4 +1110,67 @@ public class PaymentInstallmentControllerTest {
 
         verify(service).isValidStatusTransition(id, newStatus);
     }
+
+    // Reminder operations
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should mark reminder as sent when markReminderAsSent is called")
+    void markReminderAsSent_success() throws Exception {
+        // Given
+        Integer id = 1;
+        when(service.markReminderAsSent(id)).thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(put("/api/payment-installments/{id}/mark-reminder-sent", id)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.id()));
+
+        verify(service).markReminderAsSent(id);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get installments needing reminder when getInstallmentsNeedingReminder is called")
+    void getInstallmentsNeedingReminder_success() throws Exception {
+        // Given
+        when(service.getInstallmentsNeedingReminder()).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/needing-reminder"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getInstallmentsNeedingReminder();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should send reminders for due installments when sendRemindersForDueInstallments is called")
+    void sendRemindersForDueInstallments_success() throws Exception {
+        // Given
+        doNothing().when(service).sendRemindersForDueInstallments();
+
+        // When/Then
+        mockMvc.perform(post("/api/payment-installments/send-reminders-due")
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk());
+
+        verify(service).sendRemindersForDueInstallments();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should send reminders for overdue installments when sendRemindersForOverdueInstallments is called")
+    void sendRemindersForOverdueInstallments_success() throws Exception {
+        // Given
+        doNothing().when(service).sendRemindersForOverdueInstallments();
+
+        // When/Then
+        mockMvc.perform(post("/api/payment-installments/send-reminders-overdue")
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk());
+
+        verify(service).sendRemindersForOverdueInstallments();
+    }
 }
