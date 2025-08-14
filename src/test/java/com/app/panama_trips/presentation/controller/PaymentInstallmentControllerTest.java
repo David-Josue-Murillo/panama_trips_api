@@ -1004,4 +1004,110 @@ public class PaymentInstallmentControllerTest {
 
         verify(service).getInstallmentsByDayOfWeek();
     }
+
+    // Status management operations
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should mark payment installment as paid when markAsPaid is called")
+    void markAsPaid_success() throws Exception {
+        // Given
+        Integer id = 1;
+        when(service.markAsPaid(id)).thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(put("/api/payment-installments/{id}/mark-as-paid", id)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.id()));
+
+        verify(service).markAsPaid(id);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should mark payment installment as overdue when markAsOverdue is called")
+    void markAsOverdue_success() throws Exception {
+        // Given
+        Integer id = 1;
+        when(service.markAsOverdue(id)).thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(put("/api/payment-installments/{id}/mark-as-overdue", id)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.id()));
+
+        verify(service).markAsOverdue(id);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should mark payment installment as cancelled when markAsCancelled is called")
+    void markAsCancelled_success() throws Exception {
+        // Given
+        Integer id = 1;
+        when(service.markAsCancelled(id)).thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(put("/api/payment-installments/{id}/mark-as-cancelled", id)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.id()));
+
+        verify(service).markAsCancelled(id);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should mark payment installment as pending when markAsPending is called")
+    void markAsPending_success() throws Exception {
+        // Given
+        Integer id = 1;
+        when(service.markAsPending(id)).thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(put("/api/payment-installments/{id}/mark-as-pending", id)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.id()));
+
+        verify(service).markAsPending(id);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get valid status transitions when getValidStatusTransitions is called")
+    void getValidStatusTransitions_success() throws Exception {
+        // Given
+        Integer id = 1;
+        List<String> expectedTransitions = List.of("PAID", "OVERDUE", "CANCELLED");
+        when(service.getValidStatusTransitions(id)).thenReturn(expectedTransitions);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/{id}/valid-transitions", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").value("PAID"))
+                .andExpect(jsonPath("$[1]").value("OVERDUE"))
+                .andExpect(jsonPath("$[2]").value("CANCELLED"));
+
+        verify(service).getValidStatusTransitions(id);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if status transition is valid when isValidStatusTransition is called")
+    void isValidStatusTransition_success() throws Exception {
+        // Given
+        Integer id = 1;
+        String newStatus = "PAID";
+        when(service.isValidStatusTransition(id, newStatus)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/{id}/is-valid-transition", id)
+                .param("newStatus", newStatus))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).isValidStatusTransition(id, newStatus);
+    }
 }
