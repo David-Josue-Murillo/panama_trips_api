@@ -797,4 +797,211 @@ public class PaymentInstallmentControllerTest {
 
         verify(service).calculateTotalAmountByDateRange(startDate, endDate);
     }
+
+    // Statistics and analytics
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total installments when getTotalInstallments is called")
+    void getTotalInstallments_success() throws Exception {
+        // Given
+        Long expectedCount = 100L;
+        when(service.getTotalInstallments()).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/total"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).getTotalInstallments();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total pending installments when getTotalPendingInstallments is called")
+    void getTotalPendingInstallments_success() throws Exception {
+        // Given
+        Long expectedCount = 30L;
+        when(service.getTotalPendingInstallments()).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/pending"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).getTotalPendingInstallments();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total paid installments when getTotalPaidInstallments is called")
+    void getTotalPaidInstallments_success() throws Exception {
+        // Given
+        Long expectedCount = 60L;
+        when(service.getTotalPaidInstallments()).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/paid"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).getTotalPaidInstallments();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total overdue installments when getTotalOverdueInstallments is called")
+    void getTotalOverdueInstallments_success() throws Exception {
+        // Given
+        Long expectedCount = 8L;
+        when(service.getTotalOverdueInstallments()).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/overdue"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).getTotalOverdueInstallments();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total cancelled installments when getTotalCancelledInstallments is called")
+    void getTotalCancelledInstallments_success() throws Exception {
+        // Given
+        Long expectedCount = 2L;
+        when(service.getTotalCancelledInstallments()).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/cancelled"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).getTotalCancelledInstallments();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total amount pending when getTotalAmountPending is called")
+    void getTotalAmountPending_success() throws Exception {
+        // Given
+        BigDecimal expectedAmount = new BigDecimal("15000.00");
+        when(service.getTotalAmountPending()).thenReturn(expectedAmount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/amount-pending"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedAmount.toString()));
+
+        verify(service).getTotalAmountPending();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total amount paid when getTotalAmountPaid is called")
+    void getTotalAmountPaid_success() throws Exception {
+        // Given
+        BigDecimal expectedAmount = new BigDecimal("45000.00");
+        when(service.getTotalAmountPaid()).thenReturn(expectedAmount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/amount-paid"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedAmount.toString()));
+
+        verify(service).getTotalAmountPaid();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total amount overdue when getTotalAmountOverdue is called")
+    void getTotalAmountOverdue_success() throws Exception {
+        // Given
+        BigDecimal expectedAmount = new BigDecimal("3000.00");
+        when(service.getTotalAmountOverdue()).thenReturn(expectedAmount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/amount-overdue"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedAmount.toString()));
+
+        verify(service).getTotalAmountOverdue();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total late fees when getTotalLateFees is called")
+    void getTotalLateFees_success() throws Exception {
+        // Given
+        BigDecimal expectedAmount = new BigDecimal("450.00");
+        when(service.getTotalLateFees()).thenReturn(expectedAmount);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/late-fees"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedAmount.toString()));
+
+        verify(service).getTotalLateFees();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get payment success rate when getPaymentSuccessRate is called")
+    void getPaymentSuccessRate_success() throws Exception {
+        // Given
+        Double expectedRate = 60.0;
+        when(service.getPaymentSuccessRate()).thenReturn(expectedRate);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/success-rate"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedRate.toString()));
+
+        verify(service).getPaymentSuccessRate();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get top reservations by installment count when getTopReservationsByInstallmentCount is called")
+    void getTopReservationsByInstallmentCount_success() throws Exception {
+        // Given
+        int limit = 10;
+        when(service.getTopReservationsByInstallmentCount(limit)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/top-reservations/{limit}", limit))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getTopReservationsByInstallmentCount(limit);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get installments by month when getInstallmentsByMonth is called")
+    void getInstallmentsByMonth_success() throws Exception {
+        // Given
+        when(service.getInstallmentsByMonth()).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/by-month"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getInstallmentsByMonth();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get installments by day of week when getInstallmentsByDayOfWeek is called")
+    void getInstallmentsByDayOfWeek_success() throws Exception {
+        // Given
+        when(service.getInstallmentsByDayOfWeek()).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/payment-installments/stats/by-day-of-week"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getInstallmentsByDayOfWeek();
+    }
 }
