@@ -35,8 +35,8 @@ public class PaymentInstallment {
     private Payment payment;
 
     @Column(name = "status", length = 20, nullable = false)
-    @Builder.Default    
-    private String status = "PENDING";
+    @Builder.Default
+    private String status = PaymentInstallmentStatus.PENDING.getCode();
 
     @Column(name = "reminder_sent", nullable = false)
     @Builder.Default
@@ -45,4 +45,53 @@ public class PaymentInstallment {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDate createdAt;
+
+    /**
+     * Check if this installment is overdue
+     */
+    public boolean isOverdue() {
+        return PaymentInstallmentBusinessLogic.isOverdue(this.dueDate);
+    }
+
+    /**
+     * Get the total amount including late fees
+     */
+    public BigDecimal getTotalAmount() {
+        return PaymentInstallmentBusinessLogic.calculateTotalAmount(this);
+    }
+
+    /**
+     * Check if a reminder should be sent
+     */
+    public boolean shouldSendReminder() {
+        return PaymentInstallmentBusinessLogic.shouldSendReminder(this);
+    }
+
+    /**
+     * Check if this installment can be marked as paid
+     */
+    public boolean canBeMarkedAsPaid() {
+        return PaymentInstallmentBusinessLogic.canBeMarkedAsPaid(this);
+    }
+
+    /**
+     * Check if this installment can be cancelled
+     */
+    public boolean canBeCancelled() {
+        return PaymentInstallmentBusinessLogic.canBeCancelled(this);
+    }
+
+    /**
+     * Get days overdue
+     */
+    public long getDaysOverdue() {
+        return PaymentInstallmentBusinessLogic.calculateDaysOverdue(this.dueDate);
+    }
+
+    /**
+     * Get days until due
+     */
+    public long getDaysUntilDue() {
+        return PaymentInstallmentBusinessLogic.calculateDaysUntilDue(this.dueDate);
+    }
 }
