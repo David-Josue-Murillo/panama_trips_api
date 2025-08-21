@@ -27,4 +27,8 @@ public interface ITourFaqService {
     List<TourFaqResponse> getTopFaqsByTourPlan(Integer tourPlanId, int limit);
     void reorderFaqs(Integer tourPlanId, List<Integer> faqIdsInOrder);
 
+    // Bulk operations
+    void bulkCreateFaqs(List<TourFaqRequest> requests);
+    void bulkUpdateFaqs(List<TourFaqRequest> requests);
+    void bulkDeleteFaqs(List<Integer> faqIds);
 }
