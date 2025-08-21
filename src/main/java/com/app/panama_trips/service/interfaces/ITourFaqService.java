@@ -31,4 +31,9 @@ public interface ITourFaqService {
     void bulkCreateFaqs(List<TourFaqRequest> requests);
     void bulkUpdateFaqs(List<TourFaqRequest> requests);
     void bulkDeleteFaqs(List<Integer> faqIds);
+
+    // Check operations
+    boolean existsByTourPlanIdAndQuestion(Integer tourPlanId, String question);
+    boolean isDisplayOrderUniqueWithinTourPlan(Integer tourPlanId, Integer displayOrder);
+    long countByTourPlanId(Integer tourPlanId);
 }
