@@ -11,5 +11,17 @@ public record TourFaqResponse(
         String answer,
         Integer displayOrder,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt) {
+        LocalDateTime updatedAt
+)  {
+    public TourFaqResponse(TourFaq tourFaq) {
+        this(
+            tourFaq.getId(),
+            tourFaq.getTourPlan().getId(),
+            tourFaq.getQuestion(),
+            tourFaq.getAnswer(),
+            tourFaq.getDisplayOrder(),
+            tourFaq.getCreatedAt(),
+            tourFaq.getUpdatedAt()
+        );
+    }
 }
