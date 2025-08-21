@@ -22,4 +22,9 @@ public interface ITourFaqService {
     List<TourFaqResponse> findByTourPlanIdOrderByDisplayOrderAsc(Integer tourPlanId);
     List<TourFaqResponse> searchByQuestionOrAnswer(String keyword);
     Optional<TourFaqResponse> findByTourPlanIdAndQuestion(Integer tourPlanId, String question);
+
+    // Specialized queries
+    List<TourFaqResponse> getTopFaqsByTourPlan(Integer tourPlanId, int limit);
+    void reorderFaqs(Integer tourPlanId, List<Integer> faqIdsInOrder);
+
 }
