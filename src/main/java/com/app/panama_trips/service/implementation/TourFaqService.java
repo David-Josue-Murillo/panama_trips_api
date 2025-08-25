@@ -177,23 +177,29 @@ public class TourFaqService implements ITourFaqService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByTourPlanIdAndQuestion(Integer tourPlanId, String question) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsByTourPlanIdAndQuestion'");
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+        return this.repository.findByTourPlan(tourPlan)
+                .stream()
+                .anyMatch(faq -> faq.getQuestion().equalsIgnoreCase(question));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isDisplayOrderUniqueWithinTourPlan(Integer tourPlanId, Integer displayOrder) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isDisplayOrderUniqueWithinTourPlan'");
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+        return this.repository.findByTourPlan(tourPlan)
+                .stream()
+                .noneMatch(faq -> faq.getDisplayOrder().equals(displayOrder));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countByTourPlanId(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'countByTourPlanId'");
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+        return this.repository.countByTourPlan(tourPlan);
     }
-
     // Private methods
     private void validateRequest(TourFaqRequest request) {
         TourPlan tourPlan = findTourPlanOrFail(request.tourPlanId());
