@@ -139,21 +139,41 @@ public class TourFaqService implements ITourFaqService{
     }
 
     @Override
+    @Transactional
     public void bulkCreateFaqs(List<TourFaqRequest> requests) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'bulkCreateFaqs'");
+        for (TourFaqRequest request : requests) {
+            validateRequest(request);
+        }
+
+        List<TourFaq> faqs = requests.stream()
+                .map(this::buildFromRequest)
+                .toList();
+
+        this.repository.saveAll(faqs);
     }
 
     @Override
+    @Transactional
     public void bulkUpdateFaqs(List<TourFaqRequest> requests) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'bulkUpdateFaqs'");
+        for (TourFaqRequest request : requests) {
+            validateRequest(request);
+        }
+
+        // This method would need to be implemented based on business logic
+        // For now, we'll throw an exception as it's not clear how to identify which FAQ
+        // to update
+        throw new UnsupportedOperationException("bulkUpdateFaqs requires additional business logic to identify which FAQs to update");
     }
 
     @Override
+    @Transactional
     public void bulkDeleteFaqs(List<Integer> faqIds) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'bulkDeleteFaqs'");
+        for (Integer faqId : faqIds) {
+            if (!this.repository.existsById(faqId)) {
+                throw new ResourceNotFoundException("TourFaq not found with id: " + faqId);
+            }
+        }
+        this.repository.deleteAllById(faqIds);
     }
 
     @Override
