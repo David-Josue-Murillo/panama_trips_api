@@ -68,27 +68,42 @@ public class TourFaqService implements ITourFaqService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourFaqResponse> findByTourPlanId(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByTourPlanId'");
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+        return this.repository.findByTourPlan(tourPlan)
+                .stream()
+                .map(TourFaqResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourFaqResponse> findByTourPlanIdOrderByDisplayOrderAsc(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByTourPlanIdOrderByDisplayOrderAsc'");
+        return this.repository.findByTourPlanIdOrderByDisplayOrder(tourPlanId.longValue())
+                .stream()
+                .map(TourFaqResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourFaqResponse> searchByQuestionOrAnswer(String keyword) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchByQuestionOrAnswer'");
+        return this.repository.searchByKeyword(keyword)
+                .stream()
+                .map(TourFaqResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<TourFaqResponse> findByTourPlanIdAndQuestion(Integer tourPlanId, String question) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByTourPlanIdAndQuestion'");
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+        return this.repository.findByTourPlan(tourPlan)
+                .stream()
+                .filter(faq -> faq.getQuestion().equalsIgnoreCase(question))
+                .map(TourFaqResponse::new)
+                .findFirst();
     }
 
     @Override
