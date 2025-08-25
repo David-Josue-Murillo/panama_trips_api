@@ -107,15 +107,35 @@ public class TourFaqService implements ITourFaqService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourFaqResponse> getTopFaqsByTourPlan(Integer tourPlanId, int limit) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTopFaqsByTourPlan'");
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+        return this.repository.findByTourPlanOrderByDisplayOrderAsc(tourPlan)
+                .stream()
+                .limit(limit)
+                .map(TourFaqResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional
     public void reorderFaqs(Integer tourPlanId, List<Integer> faqIdsInOrder) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'reorderFaqs'");
+        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
+
+        for (int i = 0; i < faqIdsInOrder.size(); i++) {
+            Integer faqId = faqIdsInOrder.get(i);
+            TourFaq faq = this.repository.findById(faqId)
+                    .orElseThrow(() -> new ResourceNotFoundException("TourFaq not found with id: " + faqId));
+
+            // Verify the FAQ belongs to the specified tour plan
+            if (!faq.getTourPlan().getId().equals(tourPlanId)) {
+                throw new IllegalArgumentException(
+                        "FAQ with id " + faqId + " does not belong to tour plan " + tourPlanId);
+            }
+
+            faq.setDisplayOrder(i + 1);
+            this.repository.save(faq);
+        }
     }
 
     @Override
