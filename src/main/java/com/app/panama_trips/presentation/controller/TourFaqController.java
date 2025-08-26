@@ -133,4 +133,16 @@ public class TourFaqController {
     public ResponseEntity<Long> countByTourPlanId(@PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(service.countByTourPlanId(tourPlanId));
     }
+
+    // Statistics and analytics
+    @GetMapping("/stats/total")
+    public ResponseEntity<Long> getTotalFaqs() {
+        // This would need to be implemented in the service if needed
+        return ResponseEntity.ok(0L);
+    }
+
+    @GetMapping("/stats/tour-plan/{tourPlanId}")
+    public ResponseEntity<Long> getTotalFaqsByTourPlan(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.countByTourPlanId(tourPlanId));
+    }
 }
