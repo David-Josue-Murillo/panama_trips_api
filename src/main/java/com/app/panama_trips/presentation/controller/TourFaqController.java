@@ -115,4 +115,22 @@ public class TourFaqController {
         service.reorderFaqs(tourPlanId, faqIdsInOrder);
         return ResponseEntity.ok().build();
     }
+
+    // Check operations
+    @GetMapping("/exists/tour-plan/{tourPlanId}/question")
+    public ResponseEntity<Boolean> existsByTourPlanIdAndQuestion(
+            @PathVariable Integer tourPlanId, @RequestParam String question) {
+        return ResponseEntity.ok(service.existsByTourPlanIdAndQuestion(tourPlanId, question));
+    }
+
+    @GetMapping("/exists/tour-plan/{tourPlanId}/display-order/{displayOrder}")
+    public ResponseEntity<Boolean> isDisplayOrderUniqueWithinTourPlan(
+            @PathVariable Integer tourPlanId, @PathVariable Integer displayOrder) {
+        return ResponseEntity.ok(service.isDisplayOrderUniqueWithinTourPlan(tourPlanId, displayOrder));
+    }
+
+    @GetMapping("/count/tour-plan/{tourPlanId}")
+    public ResponseEntity<Long> countByTourPlanId(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.countByTourPlanId(tourPlanId));
+    }
 }
