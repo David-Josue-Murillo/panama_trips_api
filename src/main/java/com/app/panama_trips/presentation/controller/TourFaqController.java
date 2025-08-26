@@ -107,4 +107,12 @@ public class TourFaqController {
         service.bulkDeleteFaqs(faqIds);
         return ResponseEntity.noContent().build();
     }
+
+    // Reorder operations
+    @PutMapping("/tour-plan/{tourPlanId}/reorder")
+    public ResponseEntity<Void> reorderFaqs(@PathVariable Integer tourPlanId,
+            @RequestBody List<Integer> faqIdsInOrder) {
+        service.reorderFaqs(tourPlanId, faqIdsInOrder);
+        return ResponseEntity.ok().build();
+    }
 }
