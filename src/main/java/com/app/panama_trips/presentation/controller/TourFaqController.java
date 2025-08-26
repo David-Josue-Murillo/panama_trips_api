@@ -158,4 +158,39 @@ public class TourFaqController {
             @PathVariable Integer tourPlanId, @PathVariable Integer displayOrder) {
         return ResponseEntity.ok(service.isDisplayOrderUniqueWithinTourPlan(tourPlanId, displayOrder));
     }
+
+    // Utility operations
+    @GetMapping("/search/advanced")
+    public ResponseEntity<List<TourFaqResponse>> advancedSearch(
+            @RequestParam(required = false) Integer tourPlanId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer limit) {
+
+        if (tourPlanId != null && keyword != null) {
+            // Search within specific tour plan
+            List<TourFaqResponse> tourPlanFaqs = service.findByTourPlanId(tourPlanId);
+            return ResponseEntity.ok(tourPlanFaqs.stream()
+                    .filter(faq -> faq.question().toLowerCase().contains(keyword.toLowerCase()) ||
+                            faq.answer().toLowerCase().contains(keyword.toLowerCase()))
+                    .limit(limit != null ? limit : tourPlanFaqs.size())
+                    .toList());
+        } else if (tourPlanId != null) {
+            // Get all FAQs for tour plan
+            List<TourFaqResponse> result = service.findByTourPlanId(tourPlanId);
+            if (limit != null) {
+                result = result.stream().limit(limit).toList();
+            }
+            return ResponseEntity.ok(result);
+        } else if (keyword != null) {
+            // Search across all FAQs
+            List<TourFaqResponse> result = service.searchByQuestionOrAnswer(keyword);
+            if (limit != null) {
+                result = result.stream().limit(limit).toList();
+            }
+            return ResponseEntity.ok(result);
+        } else {
+            // Return empty list if no search criteria provided
+            return ResponseEntity.ok(List.of());
+        }
+    }
 }
