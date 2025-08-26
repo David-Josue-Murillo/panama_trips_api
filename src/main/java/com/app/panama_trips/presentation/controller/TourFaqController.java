@@ -1,6 +1,7 @@
 package com.app.panama_trips.presentation.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.panama_trips.presentation.dto.TourFaqRequest;
@@ -72,5 +74,18 @@ public class TourFaqController {
     public ResponseEntity<List<TourFaqResponse>> getTopFaqsByTourPlan(
             @PathVariable Integer tourPlanId, @PathVariable int limit) {
         return ResponseEntity.ok(service.getTopFaqsByTourPlan(tourPlanId, limit));
+    }
+
+    // Search operations
+    @GetMapping("/search")
+    public ResponseEntity<List<TourFaqResponse>> searchByKeyword(@RequestParam String keyword) {
+        return ResponseEntity.ok(service.searchByQuestionOrAnswer(keyword));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/question")
+    public ResponseEntity<TourFaqResponse> findByTourPlanIdAndQuestion(
+            @PathVariable Integer tourPlanId, @RequestParam String question) {
+        Optional<TourFaqResponse> result = service.findByTourPlanIdAndQuestion(tourPlanId, question);
+        return result.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 }
