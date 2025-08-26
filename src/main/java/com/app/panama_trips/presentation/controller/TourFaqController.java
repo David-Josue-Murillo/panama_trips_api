@@ -199,4 +199,15 @@ public class TourFaqController {
             @PathVariable Integer tourPlanId, @PathVariable int limit) {
         return ResponseEntity.ok(service.getTopFaqsByTourPlan(tourPlanId, limit));
     }
+
+    // Health check and info endpoints
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("TourFaq service is running");
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<String> info() {
+        return ResponseEntity.ok("TourFaq API - Manage frequently asked questions for tour plans");
+    }
 }
