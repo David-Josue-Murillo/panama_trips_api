@@ -193,4 +193,10 @@ public class TourFaqController {
             return ResponseEntity.ok(List.of());
         }
     }
+
+    @GetMapping("/tour-plan/{tourPlanId}/ordered/limit/{limit}")
+    public ResponseEntity<List<TourFaqResponse>> getOrderedFaqsWithLimit(
+            @PathVariable Integer tourPlanId, @PathVariable int limit) {
+        return ResponseEntity.ok(service.getTopFaqsByTourPlan(tourPlanId, limit));
+    }
 }
