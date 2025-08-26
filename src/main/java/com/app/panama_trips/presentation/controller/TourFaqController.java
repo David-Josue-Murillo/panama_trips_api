@@ -88,4 +88,23 @@ public class TourFaqController {
         Optional<TourFaqResponse> result = service.findByTourPlanIdAndQuestion(tourPlanId, question);
         return result.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
+
+    // Bulk operations
+    @PostMapping("/bulk")
+    public ResponseEntity<Void> bulkCreate(@RequestBody List<TourFaqRequest> requests) {
+        service.bulkCreateFaqs(requests);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/bulk")
+    public ResponseEntity<Void> bulkUpdate(@RequestBody List<TourFaqRequest> requests) {
+        service.bulkUpdateFaqs(requests);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/bulk")
+    public ResponseEntity<Void> bulkDelete(@RequestBody List<Integer> faqIds) {
+        service.bulkDeleteFaqs(faqIds);
+        return ResponseEntity.noContent().build();
+    }
 }
