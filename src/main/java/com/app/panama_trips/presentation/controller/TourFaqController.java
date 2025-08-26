@@ -1,5 +1,7 @@
 package com.app.panama_trips.presentation.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -55,4 +57,20 @@ public class TourFaqController {
         return ResponseEntity.noContent().build();
     }
 
+    // Find operations by tour plan
+    @GetMapping("/tour-plan/{tourPlanId}")
+    public ResponseEntity<List<TourFaqResponse>> findByTourPlanId(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.findByTourPlanId(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/ordered")
+    public ResponseEntity<List<TourFaqResponse>> findByTourPlanIdOrdered(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.findByTourPlanIdOrderByDisplayOrderAsc(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/top/{limit}")
+    public ResponseEntity<List<TourFaqResponse>> getTopFaqsByTourPlan(
+            @PathVariable Integer tourPlanId, @PathVariable int limit) {
+        return ResponseEntity.ok(service.getTopFaqsByTourPlan(tourPlanId, limit));
+    }
 }
