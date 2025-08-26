@@ -145,4 +145,17 @@ public class TourFaqController {
     public ResponseEntity<Long> getTotalFaqsByTourPlan(@PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(service.countByTourPlanId(tourPlanId));
     }
+
+    // Validation endpoints
+    @GetMapping("/validate/tour-plan/{tourPlanId}/question")
+    public ResponseEntity<Boolean> validateQuestionUniqueness(
+            @PathVariable Integer tourPlanId, @RequestParam String question) {
+        return ResponseEntity.ok(!service.existsByTourPlanIdAndQuestion(tourPlanId, question));
+    }
+
+    @GetMapping("/validate/tour-plan/{tourPlanId}/display-order/{displayOrder}")
+    public ResponseEntity<Boolean> validateDisplayOrderUniqueness(
+            @PathVariable Integer tourPlanId, @PathVariable Integer displayOrder) {
+        return ResponseEntity.ok(service.isDisplayOrderUniqueWithinTourPlan(tourPlanId, displayOrder));
+    }
 }
