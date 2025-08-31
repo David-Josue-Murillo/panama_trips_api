@@ -1518,4 +1518,29 @@ public class DataProvider {
                 new TourFaqResponse(tourFaqFiveMock()));
     }
 
+    public static List<TourFaqResponse> emptyTourFaqResponseListMock() {
+        return List.of();
+    }
+
+    // Request lists for bulk operations
+    public static List<TourFaqRequest> tourFaqRequestListForBulkCreateMock() {
+        return List.of(
+                new TourFaqRequest(1, "¿Pregunta 1?", "Respuesta 1", 1),
+                new TourFaqRequest(1, "¿Pregunta 2?", "Respuesta 2", 2),
+                new TourFaqRequest(1, "¿Pregunta 3?", "Respuesta 3", 3));
+    }
+
+    public static List<TourFaqRequest> tourFaqRequestListForBulkUpdateMock() {
+        return List.of(
+                new TourFaqRequest(1, "¿Pregunta actualizada 1?", "Respuesta actualizada 1", 1),
+                new TourFaqRequest(1, "¿Pregunta actualizada 2?", "Respuesta actualizada 2", 2));
+    }
+
+    public static List<Integer> tourFaqIdsForBulkDeleteMock() {
+        return List.of(1, 2, 3, 4, 5);
+    }
+
+    public static List<Integer> tourFaqIdsForReorderMock() {
+        return List.of(3, 1, 2, 5, 4);
+    }
 }
