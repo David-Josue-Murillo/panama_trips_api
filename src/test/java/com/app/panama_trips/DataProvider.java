@@ -1315,4 +1315,78 @@ public class DataProvider {
             new TourFaqResponse(tourFaqTwoMock()),
             new TourFaqResponse(tourFaqThreeMock())
         );
+
+    // Additional mock data for specific test scenarios
+    public static TourFaq tourFaqWithHighDisplayOrderMock() {
+        return TourFaq.builder()
+                .id(6)
+                .tourPlan(tourPlanOneMock)
+                .question("¿Hay descuentos para grupos?")
+                .answer("Sí, ofrecemos descuentos especiales para grupos de 10 o más personas.")
+                .displayOrder(10)
+                .createdAt(LocalDateTime.now().minusDays(1))
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
+
+    public static TourFaq tourFaqWithDuplicateQuestionMock() {
+        return TourFaq.builder()
+                .id(7)
+                .tourPlan(tourPlanOneMock)
+                .question("¿Cuál es la duración del tour?")
+                .answer("Duración aproximada de 4 horas con traslados incluidos.")
+                .displayOrder(3)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static TourFaq tourFaqWithDuplicateDisplayOrderMock() {
+        return TourFaq.builder()
+                .id(8)
+                .tourPlan(tourPlanOneMock)
+                .question("¿Qué ropa debo llevar?")
+                .answer("Se recomienda ropa cómoda y zapatos cerrados para caminar.")
+                .displayOrder(1)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static TourFaq tourFaqForDifferentTourPlanMock() {
+        return TourFaq.builder()
+                .id(9)
+                .tourPlan(tourPlanThreeMock)
+                .question("¿El tour es accesible para personas con movilidad reducida?")
+                .answer("Sí, contamos con rutas accesibles y vehículos adaptados.")
+                .displayOrder(2)
+                .createdAt(LocalDateTime.now().minusDays(1))
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static TourFaq tourFaqWithLongQuestionMock() {
+        return TourFaq.builder()
+                .id(10)
+                .tourPlan(tourPlanTwoMock)
+                .question(
+                        "¿Cuáles son las políticas de cancelación y reembolso en caso de condiciones climáticas adversas o eventos de fuerza mayor que puedan afectar la realización del tour?")
+                .answer("En caso de condiciones climáticas adversas, ofrecemos reprogramación gratuita o reembolso completo.")
+                .displayOrder(3)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static TourFaq tourFaqWithLongAnswerMock() {
+        return TourFaq.builder()
+                .id(11)
+                .tourPlan(tourPlanThreeMock)
+                .question("¿Qué incluye el tour?")
+                .answer("El tour incluye transporte en vehículo climatizado desde y hacia su hotel, guía turístico certificado bilingüe (español e inglés), entradas a todos los sitios turísticos mencionados en el itinerario, refrigerio con bebidas y snacks locales, seguro de viajero durante la duración del tour, fotos profesionales del grupo (opcional), y certificado de participación. No incluye propinas para el guía y conductor, comidas principales, bebidas alcohólicas, gastos personales, ni servicios no mencionados en el itinerario.")
+                .displayOrder(3)
+                .createdAt(LocalDateTime.now().minusDays(1))
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+}
