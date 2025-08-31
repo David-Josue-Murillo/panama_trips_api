@@ -1451,4 +1451,55 @@ public class DataProvider {
                 tourFaqWithDuplicateQuestionMock(),
                 tourFaqWithDuplicateDisplayOrderMock());
     }
+
+    // DTOs for specific test scenarios
+    public static TourFaqRequest tourFaqRequestWithInvalidTourPlanMock() {
+        return new TourFaqRequest(
+                999, // Invalid tour plan ID
+                "¿Es válida esta pregunta?",
+                "Esta es una respuesta de prueba.",
+                1);
+    }
+
+    public static TourFaqRequest tourFaqRequestWithDuplicateQuestionMock() {
+        return new TourFaqRequest(
+                1,
+                "¿Cuál es la duración del tour?", // Duplicate question
+                "Esta es una respuesta diferente.",
+                3);
+    }
+
+    public static TourFaqRequest tourFaqRequestWithDuplicateDisplayOrderMock() {
+        return new TourFaqRequest(
+                1,
+                "¿Nueva pregunta?",
+                "Esta es una nueva respuesta.",
+                1 // Duplicate display order
+        );
+    }
+
+    public static TourFaqRequest tourFaqRequestWithShortQuestionMock() {
+        return new TourFaqRequest(
+                1,
+                "¿Duración?", // Too short
+                "Esta es una respuesta de prueba.",
+                1);
+    }
+
+    public static TourFaqRequest tourFaqRequestWithShortAnswerMock() {
+        return new TourFaqRequest(
+                1,
+                "¿Cuál es la duración del tour?",
+                "4 horas.", // Too short
+                1);
+    }
+
+    public static TourFaqRequest tourFaqRequestWithNegativeDisplayOrderMock() {
+        return new TourFaqRequest(
+                1,
+                "¿Cuál es la duración del tour?",
+                "El tour tiene una duración de 4 horas aproximadamente.",
+                -1 // Negative display order
+        );
+    }
 }
