@@ -1502,4 +1502,20 @@ public class DataProvider {
                 -1 // Negative display order
         );
     }
+
+    // Response lists for specific test scenarios
+    public static List<TourFaqResponse> tourFaqResponseListForTourPlanOneMock() {
+        return List.of(
+                new TourFaqResponse(tourFaqOneMock()),
+                new TourFaqResponse(tourFaqTwoMock()),
+                new TourFaqResponse(tourFaqWithHighDisplayOrderMock()));
+    }
+
+    public static List<TourFaqResponse> tourFaqResponseListOrderedMock() {
+        return List.of(
+                new TourFaqResponse(tourFaqOneMock()),
+                new TourFaqResponse(tourFaqThreeMock()),
+                new TourFaqResponse(tourFaqFiveMock()));
+    }
+
 }
