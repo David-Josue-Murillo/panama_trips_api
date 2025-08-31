@@ -1301,4 +1301,18 @@ public class DataProvider {
                 tourFaqThreeMock()
         );
     }
-}
+
+    public static TourFaqResponse tourFaqResponseMock = new TourFaqResponse(tourFaqOneMock());
+
+    public static TourFaqRequest tourFaqRequestMock = new TourFaqRequest(
+            1,
+            "¿Cuál es la duración del tour?",
+            "El tour tiene una duración de 4 horas aproximadamente, incluyendo traslados.",
+            1);
+
+    public static List<TourFaqResponse> tourFaqResponseListMock = List.of(
+            new TourFaqResponse(tourFaqOneMock()),
+            new TourFaqResponse(tourFaqTwoMock()),
+            new TourFaqResponse(tourFaqThreeMock())
+        );
+    }
