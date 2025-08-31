@@ -1294,6 +1294,30 @@ public class DataProvider {
                 .build();
     }
 
+    public static TourFaq tourFaqFourMock() {
+        return TourFaq.builder()
+                .id(4)
+                .tourPlan(tourPlanTwoMock)
+                .question("¿Se puede cancelar el tour?")
+                .answer("Sí, se puede cancelar hasta 24 horas antes del inicio del tour sin penalización.")
+                .displayOrder(2)
+                .createdAt(LocalDateTime.now().minusDays(2))
+                .updatedAt(LocalDateTime.now().minusDays(1))
+                .build();
+    }
+
+    public static TourFaq tourFaqFiveMock() {
+        return TourFaq.builder()
+                .id(5)
+                .tourPlan(tourPlanThreeMock)
+                .question("¿Es necesario reservar con anticipación?")
+                .answer("Se recomienda reservar con al menos 48 horas de anticipación para garantizar disponibilidad.")
+                .displayOrder(1)
+                .createdAt(LocalDateTime.now().minusDays(1))
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
     public static List<TourFaq> tourFaqListMock() {
         return List.of(
                 tourFaqOneMock(),
@@ -1388,5 +1412,43 @@ public class DataProvider {
                 .createdAt(LocalDateTime.now().minusDays(1))
                 .updatedAt(LocalDateTime.now())
                 .build();
+    }
+
+    // Lists for specific test scenarios
+    public static List<TourFaq> tourFaqListForTourPlanOneMock() {
+        return List.of(
+                tourFaqOneMock(),
+                tourFaqTwoMock(),
+                tourFaqWithHighDisplayOrderMock());
+    }
+
+    public static List<TourFaq> tourFaqListForTourPlanTwoMock() {
+        return List.of(
+                tourFaqThreeMock(),
+                tourFaqFourMock(),
+                tourFaqWithLongQuestionMock());
+    }
+
+    public static List<TourFaq> tourFaqListForTourPlanThreeMock() {
+        return List.of(
+                tourFaqFiveMock(),
+                tourFaqForDifferentTourPlanMock(),
+                tourFaqWithLongAnswerMock());
+    }
+
+    public static List<TourFaq> tourFaqListOrderedByDisplayOrderMock() {
+        return List.of(
+                tourFaqOneMock(),
+                tourFaqThreeMock(),
+                tourFaqFiveMock(),
+                tourFaqTwoMock(),
+                tourFaqFourMock());
+    }
+
+    public static List<TourFaq> tourFaqListWithDuplicatesMock() {
+        return List.of(
+                tourFaqOneMock(),
+                tourFaqWithDuplicateQuestionMock(),
+                tourFaqWithDuplicateDisplayOrderMock());
     }
 }
