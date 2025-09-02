@@ -528,4 +528,18 @@ public class TourFaqServiceTest {
         verify(tourPlanRepository).findById(tourPlanId);
         verify(repository).countByTourPlan(tourPlan);
     }
+
+    @Test
+    @DisplayName("Should throw UnsupportedOperationException for bulkUpdateFaqs")
+    void bulkUpdateFaqs_shouldThrowUnsupportedOperationException() {
+        // Given
+        List<TourFaqRequest> requests = tourFaqRequestListForBulkUpdateMock();
+
+        // When/Then
+        UnsupportedOperationException exception = assertThrows(
+                UnsupportedOperationException.class,
+                () -> service.bulkUpdateFaqs(requests));
+        assertEquals("bulkUpdateFaqs requires additional business logic to identify which FAQs to update",
+                exception.getMessage());
+    }
 }
