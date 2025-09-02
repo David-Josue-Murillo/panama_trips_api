@@ -374,4 +374,57 @@ public class TourFaqServiceTest {
         verify(tourPlanRepository).findById(tourPlanId);
         verify(repository).findByTourPlanOrderByDisplayOrderAsc(tourPlan);
     }
+
+    @Test
+    @DisplayName("Should reorder FAQs successfully")
+    void reorderFaqs_success() {
+        // Given
+        Integer tourPlanId = 1;
+        List<Integer> faqIdsInOrder = List.of(3, 1, 2);
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
+        when(repository.findById(3)).thenReturn(Optional.of(tourFaqThreeMock()));
+        when(repository.findById(1)).thenReturn(Optional.of(tourFaqOneMock()));
+        when(repository.findById(2)).thenReturn(Optional.of(tourFaqTwoMock()));
+
+        // When
+        service.reorderFaqs(tourPlanId, faqIdsInOrder);
+
+        // Then
+        verify(repository, times(3)).save(any(TourFaq.class));
+        verify(repository).save(tourFaqCaptor.capture());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when FAQ not found during reorder")
+    void reorderFaqs_whenFaqNotFound_shouldThrowException() {
+        // Given
+        Integer tourPlanId = 1;
+        List<Integer> faqIdsInOrder = List.of(999);
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
+        when(repository.findById(999)).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.reorderFaqs(tourPlanId, faqIdsInOrder));
+        assertEquals("TourFaq not found with id: 999", exception.getMessage());
+        verify(repository, never()).save(any(TourFaq.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when FAQ belongs to different tour plan during reorder")
+    void reorderFaqs_whenFaqBelongsToDifferentTourPlan_shouldThrowException() {
+        // Given
+        Integer tourPlanId = 1;
+        List<Integer> faqIdsInOrder = List.of(3);
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
+        when(repository.findById(3)).thenReturn(Optional.of(tourFaqThreeMock()));
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.reorderFaqs(tourPlanId, faqIdsInOrder));
+        assertEquals("FAQ with id 3 does not belong to tour plan 1", exception.getMessage());
+        verify(repository, never()).save(any(TourFaq.class));
+    }
 }
