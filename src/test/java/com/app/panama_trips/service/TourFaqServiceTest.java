@@ -317,4 +317,61 @@ public class TourFaqServiceTest {
         assertEquals(tourFaqList.size(), result.size());
         verify(repository).searchByKeyword(keyword);
     }
+
+    @Test
+    @DisplayName("Should find FAQ by tour plan ID and question")
+    void findByTourPlanIdAndQuestion_shouldReturnFaq() {
+        // Given
+        Integer tourPlanId = 1;
+        String question = "¿Cuál es la duración del tour?";
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
+        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of(tourFaqOneMock()));
+
+        // When
+        Optional<TourFaqResponse> result = service.findByTourPlanIdAndQuestion(tourPlanId, question);
+
+        // Then
+        assertTrue(result.isPresent());
+        assertEquals(tourFaqOneMock().getId(), result.get().id());
+        verify(tourPlanRepository).findById(tourPlanId);
+        verify(repository).findByTourPlan(tourPlan);
+    }
+
+    @Test
+    @DisplayName("Should return empty when FAQ not found by tour plan ID and question")
+    void findByTourPlanIdAndQuestion_whenNotFound_shouldReturnEmpty() {
+        // Given
+        Integer tourPlanId = 1;
+        String question = "¿Pregunta que no existe?";
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
+        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of());
+
+        // When
+        Optional<TourFaqResponse> result = service.findByTourPlanIdAndQuestion(tourPlanId, question);
+
+        // Then
+        assertTrue(result.isEmpty());
+        verify(tourPlanRepository).findById(tourPlanId);
+        verify(repository).findByTourPlan(tourPlan);
+    }
+
+    @Test
+    @DisplayName("Should get top FAQs by tour plan")
+    void getTopFaqsByTourPlan_shouldReturnLimitedFaqs() {
+        // Given
+        Integer tourPlanId = 1;
+        int limit = 2;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
+        when(repository.findByTourPlanOrderByDisplayOrderAsc(any(TourPlan.class)))
+                .thenReturn(tourFaqListForTourPlanOneMock());
+
+        // When
+        List<TourFaqResponse> result = service.getTopFaqsByTourPlan(tourPlanId, limit);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(limit, result.size());
+        verify(tourPlanRepository).findById(tourPlanId);
+        verify(repository).findByTourPlanOrderByDisplayOrderAsc(tourPlan);
+    }
 }
