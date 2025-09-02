@@ -427,4 +427,51 @@ public class TourFaqServiceTest {
         assertEquals("FAQ with id 3 does not belong to tour plan 1", exception.getMessage());
         verify(repository, never()).save(any(TourFaq.class));
     }
+
+    @Test
+    @DisplayName("Should bulk create FAQs successfully")
+    void bulkCreateFaqs_success() {
+        // Given
+        List<TourFaqRequest> requests = tourFaqRequestListForBulkCreateMock();
+        when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlan));
+        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of());
+
+        // When
+        service.bulkCreateFaqs(requests);
+
+        // Then
+        verify(repository).saveAll(anyList());
+        verify(tourPlanRepository, times(3)).findById(anyInt());
+    }
+
+    @Test
+    @DisplayName("Should bulk delete FAQs successfully")
+    void bulkDeleteFaqs_success() {
+        // Given
+        List<Integer> faqIds = tourFaqIdsForBulkDeleteMock();
+        when(repository.existsById(anyInt())).thenReturn(true);
+
+        // When
+        service.bulkDeleteFaqs(faqIds);
+
+        // Then
+        verify(repository, times(5)).existsById(anyInt());
+        verify(repository).deleteAllById(faqIds);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when FAQ not found during bulk delete")
+    void bulkDeleteFaqs_whenFaqNotFound_shouldThrowException() {
+        // Given
+        List<Integer> faqIds = List.of(1, 999);
+        when(repository.existsById(1)).thenReturn(true);
+        when(repository.existsById(999)).thenReturn(false);
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.bulkDeleteFaqs(faqIds));
+        assertEquals("TourFaq not found with id: 999", exception.getMessage());
+        verify(repository, never()).deleteAllById(anyList());
+    }
 }
