@@ -474,4 +474,40 @@ public class TourFaqServiceTest {
         assertEquals("TourFaq not found with id: 999", exception.getMessage());
         verify(repository, never()).deleteAllById(anyList());
     }
+
+    @Test
+    @DisplayName("Should check if FAQ exists by tour plan ID and question")
+    void existsByTourPlanIdAndQuestion_shouldReturnTrue() {
+        // Given
+        Integer tourPlanId = 1;
+        String question = "¿Cuál es la duración del tour?";
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
+        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of(tourFaqOneMock()));
+
+        // When
+        boolean result = service.existsByTourPlanIdAndQuestion(tourPlanId, question);
+
+        // Then
+        assertTrue(result);
+        verify(tourPlanRepository).findById(tourPlanId);
+        verify(repository).findByTourPlan(tourPlan);
+    }
+
+    @Test
+    @DisplayName("Should check if display order is unique within tour plan")
+    void isDisplayOrderUniqueWithinTourPlan_shouldReturnTrue() {
+        // Given
+        Integer tourPlanId = 1;
+        Integer displayOrder = 5;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
+        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of(tourFaqOneMock()));
+
+        // When
+        boolean result = service.isDisplayOrderUniqueWithinTourPlan(tourPlanId, displayOrder);
+
+        // Then
+        assertTrue(result);
+        verify(tourPlanRepository).findById(tourPlanId);
+        verify(repository).findByTourPlan(tourPlan);
+    }
 }
