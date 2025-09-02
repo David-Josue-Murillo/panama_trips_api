@@ -120,8 +120,6 @@ public class TourFaqService implements ITourFaqService{
     @Override
     @Transactional
     public void reorderFaqs(Integer tourPlanId, List<Integer> faqIdsInOrder) {
-        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
-
         for (int i = 0; i < faqIdsInOrder.size(); i++) {
             Integer faqId = faqIdsInOrder.get(i);
             TourFaq faq = this.repository.findById(faqId)
