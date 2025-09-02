@@ -251,4 +251,54 @@ public class TourFaqServiceTest {
         assertEquals("TourFaq not found with id: " + id, exception.getMessage());
         verify(repository, never()).deleteById(anyInt());
     }
+
+    @Test
+    @DisplayName("Should get FAQs by tour plan ID")
+    void findByTourPlanId_shouldReturnFaqs() {
+        // Given
+        Integer tourPlanId = 1;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
+        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(tourFaqListForTourPlanOneMock());
+
+        // When
+        List<TourFaqResponse> result = service.findByTourPlanId(tourPlanId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(tourFaqListForTourPlanOneMock().size(), result.size());
+        verify(tourPlanRepository).findById(tourPlanId);
+        verify(repository).findByTourPlan(tourPlan);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when tour plan not found for findByTourPlanId")
+    void findByTourPlanId_whenTourPlanNotFound_shouldThrowException() {
+        // Given
+        Integer tourPlanId = 999;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.findByTourPlanId(tourPlanId));
+        assertEquals("TourPlan not found with id: " + tourPlanId, exception.getMessage());
+        verify(repository, never()).findByTourPlan(any(TourPlan.class));
+    }
+
+    @Test
+    @DisplayName("Should get FAQs by tour plan ID ordered by display order")
+    void findByTourPlanIdOrderByDisplayOrderAsc_shouldReturnOrderedFaqs() {
+        // Given
+        Integer tourPlanId = 1;
+        when(repository.findByTourPlanIdOrderByDisplayOrder(tourPlanId.longValue()))
+                .thenReturn(tourFaqListOrderedByDisplayOrderMock());
+
+        // When
+        List<TourFaqResponse> result = service.findByTourPlanIdOrderByDisplayOrderAsc(tourPlanId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(tourFaqListOrderedByDisplayOrderMock().size(), result.size());
+        verify(repository).findByTourPlanIdOrderByDisplayOrder(tourPlanId.longValue());
+    }
 }
