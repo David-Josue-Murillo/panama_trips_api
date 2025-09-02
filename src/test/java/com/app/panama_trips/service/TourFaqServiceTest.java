@@ -510,4 +510,22 @@ public class TourFaqServiceTest {
         verify(tourPlanRepository).findById(tourPlanId);
         verify(repository).findByTourPlan(tourPlan);
     }
+
+    @Test
+    @DisplayName("Should count FAQs by tour plan ID")
+    void countByTourPlanId_shouldReturnCount() {
+        // Given
+        Integer tourPlanId = 1;
+        Long expectedCount = 3L;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
+        when(repository.countByTourPlan(any(TourPlan.class))).thenReturn(expectedCount);
+
+        // When
+        long result = service.countByTourPlanId(tourPlanId);
+
+        // Then
+        assertEquals(expectedCount, result);
+        verify(tourPlanRepository).findById(tourPlanId);
+        verify(repository).countByTourPlan(tourPlan);
+    }
 }
