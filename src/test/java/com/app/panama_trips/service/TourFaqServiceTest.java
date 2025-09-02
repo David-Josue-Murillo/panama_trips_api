@@ -301,4 +301,20 @@ public class TourFaqServiceTest {
         assertEquals(tourFaqListOrderedByDisplayOrderMock().size(), result.size());
         verify(repository).findByTourPlanIdOrderByDisplayOrder(tourPlanId.longValue());
     }
+
+    @Test
+    @DisplayName("Should search FAQs by keyword")
+    void searchByQuestionOrAnswer_shouldReturnMatchingFaqs() {
+        // Given
+        String keyword = "duración";
+        when(repository.searchByKeyword(keyword)).thenReturn(tourFaqList);
+
+        // When
+        List<TourFaqResponse> result = service.searchByQuestionOrAnswer(keyword);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(tourFaqList.size(), result.size());
+        verify(repository).searchByKeyword(keyword);
+    }
 }
