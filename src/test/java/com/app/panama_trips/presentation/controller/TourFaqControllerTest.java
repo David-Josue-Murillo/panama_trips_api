@@ -450,4 +450,92 @@ public class TourFaqControllerTest {
 
         verify(service).isDisplayOrderUniqueWithinTourPlan(tourPlanId, displayOrder);
     }
+
+    // Utility Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should perform advanced search with tour plan ID and keyword")
+    void advancedSearch_withTourPlanIdAndKeyword_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        String keyword = "duración";
+        Integer limit = 5;
+        when(service.findByTourPlanId(tourPlanId)).thenReturn(responsesList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/search/advanced")
+                .param("tourPlanId", tourPlanId.toString())
+                .param("keyword", keyword)
+                .param("limit", limit.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should perform advanced search with only tour plan ID")
+    void advancedSearch_withOnlyTourPlanId_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        Integer limit = 3;
+        when(service.findByTourPlanId(tourPlanId)).thenReturn(responsesList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/search/advanced")
+                .param("tourPlanId", tourPlanId.toString())
+                .param("limit", limit.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should perform advanced search with only keyword")
+    void advancedSearch_withOnlyKeyword_success() throws Exception {
+        // Given
+        String keyword = "duración";
+        Integer limit = 5;
+        when(service.searchByQuestionOrAnswer(keyword)).thenReturn(responsesList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/search/advanced")
+                .param("keyword", keyword)
+                .param("limit", limit.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).searchByQuestionOrAnswer(keyword);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return empty list when no search criteria provided")
+    void advancedSearch_withNoCriteria_returnsEmptyList() throws Exception {
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/search/advanced"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get ordered FAQs with limit")
+    void getOrderedFaqsWithLimit_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        int limit = 3;
+        when(service.getTopFaqsByTourPlan(tourPlanId, limit)).thenReturn(responsesList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/tour-plan/{tourPlanId}/ordered/limit/{limit}",
+                tourPlanId, limit))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getTopFaqsByTourPlan(tourPlanId, limit);
+    }
 }
