@@ -413,4 +413,41 @@ public class TourFaqControllerTest {
 
         verify(service).countByTourPlanId(tourPlanId);
     }
+
+    // Validation Endpoints Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should validate question uniqueness")
+    void validateQuestionUniqueness_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        String question = "¿Nueva pregunta?";
+        when(service.existsByTourPlanIdAndQuestion(tourPlanId, question)).thenReturn(false);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/validate/tour-plan/{tourPlanId}/question", tourPlanId)
+                .param("question", question))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).existsByTourPlanIdAndQuestion(tourPlanId, question);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should validate display order uniqueness")
+    void validateDisplayOrderUniqueness_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        Integer displayOrder = 5;
+        when(service.isDisplayOrderUniqueWithinTourPlan(tourPlanId, displayOrder)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/validate/tour-plan/{tourPlanId}/display-order/{displayOrder}",
+                tourPlanId, displayOrder))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).isDisplayOrderUniqueWithinTourPlan(tourPlanId, displayOrder);
+    }
 }
