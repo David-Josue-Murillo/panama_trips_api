@@ -203,5 +203,57 @@ public class TourFaqControllerTest {
         verify(service).getTopFaqsByTourPlan(tourPlanId, limit);
     }
 
-    
+    // Search Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should search FAQs by keyword")
+    void searchByKeyword_success() throws Exception {
+        // Given
+        String keyword = "duración";
+        when(service.searchByQuestionOrAnswer(keyword)).thenReturn(responsesList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/search")
+                .param("keyword", keyword))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).searchByQuestionOrAnswer(keyword);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find FAQ by tour plan ID and question when exists")
+    void findByTourPlanIdAndQuestion_whenExists_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        String question = "¿Cuál es la duración del tour?";
+        when(service.findByTourPlanIdAndQuestion(tourPlanId, question)).thenReturn(Optional.of(response));
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/tour-plan/{tourPlanId}/question", tourPlanId)
+                .param("question", question))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.id()))
+                .andExpect(jsonPath("$.question").value(response.question()));
+
+        verify(service).findByTourPlanIdAndQuestion(tourPlanId, question);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return 404 when FAQ by tour plan ID and question not found")
+    void findByTourPlanIdAndQuestion_whenNotExists_returnsNotFound() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        String question = "¿Pregunta que no existe?";
+        when(service.findByTourPlanIdAndQuestion(tourPlanId, question)).thenReturn(Optional.empty());
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/tour-plan/{tourPlanId}/question", tourPlanId)
+                .param("question", question))
+                .andExpect(status().isNotFound());
+
+        verify(service).findByTourPlanIdAndQuestion(tourPlanId, question);
+    }
 }
