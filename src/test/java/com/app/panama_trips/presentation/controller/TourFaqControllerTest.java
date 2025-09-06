@@ -538,4 +538,25 @@ public class TourFaqControllerTest {
 
         verify(service).getTopFaqsByTourPlan(tourPlanId, limit);
     }
+
+    // Health Check and Info Endpoints Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return health status")
+    void health_success() throws Exception {
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/health"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("TourFaq service is running"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return API info")
+    void info_success() throws Exception {
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/info"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("TourFaq API - Manage frequently asked questions for tour plans"));
+    }
 }
