@@ -151,4 +151,57 @@ public class TourFaqControllerTest {
 
         verify(service).deleteFaq(id);
     }
+
+    // Find Operations by Tour Plan Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get FAQs by tour plan ID")
+    void findByTourPlanId_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        when(service.findByTourPlanId(tourPlanId)).thenReturn(responsesList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/tour-plan/{tourPlanId}", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()))
+                .andExpect(jsonPath("$[0].tourPlanId").value(response.tourPlanId()));
+
+        verify(service).findByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get FAQs by tour plan ID ordered by display order")
+    void findByTourPlanIdOrdered_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        when(service.findByTourPlanIdOrderByDisplayOrderAsc(tourPlanId)).thenReturn(responsesList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/tour-plan/{tourPlanId}/ordered", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByTourPlanIdOrderByDisplayOrderAsc(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get top FAQs by tour plan with limit")
+    void getTopFaqsByTourPlan_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        int limit = 3;
+        when(service.getTopFaqsByTourPlan(tourPlanId, limit)).thenReturn(responsesList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/tour-plan/{tourPlanId}/top/{limit}", tourPlanId, limit))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getTopFaqsByTourPlan(tourPlanId, limit);
+    }
+
+    
 }
