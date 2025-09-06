@@ -256,4 +256,59 @@ public class TourFaqControllerTest {
 
         verify(service).findByTourPlanIdAndQuestion(tourPlanId, question);
     }
+
+    // Bulk Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should bulk create FAQs successfully")
+    void bulkCreate_success() throws Exception {
+        // Given
+        List<TourFaqRequest> requests = tourFaqRequestListForBulkCreateMock();
+        doNothing().when(service).bulkCreateFaqs(requests);
+
+        // When/Then
+        mockMvc.perform(post("/api/tour-faq/bulk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(requests))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isCreated());
+
+        verify(service).bulkCreateFaqs(requests);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should bulk update FAQs successfully")
+    void bulkUpdate_success() throws Exception {
+        // Given
+        List<TourFaqRequest> requests = tourFaqRequestListForBulkUpdateMock();
+        doNothing().when(service).bulkUpdateFaqs(requests);
+
+        // When/Then
+        mockMvc.perform(put("/api/tour-faq/bulk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(requests))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk());
+
+        verify(service).bulkUpdateFaqs(requests);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should bulk delete FAQs successfully")
+    void bulkDelete_success() throws Exception {
+        // Given
+        List<Integer> faqIds = tourFaqIdsForBulkDeleteMock();
+        doNothing().when(service).bulkDeleteFaqs(faqIds);
+
+        // When/Then
+        mockMvc.perform(delete("/api/tour-faq/bulk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(faqIds))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(service).bulkDeleteFaqs(faqIds);
+    }
 }
