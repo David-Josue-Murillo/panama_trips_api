@@ -311,4 +311,25 @@ public class TourFaqControllerTest {
 
         verify(service).bulkDeleteFaqs(faqIds);
     }
+
+    // Reorder Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should reorder FAQs successfully")
+    void reorderFaqs_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        List<Integer> faqIdsInOrder = tourFaqIdsForReorderMock();
+        doNothing().when(service).reorderFaqs(tourPlanId, faqIdsInOrder);
+
+        // When/Then
+        mockMvc.perform(put("/api/tour-faq/tour-plan/{tourPlanId}/reorder", tourPlanId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(faqIdsInOrder))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk());
+
+        verify(service).reorderFaqs(tourPlanId, faqIdsInOrder);
+    }
+
 }
