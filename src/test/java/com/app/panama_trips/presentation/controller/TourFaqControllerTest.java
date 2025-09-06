@@ -385,4 +385,32 @@ public class TourFaqControllerTest {
 
         verify(service).countByTourPlanId(tourPlanId);
     }
+
+    // Statistics and Analytics Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total FAQs count")
+    void getTotalFaqs_success() throws Exception {
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/stats/total"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("0"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total FAQs by tour plan")
+    void getTotalFaqsByTourPlan_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        Long expectedCount = 3L;
+        when(service.countByTourPlanId(tourPlanId)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/stats/tour-plan/{tourPlanId}", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countByTourPlanId(tourPlanId);
+    }
 }
