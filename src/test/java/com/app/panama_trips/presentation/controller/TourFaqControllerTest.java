@@ -332,4 +332,57 @@ public class TourFaqControllerTest {
         verify(service).reorderFaqs(tourPlanId, faqIdsInOrder);
     }
 
+    // Check Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if FAQ exists by tour plan ID and question")
+    void existsByTourPlanIdAndQuestion_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        String question = "¿Cuál es la duración del tour?";
+        when(service.existsByTourPlanIdAndQuestion(tourPlanId, question)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/exists/tour-plan/{tourPlanId}/question", tourPlanId)
+                .param("question", question))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).existsByTourPlanIdAndQuestion(tourPlanId, question);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if display order is unique within tour plan")
+    void isDisplayOrderUniqueWithinTourPlan_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        Integer displayOrder = 5;
+        when(service.isDisplayOrderUniqueWithinTourPlan(tourPlanId, displayOrder)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/exists/tour-plan/{tourPlanId}/display-order/{displayOrder}",
+                tourPlanId, displayOrder))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).isDisplayOrderUniqueWithinTourPlan(tourPlanId, displayOrder);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count FAQs by tour plan ID")
+    void countByTourPlanId_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        Long expectedCount = 5L;
+        when(service.countByTourPlanId(tourPlanId)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-faq/count/tour-plan/{tourPlanId}", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countByTourPlanId(tourPlanId);
+    }
 }
