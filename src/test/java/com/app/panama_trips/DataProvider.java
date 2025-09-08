@@ -92,7 +92,6 @@ public class DataProvider {
             .permissionEnum(PermissionEnum.SYSTEM_LOG_READ)
             .build();
 
-
     // RoleEntity instances
     public static RoleEntity ROLE_ADMIN = RoleEntity.builder()
             .id(1)
@@ -101,8 +100,7 @@ public class DataProvider {
                     USER_READ, USER_CREATE, USER_UPDATE, USER_DELETE,
                     BOOKING_READ, BOOKING_CREATE, BOOKING_UPDATE, BOOKING_DELETE,
                     PAYMENT_READ, PAYMENT_REFUND, SUPPORT_TICKET_READ, SUPPORT_TICKET_RESPOND,
-                    CONTENT_CREATE, CONTENT_UPDATE, CONTENT_DELETE, SYSTEM_LOG_READ
-            ))
+                    CONTENT_CREATE, CONTENT_UPDATE, CONTENT_DELETE, SYSTEM_LOG_READ))
             .build();
 
     public static RoleEntity ROLE_OPERATOR = RoleEntity.builder()
@@ -111,8 +109,7 @@ public class DataProvider {
             .permissions(Set.of(
                     USER_READ, USER_CREATE, USER_UPDATE,
                     BOOKING_READ, BOOKING_CREATE, BOOKING_UPDATE, BOOKING_DELETE,
-                    PAYMENT_READ
-            ))
+                    PAYMENT_READ))
             .build();
 
     public static RoleEntity ROLE_CUSTOMER = RoleEntity.builder()
@@ -120,8 +117,7 @@ public class DataProvider {
             .roleEnum(RoleEnum.CUSTOMER)
             .permissions(Set.of(
                     BOOKING_READ, BOOKING_CREATE, BOOKING_UPDATE,
-                    USER_READ, USER_UPDATE, PAYMENT_READ
-            ))
+                    USER_READ, USER_UPDATE, PAYMENT_READ))
             .build();
 
     public static RoleEntity ROLE_GUEST = RoleEntity.builder()
@@ -135,18 +131,15 @@ public class DataProvider {
             .roleEnum(RoleEnum.SUPPORT)
             .permissions(Set.of(
                     PAYMENT_READ, PAYMENT_REFUND,
-                    SUPPORT_TICKET_READ, SUPPORT_TICKET_RESPOND
-            ))
+                    SUPPORT_TICKET_READ, SUPPORT_TICKET_RESPOND))
             .build();
 
     public static RoleEntity ROLE_CONTENT_MANAGER = RoleEntity.builder()
             .id(6)
             .roleEnum(RoleEnum.CONTENT_MANAGER)
             .permissions(Set.of(
-                    CONTENT_CREATE, CONTENT_UPDATE, CONTENT_DELETE
-            ))
+                    CONTENT_CREATE, CONTENT_UPDATE, CONTENT_DELETE))
             .build();
-
 
     public static UserEntity userAdmin() {
         // UserEntity instance
@@ -225,7 +218,7 @@ public class DataProvider {
                 .passwordHash("contentmanagerpassword")
                 .build();
     }
-    
+
     public static List<UserEntity> userListMocks() {
         return List.of(
                 userAdmin(),
@@ -233,14 +226,13 @@ public class DataProvider {
                 userCustomer(),
                 userGuest(),
                 userSupport(),
-                userContentManager()
-        );
+                userContentManager());
     }
 
     /*
-    * UserRequest instance
-    * UserResponse instance
-    * DTOs
+     * UserRequest instance
+     * UserResponse instance
+     * DTOs
      */
     private static UserResponse convertToResponseDTO(UserEntity user) {
         return new UserResponse(
@@ -254,28 +246,26 @@ public class DataProvider {
                 user.getUpdatedAt(),
                 user.getCreatedBy(),
                 user.getUpdatedBy(),
-                user.getRole_id().getId()
-        );
+                user.getRole_id().getId());
     }
 
-    public static UserRequest userRequestMock = new UserRequest("1-111-1111", "admin", "admin", "admin@example.com", "adminpassword", null);
+    public static UserRequest userRequestMock = new UserRequest("1-111-1111", "admin", "admin", "admin@example.com",
+            "adminpassword", null);
     public static UserResponse userResponseMock = convertToResponseDTO(userAdmin());
+
     public static List<UserResponse> userResponseListMocks() {
         return List.of(
                 convertToResponseDTO(userAdmin()),
                 convertToResponseDTO(userOperator()),
                 convertToResponseDTO(userCustomer()),
                 convertToResponseDTO(userGuest()),
-                convertToResponseDTO(userSupport())
-        );
+                convertToResponseDTO(userSupport()));
     }
 
-
-
     /*
-    * Auth instances
-    * Here we have three instances of Auth
-    *
+     * Auth instances
+     * Here we have three instances of Auth
+     *
      */
     public static AuthCreateUserRequest userAuthCreateUserRequestMock() {
         return new AuthCreateUserRequest("admin", "admin", "1-111-1111", "admin@example.com", "adminpassword");
@@ -288,8 +278,6 @@ public class DataProvider {
     public static AuthResponse userAuthResponseMock() {
         return new AuthResponse("admin", "Welcome admin", "jwt", true);
     }
-
-
 
     /**
      * Province instances
@@ -327,8 +315,7 @@ public class DataProvider {
             provinceCocleMock,
             provinceColonMock,
             provinceChiriquiMock,
-            provinceHerraraMock
-    );
+            provinceHerraraMock);
 
     private static ProvinceResponse convertToResponseDTO(Province province) {
         return new ProvinceResponse(province.getId(), province.getName());
@@ -341,9 +328,7 @@ public class DataProvider {
             convertToResponseDTO(provinceCocleMock),
             convertToResponseDTO(provinceColonMock),
             convertToResponseDTO(provinceChiriquiMock),
-            convertToResponseDTO(provinceHerraraMock)
-    );
-
+            convertToResponseDTO(provinceHerraraMock));
 
     /**
      * District instances
@@ -385,14 +370,12 @@ public class DataProvider {
             districtBocasMock,
             districtChanguinolaMock,
             districtAntonMock,
-            districtPenonomeMock
-    );
+            districtPenonomeMock);
 
     public static List<District> districtListBocasMock = List.of(
             districtAlmiranteMock,
             districtBocasMock,
-            districtChanguinolaMock
-    );
+            districtChanguinolaMock);
 
     private static DistrictResponse convertToResponseDTO(District district) {
         return new DistrictResponse(district.getId(), district.getName(), district.getProvince().getId());
@@ -405,14 +388,11 @@ public class DataProvider {
             convertToResponseDTO(districtBocasMock),
             convertToResponseDTO(districtChanguinolaMock),
             convertToResponseDTO(districtAntonMock),
-            convertToResponseDTO(districtPenonomeMock)
-    );
-
-
+            convertToResponseDTO(districtPenonomeMock));
 
     /*
-    * Address instances
-    *
+     * Address instances
+     *
      */
     public static Address addressOneMock = Address.builder()
             .addressId(1)
@@ -441,8 +421,7 @@ public class DataProvider {
     public static List<Address> addressListsMock = List.of(
             addressOneMock,
             addressTwoMock,
-            addressThreeMock
-    );
+            addressThreeMock);
 
     public static AddressResponse addressResponseMock = new AddressResponse(addressOneMock);
     public static AddressRequest addressRequestMock = new AddressRequest("Street One", "1111", 1, "Additional info");
@@ -450,9 +429,7 @@ public class DataProvider {
     public static List<AddressResponse> addressResponsesListMocks = List.of(
             new AddressResponse(addressOneMock),
             new AddressResponse(addressTwoMock),
-            new AddressResponse(addressThreeMock)
-    );
-
+            new AddressResponse(addressThreeMock));
 
     /*
      * Provider instances
@@ -498,8 +475,7 @@ public class DataProvider {
     public static List<Provider> providerListsMock = List.of(
             providerOneMock,
             providerTwoMock,
-            providerThreeMock
-    );
+            providerThreeMock);
 
     public static ProviderResponse providerResponseMock = new ProviderResponse(providerOneMock);
     public static ProviderRequest providerRequestMock = new ProviderRequest(
@@ -514,15 +490,12 @@ public class DataProvider {
     public static List<ProviderResponse> providerResponseListMocks = List.of(
             new ProviderResponse(providerOneMock),
             new ProviderResponse(providerTwoMock),
-            new ProviderResponse(providerThreeMock)
-    );
-
-
+            new ProviderResponse(providerThreeMock));
 
     /*
-    * TourPlan instances
-    *
-    *
+     * TourPlan instances
+     *
+     *
      */
 
     public static TourPlan tourPlanOneMock = TourPlan.builder()
@@ -561,8 +534,7 @@ public class DataProvider {
     public static List<TourPlan> tourPlanListsMock = List.of(
             tourPlanOneMock,
             tourPlanTwoMock,
-            tourPlanThreeMock
-    );
+            tourPlanThreeMock);
 
     public static TourPlanResponse tourPlanResponseMock = new TourPlanResponse(tourPlanOneMock);
     public static TourPlanRequest tourPlanRequestMock = new TourPlanRequest(
@@ -576,13 +548,12 @@ public class DataProvider {
     public static List<TourPlanResponse> tourPlanResponseListMocks = List.of(
             new TourPlanResponse(tourPlanOneMock),
             new TourPlanResponse(tourPlanTwoMock),
-            new TourPlanResponse(tourPlanThreeMock)
-    );
+            new TourPlanResponse(tourPlanThreeMock));
 
     /*
-    * Comarca instances
-    *
-    *
+     * Comarca instances
+     *
+     *
      */
 
     public static Comarca comarcaOneMock = Comarca.builder()
@@ -603,8 +574,7 @@ public class DataProvider {
     public static List<Comarca> comarcaListsMock = List.of(
             comarcaOneMock,
             comarcaTwoMock,
-            comarcaThreeMock
-    );
+            comarcaThreeMock);
 
     /*
      * Region Instance
@@ -636,17 +606,14 @@ public class DataProvider {
     public static List<Region> regionListsMock = List.of(
             regionOneMock,
             regionTwoMock,
-            regionThreeMock
-    );
+            regionThreeMock);
 
     public static RegionResponse regionResponseMock = new RegionResponse(regionOneMock);
     public static RegionRequest regionRequestMock = new RegionRequest("Region One", 1, 1);
     public static List<RegionResponse> regionResponseListMocks = List.of(
             new RegionResponse(regionOneMock),
             new RegionResponse(regionTwoMock),
-            new RegionResponse(regionThreeMock)
-    );
-
+            new RegionResponse(regionThreeMock));
 
     /*
      * Reservation instances
@@ -683,22 +650,19 @@ public class DataProvider {
     public static List<Reservation> reservationListsMock = List.of(
             reservationOneMock,
             reservationTwoMock,
-            reservationThreeMock
-    );
+            reservationThreeMock);
 
     public static ReservationResponse reservationResponseMock = new ReservationResponse(reservationOneMock);
     public static ReservationRequest reservationRequestMock = new ReservationRequest(
             1L,
             1,
             LocalDate.now(),
-            BigDecimal.valueOf(100.00)
-    );
+            BigDecimal.valueOf(100.00));
 
     public static List<ReservationResponse> reservationResponseListMocks = List.of(
             new ReservationResponse(reservationOneMock),
             new ReservationResponse(reservationTwoMock),
-            new ReservationResponse(reservationThreeMock)
-    );
+            new ReservationResponse(reservationThreeMock));
 
     /*
      * TourPlanImage instances
@@ -736,8 +700,7 @@ public class DataProvider {
     public static List<TourPlanImage> tourPlanImageListsMock = List.of(
             tourPlanImageOneMock,
             tourPlanImageTwoMock,
-            tourPlanImageThreeMock
-    );
+            tourPlanImageThreeMock);
 
     public static TourPlanImageResponse tourPlanImageResponseMock = new TourPlanImageResponse(tourPlanImageOneMock);
     public static TourPlanImageRequest tourPlanImageRequestMock = new TourPlanImageRequest(
@@ -745,18 +708,16 @@ public class DataProvider {
             "https://example.com/image1.jpg",
             "Image 1",
             true,
-            1
-    );
+            1);
 
     public static List<TourPlanImageResponse> tourPlanImageResponseListMocks = List.of(
             new TourPlanImageResponse(tourPlanImageOneMock),
             new TourPlanImageResponse(tourPlanImageTwoMock),
-            new TourPlanImageResponse(tourPlanImageThreeMock)
-    );
+            new TourPlanImageResponse(tourPlanImageThreeMock));
 
     /*
-    * TourPlanAvailability instances
-    *
+     * TourPlanAvailability instances
+     *
      */
 
     public static TourPlanAvailability tourPlanAvailabilityOneMock = TourPlanAvailability.builder()
@@ -789,25 +750,22 @@ public class DataProvider {
     public static List<TourPlanAvailability> tourPlanAvailabilityListsMock = List.of(
             tourPlanAvailabilityOneMock,
             tourPlanAvailabilityTwoMock,
-            tourPlanAvailabilityThreeMock
-    );
+            tourPlanAvailabilityThreeMock);
 
-    public static TourPlanAvailabilityResponse tourPlanAvailabilityResponseMock = new TourPlanAvailabilityResponse(tourPlanAvailabilityOneMock);
+    public static TourPlanAvailabilityResponse tourPlanAvailabilityResponseMock = new TourPlanAvailabilityResponse(
+            tourPlanAvailabilityOneMock);
     public static TourPlanAvailabilityRequest tourPlanAvailabilityRequest = new TourPlanAvailabilityRequest(
             1,
             1,
             LocalDate.now(),
             10,
             true,
-            BigDecimal.valueOf(90.00)
-    );
+            BigDecimal.valueOf(90.00));
 
     public static List<TourPlanAvailabilityResponse> tourPlanAvailabilityResponseListMocks = List.of(
             new TourPlanAvailabilityResponse(tourPlanAvailabilityOneMock),
             new TourPlanAvailabilityResponse(tourPlanAvailabilityTwoMock),
-            new TourPlanAvailabilityResponse(tourPlanAvailabilityThreeMock)
-    );
-
+            new TourPlanAvailabilityResponse(tourPlanAvailabilityThreeMock));
 
     /*
      * TourPlanSpecialPrice instances
@@ -845,24 +803,21 @@ public class DataProvider {
     public static List<TourPlanSpecialPrice> tourPlanSpecialPriceListsMock = List.of(
             tourPlanSpecialPriceOneMock,
             tourPlanSpecialPriceTwoMock,
-            tourPlanSpecialPriceThreeMock
-    );
+            tourPlanSpecialPriceThreeMock);
 
-    public static TourPlanSpecialPriceResponse tourPlanSpecialPriceResponseMock = new TourPlanSpecialPriceResponse(tourPlanSpecialPriceOneMock);
+    public static TourPlanSpecialPriceResponse tourPlanSpecialPriceResponseMock = new TourPlanSpecialPriceResponse(
+            tourPlanSpecialPriceOneMock);
     public static TourPlanSpecialPriceRequest tourPlanSpecialPriceRequestMock = new TourPlanSpecialPriceRequest(
             1,
             LocalDate.now(),
             LocalDate.now().plusDays(5),
             BigDecimal.valueOf(80.00),
-            "Description One"
-    );
+            "Description One");
 
     public static List<TourPlanSpecialPriceResponse> tourPlanSpecialPriceResponseListMocks = List.of(
             new TourPlanSpecialPriceResponse(tourPlanSpecialPriceOneMock),
             new TourPlanSpecialPriceResponse(tourPlanSpecialPriceTwoMock),
-            new TourPlanSpecialPriceResponse(tourPlanSpecialPriceThreeMock)
-    );
-
+            new TourPlanSpecialPriceResponse(tourPlanSpecialPriceThreeMock));
 
     /*
      * CancellationPolicy Instance
@@ -897,40 +852,38 @@ public class DataProvider {
     public static List<CancellationPolicy> cancellationPolicyListMock = List.of(
             cancellationPolicyOneMock,
             cancellationPolicyTwoMock,
-            cancellationPolicyThreeMock
-    );
+            cancellationPolicyThreeMock);
 
-    public static CancellationPolicyResponse cancellationPolicyResponseMock = new CancellationPolicyResponse(cancellationPolicyOneMock);
+    public static CancellationPolicyResponse cancellationPolicyResponseMock = new CancellationPolicyResponse(
+            cancellationPolicyOneMock);
     public static CancellationPolicyRequest cancellationPolicyRequestMock = new CancellationPolicyRequest(
             "Test one",
             "Description one",
             20,
-            5
-    );
+            5);
 
     public static List<CancellationPolicyResponse> cancellationPolicyResponseListMock = List.of(
             new CancellationPolicyResponse(cancellationPolicyOneMock),
             new CancellationPolicyResponse(cancellationPolicyTwoMock),
-            new CancellationPolicyResponse(cancellationPolicyThreeMock)
-    );
+            new CancellationPolicyResponse(cancellationPolicyThreeMock));
 
     /*
-    * Guide instances
-    *
-    *
-    */
+     * Guide instances
+     *
+     *
+     */
 
-   public static Guide guideOneMock = Guide.builder()
-        .id(1)
-        .user(userAdmin())
-        .provider(providerOneMock)
-        .bio("Bio one")
-        .specialties("Specialty one, Specialty two, Specialty three")
-        .languages("Language one, Language two, Language three")
-        .yearsExperience(5)
-        .certificationDetails("Certification one, Certification two, Certification three")
-        .isActive(true)
-        .build();
+    public static Guide guideOneMock = Guide.builder()
+            .id(1)
+            .user(userAdmin())
+            .provider(providerOneMock)
+            .bio("Bio one")
+            .specialties("Specialty one, Specialty two, Specialty three")
+            .languages("Language one, Language two, Language three")
+            .yearsExperience(5)
+            .certificationDetails("Certification one, Certification two, Certification three")
+            .isActive(true)
+            .build();
 
     public static Guide guideTwoMock = Guide.builder()
             .id(2)
@@ -959,8 +912,7 @@ public class DataProvider {
     public static List<Guide> guideListMock = List.of(
             guideOneMock,
             guideTwoMock,
-            guideThreeMock
-    );
+            guideThreeMock);
 
     public static GuideResponse guideResponseMock = new GuideResponse(guideOneMock);
     public static GuideRequest guideRequestMock = new GuideRequest(
@@ -971,14 +923,12 @@ public class DataProvider {
             List.of("Language one", "Language two", "Language three"),
             5,
             "Certification one, Certification two, Certification three",
-            true
-    );
+            true);
 
     public static List<GuideResponse> guideResponseListMock = List.of(
             new GuideResponse(guideOneMock),
             new GuideResponse(guideTwoMock),
-            new GuideResponse(guideThreeMock)
-    );
+            new GuideResponse(guideThreeMock));
 
     /*
      * TourAssignment instances
@@ -1016,25 +966,22 @@ public class DataProvider {
     public static List<TourAssignment> tourAssignmentListMock = List.of(
             tourAssignmentOneMock,
             tourAssignmentTwoMock,
-            tourAssignmentThreeMock
-    );
+            tourAssignmentThreeMock);
 
     public static TourAssignmentRequest tourAssignmentRequestMock = new TourAssignmentRequest(
-            1,  // guideId
-            1,  // tourPlanId
-            LocalDate.now().plusDays(7),  // reservationDate
-            "ASSIGNED",  // status
-            "Test notes for new assignment"  // notes
+            1, // guideId
+            1, // tourPlanId
+            LocalDate.now().plusDays(7), // reservationDate
+            "ASSIGNED", // status
+            "Test notes for new assignment" // notes
     );
 
     public static TourAssignmentResponse tourAssignmentResponseMock = new TourAssignmentResponse(tourAssignmentOneMock);
 
     public static List<TourAssignmentResponse> tourAssignmentResponseListMock = List.of(
-        tourAssignmentResponseMock,
-        new TourAssignmentResponse(tourAssignmentTwoMock),
-        new TourAssignmentResponse(tourAssignmentThreeMock)
-    );
-
+            tourAssignmentResponseMock,
+            new TourAssignmentResponse(tourAssignmentTwoMock),
+            new TourAssignmentResponse(tourAssignmentThreeMock));
 
     /*
      * NotificationTemplate instances
@@ -1042,7 +989,7 @@ public class DataProvider {
      * 
      */
 
-     public static NotificationTemplate notificationTemplateOneMock() {
+    public static NotificationTemplate notificationTemplateOneMock() {
         return NotificationTemplate.builder()
                 .id(1)
                 .name("Test one")
@@ -1051,9 +998,9 @@ public class DataProvider {
                 .type("EMAIL")
                 .variables("name,email")
                 .build();
-     }
+    }
 
-     public static NotificationTemplate notificationTemplateTwoMock() {
+    public static NotificationTemplate notificationTemplateTwoMock() {
         return NotificationTemplate.builder()
                 .id(2)
                 .name("Test two")
@@ -1062,9 +1009,9 @@ public class DataProvider {
                 .type("EMAIL")
                 .variables("name,email")
                 .build();
-     }
+    }
 
-     public static NotificationTemplate notificationTemplateThreeMock() {
+    public static NotificationTemplate notificationTemplateThreeMock() {
         return NotificationTemplate.builder()
                 .id(3)
                 .name("Test three")
@@ -1073,241 +1020,527 @@ public class DataProvider {
                 .type("EMAIL")
                 .variables("name,email")
                 .build();
-     }
+    }
 
-     public static List<NotificationTemplate> notificationTemplateListMock() {
+    public static List<NotificationTemplate> notificationTemplateListMock() {
         return List.of(
                 notificationTemplateOneMock(),
                 notificationTemplateTwoMock(),
-                notificationTemplateThreeMock()
-        );
-     }
+                notificationTemplateThreeMock());
+    }
 
-     public static NotificationTemplateResponse notificationTemplateResponseMock = new NotificationTemplateResponse(notificationTemplateOneMock());
-     public static NotificationTemplateRequest notificationTemplateRequestMock = new NotificationTemplateRequest(
+    public static NotificationTemplateResponse notificationTemplateResponseMock = new NotificationTemplateResponse(
+            notificationTemplateOneMock());
+    public static NotificationTemplateRequest notificationTemplateRequestMock = new NotificationTemplateRequest(
             "Test one",
             "Subject one",
             "Hello ${name}, your email is ${email}",
             "EMAIL",
-            "name,email"
-     );
+            "name,email");
 
-     public static List<NotificationTemplateResponse> notificationTemplateResponseListMock = List.of(
+    public static List<NotificationTemplateResponse> notificationTemplateResponseListMock = List.of(
             new NotificationTemplateResponse(notificationTemplateOneMock()),
             new NotificationTemplateResponse(notificationTemplateTwoMock()),
-            new NotificationTemplateResponse(notificationTemplateThreeMock())
-     );
+            new NotificationTemplateResponse(notificationTemplateThreeMock()));
 
-     /*
+    /*
      * NotificationHistory instances
      * 
      * 
      */
     public static NotificationHistory notificationHistoryOneMock() {
         return NotificationHistory.builder()
-            .id(1)
-            .template(notificationTemplateOneMock())
-            .user(userAdmin())
-            .reservation(reservationOneMock)
-            .sentAt(LocalDateTime.now())
-            .deliveryStatus("PENDING")
-            .content("Test Content")
-            .channel("Channel one")
-            .build();}
+                .id(1)
+                .template(notificationTemplateOneMock())
+                .user(userAdmin())
+                .reservation(reservationOneMock)
+                .sentAt(LocalDateTime.now())
+                .deliveryStatus("PENDING")
+                .content("Test Content")
+                .channel("Channel one")
+                .build();
+    }
 
     public static NotificationHistory notificationHistoryTwoMock() {
         return NotificationHistory.builder()
-            .id(2)
-            .template(notificationTemplateTwoMock()) 
-            .user(userContentManager())
-            .reservation(reservationTwoMock) 
-            .sentAt(LocalDateTime.now().minusDays(1))
-            .deliveryStatus("DELIVERED")
-            .content("Contenido de prueba 2")
-            .channel("Channel two")
-            .build();
+                .id(2)
+                .template(notificationTemplateTwoMock())
+                .user(userContentManager())
+                .reservation(reservationTwoMock)
+                .sentAt(LocalDateTime.now().minusDays(1))
+                .deliveryStatus("DELIVERED")
+                .content("Contenido de prueba 2")
+                .channel("Channel two")
+                .build();
     }
-    
+
     public static NotificationHistory notificationHistoryThreeMock() {
         return NotificationHistory.builder()
-            .id(3)
-            .template(notificationTemplateThreeMock()) 
-            .user(userCustomer())
-            .reservation(reservationThreeMock) 
-            .sentAt(LocalDateTime.now().minusHours(5))
-            .deliveryStatus("FAILED")
-            .content("Contenido de prueba 3")
-            .channel("Channel three")
-            .build();
-            }
+                .id(3)
+                .template(notificationTemplateThreeMock())
+                .user(userCustomer())
+                .reservation(reservationThreeMock)
+                .sentAt(LocalDateTime.now().minusHours(5))
+                .deliveryStatus("FAILED")
+                .content("Contenido de prueba 3")
+                .channel("Channel three")
+                .build();
+    }
 
     public static List<NotificationHistory> notificationHistoriesListMock() {
         return List.of(
-            notificationHistoryTwoMock(),
-            notificationHistoryTwoMock(),
-            notificationHistoryThreeMock()
+                notificationHistoryTwoMock(),
+                notificationHistoryTwoMock(),
+                notificationHistoryThreeMock());
+    }
+
+    public static NotificationHistoryResponse notificationHistoryResponse = new NotificationHistoryResponse(
+            notificationHistoryOneMock());
+    public static NotificationHistoryRequest notificationHistoryRequest = new NotificationHistoryRequest(
+            1,
+            1L,
+            1,
+            "PENDING",
+            "Test Content",
+            "Channel one");
+
+    public static List<NotificationHistoryResponse> notificationHistoryListResponse = List.of(
+            notificationHistoryResponse,
+            new NotificationHistoryResponse(notificationHistoryTwoMock()),
+            new NotificationHistoryResponse(notificationHistoryThreeMock()));
+
+    /*
+     * PaymentInstallment instances
+     * 
+     * 
+     */
+    public static PaymentInstallment paymentInstallmentOneMock() {
+        return PaymentInstallment.builder()
+                .id(1)
+                .reservation(reservationOneMock)
+                .amount(BigDecimal.valueOf(100.00))
+                .dueDate(LocalDate.now().plusDays(30))
+                .payment(null)
+                .status("PENDING")
+                .reminderSent(false)
+                .createdAt(LocalDate.now())
+                .build();
+    }
+
+    public static PaymentInstallment paymentInstallmentTwoMock() {
+        return PaymentInstallment.builder()
+                .id(2)
+                .reservation(reservationTwoMock)
+                .amount(BigDecimal.valueOf(200.00))
+                .dueDate(LocalDate.now().minusDays(5))
+                .payment(null)
+                .status("OVERDUE")
+                .reminderSent(true)
+                .createdAt(LocalDate.now().minusDays(10))
+                .build();
+    }
+
+    public static PaymentInstallment paymentInstallmentThreeMock() {
+        return PaymentInstallment.builder()
+                .id(3)
+                .reservation(reservationThreeMock)
+                .amount(BigDecimal.valueOf(150.00))
+                .dueDate(LocalDate.now().plusDays(15))
+                .payment(null)
+                .status("PAID")
+                .reminderSent(false)
+                .createdAt(LocalDate.now().minusDays(5))
+                .build();
+    }
+
+    public static List<PaymentInstallment> paymentInstallmentListMock() {
+        return List.of(
+                paymentInstallmentOneMock(),
+                paymentInstallmentTwoMock(),
+                paymentInstallmentThreeMock());
+    }
+
+    public static PaymentInstallmentResponse paymentInstallmentResponseMock = new PaymentInstallmentResponse(
+            paymentInstallmentOneMock());
+
+    public static PaymentInstallmentRequest paymentInstallmentRequestMock = new PaymentInstallmentRequest(
+            1,
+            BigDecimal.valueOf(100.00),
+            LocalDate.now().plusDays(30),
+            null,
+            "PENDING",
+            false);
+
+    public static List<PaymentInstallmentResponse> paymentInstallmentResponseListMock = List.of(
+            new PaymentInstallmentResponse(paymentInstallmentOneMock()),
+            new PaymentInstallmentResponse(paymentInstallmentTwoMock()),
+            new PaymentInstallmentResponse(paymentInstallmentThreeMock()));
+
+    // Additional mock data for specific test scenarios
+    public static PaymentInstallment pendingInstallmentMock() {
+        return PaymentInstallment.builder()
+                .id(7)
+                .reservation(reservationOneMock)
+                .amount(BigDecimal.valueOf(50.00))
+                .dueDate(LocalDate.now().plusDays(5))
+                .payment(null)
+                .status("PENDING")
+                .reminderSent(false)
+                .createdAt(LocalDate.now())
+                .build();
+    }
+
+    public static PaymentInstallment overdueInstallmentMock() {
+        return PaymentInstallment.builder()
+                .id(8)
+                .reservation(reservationTwoMock)
+                .amount(BigDecimal.valueOf(175.00))
+                .dueDate(LocalDate.now().minusDays(10))
+                .payment(null)
+                .status("OVERDUE")
+                .reminderSent(true)
+                .createdAt(LocalDate.now().minusDays(15))
+                .build();
+    }
+
+    public static PaymentInstallment paidInstallmentMock() {
+        return PaymentInstallment.builder()
+                .id(9)
+                .reservation(reservationThreeMock)
+                .amount(BigDecimal.valueOf(250.00))
+                .dueDate(LocalDate.now().minusDays(1))
+                .payment(null)
+                .status("PAID")
+                .reminderSent(false)
+                .createdAt(LocalDate.now().minusDays(10))
+                .build();
+    }
+
+    public static PaymentInstallment cancelledInstallmentMock() {
+        return PaymentInstallment.builder()
+                .id(10)
+                .reservation(reservationOneMock)
+                .amount(BigDecimal.valueOf(90.00))
+                .dueDate(LocalDate.now().plusDays(20))
+                .payment(null)
+                .status("CANCELLED")
+                .reminderSent(false)
+                .createdAt(LocalDate.now().minusDays(5))
+                .build();
+    }
+
+    public static List<PaymentInstallment> pendingInstallmentsListMock() {
+        return List.of(
+                paymentInstallmentOneMock(),
+                pendingInstallmentMock());
+    }
+
+    public static List<PaymentInstallment> overdueInstallmentsListMock() {
+        return List.of(
+                paymentInstallmentTwoMock(),
+                overdueInstallmentMock());
+    }
+
+    public static List<PaymentInstallment> paidInstallmentsListMock() {
+        return List.of(
+                paymentInstallmentThreeMock(),
+                paidInstallmentMock());
+    }
+
+    public static List<PaymentInstallment> cancelledInstallmentsListMock() {
+        return List.of(
+                paymentInstallmentOneMock(),
+                cancelledInstallmentMock());
+    }
+
+    /*
+     * TourFaq instances
+     * 
+     * 
+     */
+    public static TourFaq tourFaqOneMock() {
+        return TourFaq.builder()
+                .id(1)
+                .tourPlan(tourPlanOneMock)
+                .question("¿Cuál es la duración del tour?")
+                .answer("El tour tiene una duración de 4 horas aproximadamente, incluyendo traslados.")
+                .displayOrder(1)
+                .createdAt(LocalDateTime.now().minusDays(5))
+                .updatedAt(LocalDateTime.now().minusDays(2))
+                .build();
+    }
+
+    public static TourFaq tourFaqTwoMock() {
+        return TourFaq.builder()
+                .id(2)
+                .tourPlan(tourPlanOneMock)
+                .question("¿Qué incluye el precio del tour?")
+                .answer("El precio incluye transporte, guía bilingüe, entradas a los sitios turísticos y refrigerio.")
+                .displayOrder(2)
+                .createdAt(LocalDateTime.now().minusDays(4))
+                .updatedAt(LocalDateTime.now().minusDays(1))
+                .build();
+    }
+
+    public static TourFaq tourFaqThreeMock() {
+        return TourFaq.builder()
+                .id(3)
+                .tourPlan(tourPlanTwoMock)
+                .question("¿Cuál es el punto de encuentro?")
+                .answer("El punto de encuentro es en el lobby del hotel o en la Plaza Mayor a las 8:00 AM.")
+                .displayOrder(1)
+                .createdAt(LocalDateTime.now().minusDays(3))
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static TourFaq tourFaqFourMock() {
+        return TourFaq.builder()
+                .id(4)
+                .tourPlan(tourPlanTwoMock)
+                .question("¿Se puede cancelar el tour?")
+                .answer("Sí, se puede cancelar hasta 24 horas antes del inicio del tour sin penalización.")
+                .displayOrder(2)
+                .createdAt(LocalDateTime.now().minusDays(2))
+                .updatedAt(LocalDateTime.now().minusDays(1))
+                .build();
+    }
+
+    public static TourFaq tourFaqFiveMock() {
+        return TourFaq.builder()
+                .id(5)
+                .tourPlan(tourPlanThreeMock)
+                .question("¿Es necesario reservar con anticipación?")
+                .answer("Se recomienda reservar con al menos 48 horas de anticipación para garantizar disponibilidad.")
+                .displayOrder(1)
+                .createdAt(LocalDateTime.now().minusDays(1))
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static List<TourFaq> tourFaqListMock() {
+        return List.of(
+                tourFaqOneMock(),
+                tourFaqTwoMock(),
+                tourFaqThreeMock()
         );
     }
 
-    public static NotificationHistoryResponse notificationHistoryResponse = new NotificationHistoryResponse(notificationHistoryOneMock());
-    public static NotificationHistoryRequest notificationHistoryRequest = new NotificationHistoryRequest(
-        1,
-        1L,
-        1,
-        "PENDING",
-        "Test Content",
-        "Channel one"
-    );
+    public static TourFaqResponse tourFaqResponseMock = new TourFaqResponse(tourFaqOneMock());
 
-    public static List<NotificationHistoryResponse> notificationHistoryListResponse = List.of(
-        notificationHistoryResponse,
-        new NotificationHistoryResponse(notificationHistoryTwoMock()),
-        new NotificationHistoryResponse(notificationHistoryThreeMock())
-    );
+    public static TourFaqRequest tourFaqRequestMock = new TourFaqRequest(
+            1,
+            "¿Cuál es la duración del tour?",
+            "El tour tiene una duración de 4 horas aproximadamente, incluyendo traslados.",
+            1);
 
-  /*
-   * PaymentInstallment instances
-   * 
-   * 
-   */
-  public static PaymentInstallment paymentInstallmentOneMock() {
-    return PaymentInstallment.builder()
-        .id(1)
-        .reservation(reservationOneMock)
-        .amount(BigDecimal.valueOf(100.00))
-        .dueDate(LocalDate.now().plusDays(30))
-        .payment(null)
-        .status("PENDING")
-        .reminderSent(false)
-        .createdAt(LocalDate.now())
-        .build();
-  }
-
-  public static PaymentInstallment paymentInstallmentTwoMock() {
-    return PaymentInstallment.builder()
-        .id(2)
-        .reservation(reservationTwoMock)
-        .amount(BigDecimal.valueOf(200.00))
-        .dueDate(LocalDate.now().minusDays(5))
-        .payment(null)
-        .status("OVERDUE")
-        .reminderSent(true)
-        .createdAt(LocalDate.now().minusDays(10))
-        .build();
-  }
-
-  public static PaymentInstallment paymentInstallmentThreeMock() {
-    return PaymentInstallment.builder()
-        .id(3)
-        .reservation(reservationThreeMock)
-        .amount(BigDecimal.valueOf(150.00))
-        .dueDate(LocalDate.now().plusDays(15))
-        .payment(null)
-        .status("PAID")
-        .reminderSent(false)
-        .createdAt(LocalDate.now().minusDays(5))
-        .build();
-  }
-
-  public static List<PaymentInstallment> paymentInstallmentListMock() {
-    return List.of(
-        paymentInstallmentOneMock(),
-        paymentInstallmentTwoMock(),
-        paymentInstallmentThreeMock()
+    public static List<TourFaqResponse> tourFaqResponseListMock = List.of(
+            new TourFaqResponse(tourFaqOneMock()),
+            new TourFaqResponse(tourFaqTwoMock()),
+            new TourFaqResponse(tourFaqThreeMock())
         );
-  }
-
-  public static PaymentInstallmentResponse paymentInstallmentResponseMock = new PaymentInstallmentResponse(
-      paymentInstallmentOneMock());
-
-  public static PaymentInstallmentRequest paymentInstallmentRequestMock = new PaymentInstallmentRequest(
-      1,
-      BigDecimal.valueOf(100.00),
-      LocalDate.now().plusDays(30),
-      null,
-      "PENDING",
-      false);
-
-  public static List<PaymentInstallmentResponse> paymentInstallmentResponseListMock = List.of(
-      new PaymentInstallmentResponse(paymentInstallmentOneMock()),
-      new PaymentInstallmentResponse(paymentInstallmentTwoMock()),
-      new PaymentInstallmentResponse(paymentInstallmentThreeMock())
-    );
 
     // Additional mock data for specific test scenarios
-  public static PaymentInstallment pendingInstallmentMock() {
-    return PaymentInstallment.builder()
-        .id(7)
-        .reservation(reservationOneMock)
-        .amount(BigDecimal.valueOf(50.00))
-        .dueDate(LocalDate.now().plusDays(5))
-        .payment(null)
-        .status("PENDING")
-        .reminderSent(false)
-        .createdAt(LocalDate.now())
-        .build();
-  }
+    public static TourFaq tourFaqWithHighDisplayOrderMock() {
+        return TourFaq.builder()
+                .id(6)
+                .tourPlan(tourPlanOneMock)
+                .question("¿Hay descuentos para grupos?")
+                .answer("Sí, ofrecemos descuentos especiales para grupos de 10 o más personas.")
+                .displayOrder(10)
+                .createdAt(LocalDateTime.now().minusDays(1))
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
 
-  public static PaymentInstallment overdueInstallmentMock() {
-    return PaymentInstallment.builder()
-        .id(8)
-        .reservation(reservationTwoMock)
-        .amount(BigDecimal.valueOf(175.00))
-        .dueDate(LocalDate.now().minusDays(10))
-        .payment(null)
-        .status("OVERDUE")
-        .reminderSent(true)
-        .createdAt(LocalDate.now().minusDays(15))
-        .build();
-  }
+    public static TourFaq tourFaqWithDuplicateQuestionMock() {
+        return TourFaq.builder()
+                .id(7)
+                .tourPlan(tourPlanOneMock)
+                .question("¿Cuál es la duración del tour?")
+                .answer("Duración aproximada de 4 horas con traslados incluidos.")
+                .displayOrder(3)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
 
-  public static PaymentInstallment paidInstallmentMock() {
-    return PaymentInstallment.builder()
-        .id(9)
-        .reservation(reservationThreeMock)
-        .amount(BigDecimal.valueOf(250.00))
-        .dueDate(LocalDate.now().minusDays(1))
-        .payment(null)
-        .status("PAID")
-        .reminderSent(false)
-        .createdAt(LocalDate.now().minusDays(10))
-        .build();
-  }
+    public static TourFaq tourFaqWithDuplicateDisplayOrderMock() {
+        return TourFaq.builder()
+                .id(8)
+                .tourPlan(tourPlanOneMock)
+                .question("¿Qué ropa debo llevar?")
+                .answer("Se recomienda ropa cómoda y zapatos cerrados para caminar.")
+                .displayOrder(1)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
 
-  public static PaymentInstallment cancelledInstallmentMock() {
-    return PaymentInstallment.builder()
-        .id(10)
-        .reservation(reservationOneMock)
-        .amount(BigDecimal.valueOf(90.00))
-        .dueDate(LocalDate.now().plusDays(20))
-        .payment(null)
-        .status("CANCELLED")
-        .reminderSent(false)
-        .createdAt(LocalDate.now().minusDays(5))
-        .build();
-  }
+    public static TourFaq tourFaqForDifferentTourPlanMock() {
+        return TourFaq.builder()
+                .id(9)
+                .tourPlan(tourPlanThreeMock)
+                .question("¿El tour es accesible para personas con movilidad reducida?")
+                .answer("Sí, contamos con rutas accesibles y vehículos adaptados.")
+                .displayOrder(2)
+                .createdAt(LocalDateTime.now().minusDays(1))
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
 
-  public static List<PaymentInstallment> pendingInstallmentsListMock() {
-    return List.of(
-        paymentInstallmentOneMock(),
-        pendingInstallmentMock());
-  }
+    public static TourFaq tourFaqWithLongQuestionMock() {
+        return TourFaq.builder()
+                .id(10)
+                .tourPlan(tourPlanTwoMock)
+                .question(
+                        "¿Cuáles son las políticas de cancelación y reembolso en caso de condiciones climáticas adversas o eventos de fuerza mayor que puedan afectar la realización del tour?")
+                .answer("En caso de condiciones climáticas adversas, ofrecemos reprogramación gratuita o reembolso completo.")
+                .displayOrder(3)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
 
-  public static List<PaymentInstallment> overdueInstallmentsListMock() {
-    return List.of(
-        paymentInstallmentTwoMock(),
-        overdueInstallmentMock());
-  }
+    public static TourFaq tourFaqWithLongAnswerMock() {
+        return TourFaq.builder()
+                .id(11)
+                .tourPlan(tourPlanThreeMock)
+                .question("¿Qué incluye el tour?")
+                .answer("El tour incluye transporte en vehículo climatizado desde y hacia su hotel, guía turístico certificado bilingüe (español e inglés), entradas a todos los sitios turísticos mencionados en el itinerario, refrigerio con bebidas y snacks locales, seguro de viajero durante la duración del tour, fotos profesionales del grupo (opcional), y certificado de participación. No incluye propinas para el guía y conductor, comidas principales, bebidas alcohólicas, gastos personales, ni servicios no mencionados en el itinerario.")
+                .displayOrder(3)
+                .createdAt(LocalDateTime.now().minusDays(1))
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
 
-  public static List<PaymentInstallment> paidInstallmentsListMock() {
-    return List.of(
-        paymentInstallmentThreeMock(),
-        paidInstallmentMock());
-  }
+    // Lists for specific test scenarios
+    public static List<TourFaq> tourFaqListForTourPlanOneMock() {
+        return List.of(
+                tourFaqOneMock(),
+                tourFaqTwoMock(),
+                tourFaqWithHighDisplayOrderMock());
+    }
 
-  public static List<PaymentInstallment> cancelledInstallmentsListMock() {
-    return List.of(
-        paymentInstallmentOneMock(),
-        cancelledInstallmentMock());
-  }
+    public static List<TourFaq> tourFaqListForTourPlanTwoMock() {
+        return List.of(
+                tourFaqThreeMock(),
+                tourFaqFourMock(),
+                tourFaqWithLongQuestionMock());
+    }
+
+    public static List<TourFaq> tourFaqListForTourPlanThreeMock() {
+        return List.of(
+                tourFaqFiveMock(),
+                tourFaqForDifferentTourPlanMock(),
+                tourFaqWithLongAnswerMock());
+    }
+
+    public static List<TourFaq> tourFaqListOrderedByDisplayOrderMock() {
+        return List.of(
+                tourFaqOneMock(),
+                tourFaqThreeMock(),
+                tourFaqFiveMock(),
+                tourFaqTwoMock(),
+                tourFaqFourMock());
+    }
+
+    public static List<TourFaq> tourFaqListWithDuplicatesMock() {
+        return List.of(
+                tourFaqOneMock(),
+                tourFaqWithDuplicateQuestionMock(),
+                tourFaqWithDuplicateDisplayOrderMock());
+    }
+
+    // DTOs for specific test scenarios
+    public static TourFaqRequest tourFaqRequestWithInvalidTourPlanMock() {
+        return new TourFaqRequest(
+                999, // Invalid tour plan ID
+                "¿Es válida esta pregunta?",
+                "Esta es una respuesta de prueba.",
+                1);
+    }
+
+    public static TourFaqRequest tourFaqRequestWithDuplicateQuestionMock() {
+        return new TourFaqRequest(
+                1,
+                "¿Cuál es la duración del tour?", // Duplicate question
+                "Esta es una respuesta diferente.",
+                3);
+    }
+
+    public static TourFaqRequest tourFaqRequestWithDuplicateDisplayOrderMock() {
+        return new TourFaqRequest(
+                1,
+                "¿Nueva pregunta?",
+                "Esta es una nueva respuesta.",
+                1 // Duplicate display order
+        );
+    }
+
+    public static TourFaqRequest tourFaqRequestWithShortQuestionMock() {
+        return new TourFaqRequest(
+                1,
+                "¿Duración?", // Too short
+                "Esta es una respuesta de prueba.",
+                1);
+    }
+
+    public static TourFaqRequest tourFaqRequestWithShortAnswerMock() {
+        return new TourFaqRequest(
+                1,
+                "¿Cuál es la duración del tour?",
+                "4 horas.", // Too short
+                1);
+    }
+
+    public static TourFaqRequest tourFaqRequestWithNegativeDisplayOrderMock() {
+        return new TourFaqRequest(
+                1,
+                "¿Cuál es la duración del tour?",
+                "El tour tiene una duración de 4 horas aproximadamente.",
+                -1 // Negative display order
+        );
+    }
+
+    // Response lists for specific test scenarios
+    public static List<TourFaqResponse> tourFaqResponseListForTourPlanOneMock() {
+        return List.of(
+                new TourFaqResponse(tourFaqOneMock()),
+                new TourFaqResponse(tourFaqTwoMock()),
+                new TourFaqResponse(tourFaqWithHighDisplayOrderMock()));
+    }
+
+    public static List<TourFaqResponse> tourFaqResponseListOrderedMock() {
+        return List.of(
+                new TourFaqResponse(tourFaqOneMock()),
+                new TourFaqResponse(tourFaqThreeMock()),
+                new TourFaqResponse(tourFaqFiveMock()));
+    }
+
+    public static List<TourFaqResponse> emptyTourFaqResponseListMock() {
+        return List.of();
+    }
+
+    // Request lists for bulk operations
+    public static List<TourFaqRequest> tourFaqRequestListForBulkCreateMock() {
+        return List.of(
+                new TourFaqRequest(1, "¿Pregunta 1?", "Respuesta 1", 1),
+                new TourFaqRequest(1, "¿Pregunta 2?", "Respuesta 2", 2),
+                new TourFaqRequest(1, "¿Pregunta 3?", "Respuesta 3", 3));
+    }
+
+    public static List<TourFaqRequest> tourFaqRequestListForBulkUpdateMock() {
+        return List.of(
+                new TourFaqRequest(1, "¿Pregunta actualizada 1?", "Respuesta actualizada 1", 1),
+                new TourFaqRequest(1, "¿Pregunta actualizada 2?", "Respuesta actualizada 2", 2));
+    }
+
+    public static List<Integer> tourFaqIdsForBulkDeleteMock() {
+        return List.of(1, 2, 3, 4, 5);
+    }
+
+    public static List<Integer> tourFaqIdsForReorderMock() {
+        return List.of(3, 1, 2, 5, 4);
+    }
 }
