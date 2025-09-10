@@ -3,6 +3,7 @@ package com.app.panama_trips.service.interfaces;
 import com.app.panama_trips.presentation.dto.TourPriceHistoryRequest;
 import com.app.panama_trips.presentation.dto.TourPriceHistoryResponse;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,4 +24,9 @@ public interface ITourPriceHistoryService {
     Page<TourPriceHistoryResponse> findByTourPlanIdOrderByChangedAtDesc(Integer tourPlanId, Pageable pageable);
     List<TourPriceHistoryResponse> findByTourPlanIdAndChangedAtBetween(Integer tourPlanId, LocalDateTime startDate,LocalDateTime endDate);
     List<TourPriceHistoryResponse> findByChangedById(Long userId);
+
+    // Specialized queries from repository
+    Double calculateAveragePriceChangePercentageByTourPlanId(Integer tourPlanId);
+    List<TourPriceHistoryResponse> findByNewPriceGreaterThan(BigDecimal price);
+    Long countPriceChangesByTourPlanId(Integer tourPlanId);
 }
