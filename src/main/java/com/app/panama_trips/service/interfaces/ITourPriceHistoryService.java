@@ -46,4 +46,8 @@ public interface ITourPriceHistoryService {
     // Bulk operations
     void bulkCreateTourPriceHistories(List<TourPriceHistoryRequest> requests);
     void bulkDeleteTourPriceHistories(List<Integer> tourPriceHistoryIds);
+
+    // Check operations
+    boolean existsById(Integer id);
+    long countByTourPlanId(Integer tourPlanId);
 }
