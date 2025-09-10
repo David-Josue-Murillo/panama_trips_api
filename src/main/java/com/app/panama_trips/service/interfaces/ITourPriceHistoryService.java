@@ -42,4 +42,8 @@ public interface ITourPriceHistoryService {
     BigDecimal getAveragePriceForTourPlan(Integer tourPlanId);
     List<TourPriceHistoryResponse> getPriceChangesOnDate(Integer tourPlanId, LocalDate date);
     List<TourPriceHistoryResponse> getPriceChangesByUserAndDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate);
+
+    // Bulk operations
+    void bulkCreateTourPriceHistories(List<TourPriceHistoryRequest> requests);
+    void bulkDeleteTourPriceHistories(List<Integer> tourPriceHistoryIds);
 }
