@@ -50,4 +50,12 @@ public interface ITourPriceHistoryService {
     // Check operations
     boolean existsById(Integer id);
     long countByTourPlanId(Integer tourPlanId);
+
+    // Analytics and statistics
+    BigDecimal getTotalPriceIncreaseForTourPlan(Integer tourPlanId);
+    BigDecimal getTotalPriceDecreaseForTourPlan(Integer tourPlanId);
+    double getAverageChangePercentageForTourPlan(Integer tourPlanId);
+    List<TourPriceHistoryResponse> getTopTourPlansByChangeCount(int limit);
+    List<TourPriceHistoryResponse> getChangesByMonth(Integer tourPlanId);
+    List<TourPriceHistoryResponse> getChangesByDayOfWeek(Integer tourPlanId);
 }
