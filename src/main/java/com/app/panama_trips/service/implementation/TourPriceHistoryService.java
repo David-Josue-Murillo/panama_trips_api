@@ -235,15 +235,18 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     }
 
     @Override
+    @Transactional
     public void bulkCreateTourPriceHistories(List<TourPriceHistoryRequest> requests) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'bulkCreateTourPriceHistories'");
+        List<TourPriceHistory> entities = requests.stream()
+                .map(this::buildFromRequest)
+                .toList();
+        repository.saveAll(entities);
     }
 
     @Override
+    @Transactional
     public void bulkDeleteTourPriceHistories(List<Integer> tourPriceHistoryIds) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'bulkDeleteTourPriceHistories'");
+        repository.deleteAllById(tourPriceHistoryIds);
     }
 
     @Override
