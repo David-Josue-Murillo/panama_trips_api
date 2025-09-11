@@ -198,22 +198,40 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getAveragePriceForTourPlan(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAveragePriceForTourPlan'");
+        List<TourPriceHistory> list = repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId);
+        if (list.isEmpty()) {
+            throw new ResourceNotFoundException("No price history found for tour plan");
+        }
+        return list.stream()
+                .map(TourPriceHistory::getNewPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(BigDecimal.valueOf(list.size()), BigDecimal.ROUND_HALF_UP);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> getPriceChangesOnDate(Integer tourPlanId, LocalDate date) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPriceChangesOnDate'");
+        return repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
+                .stream()
+                .filter(t -> t.getChangedAt() != null && t.getChangedAt().toLocalDate().equals(date))
+                .map(TourPriceHistoryResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> getPriceChangesByUserAndDateRange(Long userId, LocalDateTime startDate,
             LocalDateTime endDate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPriceChangesByUserAndDateRange'");
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return repository.findByChangedBy(user)
+                .stream()
+                .filter(t -> t.getChangedAt() != null && !t.getChangedAt().isBefore(startDate)
+                        && !t.getChangedAt().isAfter(endDate))
+                .map(TourPriceHistoryResponse::new)
+                .toList();
     }
 
     @Override
