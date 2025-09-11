@@ -262,21 +262,30 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getTotalPriceIncreaseForTourPlan(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTotalPriceIncreaseForTourPlan'");
+        return repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
+                .stream()
+                .map(h -> h.getNewPrice().subtract(h.getPreviousPrice()))
+                .filter(delta -> delta.compareTo(BigDecimal.ZERO) > 0)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getTotalPriceDecreaseForTourPlan(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTotalPriceDecreaseForTourPlan'");
+        return repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
+                .stream()
+                .map(h -> h.getPreviousPrice().subtract(h.getNewPrice()))
+                .filter(delta -> delta.compareTo(BigDecimal.ZERO) > 0)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public double getAverageChangePercentageForTourPlan(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAverageChangePercentageForTourPlan'");
+        Double value = repository.calculateAveragePriceChangePercentageByTourPlanId(tourPlanId);
+        return value != null ? value : 0.0;
     }
 
     @Override
