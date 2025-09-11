@@ -3,11 +3,13 @@ package com.app.panama_trips.service.implementation;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -118,51 +120,81 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> findByNewPriceGreaterThan(BigDecimal price) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByNewPriceGreaterThan'");
+        return repository.findByNewPriceGreaterThan(price)
+                .stream()
+                .map(TourPriceHistoryResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long countPriceChangesByTourPlanId(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'countPriceChangesByTourPlanId'");
+        return repository.countPriceChangesByTourPlanId(tourPlanId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> getRecentChanges(int limit) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRecentChanges'");
+        return repository.findAll(Sort.by(Sort.Direction.DESC, "changedAt"))
+                .stream()
+                .limit(limit)
+                .map(TourPriceHistoryResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<TourPriceHistoryResponse> getLatestChangeForTourPlan(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getLatestChangeForTourPlan'");
+        return repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
+                .stream()
+                .findFirst()
+                .map(TourPriceHistoryResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getCurrentPriceForTourPlan(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCurrentPriceForTourPlan'");
+        Optional<TourPriceHistory> latest = repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
+                .stream().findFirst();
+        if (latest.isPresent()) {
+            return latest.get().getNewPrice();
+        }
+        // Fallback to current price on TourPlan if no history
+        TourPlan plan = tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tour plan not found"));
+        return plan.getPrice();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getPreviousPriceForTourPlan(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPreviousPriceForTourPlan'");
+        return repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
+                .stream()
+                .findFirst()
+                .map(TourPriceHistory::getPreviousPrice)
+                .orElseThrow(() -> new ResourceNotFoundException("No price history found for tour plan"));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getMaxPriceForTourPlan(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMaxPriceForTourPlan'");
+        return repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
+                .stream()
+                .map(TourPriceHistory::getNewPrice)
+                .max(Comparator.naturalOrder())
+                .orElseThrow(() -> new ResourceNotFoundException("No price history found for tour plan"));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getMinPriceForTourPlan(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMinPriceForTourPlan'");
+        return repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
+                .stream()
+                .map(TourPriceHistory::getNewPrice)
+                .min(Comparator.naturalOrder())
+                .orElseThrow(() -> new ResourceNotFoundException("No price history found for tour plan"));
     }
 
     @Override
