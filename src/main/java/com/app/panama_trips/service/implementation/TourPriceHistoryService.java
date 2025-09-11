@@ -31,7 +31,7 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     private final TourPriceHistoryRepository repository;
     private final TourPlanRepository tourPlanRepository;
     private final UserEntityRepository userRepository;
-    
+
     @Override
     @Transactional(readOnly = true)
     public Page<TourPriceHistoryResponse> getAllTourPriceHistories(Pageable pageable) {
@@ -112,10 +112,9 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Double calculateAveragePriceChangePercentageByTourPlanId(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException(
-                "Unimplemented method 'calculateAveragePriceChangePercentageByTourPlanId'");
+        return repository.calculateAveragePriceChangePercentageByTourPlanId(tourPlanId);
     }
 
     @Override
