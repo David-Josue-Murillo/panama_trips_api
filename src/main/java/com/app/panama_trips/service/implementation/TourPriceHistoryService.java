@@ -331,9 +331,13 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> searchChangesByPrice(BigDecimal price) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchChangesByPrice'");
+        return repository.findAll().stream()
+                .filter(h -> (h.getNewPrice() != null && h.getNewPrice().compareTo(price) == 0)
+                        || (h.getPreviousPrice() != null && h.getPreviousPrice().compareTo(price) == 0))
+                .map(TourPriceHistoryResponse::new)
+                .toList();
     }
 
     private TourPriceHistory buildFromRequest(TourPriceHistoryRequest request) {
