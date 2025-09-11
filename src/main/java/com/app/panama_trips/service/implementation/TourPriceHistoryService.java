@@ -72,28 +72,43 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> findByTourPlanId(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByTourPlanId'");
+        return repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
+                .stream()
+                .map(TourPriceHistoryResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TourPriceHistoryResponse> findByTourPlanIdOrderByChangedAtDesc(Integer tourPlanId, Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByTourPlanIdOrderByChangedAtDesc'");
+        TourPlan tourPlan = tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tour plan not found"));
+        return repository.findByTourPlanOrderByChangedAtDesc(tourPlan, pageable)
+                .map(TourPriceHistoryResponse::new);
     }
 
     @Override
     public List<TourPriceHistoryResponse> findByTourPlanIdAndChangedAtBetween(Integer tourPlanId,
             LocalDateTime startDate, LocalDateTime endDate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByTourPlanIdAndChangedAtBetween'");
+        TourPlan tourPlan = tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tour plan not found"));
+        return repository.findByTourPlanAndChangedAtBetween(tourPlan, startDate, endDate)
+                .stream()
+                .map(TourPriceHistoryResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> findByChangedById(Long userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByChangedById'");
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return repository.findByChangedBy(user)
+                .stream()
+                .map(TourPriceHistoryResponse::new)
+                .toList();
     }
 
     @Override
