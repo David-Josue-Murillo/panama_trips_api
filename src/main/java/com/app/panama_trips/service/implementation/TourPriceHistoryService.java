@@ -250,15 +250,15 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsById(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsById'");
+        return repository.existsById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countByTourPlanId(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'countByTourPlanId'");
+        return repository.countPriceChangesByTourPlanId(tourPlanId);
     }
 
     @Override
