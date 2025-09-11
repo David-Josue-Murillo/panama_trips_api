@@ -8,13 +8,25 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
+import com.app.panama_trips.persistence.repository.TourPlanRepository;
+import com.app.panama_trips.persistence.repository.TourPriceHistoryRepository;
+import com.app.panama_trips.persistence.repository.UserEntityRepository;
 import com.app.panama_trips.presentation.dto.TourPriceHistoryRequest;
 import com.app.panama_trips.presentation.dto.TourPriceHistoryResponse;
 import com.app.panama_trips.service.interfaces.ITourPriceHistoryService;
 
-public class TourPriceHistoryService implements ITourPriceHistoryService{
+import lombok.RequiredArgsConstructor;
 
+@Service
+@RequiredArgsConstructor
+public class TourPriceHistoryService implements ITourPriceHistoryService {
+
+    private final TourPriceHistoryRepository repository;
+    private final TourPlanRepository tourPlanRepository;
+    private final UserEntityRepository userRepository;
+    
     @Override
     public Page<TourPriceHistoryResponse> getAllTourPriceHistories(Pageable pageable) {
         // TODO Auto-generated method stub
@@ -73,7 +85,8 @@ public class TourPriceHistoryService implements ITourPriceHistoryService{
     @Override
     public Double calculateAveragePriceChangePercentageByTourPlanId(Integer tourPlanId) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'calculateAveragePriceChangePercentageByTourPlanId'");
+        throw new UnsupportedOperationException(
+                "Unimplemented method 'calculateAveragePriceChangePercentageByTourPlanId'");
     }
 
     @Override
