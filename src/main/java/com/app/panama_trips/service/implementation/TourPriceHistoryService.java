@@ -1,6 +1,7 @@
 package com.app.panama_trips.service.implementation;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -94,6 +95,7 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> findByTourPlanIdAndChangedAtBetween(Integer tourPlanId,
             LocalDateTime startDate, LocalDateTime endDate) {
         TourPlan tourPlan = tourPlanRepository.findById(tourPlanId)
@@ -163,7 +165,6 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
         if (latest.isPresent()) {
             return latest.get().getNewPrice();
         }
-        // Fallback to current price on TourPlan if no history
         TourPlan plan = tourPlanRepository.findById(tourPlanId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tour plan not found"));
         return plan.getPrice();
@@ -209,7 +210,7 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
         return list.stream()
                 .map(TourPriceHistory::getNewPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(BigDecimal.valueOf(list.size()), BigDecimal.ROUND_HALF_UP);
+                .divide(BigDecimal.valueOf(list.size()), 2, RoundingMode.HALF_UP);
     }
 
     @Override
@@ -293,8 +294,6 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     @Override
     @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> getTopTourPlansByChangeCount(int limit) {
-        // Group by tour plan and count changes, then pick latest change per top tour
-        // plan
         Map<Integer, Long> counts = repository.findAll().stream()
                 .collect(Collectors.groupingBy(h -> h.getTourPlan().getId(), Collectors.counting()));
 
@@ -311,8 +310,6 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     @Override
     @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> getChangesByMonth(Integer tourPlanId) {
-        // Basic implementation: return all changes ordered by date (month aggregation
-        // can be done in caller)
         return repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
                 .stream()
                 .map(TourPriceHistoryResponse::new)
@@ -322,8 +319,6 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     @Override
     @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> getChangesByDayOfWeek(Integer tourPlanId) {
-        // Basic implementation: return all changes ordered by date (grouping can be
-        // done in caller)
         return repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
                 .stream()
                 .map(TourPriceHistoryResponse::new)
