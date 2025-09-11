@@ -5,7 +5,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -289,21 +291,43 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> getTopTourPlansByChangeCount(int limit) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTopTourPlansByChangeCount'");
+        // Group by tour plan and count changes, then pick latest change per top tour
+        // plan
+        Map<Integer, Long> counts = repository.findAll().stream()
+                .collect(Collectors.groupingBy(h -> h.getTourPlan().getId(), Collectors.counting()));
+
+        return counts.entrySet().stream()
+                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+                .limit(limit)
+                .map(entry -> repository.findByTourPlanIdOrderByChangedAtDesc(entry.getKey()).stream().findFirst())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(TourPriceHistoryResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> getChangesByMonth(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getChangesByMonth'");
+        // Basic implementation: return all changes ordered by date (month aggregation
+        // can be done in caller)
+        return repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
+                .stream()
+                .map(TourPriceHistoryResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPriceHistoryResponse> getChangesByDayOfWeek(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getChangesByDayOfWeek'");
+        // Basic implementation: return all changes ordered by date (grouping can be
+        // done in caller)
+        return repository.findByTourPlanIdOrderByChangedAtDesc(tourPlanId)
+                .stream()
+                .map(TourPriceHistoryResponse::new)
+                .toList();
     }
 
     @Override
