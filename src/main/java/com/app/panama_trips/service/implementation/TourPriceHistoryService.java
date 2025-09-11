@@ -9,7 +9,12 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
+import com.app.panama_trips.persistence.entity.TourPlan;
+import com.app.panama_trips.persistence.entity.TourPriceHistory;
+import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.persistence.repository.TourPriceHistoryRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
@@ -28,33 +33,42 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     private final UserEntityRepository userRepository;
     
     @Override
+    @Transactional(readOnly = true)
     public Page<TourPriceHistoryResponse> getAllTourPriceHistories(Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllTourPriceHistories'");
+        return repository.findAll(pageable).map(TourPriceHistoryResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TourPriceHistoryResponse getTourPriceHistoryById(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTourPriceHistoryById'");
+        return repository.findById(id)
+                .map(TourPriceHistoryResponse::new)
+                .orElseThrow(() -> new ResourceNotFoundException("Tour price history not found"));
     }
 
     @Override
+    @Transactional
     public TourPriceHistoryResponse saveTourPriceHistory(TourPriceHistoryRequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'saveTourPriceHistory'");
+        TourPriceHistory entity = buildFromRequest(request);
+        return new TourPriceHistoryResponse(repository.save(entity));
     }
 
     @Override
+    @Transactional
     public TourPriceHistoryResponse updateTourPriceHistory(Integer id, TourPriceHistoryRequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateTourPriceHistory'");
+        TourPriceHistory existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Tour price history not found"));
+        updateFromRequest(existing, request);
+        return new TourPriceHistoryResponse(repository.save(existing));
     }
 
     @Override
+    @Transactional
     public void deleteTourPriceHistory(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteTourPriceHistory'");
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Tour price history not found");
+        }
+        repository.deleteById(id);
     }
 
     @Override
@@ -222,4 +236,39 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
         throw new UnsupportedOperationException("Unimplemented method 'searchChangesByPrice'");
     }
 
+    private TourPriceHistory buildFromRequest(TourPriceHistoryRequest request) {
+        TourPlan tourPlan = tourPlanRepository.findById(request.tourPlanId())
+                .orElseThrow(() -> new ResourceNotFoundException("Tour plan not found"));
+
+        UserEntity changedBy = null;
+        if (request.changedById() != null) {
+            changedBy = userRepository.findById(request.changedById())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        }
+
+        return TourPriceHistory.builder()
+                .tourPlan(tourPlan)
+                .previousPrice(request.previousPrice())
+                .newPrice(request.newPrice())
+                .changedBy(changedBy)
+                .reason(request.reason())
+                .build();
+    }
+
+    private void updateFromRequest(TourPriceHistory existing, TourPriceHistoryRequest request) {
+        TourPlan tourPlan = tourPlanRepository.findById(request.tourPlanId())
+                .orElseThrow(() -> new ResourceNotFoundException("Tour plan not found"));
+
+        UserEntity changedBy = null;
+        if (request.changedById() != null) {
+            changedBy = userRepository.findById(request.changedById())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        }
+
+        existing.setTourPlan(tourPlan);
+        existing.setPreviousPrice(request.previousPrice());
+        existing.setNewPrice(request.newPrice());
+        existing.setChangedBy(changedBy);
+        existing.setReason(request.reason());
+    }
 }
