@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/tour-price-history")
@@ -90,5 +91,22 @@ public class TourPriceHistoryController {
     @GetMapping("/tour-plan/{tourPlanId}/count")
     public ResponseEntity<Long> countPriceChangesByTourPlanId(@PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(service.countPriceChangesByTourPlanId(tourPlanId));
+    }
+
+    // Business logic operations
+    @GetMapping("/recent/{limit}")
+    public ResponseEntity<List<TourPriceHistoryResponse>> getRecentChanges(@PathVariable int limit) {
+        return ResponseEntity.ok(service.getRecentChanges(limit));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/latest")
+    public ResponseEntity<TourPriceHistoryResponse> getLatestChangeForTourPlan(@PathVariable Integer tourPlanId) {
+        Optional<TourPriceHistoryResponse> result = service.getLatestChangeForTourPlan(tourPlanId);
+        return result.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/current-price")
+    public ResponseEntity<BigDecimal> getCurrentPriceForTourPlan(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.getCurrentPriceForTourPlan(tourPlanId));
     }
 }
