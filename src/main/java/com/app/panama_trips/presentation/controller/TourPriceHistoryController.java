@@ -199,4 +199,10 @@ public class TourPriceHistoryController {
     public ResponseEntity<List<TourPriceHistoryResponse>> getChangesByDayOfWeek(@PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(service.getChangesByDayOfWeek(tourPlanId));
     }
+
+    // Utility operations
+    @GetMapping("/search/price/{price}")
+    public ResponseEntity<List<TourPriceHistoryResponse>> searchChangesByPrice(@PathVariable BigDecimal price) {
+        return ResponseEntity.ok(service.searchChangesByPrice(price));
+    }
 }
