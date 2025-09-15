@@ -109,4 +109,19 @@ public class TourPriceHistoryController {
     public ResponseEntity<BigDecimal> getCurrentPriceForTourPlan(@PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(service.getCurrentPriceForTourPlan(tourPlanId));
     }
+
+    @GetMapping("/tour-plan/{tourPlanId}/previous-price")
+    public ResponseEntity<BigDecimal> getPreviousPriceForTourPlan(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.getPreviousPriceForTourPlan(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/max-price")
+    public ResponseEntity<BigDecimal> getMaxPriceForTourPlan(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.getMaxPriceForTourPlan(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/min-price")
+    public ResponseEntity<BigDecimal> getMinPriceForTourPlan(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.getMinPriceForTourPlan(tourPlanId));
+    }
 }
