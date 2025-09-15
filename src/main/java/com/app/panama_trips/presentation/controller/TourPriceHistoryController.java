@@ -13,6 +13,7 @@ import com.app.panama_trips.service.implementation.TourPriceHistoryService;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -124,4 +125,24 @@ public class TourPriceHistoryController {
     public ResponseEntity<BigDecimal> getMinPriceForTourPlan(@PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(service.getMinPriceForTourPlan(tourPlanId));
     }
+
+    @GetMapping("/tour-plan/{tourPlanId}/average-price")
+    public ResponseEntity<BigDecimal> getAveragePriceForTourPlan(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.getAveragePriceForTourPlan(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/changes-on-date/{date}")
+    public ResponseEntity<List<TourPriceHistoryResponse>> getPriceChangesOnDate(
+            @PathVariable Integer tourPlanId, @PathVariable LocalDate date) {
+        return ResponseEntity.ok(service.getPriceChangesOnDate(tourPlanId, date));
+    }
+
+    @GetMapping("/user/{userId}/date-range")
+    public ResponseEntity<List<TourPriceHistoryResponse>> getPriceChangesByUserAndDateRange(
+            @PathVariable Long userId,
+            @RequestParam LocalDateTime startDate,
+            @RequestParam LocalDateTime endDate) {
+        return ResponseEntity.ok(service.getPriceChangesByUserAndDateRange(userId, startDate, endDate));
+    }
+
 }
