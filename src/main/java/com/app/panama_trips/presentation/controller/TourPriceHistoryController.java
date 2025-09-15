@@ -145,4 +145,16 @@ public class TourPriceHistoryController {
         return ResponseEntity.ok(service.getPriceChangesByUserAndDateRange(userId, startDate, endDate));
     }
 
+    // Bulk operations
+    @PostMapping("/bulk")
+    public ResponseEntity<Void> bulkCreate(@RequestBody List<TourPriceHistoryRequest> requests) {
+        service.bulkCreateTourPriceHistories(requests);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/bulk")
+    public ResponseEntity<Void> bulkDelete(@RequestBody List<Integer> tourPriceHistoryIds) {
+        service.bulkDeleteTourPriceHistories(tourPriceHistoryIds);
+        return ResponseEntity.noContent().build();
+    }
 }
