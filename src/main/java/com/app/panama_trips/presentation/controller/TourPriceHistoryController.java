@@ -168,4 +168,20 @@ public class TourPriceHistoryController {
     public ResponseEntity<Long> countByTourPlanId(@PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(service.countByTourPlanId(tourPlanId));
     }
+
+    // Analytics and statistics
+    @GetMapping("/tour-plan/{tourPlanId}/total-increase")
+    public ResponseEntity<BigDecimal> getTotalPriceIncreaseForTourPlan(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.getTotalPriceIncreaseForTourPlan(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/total-decrease")
+    public ResponseEntity<BigDecimal> getTotalPriceDecreaseForTourPlan(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.getTotalPriceDecreaseForTourPlan(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/average-change-percentage")
+    public ResponseEntity<Double> getAverageChangePercentageForTourPlan(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.getAverageChangePercentageForTourPlan(tourPlanId));
+    }
 }
