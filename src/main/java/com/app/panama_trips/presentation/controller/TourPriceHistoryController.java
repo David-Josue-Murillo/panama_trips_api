@@ -157,4 +157,15 @@ public class TourPriceHistoryController {
         service.bulkDeleteTourPriceHistories(tourPriceHistoryIds);
         return ResponseEntity.noContent().build();
     }
+
+    // Check operations
+    @GetMapping("/exists/{id}")
+    public ResponseEntity<Boolean> existsById(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.existsById(id));
+    }
+
+    @GetMapping("/count/tour-plan/{tourPlanId}")
+    public ResponseEntity<Long> countByTourPlanId(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.countByTourPlanId(tourPlanId));
+    }
 }
