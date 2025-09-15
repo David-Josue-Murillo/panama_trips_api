@@ -1,7 +1,10 @@
 package com.app.panama_trips.presentation.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.app.panama_trips.presentation.dto.TourPriceHistoryRequest;
 import com.app.panama_trips.presentation.dto.TourPriceHistoryResponse;
@@ -9,19 +12,8 @@ import com.app.panama_trips.service.implementation.TourPriceHistoryService;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-
-
-
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tour-price-history")
@@ -37,7 +29,7 @@ public class TourPriceHistoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TourPriceHistoryResponse> getById (@PathVariable Integer id) {
+    public ResponseEntity<TourPriceHistoryResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(service.getTourPriceHistoryById(id));
     }
 
@@ -45,16 +37,41 @@ public class TourPriceHistoryController {
     public ResponseEntity<TourPriceHistoryResponse> create(@RequestBody TourPriceHistoryRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.saveTourPriceHistory(request));
     }
-    
-    
+
     @PutMapping("/{id}")
-    public ResponseEntity<TourPriceHistoryResponse> update(@PathVariable Integer id, @RequestBody TourPriceHistoryRequest request) {
+    public ResponseEntity<TourPriceHistoryResponse> update(@PathVariable Integer id,
+            @RequestBody TourPriceHistoryRequest request) {
         return ResponseEntity.ok(service.updateTourPriceHistory(id, request));
     }
 
-    @DeleteMapping("/{id}") 
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         service.deleteTourPriceHistory(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Find operations by entity relationships
+    @GetMapping("/tour-plan/{tourPlanId}")
+    public ResponseEntity<List<TourPriceHistoryResponse>> findByTourPlanId(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.findByTourPlanId(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/paginated")
+    public ResponseEntity<Page<TourPriceHistoryResponse>> findByTourPlanIdOrderByChangedAtDesc(
+            @PathVariable Integer tourPlanId, Pageable pageable) {
+        return ResponseEntity.ok(service.findByTourPlanIdOrderByChangedAtDesc(tourPlanId, pageable));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/date-range")
+    public ResponseEntity<List<TourPriceHistoryResponse>> findByTourPlanIdAndChangedAtBetween(
+            @PathVariable Integer tourPlanId,
+            @RequestParam LocalDateTime startDate,
+            @RequestParam LocalDateTime endDate) {
+        return ResponseEntity.ok(service.findByTourPlanIdAndChangedAtBetween(tourPlanId, startDate, endDate));
+    }
+
+    @GetMapping("/changed-by/{userId}")
+    public ResponseEntity<List<TourPriceHistoryResponse>> findByChangedById(@PathVariable Long userId) {
+        return ResponseEntity.ok(service.findByChangedById(userId));
     }
 }
