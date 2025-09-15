@@ -12,6 +12,7 @@ import com.app.panama_trips.service.implementation.TourPriceHistoryService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -73,5 +74,21 @@ public class TourPriceHistoryController {
     @GetMapping("/changed-by/{userId}")
     public ResponseEntity<List<TourPriceHistoryResponse>> findByChangedById(@PathVariable Long userId) {
         return ResponseEntity.ok(service.findByChangedById(userId));
+    }
+
+    // Specialized queries
+    @GetMapping("/tour-plan/{tourPlanId}/average-change-percentage")
+    public ResponseEntity<Double> calculateAveragePriceChangePercentageByTourPlanId(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.calculateAveragePriceChangePercentageByTourPlanId(tourPlanId));
+    }
+
+    @GetMapping("/new-price-greater-than/{price}")
+    public ResponseEntity<List<TourPriceHistoryResponse>> findByNewPriceGreaterThan(@PathVariable BigDecimal price) {
+        return ResponseEntity.ok(service.findByNewPriceGreaterThan(price));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/count")
+    public ResponseEntity<Long> countPriceChangesByTourPlanId(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.countPriceChangesByTourPlanId(tourPlanId));
     }
 }
