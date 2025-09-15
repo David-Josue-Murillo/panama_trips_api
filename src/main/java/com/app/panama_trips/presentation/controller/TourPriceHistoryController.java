@@ -184,4 +184,19 @@ public class TourPriceHistoryController {
     public ResponseEntity<Double> getAverageChangePercentageForTourPlan(@PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(service.getAverageChangePercentageForTourPlan(tourPlanId));
     }
+
+    @GetMapping("/stats/top-tour-plans/{limit}")
+    public ResponseEntity<List<TourPriceHistoryResponse>> getTopTourPlansByChangeCount(@PathVariable int limit) {
+        return ResponseEntity.ok(service.getTopTourPlansByChangeCount(limit));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/changes-by-month")
+    public ResponseEntity<List<TourPriceHistoryResponse>> getChangesByMonth(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.getChangesByMonth(tourPlanId));
+    }
+
+    @GetMapping("/tour-plan/{tourPlanId}/changes-by-day-of-week")
+    public ResponseEntity<List<TourPriceHistoryResponse>> getChangesByDayOfWeek(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.getChangesByDayOfWeek(tourPlanId));
+    }
 }
