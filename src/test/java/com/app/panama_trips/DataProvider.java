@@ -1607,4 +1607,53 @@ public class DataProvider {
         new TourPriceHistoryResponse(tourPriceHistoryTwoMock()),
         new TourPriceHistoryResponse(tourPriceHistoryThreeMock())
     );
+
+    // Additional mock data for specific test scenarios
+    public static TourPriceHistory tourPriceHistoryForTourPlanOneMock() {
+        return TourPriceHistory.builder()
+                .id(7)
+                .tourPlan(tourPlanOneMock)
+                .previousPrice(BigDecimal.valueOf(110.00))
+                .newPrice(BigDecimal.valueOf(95.00))
+                .changedAt(LocalDateTime.now().minusDays(10))
+                .changedBy(userCustomer())
+                .reason("Customer feedback pricing adjustment")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryForTourPlanTwoMock() {
+        return TourPriceHistory.builder()
+                .id(8)
+                .tourPlan(tourPlanTwoMock)
+                .previousPrice(BigDecimal.valueOf(230.00))
+                .newPrice(BigDecimal.valueOf(270.00))
+                .changedAt(LocalDateTime.now().minusDays(7))
+                .changedBy(userOperator())
+                .reason("Inflation adjustment")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryWithNoUserMock() {
+        return TourPriceHistory.builder()
+                .id(9)
+                .tourPlan(tourPlanThreeMock)
+                .previousPrice(BigDecimal.valueOf(320.00))
+                .newPrice(BigDecimal.valueOf(300.00))
+                .changedAt(LocalDateTime.now().minusDays(4))
+                .changedBy(null)
+                .reason("System automatic price adjustment")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryWithNoReasonMock() {
+        return TourPriceHistory.builder()
+                .id(10)
+                .tourPlan(tourPlanOneMock)
+                .previousPrice(BigDecimal.valueOf(95.00))
+                .newPrice(BigDecimal.valueOf(105.00))
+                .changedAt(LocalDateTime.now().minusDays(1))
+                .changedBy(userAdmin())
+                .reason(null)
+                .build();
+    }
 }
