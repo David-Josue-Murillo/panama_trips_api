@@ -1770,4 +1770,50 @@ public class DataProvider {
                 tourPriceHistoryWithNoReasonMock(),
                 tourPriceHistorySamePriceMock());
     }
+
+    // DTOs for specific test scenarios
+    public static TourPriceHistoryRequest tourPriceHistoryRequestWithInvalidTourPlanMock() {
+        return new TourPriceHistoryRequest(
+                999, // Invalid tour plan ID
+                BigDecimal.valueOf(100.00),
+                BigDecimal.valueOf(120.00),
+                1L,
+                "Test price change");
+    }
+
+    public static TourPriceHistoryRequest tourPriceHistoryRequestWithInvalidUserMock() {
+        return new TourPriceHistoryRequest(
+                1,
+                BigDecimal.valueOf(100.00),
+                BigDecimal.valueOf(120.00),
+                999L, // Invalid user ID
+                "Test price change");
+    }
+
+    public static TourPriceHistoryRequest tourPriceHistoryRequestWithNegativePricesMock() {
+        return new TourPriceHistoryRequest(
+                1,
+                BigDecimal.valueOf(-50.00), // Negative previous price
+                BigDecimal.valueOf(120.00),
+                1L,
+                "Invalid price test");
+    }
+
+    public static TourPriceHistoryRequest tourPriceHistoryRequestWithZeroPricesMock() {
+        return new TourPriceHistoryRequest(
+                1,
+                BigDecimal.valueOf(0.00),
+                BigDecimal.valueOf(0.00),
+                1L,
+                "Zero price test");
+    }
+
+    public static TourPriceHistoryRequest tourPriceHistoryRequestWithLongReasonMock() {
+        return new TourPriceHistoryRequest(
+                1,
+                BigDecimal.valueOf(100.00),
+                BigDecimal.valueOf(120.00),
+                1L,
+                "This is a very long reason that exceeds the maximum allowed length for the reason field and should be validated properly in the system to ensure data integrity and proper user experience when entering price change reasons in the tour management application");
+    }
 }
