@@ -1816,4 +1816,13 @@ public class DataProvider {
                 1L,
                 "This is a very long reason that exceeds the maximum allowed length for the reason field and should be validated properly in the system to ensure data integrity and proper user experience when entering price change reasons in the tour management application");
     }
+
+    public static TourPriceHistoryRequest tourPriceHistoryRequestWithSamePricesMock() {
+        return new TourPriceHistoryRequest(
+                1,
+                BigDecimal.valueOf(120.00),
+                BigDecimal.valueOf(120.00),
+                1L,
+                "Same price test");
+    }
 }
