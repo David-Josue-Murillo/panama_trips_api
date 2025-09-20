@@ -1870,4 +1870,36 @@ public class DataProvider {
     public static List<Integer> tourPriceHistoryIdsForBulkDeleteMock() {
         return List.of(1, 2, 3, 4, 5, 6);
     }
+
+    // Statistics and analytics test data
+    public static List<TourPriceHistory> tourPriceHistoryListForStatisticsMock() {
+        return List.of(
+            // Tour Plan 1: 100 -> 120 -> 110 -> 95 -> 105
+            TourPriceHistory.builder().id(1).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(100.00))
+                    .newPrice(BigDecimal.valueOf(120.00)).changedAt(LocalDateTime.now().minusDays(10))
+                    .changedBy(userAdmin()).reason("Increase").build(),
+            TourPriceHistory.builder().id(2).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(120.00))
+                    .newPrice(BigDecimal.valueOf(110.00)).changedAt(LocalDateTime.now().minusDays(8))
+                    .changedBy(userOperator()).reason("Decrease").build(),
+            TourPriceHistory.builder().id(3).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(110.00))
+                    .newPrice(BigDecimal.valueOf(95.00)).changedAt(LocalDateTime.now().minusDays(5))
+                    .changedBy(userAdmin()).reason("Decrease").build(),
+            TourPriceHistory.builder().id(4).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(95.00))
+                    .newPrice(BigDecimal.valueOf(105.00)).changedAt(LocalDateTime.now().minusDays(2))
+                    .changedBy(userOperator()).reason("Increase").build(),
+
+            // Tour Plan 2: 200 -> 250 -> 230 -> 270 -> 260
+            TourPriceHistory.builder().id(5).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(200.00))
+                    .newPrice(BigDecimal.valueOf(250.00)).changedAt(LocalDateTime.now().minusDays(12))
+                    .changedBy(userAdmin()).reason("Increase").build(),
+            TourPriceHistory.builder().id(6).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(250.00))
+                    .newPrice(BigDecimal.valueOf(230.00)).changedAt(LocalDateTime.now().minusDays(9))
+                    .changedBy(userContentManager()).reason("Decrease").build(),
+            TourPriceHistory.builder().id(7).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(230.00))
+                    .newPrice(BigDecimal.valueOf(270.00)).changedAt(LocalDateTime.now().minusDays(6))
+                    .changedBy(userOperator()).reason("Increase").build(),
+            TourPriceHistory.builder().id(8).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(270.00))
+                    .newPrice(BigDecimal.valueOf(260.00)).changedAt(LocalDateTime.now().minusDays(3))
+                    .changedBy(userAdmin()).reason("Decrease").build());
+    }
 }
