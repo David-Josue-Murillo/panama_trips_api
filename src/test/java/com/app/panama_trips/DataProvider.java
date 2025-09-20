@@ -1547,7 +1547,7 @@ public class DataProvider {
      * 
      * 
      */
-    
+
     public static TourPriceHistory tourPriceHistoryOneMock() {
         return TourPriceHistory.builder()
                 .id(1)
@@ -1583,4 +1583,28 @@ public class DataProvider {
                 .reason("Updated pricing strategy")
                 .build();
     }
+
+    public static List<TourPriceHistory> tourPriceHistoryListMock() {
+        return List.of(
+                tourPriceHistoryOneMock(),
+                tourPriceHistoryTwoMock(),
+                tourPriceHistoryThreeMock()
+        );
+    }
+
+    public static TourPriceHistoryResponse tourPriceHistoryResponseMock = new TourPriceHistoryResponse(
+            tourPriceHistoryOneMock());
+
+    public static TourPriceHistoryRequest tourPriceHistoryRequestMock = new TourPriceHistoryRequest(
+            1,
+            BigDecimal.valueOf(100.00),
+            BigDecimal.valueOf(120.00),
+            1L,
+            "Test price change");
+
+    public static List<TourPriceHistoryResponse> tourPriceHistoryResponseListMock = List.of(
+        new TourPriceHistoryResponse(tourPriceHistoryOneMock()),
+        new TourPriceHistoryResponse(tourPriceHistoryTwoMock()),
+        new TourPriceHistoryResponse(tourPriceHistoryThreeMock())
+    );
 }
