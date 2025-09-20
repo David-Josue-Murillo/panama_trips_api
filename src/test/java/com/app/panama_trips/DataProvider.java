@@ -1322,8 +1322,7 @@ public class DataProvider {
         return List.of(
                 tourFaqOneMock(),
                 tourFaqTwoMock(),
-                tourFaqThreeMock()
-        );
+                tourFaqThreeMock());
     }
 
     public static TourFaqResponse tourFaqResponseMock = new TourFaqResponse(tourFaqOneMock());
@@ -1337,8 +1336,7 @@ public class DataProvider {
     public static List<TourFaqResponse> tourFaqResponseListMock = List.of(
             new TourFaqResponse(tourFaqOneMock()),
             new TourFaqResponse(tourFaqTwoMock()),
-            new TourFaqResponse(tourFaqThreeMock())
-        );
+            new TourFaqResponse(tourFaqThreeMock()));
 
     // Additional mock data for specific test scenarios
     public static TourFaq tourFaqWithHighDisplayOrderMock() {
@@ -1542,5 +1540,47 @@ public class DataProvider {
 
     public static List<Integer> tourFaqIdsForReorderMock() {
         return List.of(3, 1, 2, 5, 4);
+    }
+
+    /*
+     * TourPriceHistory instances
+     * 
+     * 
+     */
+    
+    public static TourPriceHistory tourPriceHistoryOneMock() {
+        return TourPriceHistory.builder()
+                .id(1)
+                .tourPlan(tourPlanOneMock)
+                .previousPrice(BigDecimal.valueOf(100.00))
+                .newPrice(BigDecimal.valueOf(120.00))
+                .changedAt(LocalDateTime.now().minusDays(5))
+                .changedBy(userAdmin())
+                .reason("Price increase due to seasonal demand")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryTwoMock() {
+        return TourPriceHistory.builder()
+                .id(2)
+                .tourPlan(tourPlanOneMock)
+                .previousPrice(BigDecimal.valueOf(120.00))
+                .newPrice(BigDecimal.valueOf(110.00))
+                .changedAt(LocalDateTime.now().minusDays(3))
+                .changedBy(userOperator())
+                .reason("Promotional discount")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryThreeMock() {
+        return TourPriceHistory.builder()
+                .id(3)
+                .tourPlan(tourPlanTwoMock)
+                .previousPrice(BigDecimal.valueOf(200.00))
+                .newPrice(BigDecimal.valueOf(250.00))
+                .changedAt(LocalDateTime.now().minusDays(2))
+                .changedBy(userAdmin())
+                .reason("Updated pricing strategy")
+                .build();
     }
 }
