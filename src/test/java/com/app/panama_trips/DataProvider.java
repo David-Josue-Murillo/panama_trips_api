@@ -1716,4 +1716,58 @@ public class DataProvider {
                 .reason("Emergency clearance sale")
                 .build();
     }
+
+    // Lists for specific test scenarios
+    public static List<TourPriceHistory> tourPriceHistoryListForTourPlanOneMock() {
+        return List.of(
+                tourPriceHistoryOneMock(),
+                tourPriceHistoryTwoMock(),
+                tourPriceHistoryForTourPlanOneMock(),
+                tourPriceHistoryWithNoReasonMock(),
+                tourPriceHistorySamePriceMock());
+    }
+
+    public static List<TourPriceHistory> tourPriceHistoryListForTourPlanTwoMock() {
+        return List.of(
+                tourPriceHistoryThreeMock(),
+                tourPriceHistoryForTourPlanTwoMock(),
+                tourPriceHistoryRecentMock(),
+                tourPriceHistoryLargeIncreaseMock());
+    }
+
+    public static List<TourPriceHistory> tourPriceHistoryListForTourPlanThreeMock() {
+        return List.of(
+                tourPriceHistoryWithNoUserMock(),
+                tourPriceHistoryOldMock(),
+                tourPriceHistoryLargeDecreaseMock());
+    }
+
+    public static List<TourPriceHistory> tourPriceHistoryListOrderedByDateMock() {
+        return List.of(
+                tourPriceHistoryOldMock(),
+                tourPriceHistoryWithNoUserMock(),
+                tourPriceHistoryForTourPlanTwoMock(),
+                tourPriceHistoryForTourPlanOneMock(),
+                tourPriceHistoryWithNoReasonMock(),
+                tourPriceHistoryRecentMock(),
+                tourPriceHistoryLargeIncreaseMock(),
+                tourPriceHistoryLargeDecreaseMock());
+    }
+
+    public static List<TourPriceHistory> tourPriceHistoryListByUserMock() {
+        return List.of(
+                tourPriceHistoryOneMock(),
+                tourPriceHistoryThreeMock(),
+                tourPriceHistoryRecentMock(),
+                tourPriceHistoryLargeIncreaseMock());
+    }
+
+    public static List<TourPriceHistory> tourPriceHistoryListRecentMock() {
+        return List.of(
+                tourPriceHistoryRecentMock(),
+                tourPriceHistoryLargeIncreaseMock(),
+                tourPriceHistoryLargeDecreaseMock(),
+                tourPriceHistoryWithNoReasonMock(),
+                tourPriceHistorySamePriceMock());
+    }
 }
