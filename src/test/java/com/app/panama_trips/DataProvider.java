@@ -1847,4 +1847,27 @@ public class DataProvider {
     public static List<TourPriceHistoryResponse> emptyTourPriceHistoryResponseListMock() {
         return List.of();
     }
+
+    // Request lists for bulk operations
+    public static List<TourPriceHistoryRequest> tourPriceHistoryRequestListForBulkCreateMock() {
+        return List.of(
+                new TourPriceHistoryRequest(1, BigDecimal.valueOf(105.00), BigDecimal.valueOf(115.00), 1L,
+                        "Bulk create 1"),
+                new TourPriceHistoryRequest(2, BigDecimal.valueOf(230.00), BigDecimal.valueOf(240.00), 2L,
+                        "Bulk create 2"),
+                new TourPriceHistoryRequest(3, BigDecimal.valueOf(320.00), BigDecimal.valueOf(310.00), 3L,
+                        "Bulk create 3"));
+    }
+
+    public static List<TourPriceHistoryRequest> tourPriceHistoryRequestListForBulkUpdateMock() {
+        return List.of(
+                new TourPriceHistoryRequest(1, BigDecimal.valueOf(115.00), BigDecimal.valueOf(125.00), 1L,
+                        "Bulk update 1"),
+                new TourPriceHistoryRequest(2, BigDecimal.valueOf(240.00), BigDecimal.valueOf(250.00), 2L,
+                        "Bulk update 2"));
+    }
+
+    public static List<Integer> tourPriceHistoryIdsForBulkDeleteMock() {
+        return List.of(1, 2, 3, 4, 5, 6);
+    }
 }
