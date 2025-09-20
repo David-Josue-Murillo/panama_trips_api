@@ -1825,4 +1825,26 @@ public class DataProvider {
                 1L,
                 "Same price test");
     }
+
+    // Response lists for specific test scenarios
+    public static List<TourPriceHistoryResponse> tourPriceHistoryResponseListForTourPlanOneMock() {
+        return List.of(
+                new TourPriceHistoryResponse(tourPriceHistoryOneMock()),
+                new TourPriceHistoryResponse(tourPriceHistoryTwoMock()),
+                new TourPriceHistoryResponse(tourPriceHistoryForTourPlanOneMock()),
+                new TourPriceHistoryResponse(tourPriceHistoryWithNoReasonMock()),
+                new TourPriceHistoryResponse(tourPriceHistorySamePriceMock()));
+    }
+
+    public static List<TourPriceHistoryResponse> tourPriceHistoryResponseListOrderedMock() {
+        return List.of(
+                new TourPriceHistoryResponse(tourPriceHistoryOldMock()),
+                new TourPriceHistoryResponse(tourPriceHistoryWithNoUserMock()),
+                new TourPriceHistoryResponse(tourPriceHistoryForTourPlanTwoMock()),
+                new TourPriceHistoryResponse(tourPriceHistoryRecentMock()));
+    }
+
+    public static List<TourPriceHistoryResponse> emptyTourPriceHistoryResponseListMock() {
+        return List.of();
+    }
 }
