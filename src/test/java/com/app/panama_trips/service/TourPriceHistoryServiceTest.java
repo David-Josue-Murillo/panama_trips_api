@@ -412,4 +412,39 @@ public class TourPriceHistoryServiceTest {
         assertEquals(tourPlan.getPrice(), result);
         verify(tourPlanRepository).findById(1);
     }
+
+    @Test
+    @DisplayName("Should throw when getting current price and plan not found")
+    void getCurrentPriceForTourPlan_whenPlanNotFound_shouldThrow() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(999)).thenReturn(List.of());
+        when(tourPlanRepository.findById(999)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.getCurrentPriceForTourPlan(999));
+        assertEquals("Tour plan not found", ex.getMessage());
+        verify(tourPlanRepository).findById(999);
+    }
+
+    @Test
+    @DisplayName("Should get previous price for tour plan when history exists")
+    void getPreviousPriceForTourPlan_shouldReturnPreviousPrice() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1)).thenReturn(tourPriceHistoryListForTourPlanOneMock());
+
+        BigDecimal result = service.getPreviousPriceForTourPlan(1);
+
+        assertNotNull(result);
+        assertEquals(tourPriceHistoryListForTourPlanOneMock().get(0).getPreviousPrice(), result);
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
+    }
+
+    @Test
+    @DisplayName("Should throw when getting previous price and no history")
+    void getPreviousPriceForTourPlan_whenEmpty_shouldThrow() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1)).thenReturn(List.of());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.getPreviousPriceForTourPlan(1));
+        assertEquals("No price history found for tour plan", ex.getMessage());
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
+    }
 }
