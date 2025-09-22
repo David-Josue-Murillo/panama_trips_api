@@ -594,4 +594,39 @@ public class TourPriceHistoryServiceTest {
         assertEquals(4L, service.countByTourPlanId(1));
         verify(repository).countPriceChangesByTourPlanId(1);
     }
+
+    @Test
+    @DisplayName("Should get total price increase for tour plan")
+    void getTotalPriceIncreaseForTourPlan_shouldSumIncreases() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1))
+                .thenReturn(tourPriceHistoryListForTourPlanOneMock());
+
+        BigDecimal result = service.getTotalPriceIncreaseForTourPlan(1);
+
+        assertNotNull(result);
+        assertTrue(result.compareTo(BigDecimal.ZERO) >= 0);
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
+    }
+
+    @Test
+    @DisplayName("Should get total price decrease for tour plan")
+    void getTotalPriceDecreaseForTourPlan_shouldSumDecreases() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1))
+                .thenReturn(tourPriceHistoryListForTourPlanOneMock());
+
+        BigDecimal result = service.getTotalPriceDecreaseForTourPlan(1);
+
+        assertNotNull(result);
+        assertTrue(result.compareTo(BigDecimal.ZERO) >= 0);
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
+    }
+
+    @Test
+    @DisplayName("Should return average change percentage or zero when null")
+    void getAverageChangePercentageForTourPlan_shouldHandleNull() {
+        when(repository.calculateAveragePriceChangePercentageByTourPlanId(1)).thenReturn(null);
+        double result = service.getAverageChangePercentageForTourPlan(1);
+        assertEquals(0.0, result);
+        verify(repository).calculateAveragePriceChangePercentageByTourPlanId(1);
+    }
 }
