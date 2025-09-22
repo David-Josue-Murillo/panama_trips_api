@@ -27,6 +27,7 @@ import static org.mockito.Mockito.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -541,5 +542,56 @@ public class TourPriceHistoryServiceTest {
                         LocalDateTime.now()));
         assertEquals("User not found", ex.getMessage());
         verify(userRepository).findById(999L);
+    }
+
+    @Test
+    @DisplayName("Should bulk create tour price histories")
+    void bulkCreateTourPriceHistories_success() {
+        var requests = tourPriceHistoryRequestListForBulkCreateMock();
+        when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlan));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(userAdmin()));
+
+        service.bulkCreateTourPriceHistories(requests);
+
+        verify(tourPlanRepository, times(requests.size())).findById(anyInt());
+        verify(repository).saveAll(argThat(iterable -> {
+            int count = 0;
+            Iterator<?> it = iterable.iterator();
+            while (it.hasNext()) {
+                it.next();
+                count++;
+            }
+            return count == requests.size();
+        }));
+    }
+
+    @Test
+    @DisplayName("Should bulk delete tour price histories")
+    void bulkDeleteTourPriceHistories_success() {
+        List<Integer> ids = tourPriceHistoryIdsForBulkDeleteMock();
+
+        service.bulkDeleteTourPriceHistories(ids);
+
+        verify(repository).deleteAllById(ids);
+    }
+
+    @Test
+    @DisplayName("Should check existence by id")
+    void existsById_shouldReturnBoolean() {
+        when(repository.existsById(1)).thenReturn(true);
+        when(repository.existsById(2)).thenReturn(false);
+
+        assertTrue(service.existsById(1));
+        assertFalse(service.existsById(2));
+        verify(repository).existsById(1);
+        verify(repository).existsById(2);
+    }
+
+    @Test
+    @DisplayName("Should count changes by tour plan id (alias method)")
+    void countByTourPlanId_shouldReturnCount() {
+        when(repository.countPriceChangesByTourPlanId(1)).thenReturn(4L);
+        assertEquals(4L, service.countByTourPlanId(1));
+        verify(repository).countPriceChangesByTourPlanId(1);
     }
 }
