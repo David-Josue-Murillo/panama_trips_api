@@ -477,4 +477,26 @@ public class TourPriceHistoryServiceTest {
                 result);
         verify(repository).findByTourPlanIdOrderByChangedAtDesc(2);
     }
+
+    @Test
+    @DisplayName("Should get average price for tour plan")
+    void getAveragePriceForTourPlan_shouldReturnAverage() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1)).thenReturn(tourPriceHistoryListForTourPlanOneMock());
+
+        BigDecimal result = service.getAveragePriceForTourPlan(1);
+
+        assertNotNull(result);
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
+    }
+
+    @Test
+    @DisplayName("Should throw when getting average price and no history")
+    void getAveragePriceForTourPlan_whenEmpty_shouldThrow() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1)).thenReturn(List.of());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.getAveragePriceForTourPlan(1));
+        assertEquals("No price history found for tour plan", ex.getMessage());
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
+    }
 }
