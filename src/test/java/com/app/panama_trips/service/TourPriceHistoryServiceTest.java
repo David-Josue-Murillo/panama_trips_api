@@ -519,14 +519,15 @@ public class TourPriceHistoryServiceTest {
     void getPriceChangesByUserAndDateRange_shouldReturnFilteredList() {
         LocalDateTime start = LocalDateTime.now().minusDays(2);
         LocalDateTime end = LocalDateTime.now().plusDays(1);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userAdmin()));
-        when(repository.findByChangedBy(userAdmin())).thenReturn(tourPriceHistoryListRecentMock());
+        var user = userAdmin();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(repository.findByChangedBy(user)).thenReturn(tourPriceHistoryListRecentMock());
 
         List<TourPriceHistoryResponse> result = service.getPriceChangesByUserAndDateRange(1L, start, end);
 
         assertNotNull(result);
         verify(userRepository).findById(1L);
-        verify(repository).findByChangedBy(userAdmin());
+        verify(repository).findByChangedBy(user);
     }
 
     @Test
