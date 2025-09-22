@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -255,5 +256,33 @@ public class TourPriceHistoryServiceTest {
         assertEquals(page.getTotalElements(), result.getTotalElements());
         verify(tourPlanRepository).findById(1);
         verify(repository).findByTourPlanOrderByChangedAtDesc(tourPlan, pageable);
+    }
+
+    @Test
+    @DisplayName("Should throw when pageable find by tour plan and plan not found")
+    void findByTourPlanIdOrderByChangedAtDesc_whenTourPlanNotFound_shouldThrow() {
+        var pageable = org.springframework.data.domain.PageRequest.of(0, 5);
+        when(tourPlanRepository.findById(999)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.findByTourPlanIdOrderByChangedAtDesc(999, pageable));
+        assertEquals("Tour plan not found", ex.getMessage());
+        verify(tourPlanRepository).findById(999);
+    }
+
+    @Test
+    @DisplayName("Should find by tour plan and date range")
+    void findByTourPlanIdAndChangedAtBetween_shouldReturnList() {
+        LocalDateTime start = LocalDateTime.now().minusDays(10);
+        LocalDateTime end = LocalDateTime.now();
+        when(tourPlanRepository.findById(1)).thenReturn(Optional.of(tourPlan));
+        when(repository.findByTourPlanAndChangedAtBetween(tourPlan, start, end))
+                .thenReturn(tourPriceHistoryListForTourPlanOneMock());
+
+        List<TourPriceHistoryResponse> result = service.findByTourPlanIdAndChangedAtBetween(1, start, end);
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        verify(repository).findByTourPlanAndChangedAtBetween(tourPlan, start, end);
     }
 }
