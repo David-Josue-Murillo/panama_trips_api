@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -498,5 +499,45 @@ public class TourPriceHistoryServiceTest {
                 () -> service.getAveragePriceForTourPlan(1));
         assertEquals("No price history found for tour plan", ex.getMessage());
         verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
+    }
+
+    @Test
+    @DisplayName("Should get price changes on specific date")
+    void getPriceChangesOnDate_shouldFilterByDate() {
+        LocalDate targetDate = LocalDate.now();
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1))
+                .thenReturn(tourPriceHistoryListRecentMock());
+
+        List<TourPriceHistoryResponse> result = service.getPriceChangesOnDate(1, targetDate);
+
+        assertNotNull(result);
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
+    }
+
+    @Test
+    @DisplayName("Should get price changes by user and date range")
+    void getPriceChangesByUserAndDateRange_shouldReturnFilteredList() {
+        LocalDateTime start = LocalDateTime.now().minusDays(2);
+        LocalDateTime end = LocalDateTime.now().plusDays(1);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userAdmin()));
+        when(repository.findByChangedBy(userAdmin())).thenReturn(tourPriceHistoryListRecentMock());
+
+        List<TourPriceHistoryResponse> result = service.getPriceChangesByUserAndDateRange(1L, start, end);
+
+        assertNotNull(result);
+        verify(userRepository).findById(1L);
+        verify(repository).findByChangedBy(userAdmin());
+    }
+
+    @Test
+    @DisplayName("Should throw when user not found in getPriceChangesByUserAndDateRange")
+    void getPriceChangesByUserAndDateRange_whenUserNotFound_shouldThrow() {
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.getPriceChangesByUserAndDateRange(999L, LocalDateTime.now().minusDays(1),
+                        LocalDateTime.now()));
+        assertEquals("User not found", ex.getMessage());
+        verify(userRepository).findById(999L);
     }
 }
