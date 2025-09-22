@@ -1,21 +1,30 @@
 package com.app.panama_trips.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.TourPlan;
 import com.app.panama_trips.persistence.entity.TourPriceHistory;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.persistence.repository.TourPriceHistoryRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
 import com.app.panama_trips.presentation.dto.TourPriceHistoryRequest;
+import com.app.panama_trips.presentation.dto.TourPriceHistoryResponse;
 import com.app.panama_trips.service.implementation.TourPriceHistoryService;
 
 import static com.app.panama_trips.DataProvider.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 public class TourPriceHistoryServiceTest {
@@ -44,5 +53,177 @@ public class TourPriceHistoryServiceTest {
         priceHistory1 = tourPriceHistoryOneMock();
         request = tourPriceHistoryRequestMock;
         entityCaptor = ArgumentCaptor.forClass(TourPriceHistory.class);
+    }
+
+    // CRUD
+    @Test
+    @DisplayName("Should return all tour price histories with pagination")
+    void getAllTourPriceHistories_shouldReturnPage() {
+        var pageable = org.springframework.data.domain.PageRequest.of(0, 10);
+        var page = new org.springframework.data.domain.PageImpl<>(tourPriceHistoryListMock());
+
+        when(repository.findAll(pageable)).thenReturn(page);
+
+        var result = service.getAllTourPriceHistories(pageable);
+
+        assertNotNull(result);
+        assertEquals(page.getTotalElements(), result.getTotalElements());
+        verify(repository).findAll(pageable);
+    }
+
+    @Test
+    @DisplayName("Should get tour price history by id when exists")
+    void getTourPriceHistoryById_whenExists_shouldReturn() {
+        Integer id = 1;
+        when(repository.findById(id)).thenReturn(Optional.of(priceHistory1));
+
+        TourPriceHistoryResponse response = service.getTourPriceHistoryById(id);
+
+        assertNotNull(response);
+        assertEquals(priceHistory1.getId(), response.id());
+        verify(repository).findById(id);
+    }
+
+    @Test
+    @DisplayName("Should throw when getting tour price history by id that does not exist")
+    void getTourPriceHistoryById_whenNotExists_shouldThrow() {
+        Integer id = 999;
+        when(repository.findById(id)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.getTourPriceHistoryById(id));
+        assertEquals("Tour price history not found", ex.getMessage());
+        verify(repository).findById(id);
+    }
+
+    @Test
+    @DisplayName("Should save tour price history successfully")
+    void saveTourPriceHistory_success() {
+        when(tourPlanRepository.findById(request.tourPlanId())).thenReturn(Optional.of(tourPlan));
+        when(userRepository.findById(request.changedById())).thenReturn(Optional.of(userAdmin()));
+        when(repository.save(any(TourPriceHistory.class))).thenReturn(priceHistory1);
+
+        TourPriceHistoryResponse response = service.saveTourPriceHistory(request);
+
+        assertNotNull(response);
+        verify(repository).save(entityCaptor.capture());
+        TourPriceHistory saved = entityCaptor.getValue();
+        assertEquals(request.tourPlanId(), saved.getTourPlan().getId());
+        assertEquals(request.previousPrice(), saved.getPreviousPrice());
+        assertEquals(request.newPrice(), saved.getNewPrice());
+        assertEquals(request.changedById(), saved.getChangedBy().getId());
+        assertEquals(request.reason(), saved.getReason());
+    }
+
+    @Test
+    @DisplayName("Should throw when saving with non-existent tour plan")
+    void saveTourPriceHistory_whenTourPlanNotFound_shouldThrow() {
+        when(tourPlanRepository.findById(request.tourPlanId())).thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.saveTourPriceHistory(request));
+        assertEquals("Tour plan not found", ex.getMessage());
+        verify(tourPlanRepository).findById(request.tourPlanId());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw when saving with non-existent user")
+    void saveTourPriceHistory_whenUserNotFound_shouldThrow() {
+        when(tourPlanRepository.findById(request.tourPlanId())).thenReturn(Optional.of(tourPlan));
+        when(userRepository.findById(request.changedById())).thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.saveTourPriceHistory(request));
+        assertEquals("User not found", ex.getMessage());
+        verify(userRepository).findById(request.changedById());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should update tour price history successfully")
+    void updateTourPriceHistory_success() {
+        Integer id = 1;
+        when(repository.findById(id)).thenReturn(Optional.of(priceHistory1));
+        when(tourPlanRepository.findById(request.tourPlanId())).thenReturn(Optional.of(tourPlan));
+        when(userRepository.findById(request.changedById())).thenReturn(Optional.of(userOperator()));
+        when(repository.save(any(TourPriceHistory.class))).thenReturn(priceHistory1);
+
+        TourPriceHistoryResponse response = service.updateTourPriceHistory(id, request);
+
+        assertNotNull(response);
+        verify(repository).save(entityCaptor.capture());
+        TourPriceHistory updated = entityCaptor.getValue();
+        assertEquals(request.tourPlanId(), updated.getTourPlan().getId());
+        assertEquals(request.previousPrice(), updated.getPreviousPrice());
+        assertEquals(request.newPrice(), updated.getNewPrice());
+        assertEquals(request.reason(), updated.getReason());
+    }
+
+    @Test
+    @DisplayName("Should throw when updating non-existent tour price history")
+    void updateTourPriceHistory_whenNotExists_shouldThrow() {
+        Integer id = 999;
+        when(repository.findById(id)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.updateTourPriceHistory(id, request));
+        assertEquals("Tour price history not found", ex.getMessage());
+        verify(repository).findById(id);
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw when updating with non-existent tour plan")
+    void updateTourPriceHistory_whenTourPlanNotFound_shouldThrow() {
+        Integer id = 1;
+        when(repository.findById(id)).thenReturn(Optional.of(priceHistory1));
+        when(tourPlanRepository.findById(request.tourPlanId())).thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.updateTourPriceHistory(id, request));
+        assertEquals("Tour plan not found", ex.getMessage());
+        verify(tourPlanRepository).findById(request.tourPlanId());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw when updating with non-existent user")
+    void updateTourPriceHistory_whenUserNotFound_shouldThrow() {
+        Integer id = 1;
+        when(repository.findById(id)).thenReturn(Optional.of(priceHistory1));
+        when(tourPlanRepository.findById(request.tourPlanId())).thenReturn(Optional.of(tourPlan));
+        when(userRepository.findById(request.changedById())).thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.updateTourPriceHistory(id, request));
+        assertEquals("User not found", ex.getMessage());
+        verify(userRepository).findById(request.changedById());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should delete tour price history when exists")
+    void deleteTourPriceHistory_whenExists_success() {
+        Integer id = 1;
+        when(repository.existsById(id)).thenReturn(true);
+
+        service.deleteTourPriceHistory(id);
+
+        verify(repository).existsById(id);
+        verify(repository).deleteById(id);
+    }
+
+    @Test
+    @DisplayName("Should throw when deleting non-existent tour price history")
+    void deleteTourPriceHistory_whenNotExists_shouldThrow() {
+        Integer id = 999;
+        when(repository.existsById(id)).thenReturn(false);
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.deleteTourPriceHistory(id));
+        assertEquals("Tour price history not found", ex.getMessage());
+        verify(repository).existsById(id);
+        verify(repository, never()).deleteById(anyInt());
     }
 }
