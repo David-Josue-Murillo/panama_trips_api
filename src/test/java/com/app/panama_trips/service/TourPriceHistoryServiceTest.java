@@ -285,4 +285,28 @@ public class TourPriceHistoryServiceTest {
         assertFalse(result.isEmpty());
         verify(repository).findByTourPlanAndChangedAtBetween(tourPlan, start, end);
     }
+
+    @Test
+    @DisplayName("Should throw when finding by date range and tour plan not found")
+    void findByTourPlanIdAndChangedAtBetween_whenTourPlanNotFound_shouldThrow() {
+        LocalDateTime start = LocalDateTime.now().minusDays(10);
+        LocalDateTime end = LocalDateTime.now();
+        when(tourPlanRepository.findById(999)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.findByTourPlanIdAndChangedAtBetween(999, start, end));
+        assertEquals("Tour plan not found", ex.getMessage());
+        verify(tourPlanRepository).findById(999);
+    }
+
+    @Test
+    @DisplayName("Should find by changedBy user id")
+    void findByChangedById_shouldReturnList() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userAdmin()));
+
+        List<TourPriceHistoryResponse> result = service.findByChangedById(1L);
+
+        assertNotNull(result);
+        verify(userRepository).findById(1L);
+    }
 }
