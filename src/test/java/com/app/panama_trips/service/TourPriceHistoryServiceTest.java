@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -225,5 +226,34 @@ public class TourPriceHistoryServiceTest {
         assertEquals("Tour price history not found", ex.getMessage());
         verify(repository).existsById(id);
         verify(repository, never()).deleteById(anyInt());
+    }
+
+    // Finders and calculations
+    @Test
+    @DisplayName("Should find by tour plan id ordered desc")
+    void findByTourPlanId_shouldReturnList() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1)).thenReturn(tourPriceHistoryListForTourPlanOneMock());
+
+        List<TourPriceHistoryResponse> result = service.findByTourPlanId(1);
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
+    }
+
+    @Test
+    @DisplayName("Should return pageable list by tour plan ordered desc")
+    void findByTourPlanIdOrderByChangedAtDesc_shouldReturnPage() {
+        var pageable = org.springframework.data.domain.PageRequest.of(0, 5);
+        when(tourPlanRepository.findById(1)).thenReturn(Optional.of(tourPlan));
+        var page = new org.springframework.data.domain.PageImpl<>(tourPriceHistoryListForTourPlanOneMock());
+        when(repository.findByTourPlanOrderByChangedAtDesc(tourPlan, pageable)).thenReturn(page);
+
+        var result = service.findByTourPlanIdOrderByChangedAtDesc(1, pageable);
+
+        assertNotNull(result);
+        assertEquals(page.getTotalElements(), result.getTotalElements());
+        verify(tourPlanRepository).findById(1);
+        verify(repository).findByTourPlanOrderByChangedAtDesc(tourPlan, pageable);
     }
 }
