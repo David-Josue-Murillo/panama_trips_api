@@ -629,4 +629,56 @@ public class TourPriceHistoryServiceTest {
         assertEquals(0.0, result);
         verify(repository).calculateAveragePriceChangePercentageByTourPlanId(1);
     }
+
+    @Test
+    @DisplayName("Should get top tour plans by change count")
+    void getTopTourPlansByChangeCount_shouldReturnLatestOfTopPlans() {
+        when(repository.findAll()).thenReturn(tourPriceHistoryListForStatisticsMock());
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1)).thenReturn(tourPriceHistoryListForTourPlanOneMock());
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(2)).thenReturn(tourPriceHistoryListForTourPlanTwoMock());
+
+        List<TourPriceHistoryResponse> result = service.getTopTourPlansByChangeCount(2);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get changes by month (pass-through)")
+    void getChangesByMonth_shouldReturnList() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1))
+                .thenReturn(tourPriceHistoryListForTourPlanOneMock());
+
+        List<TourPriceHistoryResponse> result = service.getChangesByMonth(1);
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
+    }
+
+    @Test
+    @DisplayName("Should get changes by day of week (pass-through)")
+    void getChangesByDayOfWeek_shouldReturnList() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(2))
+                .thenReturn(tourPriceHistoryListForTourPlanTwoMock());
+
+        List<TourPriceHistoryResponse> result = service.getChangesByDayOfWeek(2);
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(2);
+    }
+
+    @Test
+    @DisplayName("Should search changes by exact price value")
+    void searchChangesByPrice_shouldReturnMatches() {
+        when(repository.findAll()).thenReturn(tourPriceHistoryListMock());
+
+        List<TourPriceHistoryResponse> result = service.searchChangesByPrice(BigDecimal.valueOf(120.00));
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        verify(repository).findAll();
+    }
 }
