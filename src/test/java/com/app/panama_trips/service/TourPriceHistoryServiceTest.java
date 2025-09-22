@@ -447,4 +447,34 @@ public class TourPriceHistoryServiceTest {
         assertEquals("No price history found for tour plan", ex.getMessage());
         verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
     }
+
+    @Test
+    @DisplayName("Should get max price for tour plan")
+    void getMaxPriceForTourPlan_shouldReturnMax() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(2)).thenReturn(tourPriceHistoryListForTourPlanTwoMock());
+
+        BigDecimal result = service.getMaxPriceForTourPlan(2);
+
+        assertNotNull(result);
+        assertEquals(
+                tourPriceHistoryListForTourPlanTwoMock().stream().map(TourPriceHistory::getNewPrice)
+                        .max(BigDecimal::compareTo).get(),
+                result);
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(2);
+    }
+
+    @Test
+    @DisplayName("Should get min price for tour plan")
+    void getMinPriceForTourPlan_shouldReturnMin() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(2)).thenReturn(tourPriceHistoryListForTourPlanTwoMock());
+
+        BigDecimal result = service.getMinPriceForTourPlan(2);
+
+        assertNotNull(result);
+        assertEquals(
+                tourPriceHistoryListForTourPlanTwoMock().stream().map(TourPriceHistory::getNewPrice)
+                        .min(BigDecimal::compareTo).get(),
+                result);
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(2);
+    }
 }
