@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -308,5 +309,38 @@ public class TourPriceHistoryServiceTest {
 
         assertNotNull(result);
         verify(userRepository).findById(1L);
+    }
+
+    @Test
+    @DisplayName("Should throw when user not found in findByChangedById")
+    void findByChangedById_whenUserNotFound_shouldThrow() {
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.findByChangedById(999L));
+        assertEquals("User not found", ex.getMessage());
+        verify(userRepository).findById(999L);
+    }
+
+    @Test
+    @DisplayName("Should delegate average price change percentage calculation")
+    void calculateAveragePriceChangePercentageByTourPlanId_shouldDelegate() {
+        when(repository.calculateAveragePriceChangePercentageByTourPlanId(1)).thenReturn(12.5);
+        Double result = service.calculateAveragePriceChangePercentageByTourPlanId(1);
+        assertEquals(12.5, result);
+        verify(repository).calculateAveragePriceChangePercentageByTourPlanId(1);
+    }
+
+    @Test
+    @DisplayName("Should find by new price greater than")
+    void findByNewPriceGreaterThan_shouldReturnList() {
+        when(repository.findByNewPriceGreaterThan(BigDecimal.valueOf(200)))
+                .thenReturn(tourPriceHistoryListForTourPlanTwoMock());
+
+        List<TourPriceHistoryResponse> result = service.findByNewPriceGreaterThan(BigDecimal.valueOf(200));
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        verify(repository).findByNewPriceGreaterThan(BigDecimal.valueOf(200));
     }
 }
