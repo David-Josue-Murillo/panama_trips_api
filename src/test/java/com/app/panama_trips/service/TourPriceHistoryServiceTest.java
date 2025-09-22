@@ -343,4 +343,38 @@ public class TourPriceHistoryServiceTest {
         assertFalse(result.isEmpty());
         verify(repository).findByNewPriceGreaterThan(BigDecimal.valueOf(200));
     }
+
+    @Test
+    @DisplayName("Should count price changes by tour plan id")
+    void countPriceChangesByTourPlanId_shouldReturnCount() {
+        when(repository.countPriceChangesByTourPlanId(1)).thenReturn(5L);
+        Long result = service.countPriceChangesByTourPlanId(1);
+        assertEquals(5L, result);
+        verify(repository).countPriceChangesByTourPlanId(1);
+    }
+
+    @Test
+    @DisplayName("Should get recent changes with limit")
+    void getRecentChanges_shouldReturnLimitedList() {
+        when(repository.findAll(any(org.springframework.data.domain.Sort.class)))
+                .thenReturn(tourPriceHistoryListOrderedByDateMock());
+
+        List<TourPriceHistoryResponse> result = service.getRecentChanges(3);
+
+        assertNotNull(result);
+        assertEquals(3, result.size());
+        verify(repository).findAll(any(org.springframework.data.domain.Sort.class));
+    }
+
+    @Test
+    @DisplayName("Should get latest change for tour plan when exists")
+    void getLatestChangeForTourPlan_whenExists_shouldReturnOptional() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1))
+                .thenReturn(tourPriceHistoryListForTourPlanOneMock());
+
+        var result = service.getLatestChangeForTourPlan(1);
+
+        assertTrue(result.isPresent());
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
+    }
 }
