@@ -377,4 +377,39 @@ public class TourPriceHistoryServiceTest {
         assertTrue(result.isPresent());
         verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
     }
+
+    @Test
+    @DisplayName("Should return empty when no changes for tour plan")
+    void getLatestChangeForTourPlan_whenEmpty_shouldReturnEmpty() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(2)).thenReturn(List.of());
+
+        var result = service.getLatestChangeForTourPlan(2);
+
+        assertTrue(result.isEmpty());
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(2);
+    }
+
+    @Test
+    @DisplayName("Should get current price from latest history if exists")
+    void getCurrentPriceForTourPlan_whenHistoryExists_shouldReturnNewPrice() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1)).thenReturn(tourPriceHistoryListForTourPlanOneMock());
+
+        BigDecimal result = service.getCurrentPriceForTourPlan(1);
+
+        assertNotNull(result);
+        assertEquals(tourPriceHistoryListForTourPlanOneMock().get(0).getNewPrice(), result);
+        verify(repository).findByTourPlanIdOrderByChangedAtDesc(1);
+    }
+
+    @Test
+    @DisplayName("Should fallback to tour plan base price when no history exists")
+    void getCurrentPriceForTourPlan_whenNoHistory_shouldReturnPlanPrice() {
+        when(repository.findByTourPlanIdOrderByChangedAtDesc(1)).thenReturn(List.of());
+        when(tourPlanRepository.findById(1)).thenReturn(Optional.of(tourPlan));
+
+        BigDecimal result = service.getCurrentPriceForTourPlan(1);
+
+        assertEquals(tourPlan.getPrice(), result);
+        verify(tourPlanRepository).findById(1);
+    }
 }
