@@ -529,6 +529,7 @@ public class TourPriceHistoryServiceTest {
         verify(userRepository).findById(1L);
         verify(repository).findByChangedBy(user);
     }
+    
 
     @Test
     @DisplayName("Should throw when user not found in getPriceChangesByUserAndDateRange")
