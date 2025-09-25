@@ -423,4 +423,26 @@ public class TourPriceHistoryControllerTest {
 
         verify(service).getPriceChangesOnDate(tourPlanId, date);
     }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get price changes by user and date range when getPriceChangesByUserAndDateRange is called")
+    void getPriceChangesByUserAndDateRange_success() throws Exception {
+        // Given
+        Long userId = 1L;
+        LocalDateTime startDate = LocalDateTime.now().minusDays(10);
+        LocalDateTime endDate = LocalDateTime.now();
+        when(service.getPriceChangesByUserAndDateRange(eq(userId), any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/user/{userId}/date-range", userId)
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getPriceChangesByUserAndDateRange(eq(userId), any(LocalDateTime.class),
+                any(LocalDateTime.class));
+    }
 }
