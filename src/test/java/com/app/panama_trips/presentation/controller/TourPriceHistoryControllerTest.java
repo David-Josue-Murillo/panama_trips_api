@@ -1,5 +1,6 @@
 package com.app.panama_trips.presentation.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -142,5 +143,80 @@ public class TourPriceHistoryControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(service).deleteTourPriceHistory(id);
+    }
+
+    // Find operations by entity relationships
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find tour price histories by tour plan id when findByTourPlanId is called")
+    void findByTourPlanId_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        when(service.findByTourPlanId(tourPlanId)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find tour price histories by tour plan id with pagination when findByTourPlanIdOrderByChangedAtDesc is called")
+    void findByTourPlanIdOrderByChangedAtDesc_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        Page<TourPriceHistoryResponse> page = new PageImpl<>(responseList);
+        when(service.findByTourPlanIdOrderByChangedAtDesc(eq(tourPlanId), any(Pageable.class))).thenReturn(page);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/paginated", tourPlanId)
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(response.id()));
+
+        verify(service).findByTourPlanIdOrderByChangedAtDesc(eq(tourPlanId), any(Pageable.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find tour price histories by tour plan id and date range when findByTourPlanIdAndChangedAtBetween is called")
+    void findByTourPlanIdAndChangedAtBetween_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        LocalDateTime startDate = LocalDateTime.now().minusDays(10);
+        LocalDateTime endDate = LocalDateTime.now();
+        when(service.findByTourPlanIdAndChangedAtBetween(eq(tourPlanId), any(LocalDateTime.class),
+                any(LocalDateTime.class)))
+                .thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/date-range", tourPlanId)
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByTourPlanIdAndChangedAtBetween(eq(tourPlanId), any(LocalDateTime.class),
+                any(LocalDateTime.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find tour price histories by changed by user id when findByChangedById is called")
+    void findByChangedById_success() throws Exception {
+        // Given
+        Long userId = 1L;
+        when(service.findByChangedById(userId)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/changed-by/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByChangedById(userId);
     }
 }
