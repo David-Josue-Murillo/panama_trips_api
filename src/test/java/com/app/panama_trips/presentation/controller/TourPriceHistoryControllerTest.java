@@ -517,4 +517,104 @@ public class TourPriceHistoryControllerTest {
 
         verify(service).countByTourPlanId(tourPlanId);
     }
+
+    // Analytics and statistics
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total price increase for tour plan when getTotalPriceIncreaseForTourPlan is called")
+    void getTotalPriceIncreaseForTourPlan_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        BigDecimal expectedAmount = BigDecimal.valueOf(50.00);
+        when(service.getTotalPriceIncreaseForTourPlan(tourPlanId)).thenReturn(expectedAmount);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/total-increase", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedAmount.toString()));
+
+        verify(service).getTotalPriceIncreaseForTourPlan(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total price decrease for tour plan when getTotalPriceDecreaseForTourPlan is called")
+    void getTotalPriceDecreaseForTourPlan_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        BigDecimal expectedAmount = BigDecimal.valueOf(30.00);
+        when(service.getTotalPriceDecreaseForTourPlan(tourPlanId)).thenReturn(expectedAmount);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/total-decrease", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedAmount.toString()));
+
+        verify(service).getTotalPriceDecreaseForTourPlan(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get average change percentage for tour plan when getAverageChangePercentageForTourPlan is called")
+    void getAverageChangePercentageForTourPlan_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        Double expectedPercentage = 15.5;
+        when(service.getAverageChangePercentageForTourPlan(tourPlanId)).thenReturn(expectedPercentage);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/average-change-percentage-alt", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedPercentage.toString()));
+
+        verify(service).getAverageChangePercentageForTourPlan(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get top tour plans by change count when getTopTourPlansByChangeCount is called")
+    void getTopTourPlansByChangeCount_success() throws Exception {
+        // Given
+        int limit = 10;
+        when(service.getTopTourPlansByChangeCount(limit)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/stats/top-tour-plans/{limit}", limit))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getTopTourPlansByChangeCount(limit);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get changes by month when getChangesByMonth is called")
+    void getChangesByMonth_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        when(service.getChangesByMonth(tourPlanId)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/changes-by-month", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getChangesByMonth(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get changes by day of week when getChangesByDayOfWeek is called")
+    void getChangesByDayOfWeek_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        when(service.getChangesByDayOfWeek(tourPlanId)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/changes-by-day-of-week", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getChangesByDayOfWeek(tourPlanId);
+    }
 }
