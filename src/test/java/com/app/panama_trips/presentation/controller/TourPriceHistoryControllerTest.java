@@ -483,4 +483,38 @@ public class TourPriceHistoryControllerTest {
 
         verify(service).bulkDeleteTourPriceHistories(anyList());
     }
+
+    // Check operations
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if tour price history exists by id when existsById is called")
+    void existsById_success() throws Exception {
+        // Given
+        Integer id = 1;
+        when(service.existsById(id)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/exists/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).existsById(id);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count tour price histories by tour plan id when countByTourPlanId is called")
+    void countByTourPlanId_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        Long expectedCount = 5L;
+        when(service.countByTourPlanId(tourPlanId)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/count/tour-plan/{tourPlanId}", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countByTourPlanId(tourPlanId);
+    }
 }
