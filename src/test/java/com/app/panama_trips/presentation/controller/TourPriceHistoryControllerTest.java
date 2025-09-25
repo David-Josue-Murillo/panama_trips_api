@@ -1,6 +1,7 @@
 package com.app.panama_trips.presentation.controller;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -353,5 +354,73 @@ public class TourPriceHistoryControllerTest {
                 .andExpect(content().string(expectedPrice.toString()));
 
         verify(service).getPreviousPriceForTourPlan(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get max price for tour plan when getMaxPriceForTourPlan is called")
+    void getMaxPriceForTourPlan_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        BigDecimal expectedPrice = BigDecimal.valueOf(150.00);
+        when(service.getMaxPriceForTourPlan(tourPlanId)).thenReturn(expectedPrice);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/max-price", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedPrice.toString()));
+
+        verify(service).getMaxPriceForTourPlan(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get min price for tour plan when getMinPriceForTourPlan is called")
+    void getMinPriceForTourPlan_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        BigDecimal expectedPrice = BigDecimal.valueOf(80.00);
+        when(service.getMinPriceForTourPlan(tourPlanId)).thenReturn(expectedPrice);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/min-price", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedPrice.toString()));
+
+        verify(service).getMinPriceForTourPlan(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get average price for tour plan when getAveragePriceForTourPlan is called")
+    void getAveragePriceForTourPlan_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        BigDecimal expectedPrice = BigDecimal.valueOf(110.00);
+        when(service.getAveragePriceForTourPlan(tourPlanId)).thenReturn(expectedPrice);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/average-price", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedPrice.toString()));
+
+        verify(service).getAveragePriceForTourPlan(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get price changes on date when getPriceChangesOnDate is called")
+    void getPriceChangesOnDate_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        LocalDate date = LocalDate.now();
+        when(service.getPriceChangesOnDate(tourPlanId, date)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/changes-on-date/{date}", tourPlanId, date))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getPriceChangesOnDate(tourPlanId, date);
     }
 }
