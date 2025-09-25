@@ -617,4 +617,21 @@ public class TourPriceHistoryControllerTest {
 
         verify(service).getChangesByDayOfWeek(tourPlanId);
     }
+
+    // Utility operations
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should search changes by price when searchChangesByPrice is called")
+    void searchChangesByPrice_success() throws Exception {
+        // Given
+        BigDecimal price = BigDecimal.valueOf(120.00);
+        when(service.searchChangesByPrice(price)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/search/price/{price}", price))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).searchChangesByPrice(price);
+    }
 }
