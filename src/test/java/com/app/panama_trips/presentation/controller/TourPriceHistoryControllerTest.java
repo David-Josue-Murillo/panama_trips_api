@@ -3,6 +3,7 @@ package com.app.panama_trips.presentation.controller;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -272,4 +273,85 @@ public class TourPriceHistoryControllerTest {
         verify(service).countPriceChangesByTourPlanId(tourPlanId);
     }
 
+    // Business logic operations
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get recent changes when getRecentChanges is called")
+    void getRecentChanges_success() throws Exception {
+        // Given
+        int limit = 10;
+        when(service.getRecentChanges(limit)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/recent/{limit}", limit))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).getRecentChanges(limit);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get latest change for tour plan when found")
+    void getLatestChangeForTourPlan_whenFound_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        when(service.getLatestChangeForTourPlan(tourPlanId)).thenReturn(Optional.of(response));
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/latest", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.id()));
+
+        verify(service).getLatestChangeForTourPlan(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return 404 when latest change for tour plan not found")
+    void getLatestChangeForTourPlan_whenNotFound_returns404() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        when(service.getLatestChangeForTourPlan(tourPlanId)).thenReturn(Optional.empty());
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/latest", tourPlanId))
+                .andExpect(status().isNotFound());
+
+        verify(service).getLatestChangeForTourPlan(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get current price for tour plan when getCurrentPriceForTourPlan is called")
+    void getCurrentPriceForTourPlan_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        BigDecimal expectedPrice = BigDecimal.valueOf(120.00);
+        when(service.getCurrentPriceForTourPlan(tourPlanId)).thenReturn(expectedPrice);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/current-price", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedPrice.toString()));
+
+        verify(service).getCurrentPriceForTourPlan(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get previous price for tour plan when getPreviousPriceForTourPlan is called")
+    void getPreviousPriceForTourPlan_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        BigDecimal expectedPrice = BigDecimal.valueOf(100.00);
+        when(service.getPreviousPriceForTourPlan(tourPlanId)).thenReturn(expectedPrice);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/previous-price", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedPrice.toString()));
+
+        verify(service).getPreviousPriceForTourPlan(tourPlanId);
+    }
 }
