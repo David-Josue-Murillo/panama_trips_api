@@ -11,6 +11,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.app.panama_trips.presentation.dto.TourPriceHistoryRequest;
 import com.app.panama_trips.presentation.dto.TourPriceHistoryResponse;
 import com.app.panama_trips.service.implementation.TourPriceHistoryService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import static com.app.panama_trips.DataProvider.*;
 
@@ -32,5 +35,13 @@ public class TourPriceHistoryControllerTest {
         request = tourPriceHistoryRequestMock;
         response = tourPriceHistoryResponseMock;
         responsesList = tourPriceHistoryResponseListMock;
+    }
+
+    // Método auxiliar para convertir objetos a JSON
+    private String asJsonString(Object obj) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return mapper.writeValueAsString(obj);
     }
 }
