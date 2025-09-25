@@ -180,7 +180,7 @@ public class TourPriceHistoryController {
         return ResponseEntity.ok(service.getTotalPriceDecreaseForTourPlan(tourPlanId));
     }
 
-    @GetMapping("/tour-plan/{tourPlanId}/average-change-percentage")
+    @GetMapping("/tour-plan/{tourPlanId}/average-change-percentage-alt")
     public ResponseEntity<Double> getAverageChangePercentageForTourPlan(@PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(service.getAverageChangePercentageForTourPlan(tourPlanId));
     }
