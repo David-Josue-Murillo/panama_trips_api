@@ -3,6 +3,7 @@ package com.app.panama_trips.presentation.controller;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -444,5 +445,42 @@ public class TourPriceHistoryControllerTest {
 
         verify(service).getPriceChangesByUserAndDateRange(eq(userId), any(LocalDateTime.class),
                 any(LocalDateTime.class));
+    }
+
+    // Bulk operations
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should create multiple tour price histories in bulk when bulkCreate is called")
+    void bulkCreate_success() throws Exception {
+        // Given
+        List<TourPriceHistoryRequest> requests = Collections.singletonList(request);
+        doNothing().when(service).bulkCreateTourPriceHistories(anyList());
+
+        // When/Then
+        mockMvc.perform(post("/api/tour-price-history/bulk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(requests))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isCreated());
+
+        verify(service).bulkCreateTourPriceHistories(anyList());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should delete multiple tour price histories in bulk when bulkDelete is called")
+    void bulkDelete_success() throws Exception {
+        // Given
+        List<Integer> tourPriceHistoryIds = Collections.singletonList(1);
+        doNothing().when(service).bulkDeleteTourPriceHistories(anyList());
+
+        // When/Then
+        mockMvc.perform(delete("/api/tour-price-history/bulk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(tourPriceHistoryIds))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(service).bulkDeleteTourPriceHistories(anyList());
     }
 }
