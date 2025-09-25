@@ -1,5 +1,6 @@
 package com.app.panama_trips.presentation.controller;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -219,4 +220,56 @@ public class TourPriceHistoryControllerTest {
 
         verify(service).findByChangedById(userId);
     }
+
+    // Specialized queries
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should calculate average price change percentage by tour plan id when calculateAveragePriceChangePercentageByTourPlanId is called")
+    void calculateAveragePriceChangePercentageByTourPlanId_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        Double expectedPercentage = 12.5;
+        when(service.calculateAveragePriceChangePercentageByTourPlanId(tourPlanId)).thenReturn(expectedPercentage);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/average-change-percentage", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedPercentage.toString()));
+
+        verify(service).calculateAveragePriceChangePercentageByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find tour price histories by new price greater than when findByNewPriceGreaterThan is called")
+    void findByNewPriceGreaterThan_success() throws Exception {
+        // Given
+        BigDecimal price = BigDecimal.valueOf(200.00);
+        when(service.findByNewPriceGreaterThan(price)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/new-price-greater-than/{price}", price))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(response.id()));
+
+        verify(service).findByNewPriceGreaterThan(price);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count price changes by tour plan id when countPriceChangesByTourPlanId is called")
+    void countPriceChangesByTourPlanId_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        Long expectedCount = 5L;
+        when(service.countPriceChangesByTourPlanId(tourPlanId)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/count", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countPriceChangesByTourPlanId(tourPlanId);
+    }
+
 }
