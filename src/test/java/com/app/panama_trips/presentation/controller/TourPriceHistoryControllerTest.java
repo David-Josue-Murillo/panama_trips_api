@@ -108,4 +108,39 @@ public class TourPriceHistoryControllerTest {
 
         verify(service).saveTourPriceHistory(any(TourPriceHistoryRequest.class));
     }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should update tour price history when update is called")
+    void update_success() throws Exception {
+        // Given
+        Integer id = 1;
+        when(service.updateTourPriceHistory(eq(id), any(TourPriceHistoryRequest.class))).thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(put("/api/tour-price-history/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.id()));
+
+        verify(service).updateTourPriceHistory(eq(id), any(TourPriceHistoryRequest.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should delete tour price history when delete is called")
+    void delete_success() throws Exception {
+        // Given
+        Integer id = 1;
+        doNothing().when(service).deleteTourPriceHistory(id);
+
+        // When/Then
+        mockMvc.perform(delete("/api/tour-price-history/{id}", id)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(service).deleteTourPriceHistory(id);
+    }
 }
