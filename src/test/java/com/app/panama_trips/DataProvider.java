@@ -1322,8 +1322,7 @@ public class DataProvider {
         return List.of(
                 tourFaqOneMock(),
                 tourFaqTwoMock(),
-                tourFaqThreeMock()
-        );
+                tourFaqThreeMock());
     }
 
     public static TourFaqResponse tourFaqResponseMock = new TourFaqResponse(tourFaqOneMock());
@@ -1337,8 +1336,7 @@ public class DataProvider {
     public static List<TourFaqResponse> tourFaqResponseListMock = List.of(
             new TourFaqResponse(tourFaqOneMock()),
             new TourFaqResponse(tourFaqTwoMock()),
-            new TourFaqResponse(tourFaqThreeMock())
-        );
+            new TourFaqResponse(tourFaqThreeMock()));
 
     // Additional mock data for specific test scenarios
     public static TourFaq tourFaqWithHighDisplayOrderMock() {
@@ -1542,5 +1540,366 @@ public class DataProvider {
 
     public static List<Integer> tourFaqIdsForReorderMock() {
         return List.of(3, 1, 2, 5, 4);
+    }
+
+    /*
+     * TourPriceHistory instances
+     * 
+     * 
+     */
+
+    public static TourPriceHistory tourPriceHistoryOneMock() {
+        return TourPriceHistory.builder()
+                .id(1)
+                .tourPlan(tourPlanOneMock)
+                .previousPrice(BigDecimal.valueOf(100.00))
+                .newPrice(BigDecimal.valueOf(120.00))
+                .changedAt(LocalDateTime.now().minusDays(5))
+                .changedBy(userAdmin())
+                .reason("Price increase due to seasonal demand")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryTwoMock() {
+        return TourPriceHistory.builder()
+                .id(2)
+                .tourPlan(tourPlanOneMock)
+                .previousPrice(BigDecimal.valueOf(120.00))
+                .newPrice(BigDecimal.valueOf(110.00))
+                .changedAt(LocalDateTime.now().minusDays(3))
+                .changedBy(userOperator())
+                .reason("Promotional discount")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryThreeMock() {
+        return TourPriceHistory.builder()
+                .id(3)
+                .tourPlan(tourPlanTwoMock)
+                .previousPrice(BigDecimal.valueOf(200.00))
+                .newPrice(BigDecimal.valueOf(250.00))
+                .changedAt(LocalDateTime.now().minusDays(2))
+                .changedBy(userAdmin())
+                .reason("Updated pricing strategy")
+                .build();
+    }
+
+    public static List<TourPriceHistory> tourPriceHistoryListMock() {
+        return List.of(
+                tourPriceHistoryOneMock(),
+                tourPriceHistoryTwoMock(),
+                tourPriceHistoryThreeMock()
+        );
+    }
+
+    public static TourPriceHistoryResponse tourPriceHistoryResponseMock = new TourPriceHistoryResponse(
+            tourPriceHistoryOneMock());
+
+    public static TourPriceHistoryRequest tourPriceHistoryRequestMock = new TourPriceHistoryRequest(
+            1,
+            BigDecimal.valueOf(100.00),
+            BigDecimal.valueOf(120.00),
+            1L,
+            "Test price change");
+
+    public static List<TourPriceHistoryResponse> tourPriceHistoryResponseListMock = List.of(
+        new TourPriceHistoryResponse(tourPriceHistoryOneMock()),
+        new TourPriceHistoryResponse(tourPriceHistoryTwoMock()),
+        new TourPriceHistoryResponse(tourPriceHistoryThreeMock())
+    );
+
+    // Additional mock data for specific test scenarios
+    public static TourPriceHistory tourPriceHistoryForTourPlanOneMock() {
+        return TourPriceHistory.builder()
+                .id(7)
+                .tourPlan(tourPlanOneMock)
+                .previousPrice(BigDecimal.valueOf(110.00))
+                .newPrice(BigDecimal.valueOf(95.00))
+                .changedAt(LocalDateTime.now().minusDays(10))
+                .changedBy(userCustomer())
+                .reason("Customer feedback pricing adjustment")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryForTourPlanTwoMock() {
+        return TourPriceHistory.builder()
+                .id(8)
+                .tourPlan(tourPlanTwoMock)
+                .previousPrice(BigDecimal.valueOf(230.00))
+                .newPrice(BigDecimal.valueOf(270.00))
+                .changedAt(LocalDateTime.now().minusDays(7))
+                .changedBy(userOperator())
+                .reason("Inflation adjustment")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryWithNoUserMock() {
+        return TourPriceHistory.builder()
+                .id(9)
+                .tourPlan(tourPlanThreeMock)
+                .previousPrice(BigDecimal.valueOf(320.00))
+                .newPrice(BigDecimal.valueOf(300.00))
+                .changedAt(LocalDateTime.now().minusDays(4))
+                .changedBy(null)
+                .reason("System automatic price adjustment")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryWithNoReasonMock() {
+        return TourPriceHistory.builder()
+                .id(10)
+                .tourPlan(tourPlanOneMock)
+                .previousPrice(BigDecimal.valueOf(95.00))
+                .newPrice(BigDecimal.valueOf(105.00))
+                .changedAt(LocalDateTime.now().minusDays(1))
+                .changedBy(userAdmin())
+                .reason(null)
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryRecentMock() {
+        return TourPriceHistory.builder()
+                .id(11)
+                .tourPlan(tourPlanTwoMock)
+                .previousPrice(BigDecimal.valueOf(270.00))
+                .newPrice(BigDecimal.valueOf(260.00))
+                .changedAt(LocalDateTime.now().minusMinutes(30))
+                .changedBy(userAdmin())
+                .reason("Last minute promotional offer")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryOldMock() {
+        return TourPriceHistory.builder()
+                .id(12)
+                .tourPlan(tourPlanThreeMock)
+                .previousPrice(BigDecimal.valueOf(300.00))
+                .newPrice(BigDecimal.valueOf(290.00))
+                .changedAt(LocalDateTime.now().minusDays(30))
+                .changedBy(userContentManager())
+                .reason("Monthly pricing review")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistorySamePriceMock() {
+        return TourPriceHistory.builder()
+                .id(13)
+                .tourPlan(tourPlanOneMock)
+                .previousPrice(BigDecimal.valueOf(105.00))
+                .newPrice(BigDecimal.valueOf(105.00))
+                .changedAt(LocalDateTime.now().minusHours(2))
+                .changedBy(userSupport())
+                .reason("Price verification - no change needed")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryLargeIncreaseMock() {
+        return TourPriceHistory.builder()
+                .id(14)
+                .tourPlan(tourPlanTwoMock)
+                .previousPrice(BigDecimal.valueOf(260.00))
+                .newPrice(BigDecimal.valueOf(350.00))
+                .changedAt(LocalDateTime.now().minusHours(1))
+                .changedBy(userAdmin())
+                .reason("Premium service upgrade")
+                .build();
+    }
+
+    public static TourPriceHistory tourPriceHistoryLargeDecreaseMock() {
+        return TourPriceHistory.builder()
+                .id(15)
+                .tourPlan(tourPlanThreeMock)
+                .previousPrice(BigDecimal.valueOf(290.00))
+                .newPrice(BigDecimal.valueOf(200.00))
+                .changedAt(LocalDateTime.now().minusMinutes(15))
+                .changedBy(userOperator())
+                .reason("Emergency clearance sale")
+                .build();
+    }
+
+    // Lists for specific test scenarios
+    public static List<TourPriceHistory> tourPriceHistoryListForTourPlanOneMock() {
+        return List.of(
+                tourPriceHistoryOneMock(),
+                tourPriceHistoryTwoMock(),
+                tourPriceHistoryForTourPlanOneMock(),
+                tourPriceHistoryWithNoReasonMock(),
+                tourPriceHistorySamePriceMock());
+    }
+
+    public static List<TourPriceHistory> tourPriceHistoryListForTourPlanTwoMock() {
+        return List.of(
+                tourPriceHistoryThreeMock(),
+                tourPriceHistoryForTourPlanTwoMock(),
+                tourPriceHistoryRecentMock(),
+                tourPriceHistoryLargeIncreaseMock());
+    }
+
+    public static List<TourPriceHistory> tourPriceHistoryListForTourPlanThreeMock() {
+        return List.of(
+                tourPriceHistoryWithNoUserMock(),
+                tourPriceHistoryOldMock(),
+                tourPriceHistoryLargeDecreaseMock());
+    }
+
+    public static List<TourPriceHistory> tourPriceHistoryListOrderedByDateMock() {
+        return List.of(
+                tourPriceHistoryOldMock(),
+                tourPriceHistoryWithNoUserMock(),
+                tourPriceHistoryForTourPlanTwoMock(),
+                tourPriceHistoryForTourPlanOneMock(),
+                tourPriceHistoryWithNoReasonMock(),
+                tourPriceHistoryRecentMock(),
+                tourPriceHistoryLargeIncreaseMock(),
+                tourPriceHistoryLargeDecreaseMock());
+    }
+
+    public static List<TourPriceHistory> tourPriceHistoryListByUserMock() {
+        return List.of(
+                tourPriceHistoryOneMock(),
+                tourPriceHistoryThreeMock(),
+                tourPriceHistoryRecentMock(),
+                tourPriceHistoryLargeIncreaseMock());
+    }
+
+    public static List<TourPriceHistory> tourPriceHistoryListRecentMock() {
+        return List.of(
+                tourPriceHistoryRecentMock(),
+                tourPriceHistoryLargeIncreaseMock(),
+                tourPriceHistoryLargeDecreaseMock(),
+                tourPriceHistoryWithNoReasonMock(),
+                tourPriceHistorySamePriceMock());
+    }
+
+    // DTOs for specific test scenarios
+    public static TourPriceHistoryRequest tourPriceHistoryRequestWithInvalidTourPlanMock() {
+        return new TourPriceHistoryRequest(
+                999, // Invalid tour plan ID
+                BigDecimal.valueOf(100.00),
+                BigDecimal.valueOf(120.00),
+                1L,
+                "Test price change");
+    }
+
+    public static TourPriceHistoryRequest tourPriceHistoryRequestWithInvalidUserMock() {
+        return new TourPriceHistoryRequest(
+                1,
+                BigDecimal.valueOf(100.00),
+                BigDecimal.valueOf(120.00),
+                999L, // Invalid user ID
+                "Test price change");
+    }
+
+    public static TourPriceHistoryRequest tourPriceHistoryRequestWithNegativePricesMock() {
+        return new TourPriceHistoryRequest(
+                1,
+                BigDecimal.valueOf(-50.00), // Negative previous price
+                BigDecimal.valueOf(120.00),
+                1L,
+                "Invalid price test");
+    }
+
+    public static TourPriceHistoryRequest tourPriceHistoryRequestWithZeroPricesMock() {
+        return new TourPriceHistoryRequest(
+                1,
+                BigDecimal.valueOf(0.00),
+                BigDecimal.valueOf(0.00),
+                1L,
+                "Zero price test");
+    }
+
+    public static TourPriceHistoryRequest tourPriceHistoryRequestWithLongReasonMock() {
+        return new TourPriceHistoryRequest(
+                1,
+                BigDecimal.valueOf(100.00),
+                BigDecimal.valueOf(120.00),
+                1L,
+                "This is a very long reason that exceeds the maximum allowed length for the reason field and should be validated properly in the system to ensure data integrity and proper user experience when entering price change reasons in the tour management application");
+    }
+
+    public static TourPriceHistoryRequest tourPriceHistoryRequestWithSamePricesMock() {
+        return new TourPriceHistoryRequest(
+                1,
+                BigDecimal.valueOf(120.00),
+                BigDecimal.valueOf(120.00),
+                1L,
+                "Same price test");
+    }
+
+    // Response lists for specific test scenarios
+    public static List<TourPriceHistoryResponse> tourPriceHistoryResponseListForTourPlanOneMock() {
+        return List.of(
+                new TourPriceHistoryResponse(tourPriceHistoryOneMock()),
+                new TourPriceHistoryResponse(tourPriceHistoryTwoMock()),
+                new TourPriceHistoryResponse(tourPriceHistoryForTourPlanOneMock()),
+                new TourPriceHistoryResponse(tourPriceHistoryWithNoReasonMock()),
+                new TourPriceHistoryResponse(tourPriceHistorySamePriceMock()));
+    }
+
+    public static List<TourPriceHistoryResponse> tourPriceHistoryResponseListOrderedMock() {
+        return List.of(
+                new TourPriceHistoryResponse(tourPriceHistoryOldMock()),
+                new TourPriceHistoryResponse(tourPriceHistoryWithNoUserMock()),
+                new TourPriceHistoryResponse(tourPriceHistoryForTourPlanTwoMock()),
+                new TourPriceHistoryResponse(tourPriceHistoryRecentMock()));
+    }
+
+    public static List<TourPriceHistoryResponse> emptyTourPriceHistoryResponseListMock() {
+        return List.of();
+    }
+
+    // Request lists for bulk operations
+    public static List<TourPriceHistoryRequest> tourPriceHistoryRequestListForBulkCreateMock() {
+        return List.of(
+                new TourPriceHistoryRequest(1, BigDecimal.valueOf(105.00), BigDecimal.valueOf(115.00), 1L,
+                        "Bulk create 1"),
+                new TourPriceHistoryRequest(2, BigDecimal.valueOf(230.00), BigDecimal.valueOf(240.00), 2L,
+                        "Bulk create 2"),
+                new TourPriceHistoryRequest(3, BigDecimal.valueOf(320.00), BigDecimal.valueOf(310.00), 3L,
+                        "Bulk create 3"));
+    }
+
+    public static List<TourPriceHistoryRequest> tourPriceHistoryRequestListForBulkUpdateMock() {
+        return List.of(
+                new TourPriceHistoryRequest(1, BigDecimal.valueOf(115.00), BigDecimal.valueOf(125.00), 1L,
+                        "Bulk update 1"),
+                new TourPriceHistoryRequest(2, BigDecimal.valueOf(240.00), BigDecimal.valueOf(250.00), 2L,
+                        "Bulk update 2"));
+    }
+
+    public static List<Integer> tourPriceHistoryIdsForBulkDeleteMock() {
+        return List.of(1, 2, 3, 4, 5, 6);
+    }
+
+    // Statistics and analytics test data
+    public static List<TourPriceHistory> tourPriceHistoryListForStatisticsMock() {
+        return List.of(
+            // Tour Plan 1: 100 -> 120 -> 110 -> 95 -> 105
+            TourPriceHistory.builder().id(1).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(100.00))
+                    .newPrice(BigDecimal.valueOf(120.00)).changedAt(LocalDateTime.now().minusDays(10))
+                    .changedBy(userAdmin()).reason("Increase").build(),
+            TourPriceHistory.builder().id(2).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(120.00))
+                    .newPrice(BigDecimal.valueOf(110.00)).changedAt(LocalDateTime.now().minusDays(8))
+                    .changedBy(userOperator()).reason("Decrease").build(),
+            TourPriceHistory.builder().id(3).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(110.00))
+                    .newPrice(BigDecimal.valueOf(95.00)).changedAt(LocalDateTime.now().minusDays(5))
+                    .changedBy(userAdmin()).reason("Decrease").build(),
+            TourPriceHistory.builder().id(4).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(95.00))
+                    .newPrice(BigDecimal.valueOf(105.00)).changedAt(LocalDateTime.now().minusDays(2))
+                    .changedBy(userOperator()).reason("Increase").build(),
+
+            // Tour Plan 2: 200 -> 250 -> 230 -> 270 -> 260
+            TourPriceHistory.builder().id(5).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(200.00))
+                    .newPrice(BigDecimal.valueOf(250.00)).changedAt(LocalDateTime.now().minusDays(12))
+                    .changedBy(userAdmin()).reason("Increase").build(),
+            TourPriceHistory.builder().id(6).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(250.00))
+                    .newPrice(BigDecimal.valueOf(230.00)).changedAt(LocalDateTime.now().minusDays(9))
+                    .changedBy(userContentManager()).reason("Decrease").build(),
+            TourPriceHistory.builder().id(7).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(230.00))
+                    .newPrice(BigDecimal.valueOf(270.00)).changedAt(LocalDateTime.now().minusDays(6))
+                    .changedBy(userOperator()).reason("Increase").build(),
+            TourPriceHistory.builder().id(8).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(270.00))
+                    .newPrice(BigDecimal.valueOf(260.00)).changedAt(LocalDateTime.now().minusDays(3))
+                    .changedBy(userAdmin()).reason("Decrease").build());
     }
 }
