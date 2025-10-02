@@ -43,4 +43,14 @@ public interface IAuditLogService {
     List<AuditLog> getActivityByIpAddress(String ipAddress);
     List<AuditLog> getActivityByUserAndDateRange(Integer userId, LocalDateTime startDate, LocalDateTime endDate);
     List<AuditLog> getActivityByEntityAndDateRange(String entityType, Integer entityId, LocalDateTime startDate, LocalDateTime endDate);
+
+    // Advanced queries
+    List<AuditLog> getRecentActivityByEntityType(String entityType, int limit);
+    List<AuditLog> getActivityByUserAgent(String userAgent);
+    List<AuditLog> getActivityByUserAgentContaining(String userAgentPattern);
+    List<AuditLog> getActivityByIpAddressAndDateRange(String ipAddress, LocalDateTime startDate, LocalDateTime endDate);
+    List<AuditLog> getActivityByActionAndDateRange(String action, LocalDateTime startDate, LocalDateTime endDate);
+    List<AuditLog> getActivityByEntityTypeAndAction(String entityType, String action);
+    List<AuditLog> getActivityByUserAndAction(Integer userId, String action);
+    List<AuditLog> getActivityByUserAndEntityType(Integer userId, String entityType);
 }
