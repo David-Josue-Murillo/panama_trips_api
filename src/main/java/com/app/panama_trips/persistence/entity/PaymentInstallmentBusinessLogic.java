@@ -1,6 +1,7 @@
 package com.app.panama_trips.persistence.entity;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -63,7 +64,7 @@ public class PaymentInstallmentBusinessLogic {
         // 5% late fee per month (30 days)
         BigDecimal monthlyRate = PaymentInstallmentConstants.LATE_FEE_MONTHLY_RATE;
         BigDecimal dailyRate = monthlyRate.divide(new BigDecimal(PaymentInstallmentConstants.DAYS_PER_MONTH), 4,
-                BigDecimal.ROUND_HALF_UP);
+                RoundingMode.HALF_UP);
 
         return originalAmount.multiply(dailyRate).multiply(new BigDecimal(daysOverdue));
     }
