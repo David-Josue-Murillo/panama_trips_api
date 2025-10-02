@@ -107,4 +107,12 @@ public interface IAuditLogService {
     List<AuditLog> getDataModificationActivity();
     List<AuditLog> getDataAccessActivity();
     List<AuditLog> getDataDeletionActivity();
+
+    // Data integrity operations
+    List<AuditLog> getAuditLogsWithMissingUser();
+    List<AuditLog> getAuditLogsWithMissingIpAddress();
+    List<AuditLog> getAuditLogsWithInvalidJsonData();
+    List<AuditLog> getAuditLogsWithEmptyOldValues();
+    List<AuditLog> getAuditLogsWithEmptyNewValues();
+    List<AuditLog> getAuditLogsWithBothEmptyValues();
 }
