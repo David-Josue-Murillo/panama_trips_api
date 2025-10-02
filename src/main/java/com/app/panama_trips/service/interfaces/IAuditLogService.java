@@ -23,4 +23,14 @@ public interface IAuditLogService {
     List<AuditLog> findByAction(String action);
     List<AuditLog> findByActionTimestampBetween(LocalDateTime start, LocalDateTime end);
     List<AuditLog> findByIpAddress(String ipAddress);
+
+    // Specialized queries from repository
+    List<AuditLog> findRecentActivityByEntityType(String entityType, LocalDateTime since);
+    List<AuditLog> findByEntityType(String entityType);
+    List<AuditLog> findByEntityId(Integer entityId);
+    List<AuditLog> findByUserAndAction(UserEntity user, String action);
+    List<AuditLog> findByUserAndEntityType(UserEntity user, String entityType);
+    List<AuditLog> findByActionAndEntityType(String action, String entityType);
+    List<AuditLog> findByTimestampAfter(LocalDateTime timestamp);
+    List<AuditLog> findByTimestampBefore(LocalDateTime timestamp);
 }
