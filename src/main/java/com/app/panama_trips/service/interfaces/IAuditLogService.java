@@ -33,4 +33,14 @@ public interface IAuditLogService {
     List<AuditLog> findByActionAndEntityType(String action, String entityType);
     List<AuditLog> findByTimestampAfter(LocalDateTime timestamp);
     List<AuditLog> findByTimestampBefore(LocalDateTime timestamp);
+
+    // Business logic operations
+    List<AuditLog> getRecentActivity(int limit);
+    List<AuditLog> getActivityByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+    List<AuditLog> getActivityByUser(Integer userId);
+    List<AuditLog> getActivityByEntityType(String entityType);
+    List<AuditLog> getActivityByAction(String action);
+    List<AuditLog> getActivityByIpAddress(String ipAddress);
+    List<AuditLog> getActivityByUserAndDateRange(Integer userId, LocalDateTime startDate, LocalDateTime endDate);
+    List<AuditLog> getActivityByEntityAndDateRange(String entityType, Integer entityId, LocalDateTime startDate, LocalDateTime endDate);
 }
