@@ -82,4 +82,19 @@ public interface IAuditLogService {
     List<AuditLog> getAuditTrailForUserAndAction(Integer userId, String action);
     List<AuditLog> getAuditTrailForEntityAndDateRange(String entityType, Integer entityId, LocalDateTime startDate, LocalDateTime endDate);
     List<AuditLog> getAuditTrailForUserAndDateRange(Integer userId, LocalDateTime startDate, LocalDateTime endDate);
+
+    // Statistics and analytics
+    long getTotalAuditLogs();
+    long getTotalAuditLogsByEntityType(String entityType);
+    long getTotalAuditLogsByUser(Integer userId);
+    long getTotalAuditLogsByAction(String action);
+    long getTotalAuditLogsByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+    long getTotalAuditLogsByIpAddress(String ipAddress);
+    List<AuditLog> getTopUsersByActivity(int limit);
+    List<AuditLog> getTopEntityTypesByActivity(int limit);
+    List<AuditLog> getTopActionsByActivity(int limit);
+    List<AuditLog> getTopIpAddressesByActivity(int limit);
+    List<AuditLog> getActivityByMonth();
+    List<AuditLog> getActivityByDayOfWeek();
+    List<AuditLog> getActivityByHour();
 }
