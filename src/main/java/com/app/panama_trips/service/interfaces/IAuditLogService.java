@@ -53,4 +53,12 @@ public interface IAuditLogService {
     List<AuditLog> getActivityByEntityTypeAndAction(String entityType, String action);
     List<AuditLog> getActivityByUserAndAction(Integer userId, String action);
     List<AuditLog> getActivityByUserAndEntityType(Integer userId, String entityType);
+
+    // Bulk operations
+    void bulkCreateAuditLogs(List<AuditLog> auditLogs);
+    void bulkDeleteAuditLogs(List<Integer> auditLogIds);
+    void bulkDeleteAuditLogsByEntityType(String entityType);
+    void bulkDeleteAuditLogsByUser(Integer userId);
+    void bulkDeleteAuditLogsByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+    void bulkDeleteAuditLogsByAction(String action);
 }
