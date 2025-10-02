@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface IAuditLogService {
     // CRUD operations
@@ -115,4 +116,17 @@ public interface IAuditLogService {
     List<AuditLog> getAuditLogsWithEmptyOldValues();
     List<AuditLog> getAuditLogsWithEmptyNewValues();
     List<AuditLog> getAuditLogsWithBothEmptyValues();
+
+    // Utility operations
+    void cleanupOldAuditLogs(int daysToKeep);
+    void archiveAuditLogs(LocalDateTime beforeDate);
+    List<AuditLog> searchAuditLogsByKeyword(String keyword);
+    List<AuditLog> searchAuditLogsByUserAgent(String userAgent);
+    Optional<AuditLog> findLatestAuditLogByEntity(String entityType, Integer entityId);
+    List<AuditLog> getAuditLogsWithJsonData();
+    List<AuditLog> getAuditLogsWithoutJsonData();
+    List<AuditLog> getAuditLogsByJsonField(String fieldName, String fieldValue);
+    List<AuditLog> getAuditLogsByJsonFieldContaining(String fieldName, String fieldValue);
+    List<AuditLog> getAuditLogsByJsonFieldExists(String fieldName);
+    List<AuditLog> getAuditLogsByJsonFieldNotExists(String fieldName);
 }
