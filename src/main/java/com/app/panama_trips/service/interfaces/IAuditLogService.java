@@ -97,4 +97,14 @@ public interface IAuditLogService {
     List<AuditLog> getActivityByMonth();
     List<AuditLog> getActivityByDayOfWeek();
     List<AuditLog> getActivityByHour();
+
+    // Security and monitoring operations
+    List<AuditLog> getSuspiciousActivity(String ipAddress);
+    List<AuditLog> getActivityByMultipleIpAddresses(List<String> ipAddresses);
+    List<AuditLog> getActivityByUserAgentPattern(String pattern);
+    List<AuditLog> getFailedLoginAttempts();
+    List<AuditLog> getSuccessfulLoginAttempts();
+    List<AuditLog> getDataModificationActivity();
+    List<AuditLog> getDataAccessActivity();
+    List<AuditLog> getDataDeletionActivity();
 }
