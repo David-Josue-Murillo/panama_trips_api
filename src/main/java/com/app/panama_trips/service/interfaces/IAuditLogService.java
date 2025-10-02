@@ -61,4 +61,16 @@ public interface IAuditLogService {
     void bulkDeleteAuditLogsByUser(Integer userId);
     void bulkDeleteAuditLogsByDateRange(LocalDateTime startDate, LocalDateTime endDate);
     void bulkDeleteAuditLogsByAction(String action);
+
+    // Check operations
+    boolean existsById(Integer id);
+    boolean existsByEntityTypeAndEntityId(String entityType, Integer entityId);
+    boolean existsByUser(Integer userId);
+    boolean existsByAction(String action);
+    boolean existsByIpAddress(String ipAddress);
+    long countByEntityType(String entityType);
+    long countByUser(Integer userId);
+    long countByAction(String action);
+    long countByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+    long countByIpAddress(String ipAddress);
 }
