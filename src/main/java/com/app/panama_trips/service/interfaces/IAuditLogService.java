@@ -73,4 +73,13 @@ public interface IAuditLogService {
     long countByAction(String action);
     long countByDateRange(LocalDateTime startDate, LocalDateTime endDate);
     long countByIpAddress(String ipAddress);
+
+    // Audit trail operations
+    List<AuditLog> getAuditTrailForEntity(String entityType, Integer entityId);
+    List<AuditLog> getAuditTrailForUser(Integer userId);
+    List<AuditLog> getAuditTrailForEntityAndUser(String entityType, Integer entityId, Integer userId);
+    List<AuditLog> getAuditTrailForEntityAndAction(String entityType, Integer entityId, String action);
+    List<AuditLog> getAuditTrailForUserAndAction(Integer userId, String action);
+    List<AuditLog> getAuditTrailForEntityAndDateRange(String entityType, Integer entityId, LocalDateTime startDate, LocalDateTime endDate);
+    List<AuditLog> getAuditTrailForUserAndDateRange(Integer userId, LocalDateTime startDate, LocalDateTime endDate);
 }
