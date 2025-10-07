@@ -6,12 +6,20 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import com.app.panama_trips.persistence.entity.AuditLog;
 import com.app.panama_trips.persistence.entity.UserEntity;
+import com.app.panama_trips.persistence.repository.AuditLogRepository;
 import com.app.panama_trips.service.interfaces.IAuditLogService;
 
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
 public class AuditLogService implements IAuditLogService {
+
+    private final AuditLogRepository repository;
 
     @Override
     public Page<AuditLog> getAllAuditLogs(Pageable pageable) {
