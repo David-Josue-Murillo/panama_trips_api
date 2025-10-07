@@ -335,64 +335,65 @@ public class AuditLogService implements IAuditLogService {
         repository.deleteAll(logsToDelete);
     }
 
+    // Check operations
     @Override
+    @Transactional(readOnly = true)
     public boolean existsById(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsById'");
+        return repository.existsById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByEntityTypeAndEntityId(String entityType, Integer entityId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsByEntityTypeAndEntityId'");
+        return !repository.findByEntityTypeAndEntityId(entityType, entityId).isEmpty();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByUser(Integer userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsByUser'");
+        return !findByUserId(userId).isEmpty();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByAction(String action) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsByAction'");
+        return !repository.findByAction(action).isEmpty();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByIpAddress(String ipAddress) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsByIpAddress'");
+        return !repository.findByIpAddress(ipAddress).isEmpty();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countByEntityType(String entityType) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'countByEntityType'");
+        return findByEntityType(entityType).size();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countByUser(Integer userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'countByUser'");
+        return findByUserId(userId).size();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countByAction(String action) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'countByAction'");
+        return repository.findByAction(action).size();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'countByDateRange'");
+        return repository.findByActionTimestampBetween(startDate, endDate).size();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countByIpAddress(String ipAddress) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'countByIpAddress'");
+        return repository.findByIpAddress(ipAddress).size();
     }
 
     @Override
