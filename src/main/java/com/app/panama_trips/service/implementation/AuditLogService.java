@@ -396,48 +396,63 @@ public class AuditLogService implements IAuditLogService {
         return repository.findByIpAddress(ipAddress).size();
     }
 
+    // Audit trail operations
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForEntity(String entityType, Integer entityId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditTrailForEntity'");
+        return repository.findByEntityTypeAndEntityId(entityType, entityId).stream()
+                .sorted((a, b) -> a.getActionTimestamp().compareTo(b.getActionTimestamp()))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForUser(Integer userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditTrailForUser'");
+        return findByUserId(userId).stream()
+                .sorted((a, b) -> a.getActionTimestamp().compareTo(b.getActionTimestamp()))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForEntityAndUser(String entityType, Integer entityId, Integer userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditTrailForEntityAndUser'");
+        return getAuditTrailForEntity(entityType, entityId).stream()
+                .filter(log -> log.getUser() != null && userId.equals(log.getUser().getId()))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForEntityAndAction(String entityType, Integer entityId, String action) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditTrailForEntityAndAction'");
+        return getAuditTrailForEntity(entityType, entityId).stream()
+                .filter(log -> action.equals(log.getAction()))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForUserAndAction(Integer userId, String action) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditTrailForUserAndAction'");
+        return getAuditTrailForUser(userId).stream()
+                .filter(log -> action.equals(log.getAction()))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForEntityAndDateRange(String entityType, Integer entityId,
             LocalDateTime startDate, LocalDateTime endDate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditTrailForEntityAndDateRange'");
+        return getAuditTrailForEntity(entityType, entityId).stream()
+                .filter(log -> log.getActionTimestamp().isAfter(startDate) && log.getActionTimestamp().isBefore(endDate))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForUserAndDateRange(Integer userId, LocalDateTime startDate,
             LocalDateTime endDate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditTrailForUserAndDateRange'");
+        return getAuditTrailForUser(userId).stream()
+                .filter(log -> log.getActionTimestamp().isAfter(startDate) && log.getActionTimestamp().isBefore(endDate))
+                .toList();
     }
 
     @Override
