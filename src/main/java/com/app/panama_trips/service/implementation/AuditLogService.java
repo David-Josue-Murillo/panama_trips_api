@@ -61,16 +61,17 @@ public class AuditLogService implements IAuditLogService {
         repository.deleteById(id);
     }
 
+    // Find operations by entity relationships
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByEntityTypeAndEntityId(String entityType, Integer entityId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByEntityTypeAndEntityId'");
+        return repository.findByEntityTypeAndEntityId(entityType, entityId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByUser(UserEntity user) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByUser'");
+        return repository.findByUser(user);
     }
 
     @Override
