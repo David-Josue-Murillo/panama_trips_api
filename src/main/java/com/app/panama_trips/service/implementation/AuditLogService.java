@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.AuditLog;
 import com.app.panama_trips.persistence.entity.UserEntity;
 import com.app.panama_trips.persistence.repository.AuditLogRepository;
@@ -603,4 +604,54 @@ public class AuditLogService implements IAuditLogService {
         throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsByJsonFieldNotExists'");
     }
 
+    // Private helper methods
+    private AuditLog findAuditLogOrFail(Integer id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Audit log not found with id: " + id));
+    }
+
+    private void validateAuditLog(AuditLog auditLog) {
+        if (auditLog.getEntityType() == null || auditLog.getEntityType().trim().isEmpty()) {
+            throw new IllegalArgumentException("Entity type cannot be null or empty");
+        }
+        if (auditLog.getEntityId() == null) {
+            throw new IllegalArgumentException("Entity ID cannot be null");
+        }
+        if (auditLog.getAction() == null || auditLog.getAction().trim().isEmpty()) {
+            throw new IllegalArgumentException("Action cannot be null or empty");
+        }
+        if (auditLog.getActionTimestamp() == null) {
+            auditLog.setActionTimestamp(LocalDateTime.now());
+        }
+    }
+
+    private void updateAuditLogFields(AuditLog existingAuditLog, AuditLog auditLog) {
+        if (auditLog.getEntityType() != null) {
+            existingAuditLog.setEntityType(auditLog.getEntityType());
+        }
+        if (auditLog.getEntityId() != null) {
+            existingAuditLog.setEntityId(auditLog.getEntityId());
+        }
+        if (auditLog.getAction() != null) {
+            existingAuditLog.setAction(auditLog.getAction());
+        }
+        if (auditLog.getUser() != null) {
+            existingAuditLog.setUser(auditLog.getUser());
+        }
+        if (auditLog.getActionTimestamp() != null) {
+            existingAuditLog.setActionTimestamp(auditLog.getActionTimestamp());
+        }
+        if (auditLog.getOldValues() != null) {
+            existingAuditLog.setOldValues(auditLog.getOldValues());
+        }
+        if (auditLog.getNewValues() != null) {
+            existingAuditLog.setNewValues(auditLog.getNewValues());
+        }
+        if (auditLog.getIpAddress() != null) {
+            existingAuditLog.setIpAddress(auditLog.getIpAddress());
+        }
+        if (auditLog.getUserAgent() != null) {
+            existingAuditLog.setUserAgent(auditLog.getUserAgent());
+        }
+    }
 }
