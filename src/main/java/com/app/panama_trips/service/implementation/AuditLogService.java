@@ -779,21 +779,28 @@ public class AuditLogService implements IAuditLogService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<AuditLog> findLatestAuditLogByEntity(String entityType, Integer entityId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findLatestAuditLogByEntity'");
+        return repository.findByEntityTypeAndEntityId(entityType, entityId).stream()
+                .max((a, b) -> a.getActionTimestamp().compareTo(b.getActionTimestamp()));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithJsonData() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsWithJsonData'");
+        return repository.findAll().stream()
+                .filter(log -> (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) ||
+                        (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithoutJsonData() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsWithoutJsonData'");
+        return repository.findAll().stream()
+                .filter(log -> (log.getOldValues() == null || log.getOldValues().trim().isEmpty()) &&
+                        (log.getNewValues() == null || log.getNewValues().trim().isEmpty()))
+                .toList();
     }
 
     @Override
