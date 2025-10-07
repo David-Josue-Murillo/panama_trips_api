@@ -671,40 +671,68 @@ public class AuditLogService implements IAuditLogService {
                 .toList();
     }
 
+    // Data integrity operations
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithMissingUser() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsWithMissingUser'");
+        return repository.findAll().stream()
+                .filter(log -> log.getUser() == null)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithMissingIpAddress() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsWithMissingIpAddress'");
+        return repository.findAll().stream()
+                .filter(log -> log.getIpAddress() == null || log.getIpAddress().trim().isEmpty())
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithInvalidJsonData() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsWithInvalidJsonData'");
+        return repository.findAll().stream()
+                .filter(log -> {
+                    try {
+                        if (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) {
+                            // Try to parse as JSON
+                            new com.fasterxml.jackson.databind.ObjectMapper().readTree(log.getOldValues());
+                        }
+                        if (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()) {
+                            // Try to parse as JSON
+                            new com.fasterxml.jackson.databind.ObjectMapper().readTree(log.getNewValues());
+                        }
+                        return false; // Valid JSON
+                    } catch (Exception e) {
+                        return true; // Invalid JSON
+                    }
+                })
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithEmptyOldValues() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsWithEmptyOldValues'");
+        return repository.findAll().stream()
+                .filter(log -> log.getOldValues() == null || log.getOldValues().trim().isEmpty())
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithEmptyNewValues() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsWithEmptyNewValues'");
+        return repository.findAll().stream()
+                .filter(log -> log.getNewValues() == null || log.getNewValues().trim().isEmpty())
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithBothEmptyValues() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsWithBothEmptyValues'");
+        return repository.findAll().stream()
+                .filter(log -> (log.getOldValues() == null || log.getOldValues().trim().isEmpty()) &&
+                        (log.getNewValues() == null || log.getNewValues().trim().isEmpty()))
+                .toList();
     }
 
     @Override
