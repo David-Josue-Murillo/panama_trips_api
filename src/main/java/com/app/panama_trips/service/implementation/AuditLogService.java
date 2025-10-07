@@ -168,54 +168,62 @@ public class AuditLogService implements IAuditLogService {
 
     }
 
+    // Business logic operations
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getRecentActivity(int limit) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRecentActivity'");
+        return repository.findAll().stream()
+                .sorted((a, b) -> b.getActionTimestamp().compareTo(a.getActionTimestamp()))
+                .limit(limit)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByDateRange'");
+        return repository.findByActionTimestampBetween(startDate, endDate);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByUser(Integer userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByUser'");
+        return findByUserId(userId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByEntityType(String entityType) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByEntityType'");
+        return findByEntityType(entityType);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByAction(String action) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByAction'");
+        return repository.findByAction(action);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByIpAddress(String ipAddress) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByIpAddress'");
+        return repository.findByIpAddress(ipAddress);
     }
 
     @Override
-    public List<AuditLog> getActivityByUserAndDateRange(Integer userId, LocalDateTime startDate,
-            LocalDateTime endDate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByUserAndDateRange'");
+    @Transactional(readOnly = true)
+    public List<AuditLog> getActivityByUserAndDateRange(Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
+        return findByUserId(userId).stream()
+                .filter(log -> log.getActionTimestamp().isAfter(startDate) &&
+                        log.getActionTimestamp().isBefore(endDate))
+                .toList();
     }
 
     @Override
-    public List<AuditLog> getActivityByEntityAndDateRange(String entityType, Integer entityId, LocalDateTime startDate,
-            LocalDateTime endDate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByEntityAndDateRange'");
+    @Transactional(readOnly = true)
+    public List<AuditLog> getActivityByEntityAndDateRange(String entityType, Integer entityId, LocalDateTime startDate, LocalDateTime endDate) {
+        return findByEntityTypeAndEntityId(entityType, entityId).stream()
+                .filter(log -> log.getActionTimestamp().isAfter(startDate) &&
+                        log.getActionTimestamp().isBefore(endDate))
+                .toList();
     }
 
     @Override
