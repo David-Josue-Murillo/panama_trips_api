@@ -804,21 +804,87 @@ public class AuditLogService implements IAuditLogService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsByJsonField(String fieldName, String fieldValue) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsByJsonField'");
+        return repository.findAll().stream()
+                .filter(log -> {
+                    try {
+                        if (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) {
+                            com.fasterxml.jackson.databind.JsonNode oldNode = new com.fasterxml.jackson.databind.ObjectMapper()
+                                    .readTree(log.getOldValues());
+                            if (oldNode.has(fieldName) && fieldValue.equals(oldNode.get(fieldName).asText())) {
+                                return true;
+                            }
+                        }
+                        if (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()) {
+                            com.fasterxml.jackson.databind.JsonNode newNode = new com.fasterxml.jackson.databind.ObjectMapper()
+                                    .readTree(log.getNewValues());
+                            if (newNode.has(fieldName) && fieldValue.equals(newNode.get(fieldName).asText())) {
+                                return true;
+                            }
+                        }
+                    } catch (Exception e) {
+                        // Invalid JSON, skip
+                    }
+                    return false;
+                })
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsByJsonFieldContaining(String fieldName, String fieldValue) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsByJsonFieldContaining'");
+        return repository.findAll().stream()
+                .filter(log -> {
+                    try {
+                        if (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) {
+                            com.fasterxml.jackson.databind.JsonNode oldNode = new com.fasterxml.jackson.databind.ObjectMapper()
+                                    .readTree(log.getOldValues());
+                            if (oldNode.has(fieldName) && oldNode.get(fieldName).asText().contains(fieldValue)) {
+                                return true;
+                            }
+                        }
+                        if (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()) {
+                            com.fasterxml.jackson.databind.JsonNode newNode = new com.fasterxml.jackson.databind.ObjectMapper()
+                                    .readTree(log.getNewValues());
+                            if (newNode.has(fieldName) && newNode.get(fieldName).asText().contains(fieldValue)) {
+                                return true;
+                            }
+                        }
+                    } catch (Exception e) {
+                        // Invalid JSON, skip
+                    }
+                    return false;
+                })
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsByJsonFieldExists(String fieldName) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsByJsonFieldExists'");
+        return repository.findAll().stream()
+                .filter(log -> {
+                    try {
+                        if (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) {
+                            com.fasterxml.jackson.databind.JsonNode oldNode = new com.fasterxml.jackson.databind.ObjectMapper()
+                                    .readTree(log.getOldValues());
+                            if (oldNode.has(fieldName)) {
+                                return true;
+                            }
+                        }
+                        if (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()) {
+                            com.fasterxml.jackson.databind.JsonNode newNode = new com.fasterxml.jackson.databind.ObjectMapper()
+                                    .readTree(log.getNewValues());
+                            if (newNode.has(fieldName)) {
+                                return true;
+                            }
+                        }
+                    } catch (Exception e) {
+                        // Invalid JSON, skip
+                    }
+                    return false;
+                })
+                .toList();
     }
 
     @Override
