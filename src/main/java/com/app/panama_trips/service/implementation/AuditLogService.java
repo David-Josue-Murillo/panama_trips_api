@@ -226,54 +226,71 @@ public class AuditLogService implements IAuditLogService {
                 .toList();
     }
 
+    // Advanced queries
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getRecentActivityByEntityType(String entityType, int limit) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRecentActivityByEntityType'");
+        return findByEntityType(entityType).stream()
+                .sorted((a, b) -> b.getActionTimestamp().compareTo(a.getActionTimestamp()))
+                .limit(limit)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByUserAgent(String userAgent) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByUserAgent'");
+        return repository.findAll().stream()
+                .filter(log -> userAgent.equals(log.getUserAgent()))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByUserAgentContaining(String userAgentPattern) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByUserAgentContaining'");
+        return repository.findAll().stream()
+                .filter(log -> log.getUserAgent() != null &&
+                        log.getUserAgent().contains(userAgentPattern))
+                .toList();
     }
 
     @Override
-    public List<AuditLog> getActivityByIpAddressAndDateRange(String ipAddress, LocalDateTime startDate,
-            LocalDateTime endDate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByIpAddressAndDateRange'");
+    @Transactional(readOnly = true)
+    public List<AuditLog> getActivityByIpAddressAndDateRange(String ipAddress, LocalDateTime startDate, LocalDateTime endDate) {
+        return repository.findByIpAddress(ipAddress).stream()
+                .filter(log -> log.getActionTimestamp().isAfter(startDate) &&
+                        log.getActionTimestamp().isBefore(endDate))
+                .toList();
     }
 
     @Override
-    public List<AuditLog> getActivityByActionAndDateRange(String action, LocalDateTime startDate,
-            LocalDateTime endDate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByActionAndDateRange'");
+    @Transactional(readOnly = true)
+    public List<AuditLog> getActivityByActionAndDateRange(String action, LocalDateTime startDate, LocalDateTime endDate) {
+        return repository.findByAction(action).stream()
+                .filter(log -> log.getActionTimestamp().isAfter(startDate) &&
+                        log.getActionTimestamp().isBefore(endDate))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByEntityTypeAndAction(String entityType, String action) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByEntityTypeAndAction'");
+        return findByActionAndEntityType(action, entityType);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByUserAndAction(Integer userId, String action) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByUserAndAction'");
+        return findByUserId(userId).stream()
+                .filter(log -> action.equals(log.getAction()))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByUserAndEntityType(Integer userId, String entityType) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByUserAndEntityType'");
+        return findByUserId(userId).stream()
+                .filter(log -> entityType.equals(log.getEntityType()))
+                .toList();
     }
 
     @Override
