@@ -100,52 +100,72 @@ public class AuditLogService implements IAuditLogService {
         return repository.findByIpAddress(ipAddress);
     }
 
+    // Specialized queries from repository
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findRecentActivityByEntityType(String entityType, LocalDateTime since) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findRecentActivityByEntityType'");
+        return repository.findRecentActivityByEntityType(entityType, since);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByEntityType(String entityType) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByEntityType'");
+        return repository.findAll().stream()
+                .filter(log -> entityType.equals(log.getEntityType()))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByEntityId(Integer entityId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByEntityId'");
+        return repository.findAll().stream()
+                .filter(log -> entityId.equals(log.getEntityId()))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByUserAndAction(UserEntity user, String action) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByUserAndAction'");
+        return repository.findByUser(user).stream()
+                .filter(log -> action.equals(log.getAction()))
+                .toList();
+
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByUserAndEntityType(UserEntity user, String entityType) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByUserAndEntityType'");
+        return repository.findByUser(user).stream()
+                .filter(log -> entityType.equals(log.getEntityType()))
+                .toList();
+
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByActionAndEntityType(String action, String entityType) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByActionAndEntityType'");
+        return repository.findByAction(action).stream()
+                .filter(log -> entityType.equals(log.getEntityType()))
+                .toList();
+
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByTimestampAfter(LocalDateTime timestamp) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByTimestampAfter'");
+        return repository.findAll().stream()
+                .filter(log -> log.getActionTimestamp().isAfter(timestamp))
+                .toList();
+
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByTimestampBefore(LocalDateTime timestamp) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByTimestampBefore'");
+        return repository.findAll().stream()
+                .filter(log -> log.getActionTimestamp().isBefore(timestamp))
+                .toList();
+
     }
 
     @Override
