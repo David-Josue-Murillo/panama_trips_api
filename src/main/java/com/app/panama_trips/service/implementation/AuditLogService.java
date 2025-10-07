@@ -75,27 +75,29 @@ public class AuditLogService implements IAuditLogService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByUserId(Integer userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByUserId'");
+        UserEntity user = new UserEntity();
+        user.setId(userId.longValue());
+        return repository.findByUser(user);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByAction(String action) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByAction'");
+        return repository.findByAction(action);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByActionTimestampBetween(LocalDateTime start, LocalDateTime end) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByActionTimestampBetween'");
+        return repository.findByActionTimestampBetween(start, end);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> findByIpAddress(String ipAddress) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByIpAddress'");
+        return repository.findByIpAddress(ipAddress);
     }
 
     @Override
