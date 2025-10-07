@@ -293,40 +293,46 @@ public class AuditLogService implements IAuditLogService {
                 .toList();
     }
 
+    // Bulk operations
     @Override
+    @Transactional
     public void bulkCreateAuditLogs(List<AuditLog> auditLogs) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'bulkCreateAuditLogs'");
+        auditLogs.forEach(this::validateAuditLog);
+        repository.saveAll(auditLogs);
     }
 
     @Override
+    @Transactional
     public void bulkDeleteAuditLogs(List<Integer> auditLogIds) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'bulkDeleteAuditLogs'");
+        repository.deleteAllById(auditLogIds);
     }
 
     @Override
+    @Transactional
     public void bulkDeleteAuditLogsByEntityType(String entityType) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'bulkDeleteAuditLogsByEntityType'");
+        List<AuditLog> logsToDelete = findByEntityType(entityType);
+        repository.deleteAll(logsToDelete);
     }
 
     @Override
+    @Transactional
     public void bulkDeleteAuditLogsByUser(Integer userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'bulkDeleteAuditLogsByUser'");
+        List<AuditLog> logsToDelete = findByUserId(userId);
+        repository.deleteAll(logsToDelete);
     }
 
     @Override
+    @Transactional
     public void bulkDeleteAuditLogsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'bulkDeleteAuditLogsByDateRange'");
+        List<AuditLog> logsToDelete = repository.findByActionTimestampBetween(startDate, endDate);
+        repository.deleteAll(logsToDelete);
     }
 
     @Override
+    @Transactional
     public void bulkDeleteAuditLogsByAction(String action) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'bulkDeleteAuditLogsByAction'");
+        List<AuditLog> logsToDelete = repository.findByAction(action);
+        repository.deleteAll(logsToDelete);
     }
 
     @Override
