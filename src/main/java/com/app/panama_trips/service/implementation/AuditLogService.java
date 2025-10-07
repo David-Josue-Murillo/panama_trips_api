@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.AuditLog;
@@ -22,34 +23,42 @@ public class AuditLogService implements IAuditLogService {
 
     private final AuditLogRepository repository;
 
+    // CRUD operations
     @Override
+    @Transactional(readOnly = true)
     public Page<AuditLog> getAllAuditLogs(Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllAuditLogs'");
+        return repository.findAll(pageable);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AuditLog getAuditLogById(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogById'");
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Audit log not found with id: " + id));
     }
 
     @Override
+    @Transactional
     public AuditLog saveAuditLog(AuditLog auditLog) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'saveAuditLog'");
+        validateAuditLog(auditLog);
+        return repository.save(auditLog);
     }
 
     @Override
+    @Transactional
     public AuditLog updateAuditLog(Integer id, AuditLog auditLog) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateAuditLog'");
+        AuditLog existingAuditLog = findAuditLogOrFail(id);
+        updateAuditLogFields(existingAuditLog, auditLog);
+        return repository.save(existingAuditLog);
     }
 
     @Override
+    @Transactional
     public void deleteAuditLog(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteAuditLog'");
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Audit log not found with id: " + id);
+        }
+        repository.deleteById(id);
     }
 
     @Override
