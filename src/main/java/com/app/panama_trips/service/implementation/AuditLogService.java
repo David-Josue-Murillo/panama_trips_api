@@ -888,9 +888,33 @@ public class AuditLogService implements IAuditLogService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsByJsonFieldNotExists(String fieldName) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuditLogsByJsonFieldNotExists'");
+        return repository.findAll().stream()
+                .filter(log -> {
+                    try {
+                        boolean hasFieldInOld = false;
+                        boolean hasFieldInNew = false;
+
+                        if (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) {
+                            com.fasterxml.jackson.databind.JsonNode oldNode = new com.fasterxml.jackson.databind.ObjectMapper()
+                                    .readTree(log.getOldValues());
+                            hasFieldInOld = oldNode.has(fieldName);
+                        }
+
+                        if (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()) {
+                            com.fasterxml.jackson.databind.JsonNode newNode = new com.fasterxml.jackson.databind.ObjectMapper()
+                                    .readTree(log.getNewValues());
+                            hasFieldInNew = newNode.has(fieldName);
+                        }
+
+                        return !hasFieldInOld && !hasFieldInNew;
+                    } catch (Exception e) {
+                        // Invalid JSON, skip
+                        return false;
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     // Private helper methods
