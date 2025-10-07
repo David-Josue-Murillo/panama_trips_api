@@ -914,7 +914,7 @@ public class AuditLogService implements IAuditLogService {
                         return false;
                     }
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // Private helper methods
