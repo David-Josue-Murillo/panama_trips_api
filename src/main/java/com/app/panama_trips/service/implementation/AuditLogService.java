@@ -211,7 +211,8 @@ public class AuditLogService implements IAuditLogService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AuditLog> getActivityByUserAndDateRange(Integer userId, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<AuditLog> getActivityByUserAndDateRange(Integer userId, LocalDateTime startDate,
+            LocalDateTime endDate) {
         return findByUserId(userId).stream()
                 .filter(log -> log.getActionTimestamp().isAfter(startDate) &&
                         log.getActionTimestamp().isBefore(endDate))
@@ -220,7 +221,8 @@ public class AuditLogService implements IAuditLogService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AuditLog> getActivityByEntityAndDateRange(String entityType, Integer entityId, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<AuditLog> getActivityByEntityAndDateRange(String entityType, Integer entityId, LocalDateTime startDate,
+            LocalDateTime endDate) {
         return findByEntityTypeAndEntityId(entityType, entityId).stream()
                 .filter(log -> log.getActionTimestamp().isAfter(startDate) &&
                         log.getActionTimestamp().isBefore(endDate))
@@ -256,7 +258,8 @@ public class AuditLogService implements IAuditLogService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AuditLog> getActivityByIpAddressAndDateRange(String ipAddress, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<AuditLog> getActivityByIpAddressAndDateRange(String ipAddress, LocalDateTime startDate,
+            LocalDateTime endDate) {
         return repository.findByIpAddress(ipAddress).stream()
                 .filter(log -> log.getActionTimestamp().isAfter(startDate) &&
                         log.getActionTimestamp().isBefore(endDate))
@@ -265,7 +268,8 @@ public class AuditLogService implements IAuditLogService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AuditLog> getActivityByActionAndDateRange(String action, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<AuditLog> getActivityByActionAndDateRange(String action, LocalDateTime startDate,
+            LocalDateTime endDate) {
         return repository.findByAction(action).stream()
                 .filter(log -> log.getActionTimestamp().isAfter(startDate) &&
                         log.getActionTimestamp().isBefore(endDate))
@@ -418,7 +422,7 @@ public class AuditLogService implements IAuditLogService {
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForEntityAndUser(String entityType, Integer entityId, Integer userId) {
         return getAuditTrailForEntity(entityType, entityId).stream()
-                .filter(log -> log.getUser() != null && userId.equals(log.getUser().getId()))
+                .filter(log -> log.getUser() != null && userId.longValue() == log.getUser().getId())
                 .toList();
     }
 
@@ -443,7 +447,8 @@ public class AuditLogService implements IAuditLogService {
     public List<AuditLog> getAuditTrailForEntityAndDateRange(String entityType, Integer entityId,
             LocalDateTime startDate, LocalDateTime endDate) {
         return getAuditTrailForEntity(entityType, entityId).stream()
-                .filter(log -> log.getActionTimestamp().isAfter(startDate) && log.getActionTimestamp().isBefore(endDate))
+                .filter(log -> log.getActionTimestamp().isAfter(startDate)
+                        && log.getActionTimestamp().isBefore(endDate))
                 .toList();
     }
 
@@ -452,7 +457,8 @@ public class AuditLogService implements IAuditLogService {
     public List<AuditLog> getAuditTrailForUserAndDateRange(Integer userId, LocalDateTime startDate,
             LocalDateTime endDate) {
         return getAuditTrailForUser(userId).stream()
-                .filter(log -> log.getActionTimestamp().isAfter(startDate) && log.getActionTimestamp().isBefore(endDate))
+                .filter(log -> log.getActionTimestamp().isAfter(startDate)
+                        && log.getActionTimestamp().isBefore(endDate))
                 .toList();
     }
 
