@@ -3,6 +3,7 @@ package com.app.panama_trips.service.implementation;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -455,130 +456,219 @@ public class AuditLogService implements IAuditLogService {
                 .toList();
     }
 
+    // Statistics and analytics
     @Override
+    @Transactional(readOnly = true)
     public long getTotalAuditLogs() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTotalAuditLogs'");
+        return repository.count();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long getTotalAuditLogsByEntityType(String entityType) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTotalAuditLogsByEntityType'");
+        return countByEntityType(entityType);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long getTotalAuditLogsByUser(Integer userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTotalAuditLogsByUser'");
+        return countByUser(userId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long getTotalAuditLogsByAction(String action) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTotalAuditLogsByAction'");
+        return countByAction(action);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long getTotalAuditLogsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTotalAuditLogsByDateRange'");
+        return countByDateRange(startDate, endDate);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long getTotalAuditLogsByIpAddress(String ipAddress) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTotalAuditLogsByIpAddress'");
+        return countByIpAddress(ipAddress);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getTopUsersByActivity(int limit) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTopUsersByActivity'");
+        return repository.findAll().stream()
+                .filter(log -> log.getUser() != null)
+                .collect(Collectors.groupingBy(log -> log.getUser().getId(), Collectors.counting()))
+                .entrySet().stream()
+                .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                .limit(limit)
+                .map(entry -> repository.findAll().stream()
+                        .filter(log -> log.getUser() != null && entry.getKey().equals(log.getUser().getId()))
+                        .findFirst().orElse(null))
+                .filter(log -> log != null)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getTopEntityTypesByActivity(int limit) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTopEntityTypesByActivity'");
+        return repository.findAll().stream()
+                .collect(Collectors.groupingBy(AuditLog::getEntityType, Collectors.counting()))
+                .entrySet().stream()
+                .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                .limit(limit)
+                .map(entry -> repository.findAll().stream()
+                        .filter(log -> entry.getKey().equals(log.getEntityType()))
+                        .findFirst().orElse(null))
+                .filter(log -> log != null)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getTopActionsByActivity(int limit) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTopActionsByActivity'");
+        return repository.findAll().stream()
+                .collect(Collectors.groupingBy(AuditLog::getAction, Collectors.counting()))
+                .entrySet().stream()
+                .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                .limit(limit)
+                .map(entry -> repository.findAll().stream()
+                        .filter(log -> entry.getKey().equals(log.getAction()))
+                        .findFirst().orElse(null))
+                .filter(log -> log != null)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getTopIpAddressesByActivity(int limit) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTopIpAddressesByActivity'");
+        return repository.findAll().stream()
+                .filter(log -> log.getIpAddress() != null)
+                .collect(Collectors.groupingBy(AuditLog::getIpAddress, Collectors.counting()))
+                .entrySet().stream()
+                .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                .limit(limit)
+                .map(entry -> repository.findAll().stream()
+                        .filter(log -> entry.getKey().equals(log.getIpAddress()))
+                        .findFirst().orElse(null))
+                .filter(log -> log != null)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByMonth() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByMonth'");
+        return repository.findAll().stream()
+                .collect(Collectors.groupingBy(log -> log.getActionTimestamp().getMonth(), Collectors.toList()))
+                .values().stream()
+                .flatMap(List::stream)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByDayOfWeek() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByDayOfWeek'");
+        return repository.findAll().stream()
+                .collect(Collectors.groupingBy(log -> log.getActionTimestamp().getDayOfWeek(), Collectors.toList()))
+                .values().stream()
+                .flatMap(List::stream)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByHour() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByHour'");
+        return repository.findAll().stream()
+                .collect(Collectors.groupingBy(log -> log.getActionTimestamp().getHour(), Collectors.toList()))
+                .values().stream()
+                .flatMap(List::stream)
+                .toList();
     }
 
+    // Security and monitoring operations
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getSuspiciousActivity(String ipAddress) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSuspiciousActivity'");
+        return repository.findByIpAddress(ipAddress).stream()
+                .filter(log -> {
+                    // Consider suspicious: multiple failed attempts, unusual hours, etc.
+                    LocalDateTime now = LocalDateTime.now();
+                    return log.getActionTimestamp().isAfter(now.minusHours(24)) &&
+                            (log.getAction().contains("FAILED") ||
+                                    log.getAction().contains("ERROR") ||
+                                    log.getActionTimestamp().getHour() < 6 ||
+                                    log.getActionTimestamp().getHour() > 22);
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByMultipleIpAddresses(List<String> ipAddresses) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByMultipleIpAddresses'");
+        return repository.findAll().stream()
+                .filter(log -> log.getIpAddress() != null && ipAddresses.contains(log.getIpAddress()))
+                .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getActivityByUserAgentPattern(String pattern) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActivityByUserAgentPattern'");
+        return getActivityByUserAgentContaining(pattern);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getFailedLoginAttempts() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getFailedLoginAttempts'");
+        return repository.findAll().stream()
+                .filter(log -> log.getAction() != null &&
+                        (log.getAction().contains("LOGIN_FAILED") ||
+                                log.getAction().contains("AUTHENTICATION_FAILED") ||
+                                log.getAction().contains("FAILED_LOGIN")))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getSuccessfulLoginAttempts() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSuccessfulLoginAttempts'");
+        return repository.findAll().stream()
+                .filter(log -> log.getAction() != null &&
+                        (log.getAction().contains("LOGIN_SUCCESS") ||
+                                log.getAction().contains("AUTHENTICATION_SUCCESS") ||
+                                log.getAction().contains("SUCCESSFUL_LOGIN")))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getDataModificationActivity() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDataModificationActivity'");
+        return repository.findAll().stream()
+                .filter(log -> log.getAction() != null &&
+                        (log.getAction().contains("UPDATE") ||
+                                log.getAction().contains("MODIFY") ||
+                                log.getAction().contains("EDIT")))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getDataAccessActivity() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDataAccessActivity'");
+        return repository.findAll().stream()
+                .filter(log -> log.getAction() != null &&
+                        (log.getAction().contains("READ") ||
+                                log.getAction().contains("VIEW") ||
+                                log.getAction().contains("ACCESS")))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getDataDeletionActivity() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDataDeletionActivity'");
+        return repository.findAll().stream()
+                .filter(log -> log.getAction() != null &&
+                        (log.getAction().contains("DELETE") ||
+                                log.getAction().contains("REMOVE") ||
+                                log.getAction().contains("DESTROY")))
+                .toList();
     }
 
     @Override
