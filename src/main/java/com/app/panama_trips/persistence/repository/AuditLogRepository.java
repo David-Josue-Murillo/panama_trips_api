@@ -26,4 +26,56 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
 
     @Query("SELECT a FROM AuditLog a WHERE a.ipAddress = :ipAddress ORDER BY a.actionTimestamp DESC")
     List<AuditLog> findByIpAddress(@Param("ipAddress") String ipAddress);
+
+    // Additional repository methods for comprehensive functionality
+    @Query("SELECT a FROM AuditLog a WHERE a.entityType = :entityType")
+    List<AuditLog> findByEntityType(@Param("entityType") String entityType);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.entityId = :entityId")
+    List<AuditLog> findByEntityId(@Param("entityId") Integer entityId);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.actionTimestamp >= :timestamp")
+    List<AuditLog> findByActionTimestampAfter(@Param("timestamp") LocalDateTime timestamp);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.actionTimestamp <= :timestamp")
+    List<AuditLog> findByActionTimestampBeforeQuery(@Param("timestamp") LocalDateTime timestamp);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.user.id = :userId")
+    List<AuditLog> findByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.userAgent = :userAgent")
+    List<AuditLog> findByUserAgent(@Param("userAgent") String userAgent);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.userAgent LIKE CONCAT('%', :userAgentPattern, '%')")
+    List<AuditLog> findByUserAgentContaining(@Param("userAgentPattern") String userAgentPattern);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.user.id = :userId AND a.action = :action")
+    List<AuditLog> findByUserIdAndAction(@Param("userId") Long userId, @Param("action") String action);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.user.id = :userId AND a.entityType = :entityType")
+    List<AuditLog> findByUserIdAndEntityType(@Param("userId") Long userId, @Param("entityType") String entityType);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.action = :action AND a.entityType = :entityType")
+    List<AuditLog> findByActionAndEntityType(@Param("action") String action, @Param("entityType") String entityType);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.entityType = :entityType AND a.entityId = :entityId AND a.action = :action")
+    List<AuditLog> findByEntityTypeAndEntityIdAndAction(@Param("entityType") String entityType,
+            @Param("entityId") Integer entityId, @Param("action") String action);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.user.id = :userId AND a.actionTimestamp BETWEEN :startDate AND :endDate")
+    List<AuditLog> findByUserIdAndActionTimestampBetween(@Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.ipAddress = :ipAddress AND a.actionTimestamp BETWEEN :startDate AND :endDate")
+    List<AuditLog> findByIpAddressAndActionTimestampBetween(@Param("ipAddress") String ipAddress,
+            @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.action = :action AND a.actionTimestamp BETWEEN :startDate AND :endDate")
+    List<AuditLog> findByActionAndActionTimestampBetween(@Param("action") String action,
+            @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.entityType = :entityType AND a.entityId = :entityId AND a.actionTimestamp BETWEEN :startDate AND :endDate")
+    List<AuditLog> findByEntityTypeAndEntityIdAndActionTimestampBetween(@Param("entityType") String entityType,
+            @Param("entityId") Integer entityId, @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 }
