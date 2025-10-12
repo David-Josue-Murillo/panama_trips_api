@@ -203,4 +203,16 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
     @Query("SELECT a FROM AuditLog a WHERE a.actionTimestamp < :cutoffDate")
     List<AuditLog> findByActionTimestampBefore(@Param("cutoffDate") LocalDateTime cutoffDate);
 
+    // Existence checks
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM AuditLog a WHERE a.entityType = :entityType AND a.entityId = :entityId")
+    Boolean existsByEntityTypeAndEntityId(@Param("entityType") String entityType, @Param("entityId") Integer entityId);
+
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM AuditLog a WHERE a.user.id = :userId")
+    Boolean existsByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM AuditLog a WHERE a.action = :action")
+    Boolean existsByAction(@Param("action") String action);
+
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM AuditLog a WHERE a.ipAddress = :ipAddress")
+    Boolean existsByIpAddress(@Param("ipAddress") String ipAddress);
 }
