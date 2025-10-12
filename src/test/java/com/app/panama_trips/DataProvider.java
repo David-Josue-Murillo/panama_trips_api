@@ -2066,5 +2066,60 @@ public class DataProvider {
                 .build();
     }
 
+    // Lists for specific test scenarios
+    public static List<AuditLog> auditLogListByUserMock() {
+        return List.of(
+                auditLogOneMock(),
+                auditLogFiveMock());
+    }
+
+    public static List<AuditLog> auditLogListByEntityTypeMock() {
+        return List.of(
+                auditLogTwoMock(),
+                auditLogFourMock(),
+                auditLogWithEmptyValuesMock());
+    }
+
+    public static List<AuditLog> auditLogListByActionMock() {
+        return List.of(
+                auditLogOneMock(),
+                auditLogFiveMock());
+    }
+
+    public static List<AuditLog> auditLogListByDateRangeMock() {
+        return List.of(
+                auditLogOneMock(),
+                auditLogTwoMock(),
+                auditLogThreeMock(),
+                auditLogFourMock(),
+                auditLogFiveMock());
+    }
+
+    public static List<AuditLog> auditLogListWithNullsMock() {
+        return List.of(
+                auditLogWithNullUserMock(),
+                auditLogWithNullIpMock(),
+                auditLogWithEmptyValuesMock());
+    }
+
+    public static List<AuditLog> auditLogListSecurityMock() {
+        return List.of(
+                auditLogFiveMock(),
+                auditLogFailedLoginMock());
+    }
+
+    public static List<AuditLog> auditLogListRecentMock() {
+        return List.of(
+                auditLogThreeMock(),
+                auditLogFourMock(),
+                auditLogFiveMock());
+    }
+
+    public static List<AuditLog> auditLogListOldMock() {
+        return List.of(
+                auditLogOldMock(),
+                auditLogWithNullUserMock());
+    }
+
     
 }
