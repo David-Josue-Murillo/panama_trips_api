@@ -185,4 +185,17 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
 
     @Query("SELECT a FROM AuditLog a WHERE a.action LIKE '%DELETE%' OR a.action LIKE '%REMOVE%' OR a.action LIKE '%DESTROY%'")
     List<AuditLog> findDataDeletionActivity();
+
+    // Time-based queries
+    @Query("SELECT a FROM AuditLog a WHERE EXTRACT(HOUR FROM a.actionTimestamp) = :hour")
+    List<AuditLog> findByHour(@Param("hour") int hour);
+
+    @Query("SELECT a FROM AuditLog a WHERE EXTRACT(DOW FROM a.actionTimestamp) = :dayOfWeek")
+    List<AuditLog> findByDayOfWeek(@Param("dayOfWeek") int dayOfWeek);
+
+    @Query("SELECT a FROM AuditLog a WHERE EXTRACT(MONTH FROM a.actionTimestamp) = :month")
+    List<AuditLog> findByMonth(@Param("month") int month);
+
+    @Query("SELECT a FROM AuditLog a WHERE EXTRACT(YEAR FROM a.actionTimestamp) = :year")
+    List<AuditLog> findByYear(@Param("year") int year);
 }
