@@ -99,4 +99,22 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
     @Query("SELECT COUNT(a) FROM AuditLog a WHERE a.entityType = :entityType AND a.entityId = :entityId")
     Long countByEntityTypeAndEntityId(@Param("entityType") String entityType, @Param("entityId") Integer entityId);
 
+    // Ordering queries
+    @Query("SELECT a FROM AuditLog a ORDER BY a.actionTimestamp DESC")
+    List<AuditLog> findAllOrderByActionTimestampDesc();
+
+    @Query("SELECT a FROM AuditLog a ORDER BY a.actionTimestamp ASC")
+    List<AuditLog> findAllOrderByActionTimestampAsc();
+
+    @Query("SELECT a FROM AuditLog a WHERE a.entityType = :entityType AND a.entityId = :entityId ORDER BY a.actionTimestamp ASC")
+    List<AuditLog> findByEntityTypeAndEntityIdOrderByActionTimestampAsc(@Param("entityType") String entityType, @Param("entityId") Integer entityId);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.user.id = :userId ORDER BY a.actionTimestamp ASC")
+    List<AuditLog> findByUserIdOrderByActionTimestampAsc(@Param("userId") Long userId);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.entityType = :entityType ORDER BY a.actionTimestamp DESC")
+    List<AuditLog> findByEntityTypeOrderByActionTimestampDesc(@Param("entityType") String entityType);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.action = :action ORDER BY a.actionTimestamp DESC")
+    List<AuditLog> findByActionOrderByActionTimestampDesc(@Param("action") String action);
 }
