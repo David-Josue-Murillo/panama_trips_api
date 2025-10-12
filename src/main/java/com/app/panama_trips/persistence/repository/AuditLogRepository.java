@@ -124,4 +124,17 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
 
     @Query("SELECT a FROM AuditLog a WHERE a.user.id = :userId ORDER BY a.actionTimestamp DESC LIMIT 1")
     AuditLog findLatestByUserId(@Param("userId") Long userId);
+
+    // Complex filtering queries
+    @Query("SELECT a FROM AuditLog a WHERE a.action IN :actions")
+    List<AuditLog> findByActionIn(@Param("actions") List<String> actions);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.entityType IN :entityTypes")
+    List<AuditLog> findByEntityTypeIn(@Param("entityTypes") List<String> entityTypes);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.ipAddress IN :ipAddresses")
+    List<AuditLog> findByIpAddressIn(@Param("ipAddresses") List<String> ipAddresses);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.user.id IN :userIds")
+    List<AuditLog> findByUserIdIn(@Param("userIds") List<Long> userIds);
 }
