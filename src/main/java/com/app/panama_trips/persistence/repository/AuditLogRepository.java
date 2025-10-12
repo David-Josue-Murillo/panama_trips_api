@@ -148,4 +148,22 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
     @Query(value = "SELECT * FROM audit_log WHERE old_values->>:fieldName = :fieldValue OR new_values->>:fieldName = :fieldValue", nativeQuery = true)
     List<AuditLog> findByJsonFieldValue(@Param("fieldName") String fieldName, @Param("fieldValue") String fieldValue);
 
+    // Null/empty checks
+    @Query("SELECT a FROM AuditLog a WHERE a.user IS NULL")
+    List<AuditLog> findByUserIsNull();
+
+    @Query("SELECT a FROM AuditLog a WHERE a.ipAddress IS NULL OR a.ipAddress = ''")
+    List<AuditLog> findByIpAddressIsNullOrEmpty();
+
+    @Query("SELECT a FROM AuditLog a WHERE a.oldValues IS NULL OR a.oldValues = ''")
+    List<AuditLog> findByOldValuesIsNullOrEmpty();
+
+    @Query("SELECT a FROM AuditLog a WHERE a.newValues IS NULL OR a.newValues = ''")
+    List<AuditLog> findByNewValuesIsNullOrEmpty();
+
+    @Query("SELECT a FROM AuditLog a WHERE (a.oldValues IS NULL OR a.oldValues = '') AND (a.newValues IS NULL OR a.newValues = '')")
+    List<AuditLog> findByBothValuesIsNullOrEmpty();
+
+    @Query("SELECT a FROM AuditLog a WHERE (a.oldValues IS NOT NULL AND a.oldValues != '') OR (a.newValues IS NOT NULL AND a.newValues != '')")
+    List<AuditLog> findByAnyValueIsNotNullOrEmpty();
 }
