@@ -1990,5 +1990,81 @@ public class DataProvider {
                 auditLogFiveMock());
     }
 
+    // Additional mock data for specific test scenarios
+    public static AuditLog auditLogWithNullUserMock() {
+        return AuditLog.builder()
+                .id(6)
+                .entityType("System")
+                .entityId(1)
+                .action("SYSTEM_START")
+                .user(null)
+                .actionTimestamp(LocalDateTime.now().minusDays(1))
+                .oldValues(null)
+                .newValues("{\"startup\":\"successful\"}")
+                .ipAddress("127.0.0.1")
+                .userAgent("System")
+                .build();
+    }
+
+    public static AuditLog auditLogWithNullIpMock() {
+        return AuditLog.builder()
+                .id(7)
+                .entityType("Reservation")
+                .entityId(3)
+                .action("AUTO_CANCEL")
+                .user(userOperator())
+                .actionTimestamp(LocalDateTime.now().minusHours(6))
+                .oldValues("{\"status\":\"pending\"}")
+                .newValues("{\"status\":\"cancelled\"}")
+                .ipAddress(null)
+                .userAgent("System/1.0")
+                .build();
+    }
+
+    public static AuditLog auditLogWithEmptyValuesMock() {
+        return AuditLog.builder()
+                .id(8)
+                .entityType("TourPlan")
+                .entityId(3)
+                .action("VIEW")
+                .user(userCustomer())
+                .actionTimestamp(LocalDateTime.now().minusMinutes(10))
+                .oldValues("")
+                .newValues("")
+                .ipAddress("192.168.1.6")
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+                .build();
+    }
+
+    public static AuditLog auditLogFailedLoginMock() {
+        return AuditLog.builder()
+                .id(9)
+                .entityType("User")
+                .entityId(3)
+                .action("LOGIN_FAILED")
+                .user(null)
+                .actionTimestamp(LocalDateTime.now().minusMinutes(2))
+                .oldValues(null)
+                .newValues("{\"attempts\":3}")
+                .ipAddress("192.168.1.7")
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+                .build();
+    }
+
+    public static AuditLog auditLogOldMock() {
+        return AuditLog.builder()
+                .id(10)
+                .entityType("Payment")
+                .entityId(2)
+                .action("REFUND")
+                .user(userAdmin())
+                .actionTimestamp(LocalDateTime.now().minusDays(30))
+                .oldValues("{\"amount\":\"200.00\",\"status\":\"completed\"}")
+                .newValues("{\"amount\":\"200.00\",\"status\":\"refunded\"}")
+                .ipAddress("192.168.1.8")
+                .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6)")
+                .build();
+    }
+
     
 }
