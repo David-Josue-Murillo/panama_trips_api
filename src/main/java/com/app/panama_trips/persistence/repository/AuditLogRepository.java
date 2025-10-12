@@ -78,4 +78,25 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
     List<AuditLog> findByEntityTypeAndEntityIdAndActionTimestampBetween(@Param("entityType") String entityType,
             @Param("entityId") Integer entityId, @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
+
+    // Count queries
+    @Query("SELECT COUNT(a) FROM AuditLog a WHERE a.entityType = :entityType")
+    Long countByEntityType(@Param("entityType") String entityType);
+
+    @Query("SELECT COUNT(a) FROM AuditLog a WHERE a.user.id = :userId")
+    Long countByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT COUNT(a) FROM AuditLog a WHERE a.action = :action")
+    Long countByAction(@Param("action") String action);
+
+    @Query("SELECT COUNT(a) FROM AuditLog a WHERE a.actionTimestamp BETWEEN :startDate AND :endDate")
+    Long countByActionTimestampBetween(@Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT COUNT(a) FROM AuditLog a WHERE a.ipAddress = :ipAddress")
+    Long countByIpAddress(@Param("ipAddress") String ipAddress);
+
+    @Query("SELECT COUNT(a) FROM AuditLog a WHERE a.entityType = :entityType AND a.entityId = :entityId")
+    Long countByEntityTypeAndEntityId(@Param("entityType") String entityType, @Param("entityId") Integer entityId);
+
 }
