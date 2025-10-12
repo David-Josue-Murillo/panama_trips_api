@@ -137,4 +137,15 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
 
     @Query("SELECT a FROM AuditLog a WHERE a.user.id IN :userIds")
     List<AuditLog> findByUserIdIn(@Param("userIds") List<Long> userIds);
+
+    // JSON field queries (PostgreSQL specific)
+    @Query(value = "SELECT * FROM audit_log WHERE old_values::text LIKE '%' || :fieldValue || '%' OR new_values::text LIKE '%' || :fieldValue || '%'", nativeQuery = true)
+    List<AuditLog> findByJsonFieldContaining(@Param("fieldValue") String fieldValue);
+
+    @Query(value = "SELECT * FROM audit_log WHERE old_values ? :fieldName OR new_values ? :fieldName", nativeQuery = true)
+    List<AuditLog> findByJsonFieldExists(@Param("fieldName") String fieldName);
+
+    @Query(value = "SELECT * FROM audit_log WHERE old_values->>:fieldName = :fieldValue OR new_values->>:fieldName = :fieldValue", nativeQuery = true)
+    List<AuditLog> findByJsonFieldValue(@Param("fieldName") String fieldName, @Param("fieldValue") String fieldValue);
+
 }
