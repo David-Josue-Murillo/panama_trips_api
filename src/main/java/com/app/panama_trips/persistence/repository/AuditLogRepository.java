@@ -166,4 +166,23 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
 
     @Query("SELECT a FROM AuditLog a WHERE (a.oldValues IS NOT NULL AND a.oldValues != '') OR (a.newValues IS NOT NULL AND a.newValues != '')")
     List<AuditLog> findByAnyValueIsNotNullOrEmpty();
+
+    // Security-related queries
+    @Query("SELECT a FROM AuditLog a WHERE a.action LIKE CONCAT('%', :actionPattern, '%')")
+    List<AuditLog> findByActionContaining(@Param("actionPattern") String actionPattern);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.action LIKE 'LOGIN_FAILED%' OR a.action LIKE 'AUTHENTICATION_FAILED%' OR a.action LIKE 'FAILED_LOGIN%'")
+    List<AuditLog> findFailedLoginAttempts();
+
+    @Query("SELECT a FROM AuditLog a WHERE a.action LIKE 'LOGIN_SUCCESS%' OR a.action LIKE 'AUTHENTICATION_SUCCESS%' OR a.action LIKE 'SUCCESSFUL_LOGIN%'")
+    List<AuditLog> findSuccessfulLoginAttempts();
+
+    @Query("SELECT a FROM AuditLog a WHERE a.action LIKE '%UPDATE%' OR a.action LIKE '%MODIFY%' OR a.action LIKE '%EDIT%'")
+    List<AuditLog> findDataModificationActivity();
+
+    @Query("SELECT a FROM AuditLog a WHERE a.action LIKE '%READ%' OR a.action LIKE '%VIEW%' OR a.action LIKE '%ACCESS%'")
+    List<AuditLog> findDataAccessActivity();
+
+    @Query("SELECT a FROM AuditLog a WHERE a.action LIKE '%DELETE%' OR a.action LIKE '%REMOVE%' OR a.action LIKE '%DESTROY%'")
+    List<AuditLog> findDataDeletionActivity();
 }
