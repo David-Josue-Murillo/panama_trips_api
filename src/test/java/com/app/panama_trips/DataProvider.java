@@ -1981,5 +1981,14 @@ public class DataProvider {
                 .build();
     }
 
+    public static List<AuditLog> auditLogListMock() {
+        return List.of(
+                auditLogOneMock(),
+                auditLogTwoMock(),
+                auditLogThreeMock(),
+                auditLogFourMock(),
+                auditLogFiveMock());
+    }
+
     
 }
