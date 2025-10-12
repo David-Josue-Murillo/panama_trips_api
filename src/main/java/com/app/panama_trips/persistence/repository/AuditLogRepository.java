@@ -198,4 +198,9 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
 
     @Query("SELECT a FROM AuditLog a WHERE EXTRACT(YEAR FROM a.actionTimestamp) = :year")
     List<AuditLog> findByYear(@Param("year") int year);
+
+    // Cleanup queries
+    @Query("SELECT a FROM AuditLog a WHERE a.actionTimestamp < :cutoffDate")
+    List<AuditLog> findByActionTimestampBefore(@Param("cutoffDate") LocalDateTime cutoffDate);
+
 }
