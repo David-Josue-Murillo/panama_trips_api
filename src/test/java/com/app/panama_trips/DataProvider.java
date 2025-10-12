@@ -2121,5 +2121,34 @@ public class DataProvider {
                 auditLogWithNullUserMock());
     }
 
-    
+    // Request and Response DTOs (if needed for testing)
+    public static List<Integer> auditLogIdsForBulkDeleteMock() {
+        return List.of(1, 2, 3, 4, 5);
+    }
+
+    public static List<AuditLog> auditLogListForBulkCreateMock() {
+        return List.of(
+                AuditLog.builder()
+                        .entityType("Test")
+                        .entityId(100)
+                        .action("CREATE")
+                        .user(userAdmin())
+                        .actionTimestamp(LocalDateTime.now())
+                        .oldValues(null)
+                        .newValues("{\"test\":\"data\"}")
+                        .ipAddress("192.168.1.100")
+                        .userAgent("Test Agent")
+                        .build(),
+                AuditLog.builder()
+                        .entityType("Test")
+                        .entityId(101)
+                        .action("UPDATE")
+                        .user(userOperator())
+                        .actionTimestamp(LocalDateTime.now())
+                        .oldValues("{\"old\":\"value\"}")
+                        .newValues("{\"new\":\"value\"}")
+                        .ipAddress("192.168.1.101")
+                        .userAgent("Test Agent")
+                        .build());
+    }
 }
