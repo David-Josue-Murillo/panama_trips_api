@@ -498,4 +498,70 @@ public class AuditLogServiceTest {
         assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isBefore(timestamp)));
         verify(repository).findAll();
     }
+
+    // Business Logic Operations Tests
+    @Test
+    @DisplayName("Should get recent activity with limit")
+    void getRecentActivity_shouldReturnRecentActivityWithLimit() {
+        // Given
+        int limit = 3;
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getRecentActivity(limit);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.size() <= limit);
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get activity by date range")
+    void getActivityByDateRange_shouldReturnActivityInRange() {
+        // Given
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(repository.findByActionTimestampBetween(startDate, endDate)).thenReturn(auditLogListByDateRangeMock());
+
+        // When
+        List<AuditLog> result = service.getActivityByDateRange(startDate, endDate);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(5, result.size());
+        verify(repository).findByActionTimestampBetween(startDate, endDate);
+    }
+
+    @Test
+    @DisplayName("Should get activity by user id")
+    void getActivityByUser_shouldReturnUserActivity() {
+        // Given
+        Integer userId = 1;
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.getActivityByUser(userId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(repository).findByUser(any(UserEntity.class));
+    }
+
+    @Test
+    @DisplayName("Should get activity by entity type")
+    void getActivityByEntityType_shouldReturnEntityTypeActivity() {
+        // Given
+        String entityType = "User";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getActivityByEntityType(entityType);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> entityType.equals(log.getEntityType())));
+        verify(repository).findAll();
+    }
 }
