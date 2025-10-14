@@ -1440,4 +1440,131 @@ public class AuditLogServiceTest {
         assertEquals(auditLogs.size(), result.size());
         verify(repository).findAll();
     }
+
+    // Security and Monitoring Operations Tests
+    @Test
+    @DisplayName("Should get suspicious activity")
+    void getSuspiciousActivity_shouldReturnSuspiciousLogs() {
+        // Given
+        String ipAddress = "192.168.1.100";
+        when(repository.findByIpAddress(ipAddress)).thenReturn(auditLogListSecurityMock());
+
+        // When
+        List<AuditLog> result = service.getSuspiciousActivity(ipAddress);
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findByIpAddress(ipAddress);
+    }
+
+    @Test
+    @DisplayName("Should get activity by multiple ip addresses")
+    void getActivityByMultipleIpAddresses_shouldReturnMatchingActivity() {
+        // Given
+        List<String> ipAddresses = List.of("192.168.1.1", "192.168.1.2");
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getActivityByMultipleIpAddresses(ipAddresses);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream()
+                .allMatch(log -> log.getIpAddress() != null && ipAddresses.contains(log.getIpAddress())));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get activity by user agent pattern")
+    void getActivityByUserAgentPattern_shouldReturnMatchingActivity() {
+        // Given
+        String pattern = "Mozilla";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getActivityByUserAgentPattern(pattern);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getUserAgent() != null && log.getUserAgent().contains(pattern)));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get failed login attempts")
+    void getFailedLoginAttempts_shouldReturnFailedLogins() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogListSecurityMock());
+
+        // When
+        List<AuditLog> result = service.getFailedLoginAttempts();
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getAction() != null &&
+                (log.getAction().contains("LOGIN_FAILED") ||
+                        log.getAction().contains("AUTHENTICATION_FAILED") ||
+                        log.getAction().contains("FAILED_LOGIN"))));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get successful login attempts")
+    void getSuccessfulLoginAttempts_shouldReturnSuccessfulLogins() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getSuccessfulLoginAttempts();
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getAction() == null ||
+                (!log.getAction().contains("LOGIN_FAILED") &&
+                        !log.getAction().contains("AUTHENTICATION_FAILED") &&
+                        !log.getAction().contains("FAILED_LOGIN"))));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get data modification activity")
+    void getDataModificationActivity_shouldReturnModificationLogs() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getDataModificationActivity();
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get data access activity")
+    void getDataAccessActivity_shouldReturnAccessLogs() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getDataAccessActivity();
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get data deletion activity")
+    void getDataDeletionActivity_shouldReturnDeletionLogs() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getDataDeletionActivity();
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findAll();
+    }
 }
