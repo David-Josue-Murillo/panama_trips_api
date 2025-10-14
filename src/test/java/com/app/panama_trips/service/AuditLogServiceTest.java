@@ -368,4 +368,134 @@ public class AuditLogServiceTest {
         assertEquals(auditLogs.size(), result.size());
         verify(repository).findByIpAddress(ipAddress);
     }
+
+    // Specialized Queries Tests
+    @Test
+    @DisplayName("Should find recent activity by entity type")
+    void findRecentActivityByEntityType_shouldReturnRecentActivity() {
+        // Given
+        String entityType = "User";
+        LocalDateTime since = LocalDateTime.now().minusHours(24);
+        when(repository.findRecentActivityByEntityType(entityType, since)).thenReturn(auditLogListRecentMock());
+
+        // When
+        List<AuditLog> result = service.findRecentActivityByEntityType(entityType, since);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(3, result.size());
+        verify(repository).findRecentActivityByEntityType(entityType, since);
+    }
+
+    @Test
+    @DisplayName("Should find audit logs by entity type using stream filtering")
+    void findByEntityType_shouldReturnMatchingLogs() {
+        // Given
+        String entityType = "Reservation";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.findByEntityType(entityType);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> entityType.equals(log.getEntityType())));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should find audit logs by entity id using stream filtering")
+    void findByEntityId_shouldReturnMatchingLogs() {
+        // Given
+        Integer entityId = 1;
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.findByEntityId(entityId);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> entityId.equals(log.getEntityId())));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should find audit logs by user and action")
+    void findByUserAndAction_shouldReturnMatchingLogs() {
+        // Given
+        String action = "CREATE";
+        when(repository.findByUser(user)).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.findByUserAndAction(user, action);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> action.equals(log.getAction())));
+        verify(repository).findByUser(user);
+    }
+
+    @Test
+    @DisplayName("Should find audit logs by user and entity type")
+    void findByUserAndEntityType_shouldReturnMatchingLogs() {
+        // Given
+        String entityType = "User";
+        when(repository.findByUser(user)).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.findByUserAndEntityType(user, entityType);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> entityType.equals(log.getEntityType())));
+        verify(repository).findByUser(user);
+    }
+
+    @Test
+    @DisplayName("Should find audit logs by action and entity type")
+    void findByActionAndEntityType_shouldReturnMatchingLogs() {
+        // Given
+        String action = "CREATE";
+        String entityType = "User";
+        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+
+        // When
+        List<AuditLog> result = service.findByActionAndEntityType(action, entityType);
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findByAction(action);
+    }
+
+    @Test
+    @DisplayName("Should find audit logs by timestamp after")
+    void findByTimestampAfter_shouldReturnMatchingLogs() {
+        // Given
+        LocalDateTime timestamp = LocalDateTime.now().minusDays(1);
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.findByTimestampAfter(timestamp);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isAfter(timestamp)));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should find audit logs by timestamp before")
+    void findByTimestampBefore_shouldReturnMatchingLogs() {
+        // Given
+        LocalDateTime timestamp = LocalDateTime.now().plusDays(1);
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.findByTimestampBefore(timestamp);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isBefore(timestamp)));
+        verify(repository).findAll();
+    }
 }
