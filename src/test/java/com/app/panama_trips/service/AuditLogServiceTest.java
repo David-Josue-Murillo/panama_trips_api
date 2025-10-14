@@ -1103,4 +1103,341 @@ public class AuditLogServiceTest {
         assertEquals(auditLogs.size(), result);
         verify(repository).findByIpAddress(ipAddress);
     }
+
+    // Audit Trail Operations Tests
+    @Test
+    @DisplayName("Should get audit trail for entity")
+    void getAuditTrailForEntity_shouldReturnSortedTrail() {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.getAuditTrailForEntity(entityType, entityId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        // Verify that the trail is sorted by timestamp (ascending)
+        for (int i = 1; i < result.size(); i++) {
+            assertTrue(result.get(i - 1).getActionTimestamp().compareTo(result.get(i).getActionTimestamp()) <= 0);
+        }
+        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+    }
+
+    @Test
+    @DisplayName("Should get audit trail for user")
+    void getAuditTrailForUser_shouldReturnSortedTrail() {
+        // Given
+        Integer userId = 1;
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.getAuditTrailForUser(userId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        // Verify that the trail is sorted by timestamp (ascending)
+        for (int i = 1; i < result.size(); i++) {
+            assertTrue(result.get(i - 1).getActionTimestamp().compareTo(result.get(i).getActionTimestamp()) <= 0);
+        }
+        verify(repository).findByUser(any(UserEntity.class));
+    }
+
+    @Test
+    @DisplayName("Should get audit trail for entity and user")
+    void getAuditTrailForEntityAndUser_shouldReturnFilteredTrail() {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        Integer userId = 1;
+        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.getAuditTrailForEntityAndUser(entityType, entityId, userId);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(
+                result.stream().allMatch(log -> log.getUser() != null && userId.longValue() == log.getUser().getId()));
+        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+    }
+
+    @Test
+    @DisplayName("Should get audit trail for entity and action")
+    void getAuditTrailForEntityAndAction_shouldReturnFilteredTrail() {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        String action = "CREATE";
+        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.getAuditTrailForEntityAndAction(entityType, entityId, action);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> action.equals(log.getAction())));
+        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+    }
+
+    @Test
+    @DisplayName("Should get audit trail for user and action")
+    void getAuditTrailForUserAndAction_shouldReturnFilteredTrail() {
+        // Given
+        Integer userId = 1;
+        String action = "CREATE";
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.getAuditTrailForUserAndAction(userId, action);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> action.equals(log.getAction())));
+        verify(repository).findByUser(any(UserEntity.class));
+    }
+
+    @Test
+    @DisplayName("Should get audit trail for entity and date range")
+    void getAuditTrailForEntityAndDateRange_shouldReturnFilteredTrail() {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.getAuditTrailForEntityAndDateRange(entityType, entityId, startDate, endDate);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isAfter(startDate) &&
+                log.getActionTimestamp().isBefore(endDate)));
+        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+    }
+
+    @Test
+    @DisplayName("Should get audit trail for user and date range")
+    void getAuditTrailForUserAndDateRange_shouldReturnFilteredTrail() {
+        // Given
+        Integer userId = 1;
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.getAuditTrailForUserAndDateRange(userId, startDate, endDate);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isAfter(startDate) &&
+                log.getActionTimestamp().isBefore(endDate)));
+        verify(repository).findByUser(any(UserEntity.class));
+    }
+
+    // Statistics and Analytics Tests
+    @Test
+    @DisplayName("Should get total audit logs count")
+    void getTotalAuditLogs_shouldReturnCorrectCount() {
+        // Given
+        when(repository.count()).thenReturn(5L);
+
+        // When
+        long result = service.getTotalAuditLogs();
+
+        // Then
+        assertEquals(5L, result);
+        verify(repository).count();
+    }
+
+    @Test
+    @DisplayName("Should get total audit logs by entity type")
+    void getTotalAuditLogsByEntityType_shouldReturnCorrectCount() {
+        // Given
+        String entityType = "User";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        long result = service.getTotalAuditLogsByEntityType(entityType);
+
+        // Then
+        assertTrue(result >= 0);
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get total audit logs by user")
+    void getTotalAuditLogsByUser_shouldReturnCorrectCount() {
+        // Given
+        Integer userId = 1;
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+
+        // When
+        long result = service.getTotalAuditLogsByUser(userId);
+
+        // Then
+        assertEquals(2, result);
+        verify(repository).findByUser(any(UserEntity.class));
+    }
+
+    @Test
+    @DisplayName("Should get total audit logs by action")
+    void getTotalAuditLogsByAction_shouldReturnCorrectCount() {
+        // Given
+        String action = "CREATE";
+        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+
+        // When
+        long result = service.getTotalAuditLogsByAction(action);
+
+        // Then
+        assertEquals(2, result);
+        verify(repository).findByAction(action);
+    }
+
+    @Test
+    @DisplayName("Should get total audit logs by date range")
+    void getTotalAuditLogsByDateRange_shouldReturnCorrectCount() {
+        // Given
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(repository.findByActionTimestampBetween(startDate, endDate)).thenReturn(auditLogListByDateRangeMock());
+
+        // When
+        long result = service.getTotalAuditLogsByDateRange(startDate, endDate);
+
+        // Then
+        assertEquals(5, result);
+        verify(repository).findByActionTimestampBetween(startDate, endDate);
+    }
+
+    @Test
+    @DisplayName("Should get total audit logs by ip address")
+    void getTotalAuditLogsByIpAddress_shouldReturnCorrectCount() {
+        // Given
+        String ipAddress = "192.168.1.1";
+        when(repository.findByIpAddress(ipAddress)).thenReturn(auditLogs);
+
+        // When
+        long result = service.getTotalAuditLogsByIpAddress(ipAddress);
+
+        // Then
+        assertEquals(auditLogs.size(), result);
+        verify(repository).findByIpAddress(ipAddress);
+    }
+
+    @Test
+    @DisplayName("Should get top users by activity")
+    void getTopUsersByActivity_shouldReturnTopUsers() {
+        // Given
+        int limit = 2;
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getTopUsersByActivity(limit);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.size() <= limit);
+        assertTrue(result.stream().allMatch(log -> log.getUser() != null));
+        verify(repository, atLeastOnce()).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get top entity types by activity")
+    void getTopEntityTypesByActivity_shouldReturnTopEntityTypes() {
+        // Given
+        int limit = 3;
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getTopEntityTypesByActivity(limit);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.size() <= limit);
+        verify(repository, atLeastOnce()).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get top actions by activity")
+    void getTopActionsByActivity_shouldReturnTopActions() {
+        // Given
+        int limit = 2;
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getTopActionsByActivity(limit);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.size() <= limit);
+        verify(repository, atLeastOnce()).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get top ip addresses by activity")
+    void getTopIpAddressesByActivity_shouldReturnTopIpAddresses() {
+        // Given
+        int limit = 2;
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getTopIpAddressesByActivity(limit);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.size() <= limit);
+        assertTrue(result.stream().allMatch(log -> log.getIpAddress() != null));
+        verify(repository, atLeastOnce()).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get activity by month")
+    void getActivityByMonth_shouldReturnMonthlyActivity() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getActivityByMonth();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(auditLogs.size(), result.size());
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get activity by day of week")
+    void getActivityByDayOfWeek_shouldReturnWeeklyActivity() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getActivityByDayOfWeek();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(auditLogs.size(), result.size());
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get activity by hour")
+    void getActivityByHour_shouldReturnHourlyActivity() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getActivityByHour();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(auditLogs.size(), result.size());
+        verify(repository).findAll();
+    }
 }
