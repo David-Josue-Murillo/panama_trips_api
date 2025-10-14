@@ -635,4 +635,108 @@ public class AuditLogServiceTest {
                 log.getActionTimestamp().isBefore(endDate)));
         verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
     }
+
+    // Advanced Queries Tests
+    @Test
+    @DisplayName("Should get recent activity by entity type with limit")
+    void getRecentActivityByEntityType_shouldReturnRecentActivityWithLimit() {
+        // Given
+        String entityType = "User";
+        int limit = 2;
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getRecentActivityByEntityType(entityType, limit);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.size() <= limit);
+        assertTrue(result.stream().allMatch(log -> entityType.equals(log.getEntityType())));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get activity by user agent")
+    void getActivityByUserAgent_shouldReturnMatchingActivity() {
+        // Given
+        String userAgent = "Mozilla/5.0";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getActivityByUserAgent(userAgent);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> userAgent.equals(log.getUserAgent())));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get activity by user agent containing pattern")
+    void getActivityByUserAgentContaining_shouldReturnMatchingActivity() {
+        // Given
+        String userAgentPattern = "Mozilla";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getActivityByUserAgentContaining(userAgentPattern);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream()
+                .allMatch(log -> log.getUserAgent() != null && log.getUserAgent().contains(userAgentPattern)));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get activity by ip address and date range")
+    void getActivityByIpAddressAndDateRange_shouldReturnFilteredActivity() {
+        // Given
+        String ipAddress = "192.168.1.1";
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(repository.findByIpAddress(ipAddress)).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getActivityByIpAddressAndDateRange(ipAddress, startDate, endDate);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isAfter(startDate) &&
+                log.getActionTimestamp().isBefore(endDate)));
+        verify(repository).findByIpAddress(ipAddress);
+    }
+
+    @Test
+    @DisplayName("Should get activity by action and date range")
+    void getActivityByActionAndDateRange_shouldReturnFilteredActivity() {
+        // Given
+        String action = "CREATE";
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+
+        // When
+        List<AuditLog> result = service.getActivityByActionAndDateRange(action, startDate, endDate);
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findByAction(action);
+    }
+
+    @Test
+    @DisplayName("Should get activity by entity type and action")
+    void getActivityByEntityTypeAndAction_shouldReturnFilteredActivity() {
+        // Given
+        String entityType = "User";
+        String action = "CREATE";
+        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+
+        // When
+        List<AuditLog> result = service.getActivityByEntityTypeAndAction(entityType, action);
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findByAction(action);
+    }
 }
