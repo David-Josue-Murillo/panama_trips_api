@@ -1,5 +1,6 @@
 package com.app.panama_trips.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -268,5 +269,103 @@ public class AuditLogServiceTest {
         assertEquals("Audit log not found with id: " + id, exception.getMessage());
         verify(repository).existsById(id);
         verify(repository, never()).deleteById(anyInt());
+    }
+
+    // Find Operations by Entity Relationships Tests
+    @Test
+    @DisplayName("Should find audit logs by entity type and entity id")
+    void findByEntityTypeAndEntityId_shouldReturnMatchingLogs() {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.findByEntityTypeAndEntityId(entityType, entityId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+    }
+
+    @Test
+    @DisplayName("Should find audit logs by user")
+    void findByUser_shouldReturnMatchingLogs() {
+        // Given
+        when(repository.findByUser(user)).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.findByUser(user);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(repository).findByUser(user);
+    }
+
+    @Test
+    @DisplayName("Should find audit logs by user id")
+    void findByUserId_shouldReturnMatchingLogs() {
+        // Given
+        Integer userId = 1;
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.findByUserId(userId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(repository).findByUser(any(UserEntity.class));
+    }
+
+    @Test
+    @DisplayName("Should find audit logs by action")
+    void findByAction_shouldReturnMatchingLogs() {
+        // Given
+        String action = "CREATE";
+        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+
+        // When
+        List<AuditLog> result = service.findByAction(action);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(repository).findByAction(action);
+    }
+
+    @Test
+    @DisplayName("Should find audit logs by action timestamp between")
+    void findByActionTimestampBetween_shouldReturnMatchingLogs() {
+        // Given
+        LocalDateTime start = LocalDateTime.now().minusDays(1);
+        LocalDateTime end = LocalDateTime.now().plusDays(1);
+        when(repository.findByActionTimestampBetween(start, end)).thenReturn(auditLogListByDateRangeMock());
+
+        // When
+        List<AuditLog> result = service.findByActionTimestampBetween(start, end);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(5, result.size());
+        verify(repository).findByActionTimestampBetween(start, end);
+    }
+
+    @Test
+    @DisplayName("Should find audit logs by ip address")
+    void findByIpAddress_shouldReturnMatchingLogs() {
+        // Given
+        String ipAddress = "192.168.1.1";
+        when(repository.findByIpAddress(ipAddress)).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.findByIpAddress(ipAddress);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(auditLogs.size(), result.size());
+        verify(repository).findByIpAddress(ipAddress);
     }
 }
