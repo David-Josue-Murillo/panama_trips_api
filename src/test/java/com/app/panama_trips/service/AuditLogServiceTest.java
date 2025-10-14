@@ -1026,4 +1026,81 @@ public class AuditLogServiceTest {
         assertFalse(result);
         verify(repository).findByIpAddress(ipAddress);
     }
+
+    // Count Operations Tests
+    @Test
+    @DisplayName("Should count audit logs by entity type")
+    void countByEntityType_shouldReturnCorrectCount() {
+        // Given
+        String entityType = "User";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        long result = service.countByEntityType(entityType);
+
+        // Then
+        assertTrue(result >= 0);
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should count audit logs by user")
+    void countByUser_shouldReturnCorrectCount() {
+        // Given
+        Integer userId = 1;
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+
+        // When
+        long result = service.countByUser(userId);
+
+        // Then
+        assertEquals(2, result);
+        verify(repository).findByUser(any(UserEntity.class));
+    }
+
+    @Test
+    @DisplayName("Should count audit logs by action")
+    void countByAction_shouldReturnCorrectCount() {
+        // Given
+        String action = "CREATE";
+        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+
+        // When
+        long result = service.countByAction(action);
+
+        // Then
+        assertEquals(2, result);
+        verify(repository).findByAction(action);
+    }
+
+    @Test
+    @DisplayName("Should count audit logs by date range")
+    void countByDateRange_shouldReturnCorrectCount() {
+        // Given
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(repository.findByActionTimestampBetween(startDate, endDate)).thenReturn(auditLogListByDateRangeMock());
+
+        // When
+        long result = service.countByDateRange(startDate, endDate);
+
+        // Then
+        assertEquals(5, result);
+        verify(repository).findByActionTimestampBetween(startDate, endDate);
+    }
+
+    @Test
+    @DisplayName("Should count audit logs by ip address")
+    void countByIpAddress_shouldReturnCorrectCount() {
+        // Given
+        String ipAddress = "192.168.1.1";
+        when(repository.findByIpAddress(ipAddress)).thenReturn(auditLogs);
+
+        // When
+        long result = service.countByIpAddress(ipAddress);
+
+        // Then
+        assertEquals(auditLogs.size(), result);
+        verify(repository).findByIpAddress(ipAddress);
+    }
 }
