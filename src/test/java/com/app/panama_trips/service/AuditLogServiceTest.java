@@ -564,4 +564,37 @@ public class AuditLogServiceTest {
         assertTrue(result.stream().allMatch(log -> entityType.equals(log.getEntityType())));
         verify(repository).findAll();
     }
+
+    @Test
+    @DisplayName("Should get activity by action")
+    void getActivityByAction_shouldReturnActionActivity() {
+        // Given
+        String action = "CREATE";
+        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+
+        // When
+        List<AuditLog> result = service.getActivityByAction(action);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(repository).findByAction(action);
+    }
+
+    @Test
+    @DisplayName("Should get activity by ip address")
+    void getActivityByIpAddress_shouldReturnIpAddressActivity() {
+        // Given
+        String ipAddress = "192.168.1.1";
+        when(repository.findByIpAddress(ipAddress)).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getActivityByIpAddress(ipAddress);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(auditLogs.size(), result.size());
+        verify(repository).findByIpAddress(ipAddress);
+    }
+
 }
