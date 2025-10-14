@@ -199,4 +199,74 @@ public class AuditLogServiceTest {
         AuditLog savedAuditLog = auditLogCaptor.getValue();
         assertNotNull(savedAuditLog.getActionTimestamp());
     }
+
+    @Test
+    @DisplayName("Should update audit log successfully")
+    void updateAuditLog_success() {
+        // Given
+        Integer id = 1;
+        AuditLog updateAuditLog = auditLogTwoMock();
+        updateAuditLog.setId(id);
+
+        when(repository.findById(id)).thenReturn(Optional.of(auditLog));
+        when(repository.save(any(AuditLog.class))).thenReturn(updateAuditLog);
+
+        // When
+        AuditLog result = service.updateAuditLog(id, updateAuditLog);
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findById(id);
+        verify(repository).save(auditLogCaptor.capture());
+        AuditLog updatedAuditLog = auditLogCaptor.getValue();
+        assertEquals(updateAuditLog.getEntityType(), updatedAuditLog.getEntityType());
+        assertEquals(updateAuditLog.getAction(), updatedAuditLog.getAction());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating non-existent audit log")
+    void updateAuditLog_whenNotExists_shouldThrowException() {
+        // Given
+        Integer id = 999;
+        when(repository.findById(id)).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.updateAuditLog(id, auditLog));
+        assertEquals("Audit log not found with id: " + id, exception.getMessage());
+        verify(repository).findById(id);
+        verify(repository, never()).save(any(AuditLog.class));
+    }
+
+    @Test
+    @DisplayName("Should delete audit log successfully when exists")
+    void deleteAuditLog_whenExists_success() {
+        // Given
+        Integer id = 1;
+        when(repository.existsById(id)).thenReturn(true);
+
+        // When
+        service.deleteAuditLog(id);
+
+        // Then
+        verify(repository).existsById(id);
+        verify(repository).deleteById(id);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when deleting non-existent audit log")
+    void deleteAuditLog_whenNotExists_shouldThrowException() {
+        // Given
+        Integer id = 999;
+        when(repository.existsById(id)).thenReturn(false);
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.deleteAuditLog(id));
+        assertEquals("Audit log not found with id: " + id, exception.getMessage());
+        verify(repository).existsById(id);
+        verify(repository, never()).deleteById(anyInt());
+    }
 }
