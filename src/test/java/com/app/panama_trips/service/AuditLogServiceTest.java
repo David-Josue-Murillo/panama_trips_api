@@ -1567,4 +1567,96 @@ public class AuditLogServiceTest {
         assertNotNull(result);
         verify(repository).findAll();
     }
+
+    // Data Integrity Operations Tests
+    @Test
+    @DisplayName("Should get audit logs with missing user")
+    void getAuditLogsWithMissingUser_shouldReturnLogsWithoutUser() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogListWithNullsMock());
+
+        // When
+        List<AuditLog> result = service.getAuditLogsWithMissingUser();
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getUser() == null));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get audit logs with missing ip address")
+    void getAuditLogsWithMissingIpAddress_shouldReturnLogsWithoutIp() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogListWithNullsMock());
+
+        // When
+        List<AuditLog> result = service.getAuditLogsWithMissingIpAddress();
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getIpAddress() == null || log.getIpAddress().trim().isEmpty()));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get audit logs with invalid json data")
+    void getAuditLogsWithInvalidJsonData_shouldReturnLogsWithInvalidJson() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogListWithNullsMock());
+
+        // When
+        List<AuditLog> result = service.getAuditLogsWithInvalidJsonData();
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get audit logs with empty old values")
+    void getAuditLogsWithEmptyOldValues_shouldReturnLogsWithEmptyOldValues() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogListWithNullsMock());
+
+        // When
+        List<AuditLog> result = service.getAuditLogsWithEmptyOldValues();
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getOldValues() == null || log.getOldValues().trim().isEmpty()));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get audit logs with empty new values")
+    void getAuditLogsWithEmptyNewValues_shouldReturnLogsWithEmptyNewValues() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogListWithNullsMock());
+
+        // When
+        List<AuditLog> result = service.getAuditLogsWithEmptyNewValues();
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getNewValues() == null || log.getNewValues().trim().isEmpty()));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get audit logs with both empty values")
+    void getAuditLogsWithBothEmptyValues_shouldReturnLogsWithBothEmptyValues() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogListWithNullsMock());
+
+        // When
+        List<AuditLog> result = service.getAuditLogsWithBothEmptyValues();
+
+        // Then
+        assertNotNull(result);
+        assertTrue(
+                result.stream().allMatch(log -> (log.getOldValues() == null || log.getOldValues().trim().isEmpty()) &&
+                        (log.getNewValues() == null || log.getNewValues().trim().isEmpty())));
+        verify(repository).findAll();
+    }
 }
