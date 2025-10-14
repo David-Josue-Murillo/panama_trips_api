@@ -1659,4 +1659,183 @@ public class AuditLogServiceTest {
                         (log.getNewValues() == null || log.getNewValues().trim().isEmpty())));
         verify(repository).findAll();
     }
+
+    // Utility Operations Tests
+    @Test
+    @DisplayName("Should cleanup old audit logs")
+    void cleanupOldAuditLogs_shouldDeleteOldLogs() {
+        // Given
+        int daysToKeep = 30;
+        when(repository.findAll()).thenReturn(auditLogListOldMock());
+
+        // When
+        service.cleanupOldAuditLogs(daysToKeep);
+
+        // Then
+        verify(repository).findAll();
+        verify(repository).deleteAll(auditLogsCaptor.capture());
+        List<AuditLog> deletedLogs = auditLogsCaptor.getValue();
+        assertTrue(deletedLogs.stream()
+                .allMatch(log -> log.getActionTimestamp().isBefore(LocalDateTime.now().minusDays(daysToKeep))));
+    }
+
+    @Test
+    @DisplayName("Should archive audit logs")
+    void archiveAuditLogs_shouldArchiveOldLogs() {
+        // Given
+        LocalDateTime beforeDate = LocalDateTime.now().minusDays(30);
+        when(repository.findAll()).thenReturn(auditLogListOldMock());
+
+        // When
+        service.archiveAuditLogs(beforeDate);
+
+        // Then
+        verify(repository).findAll();
+        verify(repository).deleteAll(auditLogsCaptor.capture());
+        List<AuditLog> archivedLogs = auditLogsCaptor.getValue();
+        assertTrue(archivedLogs.stream().allMatch(log -> log.getActionTimestamp().isBefore(beforeDate)));
+    }
+
+    @Test
+    @DisplayName("Should search audit logs by keyword")
+    void searchAuditLogsByKeyword_shouldReturnMatchingLogs() {
+        // Given
+        String keyword = "User";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.searchAuditLogsByKeyword(keyword);
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should search audit logs by user agent")
+    void searchAuditLogsByUserAgent_shouldReturnMatchingLogs() {
+        // Given
+        String userAgent = "Mozilla/5.0";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.searchAuditLogsByUserAgent(userAgent);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> userAgent.equals(log.getUserAgent())));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should find latest audit log by entity")
+    void findLatestAuditLogByEntity_shouldReturnLatestLog() {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+
+        // When
+        Optional<AuditLog> result = service.findLatestAuditLogByEntity(entityType, entityId);
+
+        // Then
+        assertTrue(result.isPresent());
+        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+    }
+
+    @Test
+    @DisplayName("Should get audit logs with json data")
+    void getAuditLogsWithJsonData_shouldReturnLogsWithJson() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getAuditLogsWithJsonData();
+
+        // Then
+        assertNotNull(result);
+        assertTrue(
+                result.stream().allMatch(log -> (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) ||
+                        (log.getNewValues() != null && !log.getNewValues().trim().isEmpty())));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get audit logs without json data")
+    void getAuditLogsWithoutJsonData_shouldReturnLogsWithoutJson() {
+        // Given
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getAuditLogsWithoutJsonData();
+
+        // Then
+        assertNotNull(result);
+        assertTrue(
+                result.stream().allMatch(log -> (log.getOldValues() == null || log.getOldValues().trim().isEmpty()) &&
+                        (log.getNewValues() == null || log.getNewValues().trim().isEmpty())));
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get audit logs by json field")
+    void getAuditLogsByJsonField_shouldReturnMatchingLogs() {
+        // Given
+        String fieldName = "name";
+        String fieldValue = "John";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getAuditLogsByJsonField(fieldName, fieldValue);
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get audit logs by json field containing")
+    void getAuditLogsByJsonFieldContaining_shouldReturnMatchingLogs() {
+        // Given
+        String fieldName = "description";
+        String fieldValue = "test";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getAuditLogsByJsonFieldContaining(fieldName, fieldValue);
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get audit logs by json field exists")
+    void getAuditLogsByJsonFieldExists_shouldReturnMatchingLogs() {
+        // Given
+        String fieldName = "status";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getAuditLogsByJsonFieldExists(fieldName);
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should get audit logs by json field not exists")
+    void getAuditLogsByJsonFieldNotExists_shouldReturnMatchingLogs() {
+        // Given
+        String fieldName = "nonExistentField";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        List<AuditLog> result = service.getAuditLogsByJsonFieldNotExists(fieldName);
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findAll();
+    }
 }
