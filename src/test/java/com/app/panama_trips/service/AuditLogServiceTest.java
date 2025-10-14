@@ -739,4 +739,39 @@ public class AuditLogServiceTest {
         assertNotNull(result);
         verify(repository).findByAction(action);
     }
+
+    @Test
+    @DisplayName("Should get activity by user and action")
+    void getActivityByUserAndAction_shouldReturnFilteredActivity() {
+        // Given
+        Integer userId = 1;
+        String action = "CREATE";
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.getActivityByUserAndAction(userId, action);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> action.equals(log.getAction())));
+        verify(repository).findByUser(any(UserEntity.class));
+    }
+
+    @Test
+    @DisplayName("Should get activity by user and entity type")
+    void getActivityByUserAndEntityType_shouldReturnFilteredActivity() {
+        // Given
+        Integer userId = 1;
+        String entityType = "User";
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.getActivityByUserAndEntityType(userId, entityType);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> entityType.equals(log.getEntityType())));
+        verify(repository).findByUser(any(UserEntity.class));
+    }
+
 }
