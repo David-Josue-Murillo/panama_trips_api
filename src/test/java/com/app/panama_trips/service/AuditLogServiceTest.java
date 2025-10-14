@@ -774,4 +774,103 @@ public class AuditLogServiceTest {
         verify(repository).findByUser(any(UserEntity.class));
     }
 
+    // Bulk Operations Tests
+    @Test
+    @DisplayName("Should bulk create audit logs")
+    void bulkCreateAuditLogs_success() {
+        // Given
+        List<AuditLog> auditLogsToCreate = auditLogListForBulkCreateMock();
+
+        // When
+        service.bulkCreateAuditLogs(auditLogsToCreate);
+
+        // Then
+        verify(repository).saveAll(auditLogsCaptor.capture());
+        List<AuditLog> savedAuditLogs = auditLogsCaptor.getValue();
+        assertEquals(auditLogsToCreate.size(), savedAuditLogs.size());
+    }
+
+    @Test
+    @DisplayName("Should bulk delete audit logs by ids")
+    void bulkDeleteAuditLogs_success() {
+        // Given
+        List<Integer> auditLogIds = auditLogIdsForBulkDeleteMock();
+
+        // When
+        service.bulkDeleteAuditLogs(auditLogIds);
+
+        // Then
+        verify(repository).deleteAllById(idsCaptor.capture());
+        List<Integer> deletedIds = idsCaptor.getValue();
+        assertEquals(auditLogIds.size(), deletedIds.size());
+    }
+
+    @Test
+    @DisplayName("Should bulk delete audit logs by entity type")
+    void bulkDeleteAuditLogsByEntityType_success() {
+        // Given
+        String entityType = "User";
+        when(repository.findAll()).thenReturn(auditLogs);
+
+        // When
+        service.bulkDeleteAuditLogsByEntityType(entityType);
+
+        // Then
+        verify(repository).findAll();
+        verify(repository).deleteAll(auditLogsCaptor.capture());
+        List<AuditLog> deletedLogs = auditLogsCaptor.getValue();
+        assertTrue(deletedLogs.stream().allMatch(log -> entityType.equals(log.getEntityType())));
+    }
+
+    @Test
+    @DisplayName("Should bulk delete audit logs by user")
+    void bulkDeleteAuditLogsByUser_success() {
+        // Given
+        Integer userId = 1;
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+
+        // When
+        service.bulkDeleteAuditLogsByUser(userId);
+
+        // Then
+        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).deleteAll(auditLogsCaptor.capture());
+        List<AuditLog> deletedLogs = auditLogsCaptor.getValue();
+        assertEquals(2, deletedLogs.size());
+    }
+
+    @Test
+    @DisplayName("Should bulk delete audit logs by date range")
+    void bulkDeleteAuditLogsByDateRange_success() {
+        // Given
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(repository.findByActionTimestampBetween(startDate, endDate)).thenReturn(auditLogListByDateRangeMock());
+
+        // When
+        service.bulkDeleteAuditLogsByDateRange(startDate, endDate);
+
+        // Then
+        verify(repository).findByActionTimestampBetween(startDate, endDate);
+        verify(repository).deleteAll(auditLogsCaptor.capture());
+        List<AuditLog> deletedLogs = auditLogsCaptor.getValue();
+        assertEquals(5, deletedLogs.size());
+    }
+
+    @Test
+    @DisplayName("Should bulk delete audit logs by action")
+    void bulkDeleteAuditLogsByAction_success() {
+        // Given
+        String action = "CREATE";
+        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+
+        // When
+        service.bulkDeleteAuditLogsByAction(action);
+
+        // Then
+        verify(repository).findByAction(action);
+        verify(repository).deleteAll(auditLogsCaptor.capture());
+        List<AuditLog> deletedLogs = auditLogsCaptor.getValue();
+        assertEquals(2, deletedLogs.size());
+    }
 }
