@@ -873,4 +873,157 @@ public class AuditLogServiceTest {
         List<AuditLog> deletedLogs = auditLogsCaptor.getValue();
         assertEquals(2, deletedLogs.size());
     }
+
+    // Check Operations Tests
+    @Test
+    @DisplayName("Should check if audit log exists by id")
+    void existsById_whenExists_returnsTrue() {
+        // Given
+        Integer id = 1;
+        when(repository.existsById(id)).thenReturn(true);
+
+        // When
+        boolean result = service.existsById(id);
+
+        // Then
+        assertTrue(result);
+        verify(repository).existsById(id);
+    }
+
+    @Test
+    @DisplayName("Should check if audit log does not exist by id")
+    void existsById_whenNotExists_returnsFalse() {
+        // Given
+        Integer id = 999;
+        when(repository.existsById(id)).thenReturn(false);
+
+        // When
+        boolean result = service.existsById(id);
+
+        // Then
+        assertFalse(result);
+        verify(repository).existsById(id);
+    }
+
+    @Test
+    @DisplayName("Should check if audit log exists by entity type and entity id")
+    void existsByEntityTypeAndEntityId_whenExists_returnsTrue() {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+
+        // When
+        boolean result = service.existsByEntityTypeAndEntityId(entityType, entityId);
+
+        // Then
+        assertTrue(result);
+        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+    }
+
+    @Test
+    @DisplayName("Should check if audit log does not exist by entity type and entity id")
+    void existsByEntityTypeAndEntityId_whenNotExists_returnsFalse() {
+        // Given
+        String entityType = "NonExistent";
+        Integer entityId = 999;
+        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(List.of());
+
+        // When
+        boolean result = service.existsByEntityTypeAndEntityId(entityType, entityId);
+
+        // Then
+        assertFalse(result);
+        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+    }
+
+    @Test
+    @DisplayName("Should check if audit log exists by user")
+    void existsByUser_whenExists_returnsTrue() {
+        // Given
+        Integer userId = 1;
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+
+        // When
+        boolean result = service.existsByUser(userId);
+
+        // Then
+        assertTrue(result);
+        verify(repository).findByUser(any(UserEntity.class));
+    }
+
+    @Test
+    @DisplayName("Should check if audit log does not exist by user")
+    void existsByUser_whenNotExists_returnsFalse() {
+        // Given
+        Integer userId = 999;
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(List.of());
+
+        // When
+        boolean result = service.existsByUser(userId);
+
+        // Then
+        assertFalse(result);
+        verify(repository).findByUser(any(UserEntity.class));
+    }
+
+    @Test
+    @DisplayName("Should check if audit log exists by action")
+    void existsByAction_whenExists_returnsTrue() {
+        // Given
+        String action = "CREATE";
+        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+
+        // When
+        boolean result = service.existsByAction(action);
+
+        // Then
+        assertTrue(result);
+        verify(repository).findByAction(action);
+    }
+
+    @Test
+    @DisplayName("Should check if audit log does not exist by action")
+    void existsByAction_whenNotExists_returnsFalse() {
+        // Given
+        String action = "NON_EXISTENT";
+        when(repository.findByAction(action)).thenReturn(List.of());
+
+        // When
+        boolean result = service.existsByAction(action);
+
+        // Then
+        assertFalse(result);
+        verify(repository).findByAction(action);
+    }
+
+    @Test
+    @DisplayName("Should check if audit log exists by ip address")
+    void existsByIpAddress_whenExists_returnsTrue() {
+        // Given
+        String ipAddress = "192.168.1.1";
+        when(repository.findByIpAddress(ipAddress)).thenReturn(auditLogs);
+
+        // When
+        boolean result = service.existsByIpAddress(ipAddress);
+
+        // Then
+        assertTrue(result);
+        verify(repository).findByIpAddress(ipAddress);
+    }
+
+    @Test
+    @DisplayName("Should check if audit log does not exist by ip address")
+    void existsByIpAddress_whenNotExists_returnsFalse() {
+        // Given
+        String ipAddress = "999.999.999.999";
+        when(repository.findByIpAddress(ipAddress)).thenReturn(List.of());
+
+        // When
+        boolean result = service.existsByIpAddress(ipAddress);
+
+        // Then
+        assertFalse(result);
+        verify(repository).findByIpAddress(ipAddress);
+    }
 }
