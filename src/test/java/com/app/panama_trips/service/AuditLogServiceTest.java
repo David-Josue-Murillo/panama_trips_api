@@ -597,4 +597,42 @@ public class AuditLogServiceTest {
         verify(repository).findByIpAddress(ipAddress);
     }
 
+    @Test
+    @DisplayName("Should get activity by user and date range")
+    void getActivityByUserAndDateRange_shouldReturnFilteredActivity() {
+        // Given
+        Integer userId = 1;
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.getActivityByUserAndDateRange(userId, startDate, endDate);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isAfter(startDate) &&
+                log.getActionTimestamp().isBefore(endDate)));
+        verify(repository).findByUser(any(UserEntity.class));
+    }
+
+    @Test
+    @DisplayName("Should get activity by entity and date range")
+    void getActivityByEntityAndDateRange_shouldReturnFilteredActivity() {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+
+        // When
+        List<AuditLog> result = service.getActivityByEntityAndDateRange(entityType, entityId, startDate, endDate);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isAfter(startDate) &&
+                log.getActionTimestamp().isBefore(endDate)));
+        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+    }
 }
