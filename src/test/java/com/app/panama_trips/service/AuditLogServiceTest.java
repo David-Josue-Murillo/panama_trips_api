@@ -108,4 +108,95 @@ public class AuditLogServiceTest {
         assertEquals("Audit log not found with id: " + id, exception.getMessage());
         verify(repository).findById(id);
     }
+
+    @Test
+    @DisplayName("Should save audit log successfully")
+    void saveAuditLog_success() {
+        // Given
+        when(repository.save(any(AuditLog.class))).thenReturn(auditLog);
+
+        // When
+        AuditLog result = service.saveAuditLog(auditLog);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(auditLog.getId(), result.getId());
+        verify(repository).save(auditLogCaptor.capture());
+        AuditLog savedAuditLog = auditLogCaptor.getValue();
+        assertEquals(auditLog.getEntityType(), savedAuditLog.getEntityType());
+        assertEquals(auditLog.getEntityId(), savedAuditLog.getEntityId());
+        assertEquals(auditLog.getAction(), savedAuditLog.getAction());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when saving audit log with null entity type")
+    void saveAuditLog_withNullEntityType_shouldThrowException() {
+        // Given
+        auditLog.setEntityType(null);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.saveAuditLog(auditLog));
+        assertEquals("Entity type cannot be null or empty", exception.getMessage());
+        verify(repository, never()).save(any(AuditLog.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when saving audit log with empty entity type")
+    void saveAuditLog_withEmptyEntityType_shouldThrowException() {
+        // Given
+        auditLog.setEntityType("");
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.saveAuditLog(auditLog));
+        assertEquals("Entity type cannot be null or empty", exception.getMessage());
+        verify(repository, never()).save(any(AuditLog.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when saving audit log with null entity id")
+    void saveAuditLog_withNullEntityId_shouldThrowException() {
+        // Given
+        auditLog.setEntityId(null);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.saveAuditLog(auditLog));
+        assertEquals("Entity ID cannot be null", exception.getMessage());
+        verify(repository, never()).save(any(AuditLog.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when saving audit log with null action")
+    void saveAuditLog_withNullAction_shouldThrowException() {
+        // Given
+        auditLog.setAction(null);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.saveAuditLog(auditLog));
+        assertEquals("Action cannot be null or empty", exception.getMessage());
+        verify(repository, never()).save(any(AuditLog.class));
+    }
+
+    @Test
+    @DisplayName("Should set current timestamp when saving audit log with null timestamp")
+    void saveAuditLog_withNullTimestamp_shouldSetCurrentTimestamp() {
+        // Given
+        auditLog.setActionTimestamp(null);
+        when(repository.save(any(AuditLog.class))).thenReturn(auditLog);
+
+        // When
+        service.saveAuditLog(auditLog);
+
+        // Then
+        verify(repository).save(auditLogCaptor.capture());
+        AuditLog savedAuditLog = auditLogCaptor.getValue();
+        assertNotNull(savedAuditLog.getActionTimestamp());
+    }
 }
