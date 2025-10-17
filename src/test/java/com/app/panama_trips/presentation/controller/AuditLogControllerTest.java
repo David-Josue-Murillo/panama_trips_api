@@ -990,4 +990,218 @@ public class AuditLogControllerTest {
 
         verify(service).getAuditTrailForUserAndDateRange(userId, startDate, endDate);
     }
+
+    // Statistics and Analytics Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total audit logs when getTotalAuditLogs is called")
+    void getTotalAuditLogs_success() throws Exception {
+        // Given
+        Long expectedCount = 100L;
+        when(service.getTotalAuditLogs()).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/total"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).getTotalAuditLogs();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total audit logs by entity type when getTotalAuditLogsByEntityType is called")
+    void getTotalAuditLogsByEntityType_success() throws Exception {
+        // Given
+        String entityType = "User";
+        Long expectedCount = 30L;
+        when(service.getTotalAuditLogsByEntityType(entityType)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/entity-type/{entityType}", entityType))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).getTotalAuditLogsByEntityType(entityType);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total audit logs by user when getTotalAuditLogsByUser is called")
+    void getTotalAuditLogsByUser_success() throws Exception {
+        // Given
+        Integer userId = 1;
+        Long expectedCount = 25L;
+        when(service.getTotalAuditLogsByUser(userId)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/user/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).getTotalAuditLogsByUser(userId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total audit logs by action when getTotalAuditLogsByAction is called")
+    void getTotalAuditLogsByAction_success() throws Exception {
+        // Given
+        String action = "CREATE";
+        Long expectedCount = 40L;
+        when(service.getTotalAuditLogsByAction(action)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/action/{action}", action))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).getTotalAuditLogsByAction(action);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total audit logs by date range when getTotalAuditLogsByDateRange is called")
+    void getTotalAuditLogsByDateRange_success() throws Exception {
+        // Given
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        Long expectedCount = 50L;
+        when(service.getTotalAuditLogsByDateRange(startDate, endDate)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/date-range")
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).getTotalAuditLogsByDateRange(startDate, endDate);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get total audit logs by ip address when getTotalAuditLogsByIpAddress is called")
+    void getTotalAuditLogsByIpAddress_success() throws Exception {
+        // Given
+        String ipAddress = "192.168.1.1";
+        Long expectedCount = 15L;
+        when(service.getTotalAuditLogsByIpAddress(ipAddress)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/ip/{ipAddress}", ipAddress))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).getTotalAuditLogsByIpAddress(ipAddress);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get top users by activity when getTopUsersByActivity is called")
+    void getTopUsersByActivity_success() throws Exception {
+        // Given
+        int limit = 10;
+        when(service.getTopUsersByActivity(limit)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/top-users/{limit}", limit))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getTopUsersByActivity(limit);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get top entity types by activity when getTopEntityTypesByActivity is called")
+    void getTopEntityTypesByActivity_success() throws Exception {
+        // Given
+        int limit = 5;
+        when(service.getTopEntityTypesByActivity(limit)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/top-entity-types/{limit}", limit))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getTopEntityTypesByActivity(limit);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get top actions by activity when getTopActionsByActivity is called")
+    void getTopActionsByActivity_success() throws Exception {
+        // Given
+        int limit = 8;
+        when(service.getTopActionsByActivity(limit)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/top-actions/{limit}", limit))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getTopActionsByActivity(limit);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get top ip addresses by activity when getTopIpAddressesByActivity is called")
+    void getTopIpAddressesByActivity_success() throws Exception {
+        // Given
+        int limit = 6;
+        when(service.getTopIpAddressesByActivity(limit)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/top-ips/{limit}", limit))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getTopIpAddressesByActivity(limit);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by month when getActivityByMonth is called")
+    void getActivityByMonth_success() throws Exception {
+        // Given
+        when(service.getActivityByMonth()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/by-month"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByMonth();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by day of week when getActivityByDayOfWeek is called")
+    void getActivityByDayOfWeek_success() throws Exception {
+        // Given
+        when(service.getActivityByDayOfWeek()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/by-day-of-week"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByDayOfWeek();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by hour when getActivityByHour is called")
+    void getActivityByHour_success() throws Exception {
+        // Given
+        when(service.getActivityByHour()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/stats/by-hour"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByHour();
+    }
 }
