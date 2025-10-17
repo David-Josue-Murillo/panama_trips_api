@@ -525,4 +525,62 @@ public class AuditLogControllerTest {
 
         verify(service).getActivityByEntityAndDateRange(entityType, entityId, startDate, endDate);
     }
+
+    // Advanced Queries Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by user agent containing when getActivityByUserAgentContaining is called")
+    void getActivityByUserAgentContaining_success() throws Exception {
+        // Given
+        String pattern = "Mozilla";
+        when(service.getActivityByUserAgentContaining(pattern)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/user-agent/containing/{pattern}", pattern))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByUserAgentContaining(pattern);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by ip address and date range when getActivityByIpAddressAndDateRange is called")
+    void getActivityByIpAddressAndDateRange_success() throws Exception {
+        // Given
+        String ipAddress = "192.168.1.1";
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(service.getActivityByIpAddressAndDateRange(ipAddress, startDate, endDate)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/ip/{ipAddress}/date-range", ipAddress)
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByIpAddressAndDateRange(ipAddress, startDate, endDate);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by action and date range when getActivityByActionAndDateRange is called")
+    void getActivityByActionAndDateRange_success() throws Exception {
+        // Given
+        String action = "CREATE";
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(service.getActivityByActionAndDateRange(action, startDate, endDate)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/action/{action}/date-range", action)
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByActionAndDateRange(action, startDate, endDate);
+    }
+
 }
