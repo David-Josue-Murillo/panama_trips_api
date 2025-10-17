@@ -687,4 +687,86 @@ public class AuditLogControllerTest {
 
         verify(service).bulkDeleteAuditLogsByAction(action);
     }
+
+    // Check Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if audit log exists by id when existsById is called")
+    void existsById_success() throws Exception {
+        // Given
+        Integer id = 1;
+        when(service.existsById(id)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/exists/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).existsById(id);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if audit log exists by entity type and entity id when existsByEntityTypeAndEntityId is called")
+    void existsByEntityTypeAndEntityId_success() throws Exception {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        when(service.existsByEntityTypeAndEntityId(entityType, entityId)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/exists/entity/{entityType}/{entityId}", entityType, entityId))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).existsByEntityTypeAndEntityId(entityType, entityId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if audit log exists by user when existsByUser is called")
+    void existsByUser_success() throws Exception {
+        // Given
+        Integer userId = 1;
+        when(service.existsByUser(userId)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/exists/user/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).existsByUser(userId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if audit log exists by action when existsByAction is called")
+    void existsByAction_success() throws Exception {
+        // Given
+        String action = "CREATE";
+        when(service.existsByAction(action)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/exists/action/{action}", action))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).existsByAction(action);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if audit log exists by ip address when existsByIpAddress is called")
+    void existsByIpAddress_success() throws Exception {
+        // Given
+        String ipAddress = "192.168.1.1";
+        when(service.existsByIpAddress(ipAddress)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/exists/ip/{ipAddress}", ipAddress))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(service).existsByIpAddress(ipAddress);
+    }
 }
