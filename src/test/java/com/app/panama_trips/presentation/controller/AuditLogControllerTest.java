@@ -858,4 +858,136 @@ public class AuditLogControllerTest {
 
         verify(service).countByIpAddress(ipAddress);
     }
+
+    // Audit Trail Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit trail for entity when getAuditTrailForEntity is called")
+    void getAuditTrailForEntity_success() throws Exception {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        when(service.getAuditTrailForEntity(entityType, entityId)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/audit-trail/entity/{entityType}/{entityId}", entityType, entityId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditTrailForEntity(entityType, entityId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit trail for user when getAuditTrailForUser is called")
+    void getAuditTrailForUser_success() throws Exception {
+        // Given
+        Integer userId = 1;
+        when(service.getAuditTrailForUser(userId)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/audit-trail/user/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditTrailForUser(userId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit trail for entity and user when getAuditTrailForEntityAndUser is called")
+    void getAuditTrailForEntityAndUser_success() throws Exception {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        Integer userId = 1;
+        when(service.getAuditTrailForEntityAndUser(entityType, entityId, userId)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/audit-trail/entity/{entityType}/{entityId}/user/{userId}", entityType,
+                entityId, userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditTrailForEntityAndUser(entityType, entityId, userId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit trail for entity and action when getAuditTrailForEntityAndAction is called")
+    void getAuditTrailForEntityAndAction_success() throws Exception {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        String action = "CREATE";
+        when(service.getAuditTrailForEntityAndAction(entityType, entityId, action)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/audit-trail/entity/{entityType}/{entityId}/action/{action}", entityType,
+                entityId, action))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditTrailForEntityAndAction(entityType, entityId, action);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit trail for user and action when getAuditTrailForUserAndAction is called")
+    void getAuditTrailForUserAndAction_success() throws Exception {
+        // Given
+        Integer userId = 1;
+        String action = "CREATE";
+        when(service.getAuditTrailForUserAndAction(userId, action)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/audit-trail/user/{userId}/action/{action}", userId, action))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditTrailForUserAndAction(userId, action);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit trail for entity and date range when getAuditTrailForEntityAndDateRange is called")
+    void getAuditTrailForEntityAndDateRange_success() throws Exception {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(service.getAuditTrailForEntityAndDateRange(entityType, entityId, startDate, endDate))
+                .thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(
+                get("/api/audit-logs/audit-trail/entity/{entityType}/{entityId}/date-range", entityType, entityId)
+                        .param("startDate", startDate.toString())
+                        .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditTrailForEntityAndDateRange(entityType, entityId, startDate, endDate);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit trail for user and date range when getAuditTrailForUserAndDateRange is called")
+    void getAuditTrailForUserAndDateRange_success() throws Exception {
+        // Given
+        Integer userId = 1;
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(service.getAuditTrailForUserAndDateRange(userId, startDate, endDate)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/audit-trail/user/{userId}/date-range", userId)
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditTrailForUserAndDateRange(userId, startDate, endDate);
+    }
 }
