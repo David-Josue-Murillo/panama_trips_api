@@ -330,4 +330,74 @@ public class AuditLogControllerTest {
 
         verify(service).getActivityByUserAgent(userAgent);
     }
+
+    // Specialized Queries Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by user and action when findByUserAndAction is called")
+    void findByUserAndAction_success() throws Exception {
+        // Given
+        Integer userId = 1;
+        String action = "CREATE";
+        when(service.getActivityByUserAndAction(userId, action)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/user/{userId}/action/{action}", userId, action))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByUserAndAction(userId, action);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by user and entity type when findByUserAndEntityType is called")
+    void findByUserAndEntityType_success() throws Exception {
+        // Given
+        Integer userId = 1;
+        String entityType = "User";
+        when(service.getActivityByUserAndEntityType(userId, entityType)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/user/{userId}/entity-type/{entityType}", userId, entityType))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByUserAndEntityType(userId, entityType);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by action and entity type when findByActionAndEntityType is called")
+    void findByActionAndEntityType_success() throws Exception {
+        // Given
+        String action = "CREATE";
+        String entityType = "User";
+        when(service.getActivityByEntityTypeAndAction(entityType, action)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/action/{action}/entity-type/{entityType}", action, entityType))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByEntityTypeAndAction(entityType, action);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find recent activity by entity type when findRecentActivityByEntityType is called")
+    void findRecentActivityByEntityType_success() throws Exception {
+        // Given
+        String entityType = "User";
+        int limit = 10;
+        when(service.getRecentActivityByEntityType(entityType, limit)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/recent-activity/{entityType}", entityType)
+                .param("limit", String.valueOf(limit)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getRecentActivityByEntityType(entityType, limit);
+    }
 }
