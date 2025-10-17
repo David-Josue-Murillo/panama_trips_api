@@ -249,4 +249,85 @@ public class AuditLogControllerTest {
 
         verify(service).getRecentActivity(limit);
     }
+
+    // Entity Type and Entity ID Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by entity type when findByEntityType is called")
+    void findByEntityType_success() throws Exception {
+        // Given
+        String entityType = "User";
+        when(service.findByEntityType(entityType)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/entity-type/{entityType}", entityType))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).findByEntityType(entityType);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by entity id when findByEntityId is called")
+    void findByEntityId_success() throws Exception {
+        // Given
+        Integer entityId = 1;
+        when(service.findByEntityId(entityId)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/entity-id/{entityId}", entityId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).findByEntityId(entityId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by timestamp after when findByTimestampAfter is called")
+    void findByTimestampAfter_success() throws Exception {
+        // Given
+        LocalDateTime timestamp = LocalDateTime.now().minusDays(1);
+        when(service.findByTimestampAfter(timestamp)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/timestamp-after/{timestamp}", timestamp))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).findByTimestampAfter(timestamp);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by timestamp before when findByTimestampBefore is called")
+    void findByTimestampBefore_success() throws Exception {
+        // Given
+        LocalDateTime timestamp = LocalDateTime.now().plusDays(1);
+        when(service.findByTimestampBefore(timestamp)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/timestamp-before/{timestamp}", timestamp))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).findByTimestampBefore(timestamp);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by user agent when findByUserAgent is called")
+    void findByUserAgent_success() throws Exception {
+        // Given
+        String userAgent = "Mozilla";
+        when(service.getActivityByUserAgent(userAgent)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/user-agent/{userAgent}", userAgent))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByUserAgent(userAgent);
+    }
 }
