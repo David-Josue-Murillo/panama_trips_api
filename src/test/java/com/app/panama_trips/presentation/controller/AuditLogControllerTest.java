@@ -400,4 +400,129 @@ public class AuditLogControllerTest {
 
         verify(service).getRecentActivityByEntityType(entityType, limit);
     }
+
+    // Business Logic Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by date range when getActivityByDateRange is called")
+    void getActivityByDateRange_success() throws Exception {
+        // Given
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(service.getActivityByDateRange(startDate, endDate)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/activity/date-range")
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByDateRange(startDate, endDate);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by user when getActivityByUser is called")
+    void getActivityByUser_success() throws Exception {
+        // Given
+        Integer userId = 1;
+        when(service.getActivityByUser(userId)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/activity/user/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByUser(userId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by entity type when getActivityByEntityType is called")
+    void getActivityByEntityType_success() throws Exception {
+        // Given
+        String entityType = "User";
+        when(service.getActivityByEntityType(entityType)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/activity/entity-type/{entityType}", entityType))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByEntityType(entityType);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by action when getActivityByAction is called")
+    void getActivityByAction_success() throws Exception {
+        // Given
+        String action = "CREATE";
+        when(service.getActivityByAction(action)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/activity/action/{action}", action))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByAction(action);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by ip address when getActivityByIpAddress is called")
+    void getActivityByIpAddress_success() throws Exception {
+        // Given
+        String ipAddress = "192.168.1.1";
+        when(service.getActivityByIpAddress(ipAddress)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/activity/ip/{ipAddress}", ipAddress))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByIpAddress(ipAddress);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by user and date range when getActivityByUserAndDateRange is called")
+    void getActivityByUserAndDateRange_success() throws Exception {
+        // Given
+        Integer userId = 1;
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(service.getActivityByUserAndDateRange(userId, startDate, endDate)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/activity/user/{userId}/date-range", userId)
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByUserAndDateRange(userId, startDate, endDate);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by entity and date range when getActivityByEntityAndDateRange is called")
+    void getActivityByEntityAndDateRange_success() throws Exception {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        when(service.getActivityByEntityAndDateRange(entityType, entityId, startDate, endDate)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/activity/entity/{entityType}/{entityId}/date-range", entityType, entityId)
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByEntityAndDateRange(entityType, entityId, startDate, endDate);
+    }
 }
