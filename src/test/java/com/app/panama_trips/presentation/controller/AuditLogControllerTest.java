@@ -769,4 +769,93 @@ public class AuditLogControllerTest {
 
         verify(service).existsByIpAddress(ipAddress);
     }
+
+    // Count Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count audit logs by entity type when countByEntityType is called")
+    void countByEntityType_success() throws Exception {
+        // Given
+        String entityType = "User";
+        Long expectedCount = 5L;
+        when(service.countByEntityType(entityType)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/count/entity-type/{entityType}", entityType))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countByEntityType(entityType);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count audit logs by user when countByUser is called")
+    void countByUser_success() throws Exception {
+        // Given
+        Integer userId = 1;
+        Long expectedCount = 10L;
+        when(service.countByUser(userId)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/count/user/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countByUser(userId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count audit logs by action when countByAction is called")
+    void countByAction_success() throws Exception {
+        // Given
+        String action = "CREATE";
+        Long expectedCount = 15L;
+        when(service.countByAction(action)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/count/action/{action}", action))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countByAction(action);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count audit logs by date range when countByDateRange is called")
+    void countByDateRange_success() throws Exception {
+        // Given
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        Long expectedCount = 20L;
+        when(service.countByDateRange(startDate, endDate)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/count/date-range")
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countByDateRange(startDate, endDate);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count audit logs by ip address when countByIpAddress is called")
+    void countByIpAddress_success() throws Exception {
+        // Given
+        String ipAddress = "192.168.1.1";
+        Long expectedCount = 8L;
+        when(service.countByIpAddress(ipAddress)).thenReturn(expectedCount);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/count/ip/{ipAddress}", ipAddress))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedCount.toString()));
+
+        verify(service).countByIpAddress(ipAddress);
+    }
 }
