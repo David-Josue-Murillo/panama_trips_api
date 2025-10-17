@@ -1,6 +1,7 @@
 package com.app.panama_trips.presentation.controller;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -583,4 +584,107 @@ public class AuditLogControllerTest {
         verify(service).getActivityByActionAndDateRange(action, startDate, endDate);
     }
 
+    // Bulk Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should create multiple audit logs in bulk when bulkCreate is called")
+    void bulkCreate_success() throws Exception {
+        // Given
+        List<AuditLog> auditLogsToCreate = Collections.singletonList(auditLog);
+        doNothing().when(service).bulkCreateAuditLogs(anyList());
+
+        // When/Then
+        mockMvc.perform(post("/api/audit-logs/bulk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(auditLogsToCreate))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isCreated());
+
+        verify(service).bulkCreateAuditLogs(anyList());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should delete multiple audit logs in bulk when bulkDelete is called")
+    void bulkDelete_success() throws Exception {
+        // Given
+        List<Integer> auditLogIds = Collections.singletonList(1);
+        doNothing().when(service).bulkDeleteAuditLogs(anyList());
+
+        // When/Then
+        mockMvc.perform(delete("/api/audit-logs/bulk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(auditLogIds))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(service).bulkDeleteAuditLogs(anyList());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should delete audit logs by entity type in bulk when bulkDeleteByEntityType is called")
+    void bulkDeleteByEntityType_success() throws Exception {
+        // Given
+        String entityType = "User";
+        doNothing().when(service).bulkDeleteAuditLogsByEntityType(entityType);
+
+        // When/Then
+        mockMvc.perform(delete("/api/audit-logs/bulk/entity-type/{entityType}", entityType)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(service).bulkDeleteAuditLogsByEntityType(entityType);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should delete audit logs by user in bulk when bulkDeleteByUser is called")
+    void bulkDeleteByUser_success() throws Exception {
+        // Given
+        Integer userId = 1;
+        doNothing().when(service).bulkDeleteAuditLogsByUser(userId);
+
+        // When/Then
+        mockMvc.perform(delete("/api/audit-logs/bulk/user/{userId}", userId)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(service).bulkDeleteAuditLogsByUser(userId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should delete audit logs by date range in bulk when bulkDeleteByDateRange is called")
+    void bulkDeleteByDateRange_success() throws Exception {
+        // Given
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
+        doNothing().when(service).bulkDeleteAuditLogsByDateRange(startDate, endDate);
+
+        // When/Then
+        mockMvc.perform(delete("/api/audit-logs/bulk/date-range")
+                .param("startDate", startDate.toString())
+                .param("endDate", endDate.toString())
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(service).bulkDeleteAuditLogsByDateRange(startDate, endDate);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should delete audit logs by action in bulk when bulkDeleteByAction is called")
+    void bulkDeleteByAction_success() throws Exception {
+        // Given
+        String action = "CREATE";
+        doNothing().when(service).bulkDeleteAuditLogsByAction(action);
+
+        // When/Then
+        mockMvc.perform(delete("/api/audit-logs/bulk/action/{action}", action)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(service).bulkDeleteAuditLogsByAction(action);
+    }
 }
