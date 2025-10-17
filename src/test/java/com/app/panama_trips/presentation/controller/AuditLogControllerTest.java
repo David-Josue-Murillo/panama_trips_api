@@ -1204,4 +1204,222 @@ public class AuditLogControllerTest {
 
         verify(service).getActivityByHour();
     }
+
+    // Security and Monitoring Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get suspicious activity when getSuspiciousActivity is called")
+    void getSuspiciousActivity_success() throws Exception {
+        // Given
+        String ipAddress = "192.168.1.100";
+        when(service.getSuspiciousActivity(ipAddress)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/security/suspicious/{ipAddress}", ipAddress))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getSuspiciousActivity(ipAddress);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by multiple ip addresses when getActivityByMultipleIpAddresses is called")
+    void getActivityByMultipleIpAddresses_success() throws Exception {
+        // Given
+        List<String> ipAddresses = List.of("192.168.1.1", "192.168.1.2");
+        when(service.getActivityByMultipleIpAddresses(ipAddresses)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(post("/api/audit-logs/security/multiple-ips")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(ipAddresses))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByMultipleIpAddresses(ipAddresses);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get activity by user agent pattern when getActivityByUserAgentPattern is called")
+    void getActivityByUserAgentPattern_success() throws Exception {
+        // Given
+        String pattern = "Mozilla";
+        when(service.getActivityByUserAgentPattern(pattern)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/security/user-agent-pattern/{pattern}", pattern))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getActivityByUserAgentPattern(pattern);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get failed login attempts when getFailedLoginAttempts is called")
+    void getFailedLoginAttempts_success() throws Exception {
+        // Given
+        when(service.getFailedLoginAttempts()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/security/failed-logins"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getFailedLoginAttempts();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get successful login attempts when getSuccessfulLoginAttempts is called")
+    void getSuccessfulLoginAttempts_success() throws Exception {
+        // Given
+        when(service.getSuccessfulLoginAttempts()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/security/successful-logins"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getSuccessfulLoginAttempts();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get data modification activity when getDataModificationActivity is called")
+    void getDataModificationActivity_success() throws Exception {
+        // Given
+        when(service.getDataModificationActivity()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/security/data-modification"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getDataModificationActivity();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get data access activity when getDataAccessActivity is called")
+    void getDataAccessActivity_success() throws Exception {
+        // Given
+        when(service.getDataAccessActivity()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/security/data-access"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getDataAccessActivity();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get data deletion activity when getDataDeletionActivity is called")
+    void getDataDeletionActivity_success() throws Exception {
+        // Given
+        when(service.getDataDeletionActivity()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/security/data-deletion"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getDataDeletionActivity();
+    }
+
+    // Data Integrity Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit logs with missing user when getAuditLogsWithMissingUser is called")
+    void getAuditLogsWithMissingUser_success() throws Exception {
+        // Given
+        when(service.getAuditLogsWithMissingUser()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/integrity/missing-user"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditLogsWithMissingUser();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit logs with missing ip when getAuditLogsWithMissingIpAddress is called")
+    void getAuditLogsWithMissingIpAddress_success() throws Exception {
+        // Given
+        when(service.getAuditLogsWithMissingIpAddress()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/integrity/missing-ip"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditLogsWithMissingIpAddress();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit logs with invalid json when getAuditLogsWithInvalidJsonData is called")
+    void getAuditLogsWithInvalidJsonData_success() throws Exception {
+        // Given
+        when(service.getAuditLogsWithInvalidJsonData()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/integrity/invalid-json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditLogsWithInvalidJsonData();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit logs with empty old values when getAuditLogsWithEmptyOldValues is called")
+    void getAuditLogsWithEmptyOldValues_success() throws Exception {
+        // Given
+        when(service.getAuditLogsWithEmptyOldValues()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/integrity/empty-old-values"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditLogsWithEmptyOldValues();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit logs with empty new values when getAuditLogsWithEmptyNewValues is called")
+    void getAuditLogsWithEmptyNewValues_success() throws Exception {
+        // Given
+        when(service.getAuditLogsWithEmptyNewValues()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/integrity/empty-new-values"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditLogsWithEmptyNewValues();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit logs with both empty values when getAuditLogsWithBothEmptyValues is called")
+    void getAuditLogsWithBothEmptyValues_success() throws Exception {
+        // Given
+        when(service.getAuditLogsWithBothEmptyValues()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/integrity/empty-both-values"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditLogsWithBothEmptyValues();
+    }
 }
