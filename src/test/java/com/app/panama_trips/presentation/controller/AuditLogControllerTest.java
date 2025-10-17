@@ -3,6 +3,7 @@ package com.app.panama_trips.presentation.controller;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -1421,5 +1422,199 @@ public class AuditLogControllerTest {
                 .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
 
         verify(service).getAuditLogsWithBothEmptyValues();
+    }
+
+    // Utility Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should cleanup old audit logs when cleanupOldAuditLogs is called")
+    void cleanupOldAuditLogs_success() throws Exception {
+        // Given
+        int daysToKeep = 30;
+        doNothing().when(service).cleanupOldAuditLogs(daysToKeep);
+
+        // When/Then
+        mockMvc.perform(post("/api/audit-logs/cleanup/{daysToKeep}", daysToKeep)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk());
+
+        verify(service).cleanupOldAuditLogs(daysToKeep);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should archive audit logs when archiveAuditLogs is called")
+    void archiveAuditLogs_success() throws Exception {
+        // Given
+        LocalDateTime beforeDate = LocalDateTime.now().minusDays(30);
+        doNothing().when(service).archiveAuditLogs(beforeDate);
+
+        // When/Then
+        mockMvc.perform(post("/api/audit-logs/archive/{beforeDate}", beforeDate)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk());
+
+        verify(service).archiveAuditLogs(beforeDate);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should search audit logs by keyword when searchAuditLogsByKeyword is called")
+    void searchAuditLogsByKeyword_success() throws Exception {
+        // Given
+        String keyword = "User";
+        when(service.searchAuditLogsByKeyword(keyword)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/search/keyword/{keyword}", keyword))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).searchAuditLogsByKeyword(keyword);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should search audit logs by user agent when searchAuditLogsByUserAgent is called")
+    void searchAuditLogsByUserAgent_success() throws Exception {
+        // Given
+        String userAgent = "Mozilla";
+        when(service.searchAuditLogsByUserAgent(userAgent)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/search/user-agent/{userAgent}", userAgent))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).searchAuditLogsByUserAgent(userAgent);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find latest audit log by entity when found")
+    void findLatestAuditLogByEntity_whenFound_success() throws Exception {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        when(service.findLatestAuditLogByEntity(entityType, entityId)).thenReturn(Optional.of(auditLog));
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/latest/entity/{entityType}/{entityId}", entityType, entityId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(auditLog.getId()));
+
+        verify(service).findLatestAuditLogByEntity(entityType, entityId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return 404 when latest audit log by entity not found")
+    void findLatestAuditLogByEntity_whenNotFound_returns404() throws Exception {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        when(service.findLatestAuditLogByEntity(entityType, entityId)).thenReturn(Optional.empty());
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/latest/entity/{entityType}/{entityId}", entityType, entityId))
+                .andExpect(status().isNotFound());
+
+        verify(service).findLatestAuditLogByEntity(entityType, entityId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit logs with json data when getAuditLogsWithJsonData is called")
+    void getAuditLogsWithJsonData_success() throws Exception {
+        // Given
+        when(service.getAuditLogsWithJsonData()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/with-json-data"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditLogsWithJsonData();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit logs without json data when getAuditLogsWithoutJsonData is called")
+    void getAuditLogsWithoutJsonData_success() throws Exception {
+        // Given
+        when(service.getAuditLogsWithoutJsonData()).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/without-json-data"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditLogsWithoutJsonData();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit logs by json field when getAuditLogsByJsonField is called")
+    void getAuditLogsByJsonField_success() throws Exception {
+        // Given
+        String fieldName = "name";
+        String fieldValue = "John";
+        when(service.getAuditLogsByJsonField(fieldName, fieldValue)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/json-field/{fieldName}/{fieldValue}", fieldName, fieldValue))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditLogsByJsonField(fieldName, fieldValue);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit logs by json field containing when getAuditLogsByJsonFieldContaining is called")
+    void getAuditLogsByJsonFieldContaining_success() throws Exception {
+        // Given
+        String fieldName = "description";
+        String fieldValue = "test";
+        when(service.getAuditLogsByJsonFieldContaining(fieldName, fieldValue)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/json-field/containing/{fieldName}/{fieldValue}", fieldName, fieldValue))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditLogsByJsonFieldContaining(fieldName, fieldValue);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit logs by json field exists when getAuditLogsByJsonFieldExists is called")
+    void getAuditLogsByJsonFieldExists_success() throws Exception {
+        // Given
+        String fieldName = "status";
+        when(service.getAuditLogsByJsonFieldExists(fieldName)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/json-field/exists/{fieldName}", fieldName))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditLogsByJsonFieldExists(fieldName);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get audit logs by json field not exists when getAuditLogsByJsonFieldNotExists is called")
+    void getAuditLogsByJsonFieldNotExists_success() throws Exception {
+        // Given
+        String fieldName = "nonExistentField";
+        when(service.getAuditLogsByJsonFieldNotExists(fieldName)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/json-field/not-exists/{fieldName}", fieldName))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getAuditLogsByJsonFieldNotExists(fieldName);
     }
 }
