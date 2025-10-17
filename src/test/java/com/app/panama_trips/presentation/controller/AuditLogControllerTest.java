@@ -1,5 +1,6 @@
 package com.app.panama_trips.presentation.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -140,5 +141,112 @@ public class AuditLogControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(service).deleteAuditLog(id);
+    }
+
+    // Search Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by entity when findByEntity is called")
+    void findByEntity_success() throws Exception {
+        // Given
+        String entityType = "User";
+        Integer entityId = 1;
+        when(service.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/by-entity")
+                .param("entityType", entityType)
+                .param("entityId", entityId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).findByEntityTypeAndEntityId(entityType, entityId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by user when findByUser is called")
+    void findByUser_success() throws Exception {
+        // Given
+        Integer userId = 1;
+        when(service.findByUserId(userId)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/by-user")
+                .param("userId", userId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).findByUserId(userId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by action when findByAction is called")
+    void findByAction_success() throws Exception {
+        // Given
+        String action = "CREATE";
+        when(service.findByAction(action)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/by-action")
+                .param("action", action))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).findByAction(action);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by ip when findByIp is called")
+    void findByIp_success() throws Exception {
+        // Given
+        String ip = "192.168.1.1";
+        when(service.findByIpAddress(ip)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/by-ip")
+                .param("ip", ip))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).findByIpAddress(ip);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should find audit logs by date range when findByDateRange is called")
+    void findByDateRange_success() throws Exception {
+        // Given
+        LocalDateTime start = LocalDateTime.now().minusDays(1);
+        LocalDateTime end = LocalDateTime.now().plusDays(1);
+        when(service.findByActionTimestampBetween(start, end)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/by-date-range")
+                .param("start", start.toString())
+                .param("end", end.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).findByActionTimestampBetween(start, end);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should get recent audit logs when getRecent is called")
+    void getRecent_success() throws Exception {
+        // Given
+        int limit = 10;
+        when(service.getRecentActivity(limit)).thenReturn(auditLogs);
+
+        // When/Then
+        mockMvc.perform(get("/api/audit-logs/recent")
+                .param("limit", String.valueOf(limit)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(auditLog.getId()));
+
+        verify(service).getRecentActivity(limit);
     }
 }
