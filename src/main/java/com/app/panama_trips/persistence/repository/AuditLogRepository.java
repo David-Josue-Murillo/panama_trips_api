@@ -21,9 +21,9 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
 
     List<AuditLog> findByAction(String action);
 
-    @Query("SELECT a FROM AuditLog a WHERE a.entityType = :entityType AND a.actionTimestamp >= :since ORDER BY a.actionTimestamp DESC")
-    List<AuditLog> findRecentActivityByEntityType(@Param("entityType") String entityType, @Param("since") LocalDateTime since);
-
     @Query("SELECT a FROM AuditLog a WHERE a.ipAddress = :ipAddress ORDER BY a.actionTimestamp DESC")
     List<AuditLog> findByIpAddress(@Param("ipAddress") String ipAddress);
+
+    @Query("SELECT a FROM AuditLog a WHERE a.entityType = :entityType AND a.actionTimestamp >= :since ORDER BY a.actionTimestamp DESC")
+    List<AuditLog> findRecentActivityByEntityType(@Param("entityType") String entityType, @Param("since") LocalDateTime since);
 }

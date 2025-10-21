@@ -1588,8 +1588,7 @@ public class DataProvider {
         return List.of(
                 tourPriceHistoryOneMock(),
                 tourPriceHistoryTwoMock(),
-                tourPriceHistoryThreeMock()
-        );
+                tourPriceHistoryThreeMock());
     }
 
     public static TourPriceHistoryResponse tourPriceHistoryResponseMock = new TourPriceHistoryResponse(
@@ -1603,10 +1602,9 @@ public class DataProvider {
             "Test price change");
 
     public static List<TourPriceHistoryResponse> tourPriceHistoryResponseListMock = List.of(
-        new TourPriceHistoryResponse(tourPriceHistoryOneMock()),
-        new TourPriceHistoryResponse(tourPriceHistoryTwoMock()),
-        new TourPriceHistoryResponse(tourPriceHistoryThreeMock())
-    );
+            new TourPriceHistoryResponse(tourPriceHistoryOneMock()),
+            new TourPriceHistoryResponse(tourPriceHistoryTwoMock()),
+            new TourPriceHistoryResponse(tourPriceHistoryThreeMock()));
 
     // Additional mock data for specific test scenarios
     public static TourPriceHistory tourPriceHistoryForTourPlanOneMock() {
@@ -1874,32 +1872,283 @@ public class DataProvider {
     // Statistics and analytics test data
     public static List<TourPriceHistory> tourPriceHistoryListForStatisticsMock() {
         return List.of(
-            // Tour Plan 1: 100 -> 120 -> 110 -> 95 -> 105
-            TourPriceHistory.builder().id(1).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(100.00))
-                    .newPrice(BigDecimal.valueOf(120.00)).changedAt(LocalDateTime.now().minusDays(10))
-                    .changedBy(userAdmin()).reason("Increase").build(),
-            TourPriceHistory.builder().id(2).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(120.00))
-                    .newPrice(BigDecimal.valueOf(110.00)).changedAt(LocalDateTime.now().minusDays(8))
-                    .changedBy(userOperator()).reason("Decrease").build(),
-            TourPriceHistory.builder().id(3).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(110.00))
-                    .newPrice(BigDecimal.valueOf(95.00)).changedAt(LocalDateTime.now().minusDays(5))
-                    .changedBy(userAdmin()).reason("Decrease").build(),
-            TourPriceHistory.builder().id(4).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(95.00))
-                    .newPrice(BigDecimal.valueOf(105.00)).changedAt(LocalDateTime.now().minusDays(2))
-                    .changedBy(userOperator()).reason("Increase").build(),
+                // Tour Plan 1: 100 -> 120 -> 110 -> 95 -> 105
+                TourPriceHistory.builder().id(1).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(100.00))
+                        .newPrice(BigDecimal.valueOf(120.00)).changedAt(LocalDateTime.now().minusDays(10))
+                        .changedBy(userAdmin()).reason("Increase").build(),
+                TourPriceHistory.builder().id(2).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(120.00))
+                        .newPrice(BigDecimal.valueOf(110.00)).changedAt(LocalDateTime.now().minusDays(8))
+                        .changedBy(userOperator()).reason("Decrease").build(),
+                TourPriceHistory.builder().id(3).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(110.00))
+                        .newPrice(BigDecimal.valueOf(95.00)).changedAt(LocalDateTime.now().minusDays(5))
+                        .changedBy(userAdmin()).reason("Decrease").build(),
+                TourPriceHistory.builder().id(4).tourPlan(tourPlanOneMock).previousPrice(BigDecimal.valueOf(95.00))
+                        .newPrice(BigDecimal.valueOf(105.00)).changedAt(LocalDateTime.now().minusDays(2))
+                        .changedBy(userOperator()).reason("Increase").build(),
 
-            // Tour Plan 2: 200 -> 250 -> 230 -> 270 -> 260
-            TourPriceHistory.builder().id(5).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(200.00))
-                    .newPrice(BigDecimal.valueOf(250.00)).changedAt(LocalDateTime.now().minusDays(12))
-                    .changedBy(userAdmin()).reason("Increase").build(),
-            TourPriceHistory.builder().id(6).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(250.00))
-                    .newPrice(BigDecimal.valueOf(230.00)).changedAt(LocalDateTime.now().minusDays(9))
-                    .changedBy(userContentManager()).reason("Decrease").build(),
-            TourPriceHistory.builder().id(7).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(230.00))
-                    .newPrice(BigDecimal.valueOf(270.00)).changedAt(LocalDateTime.now().minusDays(6))
-                    .changedBy(userOperator()).reason("Increase").build(),
-            TourPriceHistory.builder().id(8).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(270.00))
-                    .newPrice(BigDecimal.valueOf(260.00)).changedAt(LocalDateTime.now().minusDays(3))
-                    .changedBy(userAdmin()).reason("Decrease").build());
+                // Tour Plan 2: 200 -> 250 -> 230 -> 270 -> 260
+                TourPriceHistory.builder().id(5).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(200.00))
+                        .newPrice(BigDecimal.valueOf(250.00)).changedAt(LocalDateTime.now().minusDays(12))
+                        .changedBy(userAdmin()).reason("Increase").build(),
+                TourPriceHistory.builder().id(6).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(250.00))
+                        .newPrice(BigDecimal.valueOf(230.00)).changedAt(LocalDateTime.now().minusDays(9))
+                        .changedBy(userContentManager()).reason("Decrease").build(),
+                TourPriceHistory.builder().id(7).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(230.00))
+                        .newPrice(BigDecimal.valueOf(270.00)).changedAt(LocalDateTime.now().minusDays(6))
+                        .changedBy(userOperator()).reason("Increase").build(),
+                TourPriceHistory.builder().id(8).tourPlan(tourPlanTwoMock).previousPrice(BigDecimal.valueOf(270.00))
+                        .newPrice(BigDecimal.valueOf(260.00)).changedAt(LocalDateTime.now().minusDays(3))
+                        .changedBy(userAdmin()).reason("Decrease").build());
+    }
+
+    /*
+     * AuditLog instances
+     * Basic instances for AuditLog testing
+     */
+
+    public static AuditLog auditLogOneMock() {
+        return AuditLog.builder()
+                .id(1)
+                .entityType("User")
+                .entityId(1)
+                .action("CREATE")
+                .user(userAdmin())
+                .actionTimestamp(LocalDateTime.now().minusHours(2))
+                .oldValues(null)
+                .newValues("{\"name\":\"admin\",\"email\":\"admin@example.com\"}")
+                .ipAddress("192.168.1.1")
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+                .build();
+    }
+
+    public static AuditLog auditLogTwoMock() {
+        return AuditLog.builder()
+                .id(2)
+                .entityType("Reservation")
+                .entityId(1)
+                .action("UPDATE")
+                .user(userOperator())
+                .actionTimestamp(LocalDateTime.now().minusHours(1))
+                .oldValues("{\"status\":\"pending\"}")
+                .newValues("{\"status\":\"confirmed\"}")
+                .ipAddress("192.168.1.2")
+                .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)")
+                .build();
+    }
+
+    public static AuditLog auditLogThreeMock() {
+        return AuditLog.builder()
+                .id(3)
+                .entityType("Payment")
+                .entityId(1)
+                .action("DELETE")
+                .user(userCustomer())
+                .actionTimestamp(LocalDateTime.now().minusMinutes(30))
+                .oldValues("{\"amount\":\"100.00\",\"status\":\"pending\"}")
+                .newValues(null)
+                .ipAddress("192.168.1.3")
+                .userAgent("Mozilla/5.0 (X11; Linux x86_64)")
+                .build();
+    }
+
+    public static AuditLog auditLogFourMock() {
+        return AuditLog.builder()
+                .id(4)
+                .entityType("TourPlan")
+                .entityId(2)
+                .action("READ")
+                .user(userSupport())
+                .actionTimestamp(LocalDateTime.now().minusMinutes(15))
+                .oldValues(null)
+                .newValues(null)
+                .ipAddress("192.168.1.4")
+                .userAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)")
+                .build();
+    }
+
+    public static AuditLog auditLogFiveMock() {
+        return AuditLog.builder()
+                .id(5)
+                .entityType("User")
+                .entityId(2)
+                .action("LOGIN_SUCCESS")
+                .user(userContentManager())
+                .actionTimestamp(LocalDateTime.now().minusMinutes(5))
+                .oldValues(null)
+                .newValues("{\"loginTime\":\"" + LocalDateTime.now().minusMinutes(5) + "\"}")
+                .ipAddress("192.168.1.5")
+                .userAgent("Mozilla/5.0 (Android 10; Mobile)")
+                .build();
+    }
+
+    public static List<AuditLog> auditLogListMock() {
+        return List.of(
+                auditLogOneMock(),
+                auditLogTwoMock(),
+                auditLogThreeMock(),
+                auditLogFourMock(),
+                auditLogFiveMock());
+    }
+
+    // Additional mock data for specific test scenarios
+    public static AuditLog auditLogWithNullUserMock() {
+        return AuditLog.builder()
+                .id(6)
+                .entityType("System")
+                .entityId(1)
+                .action("SYSTEM_START")
+                .user(null)
+                .actionTimestamp(LocalDateTime.now().minusDays(1))
+                .oldValues(null)
+                .newValues("{\"startup\":\"successful\"}")
+                .ipAddress("127.0.0.1")
+                .userAgent("System")
+                .build();
+    }
+
+    public static AuditLog auditLogWithNullIpMock() {
+        return AuditLog.builder()
+                .id(7)
+                .entityType("Reservation")
+                .entityId(3)
+                .action("AUTO_CANCEL")
+                .user(userOperator())
+                .actionTimestamp(LocalDateTime.now().minusHours(6))
+                .oldValues("{\"status\":\"pending\"}")
+                .newValues("{\"status\":\"cancelled\"}")
+                .ipAddress(null)
+                .userAgent("System/1.0")
+                .build();
+    }
+
+    public static AuditLog auditLogWithEmptyValuesMock() {
+        return AuditLog.builder()
+                .id(8)
+                .entityType("TourPlan")
+                .entityId(3)
+                .action("VIEW")
+                .user(userCustomer())
+                .actionTimestamp(LocalDateTime.now().minusMinutes(10))
+                .oldValues("")
+                .newValues("")
+                .ipAddress("192.168.1.6")
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+                .build();
+    }
+
+    public static AuditLog auditLogFailedLoginMock() {
+        return AuditLog.builder()
+                .id(9)
+                .entityType("User")
+                .entityId(3)
+                .action("LOGIN_FAILED")
+                .user(null)
+                .actionTimestamp(LocalDateTime.now().minusMinutes(2))
+                .oldValues(null)
+                .newValues("{\"attempts\":3}")
+                .ipAddress("192.168.1.7")
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+                .build();
+    }
+
+    public static AuditLog auditLogOldMock() {
+        return AuditLog.builder()
+                .id(10)
+                .entityType("Payment")
+                .entityId(2)
+                .action("REFUND")
+                .user(userAdmin())
+                .actionTimestamp(LocalDateTime.now().minusDays(30))
+                .oldValues("{\"amount\":\"200.00\",\"status\":\"completed\"}")
+                .newValues("{\"amount\":\"200.00\",\"status\":\"refunded\"}")
+                .ipAddress("192.168.1.8")
+                .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6)")
+                .build();
+    }
+
+    // Lists for specific test scenarios
+    public static List<AuditLog> auditLogListByUserMock() {
+        return List.of(
+                auditLogOneMock(),
+                auditLogFiveMock());
+    }
+
+    public static List<AuditLog> auditLogListByEntityTypeMock() {
+        return List.of(
+                auditLogTwoMock(),
+                auditLogFourMock(),
+                auditLogWithEmptyValuesMock());
+    }
+
+    public static List<AuditLog> auditLogListByActionMock() {
+        return List.of(
+                auditLogOneMock(),
+                auditLogFiveMock());
+    }
+
+    public static List<AuditLog> auditLogListByDateRangeMock() {
+        return List.of(
+                auditLogOneMock(),
+                auditLogTwoMock(),
+                auditLogThreeMock(),
+                auditLogFourMock(),
+                auditLogFiveMock());
+    }
+
+    public static List<AuditLog> auditLogListWithNullsMock() {
+        return List.of(
+                auditLogWithNullUserMock(),
+                auditLogWithNullIpMock(),
+                auditLogWithEmptyValuesMock());
+    }
+
+    public static List<AuditLog> auditLogListSecurityMock() {
+        return List.of(
+                auditLogFiveMock(),
+                auditLogFailedLoginMock());
+    }
+
+    public static List<AuditLog> auditLogListRecentMock() {
+        return List.of(
+                auditLogThreeMock(),
+                auditLogFourMock(),
+                auditLogFiveMock());
+    }
+
+    public static List<AuditLog> auditLogListOldMock() {
+        return List.of(
+                auditLogOldMock(),
+                auditLogWithNullUserMock());
+    }
+
+    // Request and Response DTOs (if needed for testing)
+    public static List<Integer> auditLogIdsForBulkDeleteMock() {
+        return List.of(1, 2, 3, 4, 5);
+    }
+
+    public static List<AuditLog> auditLogListForBulkCreateMock() {
+        return List.of(
+                AuditLog.builder()
+                        .entityType("Test")
+                        .entityId(100)
+                        .action("CREATE")
+                        .user(userAdmin())
+                        .actionTimestamp(LocalDateTime.now())
+                        .oldValues(null)
+                        .newValues("{\"test\":\"data\"}")
+                        .ipAddress("192.168.1.100")
+                        .userAgent("Test Agent")
+                        .build(),
+                AuditLog.builder()
+                        .entityType("Test")
+                        .entityId(101)
+                        .action("UPDATE")
+                        .user(userOperator())
+                        .actionTimestamp(LocalDateTime.now())
+                        .oldValues("{\"old\":\"value\"}")
+                        .newValues("{\"new\":\"value\"}")
+                        .ipAddress("192.168.1.101")
+                        .userAgent("Test Agent")
+                        .build());
     }
 }
