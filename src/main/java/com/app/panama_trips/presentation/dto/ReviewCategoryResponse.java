@@ -7,5 +7,10 @@ public record ReviewCategoryResponse(
     String name,
     String description) {
 
-  
+  public ReviewCategoryResponse(ReviewCategory reviewCategory) {
+    this(
+        reviewCategory.getId(),
+        reviewCategory.getName(),
+        reviewCategory.getDescription());
+  }
 }
