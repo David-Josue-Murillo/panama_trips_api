@@ -43,9 +43,12 @@ public class ReviewCategoryService implements IReviewCategoryService {
   }
 
   @Override
+  @Transactional
   public ReviewCategoryResponse updateReviewCategory(Integer id, ReviewCategoryRequest request) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'updateReviewCategory'");
+    ReviewCategory category = repository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Review category not found"));
+    updateCategoryFields(category, request);
+    return new ReviewCategoryResponse(repository.save(category));
   }
 
   @Override
