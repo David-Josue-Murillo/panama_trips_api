@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.app.panama_trips.persistence.entity.ReviewCategory;
 import com.app.panama_trips.persistence.repository.ReviewCategoryRepository;
 import com.app.panama_trips.presentation.dto.ReviewCategoryRequest;
 import com.app.panama_trips.presentation.dto.ReviewCategoryResponse;
@@ -45,5 +46,18 @@ public class ReviewCategoryService implements IReviewCategoryService {
   public void deleteReviewCategory(Integer id) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'deleteReviewCategory'");
+  }
+
+  // Helper methods
+  private ReviewCategory builderFromRequest(ReviewCategoryRequest request) {
+    return ReviewCategory.builder()
+        .name(request.name())
+        .description(request.description())
+        .build();
+  }
+
+  private void updateCategoryFields(ReviewCategory category, ReviewCategoryRequest request) {
+    category.setName(request.name());
+    category.setDescription(request.description());
   }
 }
