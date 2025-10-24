@@ -52,9 +52,12 @@ public class ReviewCategoryService implements IReviewCategoryService {
   }
 
   @Override
+  @Transactional
   public void deleteReviewCategory(Integer id) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'deleteReviewCategory'");
+    if (!repository.existsById(id)) {
+      throw new ResourceNotFoundException("Review category not found");
+    }
+    repository.deleteById(id);
   }
 
   // Helper methods
