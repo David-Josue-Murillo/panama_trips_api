@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.ReviewCategory;
 import com.app.panama_trips.persistence.repository.ReviewCategoryRepository;
 import com.app.panama_trips.presentation.dto.ReviewCategoryRequest;
@@ -27,9 +28,11 @@ public class ReviewCategoryService implements IReviewCategoryService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public ReviewCategoryResponse getReviewCategoryById(Integer id) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getReviewCategoryById'");
+    ReviewCategory category = repository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Review category not found"));
+    return new ReviewCategoryResponse(category);
   }
 
   @Override
