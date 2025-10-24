@@ -3,6 +3,7 @@ package com.app.panama_trips.service.implementation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.panama_trips.persistence.entity.ReviewCategory;
 import com.app.panama_trips.persistence.repository.ReviewCategoryRepository;
@@ -19,9 +20,10 @@ public class ReviewCategoryService implements IReviewCategoryService {
   private final ReviewCategoryRepository repository;
 
   @Override
+  @Transactional(readOnly = true)
   public Page<ReviewCategoryResponse> getAllReviewCategories(Pageable pageable) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getAllReviewCategories'");
+    return repository.findAll(pageable)
+        .map(ReviewCategoryResponse::new);
   }
 
   @Override
