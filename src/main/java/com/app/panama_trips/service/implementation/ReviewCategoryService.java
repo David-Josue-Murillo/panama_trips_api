@@ -36,9 +36,10 @@ public class ReviewCategoryService implements IReviewCategoryService {
   }
 
   @Override
+  @Transactional
   public ReviewCategoryResponse saveReviewCategory(ReviewCategoryRequest request) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'saveReviewCategory'");
+    ReviewCategory category = builderFromRequest(request);
+    return new ReviewCategoryResponse(repository.save(category));
   }
 
   @Override
