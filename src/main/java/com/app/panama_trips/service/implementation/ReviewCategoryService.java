@@ -1,0 +1,49 @@
+package com.app.panama_trips.service.implementation;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.app.panama_trips.persistence.repository.ReviewCategoryRepository;
+import com.app.panama_trips.presentation.dto.ReviewCategoryRequest;
+import com.app.panama_trips.presentation.dto.ReviewCategoryResponse;
+import com.app.panama_trips.service.interfaces.IReviewCategoryService;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class ReviewCategoryService implements IReviewCategoryService {
+
+  private final ReviewCategoryRepository repository;
+
+  @Override
+  public Page<ReviewCategoryResponse> getAllReviewCategories(Pageable pageable) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getAllReviewCategories'");
+  }
+
+  @Override
+  public ReviewCategoryResponse getReviewCategoryById(Integer id) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getReviewCategoryById'");
+  }
+
+  @Override
+  public ReviewCategoryResponse saveReviewCategory(ReviewCategoryRequest request) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'saveReviewCategory'");
+  }
+
+  @Override
+  public ReviewCategoryResponse updateReviewCategory(Integer id, ReviewCategoryRequest request) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'updateReviewCategory'");
+  }
+
+  @Override
+  public void deleteReviewCategory(Integer id) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'deleteReviewCategory'");
+  }
+}
