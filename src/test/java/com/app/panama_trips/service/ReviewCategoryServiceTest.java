@@ -154,4 +154,35 @@ public class ReviewCategoryServiceTest {
         assertEquals(updateRequest.name(), updatedCategoryFromCapture.getName());
         assertEquals(updateRequest.description(), updatedCategoryFromCapture.getDescription());
     }
+
+    @Test
+    @DisplayName("Should throw exception when updating non-existent review category")
+    void updateReviewCategory_whenNotExists_shouldThrowException() {
+        // Given
+        Integer id = 999;
+        when(repository.findById(id)).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.updateReviewCategory(id, request));
+        assertEquals("Review category not found", exception.getMessage());
+        verify(repository).findById(id);
+        verify(repository, never()).save(any(ReviewCategory.class));
+    }
+
+    @Test
+    @DisplayName("Should delete review category successfully when exists")
+    void deleteReviewCategory_whenExists_success() {
+        // Given
+        Integer id = 1;
+        when(repository.existsById(id)).thenReturn(true);
+
+        // When
+        service.deleteReviewCategory(id);
+
+        // Then
+        verify(repository).existsById(id);
+        verify(repository).deleteById(id);
+    }
 }
