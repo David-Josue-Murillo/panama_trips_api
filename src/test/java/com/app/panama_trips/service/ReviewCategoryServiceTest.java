@@ -185,4 +185,20 @@ public class ReviewCategoryServiceTest {
         verify(repository).existsById(id);
         verify(repository).deleteById(id);
     }
+
+    @Test
+    @DisplayName("Should throw exception when deleting non-existent review category")
+    void deleteReviewCategory_whenNotExists_shouldThrowException() {
+        // Given
+        Integer id = 999;
+        when(repository.existsById(id)).thenReturn(false);
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.deleteReviewCategory(id));
+        assertEquals("Review category not found", exception.getMessage());
+        verify(repository).existsById(id);
+        verify(repository, never()).deleteById(anyInt());
+    }
 }
