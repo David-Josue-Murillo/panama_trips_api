@@ -103,4 +103,55 @@ public class ReviewCategoryServiceTest {
         assertEquals("Review category not found", exception.getMessage());
         verify(repository).findById(id);
     }
+
+    @Test
+    @DisplayName("Should save review category successfully")
+    void saveReviewCategory_success() {
+        // Given
+        ReviewCategory savedCategory = reviewCategoryOneMock();
+        savedCategory.setId(1);
+        when(repository.save(any(ReviewCategory.class))).thenReturn(savedCategory);
+
+        // When
+        ReviewCategoryResponse result = service.saveReviewCategory(request);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(savedCategory.getId(), result.id());
+        assertEquals(savedCategory.getName(), result.name());
+        assertEquals(savedCategory.getDescription(), result.description());
+        verify(repository).save(categoryCaptor.capture());
+        ReviewCategory savedCategoryFromCapture = categoryCaptor.getValue();
+        assertEquals(request.name(), savedCategoryFromCapture.getName());
+        assertEquals(request.description(), savedCategoryFromCapture.getDescription());
+    }
+
+    @Test
+    @DisplayName("Should update review category successfully")
+    void updateReviewCategory_success() {
+        // Given
+        Integer id = 1;
+        ReviewCategoryRequest updateRequest = new ReviewCategoryRequest("Updated Quality", "Updated description");
+        ReviewCategory updatedCategory = reviewCategoryOneMock();
+        updatedCategory.setId(id);
+        updatedCategory.setName("Updated Quality");
+        updatedCategory.setDescription("Updated description");
+
+        when(repository.findById(id)).thenReturn(Optional.of(category));
+        when(repository.save(any(ReviewCategory.class))).thenReturn(updatedCategory);
+
+        // When
+        ReviewCategoryResponse result = service.updateReviewCategory(id, updateRequest);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(updatedCategory.getId(), result.id());
+        assertEquals(updateRequest.name(), result.name());
+        assertEquals(updateRequest.description(), result.description());
+        verify(repository).findById(id);
+        verify(repository).save(categoryCaptor.capture());
+        ReviewCategory updatedCategoryFromCapture = categoryCaptor.getValue();
+        assertEquals(updateRequest.name(), updatedCategoryFromCapture.getName());
+        assertEquals(updateRequest.description(), updatedCategoryFromCapture.getDescription());
+    }
 }
