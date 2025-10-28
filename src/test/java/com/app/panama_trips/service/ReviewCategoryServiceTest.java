@@ -201,4 +201,67 @@ public class ReviewCategoryServiceTest {
         verify(repository).existsById(id);
         verify(repository, never()).deleteById(anyInt());
     }
+
+    // Additional Tests
+    @Test
+    @DisplayName("Should return empty page when no review categories exist")
+    void getAllReviewCategories_whenNoCategoriesExist_shouldReturnEmptyPage() {
+        // Given
+        Page<ReviewCategory> emptyPage = new PageImpl<>(List.of());
+        Pageable pageable = PageRequest.of(0, 10);
+        when(repository.findAll(pageable)).thenReturn(emptyPage);
+
+        // When
+        Page<ReviewCategoryResponse> result = service.getAllReviewCategories(pageable);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(0, result.getTotalElements());
+        assertTrue(result.getContent().isEmpty());
+        verify(repository).findAll(pageable);
+    }
+
+    @Test
+    @DisplayName("Should handle pagination correctly with multiple pages")
+    void getAllReviewCategories_withMultiplePages_shouldHandlePagination() {
+        // Given
+        List<ReviewCategory> singleCategory = List.of(category);
+        Page<ReviewCategory> page = new PageImpl<>(singleCategory, PageRequest.of(1, 1), categoriesList.size());
+        Pageable pageable = PageRequest.of(1, 1);
+        when(repository.findAll(pageable)).thenReturn(page);
+
+        // When
+        Page<ReviewCategoryResponse> result = service.getAllReviewCategories(pageable);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(categoriesList.size(), result.getTotalElements());
+        assertEquals(1, result.getContent().size());
+        assertEquals(1, result.getNumber()); // Current page
+        verify(repository).findAll(pageable);
+    }
+
+    @Test
+    @DisplayName("Should preserve null description when saving review category")
+    void saveReviewCategory_withNullDescription_shouldPreserveNull() {
+        // Given
+        ReviewCategoryRequest requestWithNullDescription = new ReviewCategoryRequest("Test Lone", null);
+        ReviewCategory savedCategory = ReviewCategory.builder()
+                .id(1)
+                .name("Test Lone")
+                .description(null)
+                .build();
+        when(repository.save(any(ReviewCategory.class))).thenReturn(savedCategory);
+
+        // When
+        ReviewCategoryResponse result = service.saveReviewCategory(requestWithNullDescription);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(savedCategory.getName(), result.name());
+        assertNull(result.description());
+        verify(repository).save(categoryCaptor.capture());
+        ReviewCategory savedCategoryFromCapture = categoryCaptor.getValue();
+        assertNull(savedCategoryFromCapture.getDescription());
+    }
 }
