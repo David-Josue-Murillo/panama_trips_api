@@ -2151,4 +2151,40 @@ public class DataProvider {
                         .userAgent("Test Agent")
                         .build());
     }
+
+    /*
+     * ReviewCategory instances
+     * 
+     * 
+     */
+
+     public static ReviewCategory reviewCategoryOneMock() {
+        return ReviewCategory.builder()
+                .name("Quality")
+                .description("Quality of the tour")
+                .build();
+     }
+
+     public static ReviewCategory reviewCategoryTwoMock() {
+        return ReviewCategory.builder()
+                .name("Price")
+                .description("Price of the tour")
+                .build();
+     }
+
+     public static ReviewCategory reviewCategoryThreeMock() {
+        return ReviewCategory.builder()
+                .name("Location")
+                .description("Location of the tour")
+                .build();
+     }
+
+     public static List<ReviewCategory> reviewCategoryListMock() {
+        return List.of(
+                reviewCategoryOneMock(),
+                reviewCategoryTwoMock(),
+                reviewCategoryThreeMock());
+     }
+
+
 }
