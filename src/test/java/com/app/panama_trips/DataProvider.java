@@ -2163,28 +2163,41 @@ public class DataProvider {
                 .name("Quality")
                 .description("Quality of the tour")
                 .build();
-     }
+    }
 
      public static ReviewCategory reviewCategoryTwoMock() {
         return ReviewCategory.builder()
                 .name("Price")
                 .description("Price of the tour")
                 .build();
-     }
+    }
 
      public static ReviewCategory reviewCategoryThreeMock() {
         return ReviewCategory.builder()
                 .name("Location")
                 .description("Location of the tour")
                 .build();
-     }
+    }
 
      public static List<ReviewCategory> reviewCategoryListMock() {
         return List.of(
                 reviewCategoryOneMock(),
                 reviewCategoryTwoMock(),
                 reviewCategoryThreeMock());
-     }
+    }
 
+     public static ReviewCategoryResponse reviewCategoryResponseMock() {
+      return new ReviewCategoryResponse(reviewCategoryOneMock());
+    }
 
+    public static ReviewCategoryRequest reviewCategoryRequestMock() {
+        return new ReviewCategoryRequest("Quality", "Quality of the tour");
+    }
+
+    public static List<ReviewCategoryResponse> reviewCategoryResponseListMock() {
+        return List.of(
+                new ReviewCategoryResponse(reviewCategoryOneMock()),
+                new ReviewCategoryResponse(reviewCategoryTwoMock()),
+                new ReviewCategoryResponse(reviewCategoryThreeMock()));
+    }
 }
