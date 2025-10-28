@@ -264,4 +264,31 @@ public class ReviewCategoryServiceTest {
         ReviewCategory savedCategoryFromCapture = categoryCaptor.getValue();
         assertNull(savedCategoryFromCapture.getDescription());
     }
+
+    @Test
+    @DisplayName("Should update review category with null description")
+    void updateReviewCategory_withNullDescription_shouldUpdateCorrectly() {
+        // Given
+        Integer id = 1;
+        ReviewCategoryRequest requestWithNullDescription = new ReviewCategoryRequest("Updated Name", null);
+        ReviewCategory updatedCategory = ReviewCategory.builder()
+                .id(id)
+                .name("Updated Name")
+                .description(null)
+                .build();
+
+        when(repository.findById(id)).thenReturn(Optional.of(category));
+        when(repository.save(any(ReviewCategory.class))).thenReturn(updatedCategory);
+
+        // When
+        ReviewCategoryResponse result = service.updateReviewCategory(id, requestWithNullDescription);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(requestWithNullDescription.name(), result.name());
+        assertNull(result.description());
+        verify(repository).save(categoryCaptor.capture());
+        ReviewCategory updatedCategoryFromCapture = categoryCaptor.getValue();
+        assertNull(updatedCategoryFromCapture.getDescription());
+    }
 }
