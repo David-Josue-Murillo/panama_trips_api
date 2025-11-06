@@ -44,20 +44,21 @@ public class ReviewCategoryControllerTest {
     }
 
     @Test
-  @WithMockUser(username = "admin", roles = { "ADMIN" })
-  void getAllReviewCategories_success() throws Exception {
-    Page<ReviewCategoryResponse> page = new PageImpl<>(reviewCategoryResponseListMock());
-    when(reviewCategoryService.getAllReviewCategories(any(Pageable.class))).thenReturn(page);
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    void getAllReviewCategories_success() throws Exception {
+        Page<ReviewCategoryResponse> page = new PageImpl<>(reviewCategoryResponseListMock());
+        when(reviewCategoryService.getAllReviewCategories(any(Pageable.class))).thenReturn(page);
 
-    mockMvc.perform(get("/api/review-categories")
-        .param("page", "0")
-        .param("size", "10"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content[0].id").value(reviewCategoryResponseListMock().getFirst().id()))
-        .andExpect(jsonPath("$.content[0].name").value(reviewCategoryResponseListMock().getFirst().name()))
-        .andExpect(
-            jsonPath("$.content[0].description").value(reviewCategoryResponseListMock().getFirst().description()));
-  }
+        mockMvc.perform(get("/api/review-categories")
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(reviewCategoryResponseListMock().getFirst().id()))
+                .andExpect(jsonPath("$.content[0].name").value(reviewCategoryResponseListMock().getFirst().name()))
+                .andExpect(
+                        jsonPath("$.content[0].description")
+                                .value(reviewCategoryResponseListMock().getFirst().description()));
+    }
 
     @Test
     @WithMockUser(username = "admin", roles = { "ADMIN" })
@@ -68,88 +69,110 @@ public class ReviewCategoryControllerTest {
         when(reviewCategoryService.getReviewCategoryById(anyInt())).thenReturn(reviewCategoryResponse);
 
         mockMvc.perform(get("/api/review-categories/{id}", 1))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(reviewCategoryResponse.id()))
-            .andExpect(jsonPath("$.name").value(reviewCategoryResponse.name()))
-            .andExpect(jsonPath("$.description").value(reviewCategoryResponse.description()));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(reviewCategoryResponse.id()))
+                .andExpect(jsonPath("$.name").value(reviewCategoryResponse.name()))
+                .andExpect(jsonPath("$.description").value(reviewCategoryResponse.description()));
     }
 
     @Test
-  @WithMockUser(username = "admin", roles = { "ADMIN" })
-  void saveReviewCategory_success() throws Exception {
-    ReviewCategoryResponse reviewCategoryResponse = reviewCategoryResponseMock();
-    ReviewCategoryRequest request = reviewCategoryRequestMock();
-    when(reviewCategoryService.saveReviewCategory(any(ReviewCategoryRequest.class))).thenReturn(reviewCategoryResponse);
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    void saveReviewCategory_success() throws Exception {
+        ReviewCategoryResponse reviewCategoryResponse = reviewCategoryResponseMock();
+        ReviewCategoryRequest request = reviewCategoryRequestMock();
+        when(reviewCategoryService.saveReviewCategory(any(ReviewCategoryRequest.class)))
+                .thenReturn(reviewCategoryResponse);
 
-    mockMvc.perform(post("/api/review-categories")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(request))
-        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.name").value(reviewCategoryResponse.name()))
-        .andExpect(jsonPath("$.description").value(reviewCategoryResponse.description()));
-  }
+        mockMvc.perform(post("/api/review-categories")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value(reviewCategoryResponse.name()))
+                .andExpect(jsonPath("$.description").value(reviewCategoryResponse.description()));
+    }
 
-  @Test
-  @WithMockUser(username = "admin", roles = { "ADMIN" })
-  void updateReviewCategory_success() throws Exception {
-    ReviewCategoryResponse reviewCategoryResponse = reviewCategoryResponseMock();
-    ReviewCategoryRequest request = reviewCategoryRequestMock();
-    when(reviewCategoryService.updateReviewCategory(anyInt(), any(ReviewCategoryRequest.class)))
-        .thenReturn(reviewCategoryResponse);
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    void updateReviewCategory_success() throws Exception {
+        ReviewCategoryResponse reviewCategoryResponse = reviewCategoryResponseMock();
+        ReviewCategoryRequest request = reviewCategoryRequestMock();
+        when(reviewCategoryService.updateReviewCategory(anyInt(), any(ReviewCategoryRequest.class)))
+                .thenReturn(reviewCategoryResponse);
 
-    mockMvc.perform(put("/api/review-categories/{id}", 1)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(request))
-        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.name").value(reviewCategoryResponse.name()))
-        .andExpect(jsonPath("$.description").value(reviewCategoryResponse.description()));
-  }
+        mockMvc.perform(put("/api/review-categories/{id}", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(reviewCategoryResponse.name()))
+                .andExpect(jsonPath("$.description").value(reviewCategoryResponse.description()));
+    }
 
-  @Test
-  @WithMockUser(username = "admin", roles = { "ADMIN" })
-  void deleteReviewCategory_success() throws Exception {
-    doNothing().when(reviewCategoryService).deleteReviewCategory(anyInt());
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    void deleteReviewCategory_success() throws Exception {
+        doNothing().when(reviewCategoryService).deleteReviewCategory(anyInt());
 
-    mockMvc.perform(delete("/api/review-categories/{id}", 1)
-        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-        .andExpect(status().isNoContent());
-  }
+        mockMvc.perform(delete("/api/review-categories/{id}", 1)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+    }
 
-  @Test
-  @WithMockUser(username = "admin", roles = { "ADMIN" })
-  void getAllReviewCategories_withEmptyPage_shouldReturnEmptyPage() throws Exception {
-    Page<ReviewCategoryResponse> emptyPage = new PageImpl<>(java.util.List.of());
-    when(reviewCategoryService.getAllReviewCategories(any(Pageable.class))).thenReturn(emptyPage);
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    void getAllReviewCategories_withEmptyPage_shouldReturnEmptyPage() throws Exception {
+        Page<ReviewCategoryResponse> emptyPage = new PageImpl<>(java.util.List.of());
+        when(reviewCategoryService.getAllReviewCategories(any(Pageable.class))).thenReturn(emptyPage);
 
-    mockMvc.perform(get("/api/review-categories")
-        .param("page", "0")
-        .param("size", "10"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content").isEmpty())
-        .andExpect(jsonPath("$.totalElements").value(0));
-  }
+        mockMvc.perform(get("/api/review-categories")
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty())
+                .andExpect(jsonPath("$.totalElements").value(0));
+    }
 
-  @Test
-  @WithMockUser(username = "admin", roles = { "ADMIN" })
-  void saveReviewCategory_withNullDescription_shouldSuccess() throws Exception {
-    ReviewCategoryRequest request = new ReviewCategoryRequest("Test Category", null);
-    ReviewCategoryResponse response = new ReviewCategoryResponse(
-        ReviewCategory.builder()
-            .id(1)
-            .name("Test Category")
-            .description(null)
-            .build());
-    when(reviewCategoryService.saveReviewCategory(any(ReviewCategoryRequest.class))).thenReturn(response);
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    void saveReviewCategory_withNullDescription_shouldSuccess() throws Exception {
+        ReviewCategoryRequest request = new ReviewCategoryRequest("Test Category", null);
+        ReviewCategoryResponse response = new ReviewCategoryResponse(
+                ReviewCategory.builder()
+                        .id(1)
+                        .name("Test Category")
+                        .description(null)
+                        .build());
+        when(reviewCategoryService.saveReviewCategory(any(ReviewCategoryRequest.class))).thenReturn(response);
 
-    mockMvc.perform(post("/api/review-categories")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(request))
-        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.name").value("Test Category"))
-        .andExpect(jsonPath("$.description").isEmpty());
-  }
+        mockMvc.perform(post("/api/review-categories")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Test Category"))
+                .andExpect(jsonPath("$.description").isEmpty());
+    }
 
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    void updateReviewCategory_withNullDescription_shouldSuccess() throws Exception {
+        ReviewCategoryRequest request = new ReviewCategoryRequest("Updated Category", null);
+        ReviewCategoryResponse response = new ReviewCategoryResponse(
+                ReviewCategory.builder()
+                        .id(1)
+                        .name("Updated Category")
+                        .description(null)
+                        .build());
+        when(reviewCategoryService.updateReviewCategory(anyInt(), any(ReviewCategoryRequest.class)))
+                .thenReturn(response);
+
+        mockMvc.perform(put("/api/review-categories/{id}", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Updated Category"))
+                .andExpect(jsonPath("$.description").isEmpty());
+    }
 }
