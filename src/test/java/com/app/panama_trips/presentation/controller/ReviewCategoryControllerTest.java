@@ -6,6 +6,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.app.panama_trips.service.implementation.ReviewCategoryService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @WebMvcTest(ReviewCategoryController.class)
 public class ReviewCategoryControllerTest {
@@ -14,4 +17,12 @@ public class ReviewCategoryControllerTest {
 
     @MockitoBean
     private ReviewCategoryService reviewCategoryService;
+
+    // Método auxiliar para convertir objetos a JSON
+    private String asJsonString(Object obj) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return mapper.writeValueAsString(obj);
+    }
 }
