@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static com.app.panama_trips.DataProvider.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -105,4 +106,50 @@ public class ReviewCategoryControllerTest {
         .andExpect(jsonPath("$.name").value(reviewCategoryResponse.name()))
         .andExpect(jsonPath("$.description").value(reviewCategoryResponse.description()));
   }
+
+  @Test
+  @WithMockUser(username = "admin", roles = { "ADMIN" })
+  void deleteReviewCategory_success() throws Exception {
+    doNothing().when(reviewCategoryService).deleteReviewCategory(anyInt());
+
+    mockMvc.perform(delete("/api/review-categories/{id}", 1)
+        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @WithMockUser(username = "admin", roles = { "ADMIN" })
+  void getAllReviewCategories_withEmptyPage_shouldReturnEmptyPage() throws Exception {
+    Page<ReviewCategoryResponse> emptyPage = new PageImpl<>(java.util.List.of());
+    when(reviewCategoryService.getAllReviewCategories(any(Pageable.class))).thenReturn(emptyPage);
+
+    mockMvc.perform(get("/api/review-categories")
+        .param("page", "0")
+        .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isEmpty())
+        .andExpect(jsonPath("$.totalElements").value(0));
+  }
+
+  @Test
+  @WithMockUser(username = "admin", roles = { "ADMIN" })
+  void saveReviewCategory_withNullDescription_shouldSuccess() throws Exception {
+    ReviewCategoryRequest request = new ReviewCategoryRequest("Test Category", null);
+    ReviewCategoryResponse response = new ReviewCategoryResponse(
+        ReviewCategory.builder()
+            .id(1)
+            .name("Test Category")
+            .description(null)
+            .build());
+    when(reviewCategoryService.saveReviewCategory(any(ReviewCategoryRequest.class))).thenReturn(response);
+
+    mockMvc.perform(post("/api/review-categories")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(asJsonString(request))
+        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.name").value("Test Category"))
+        .andExpect(jsonPath("$.description").isEmpty());
+  }
+
 }
