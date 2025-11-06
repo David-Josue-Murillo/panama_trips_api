@@ -1,6 +1,7 @@
 package com.app.panama_trips.presentation.controller;
 
 import com.app.panama_trips.persistence.entity.ReviewCategory;
+import com.app.panama_trips.presentation.dto.ReviewCategoryRequest;
 import com.app.panama_trips.presentation.dto.ReviewCategoryResponse;
 import com.app.panama_trips.service.implementation.ReviewCategoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +13,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -69,4 +72,37 @@ public class ReviewCategoryControllerTest {
             .andExpect(jsonPath("$.name").value(reviewCategoryResponse.name()))
             .andExpect(jsonPath("$.description").value(reviewCategoryResponse.description()));
     }
+
+    @Test
+  @WithMockUser(username = "admin", roles = { "ADMIN" })
+  void saveReviewCategory_success() throws Exception {
+    ReviewCategoryResponse reviewCategoryResponse = reviewCategoryResponseMock();
+    ReviewCategoryRequest request = reviewCategoryRequestMock();
+    when(reviewCategoryService.saveReviewCategory(any(ReviewCategoryRequest.class))).thenReturn(reviewCategoryResponse);
+
+    mockMvc.perform(post("/api/review-categories")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(asJsonString(request))
+        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.name").value(reviewCategoryResponse.name()))
+        .andExpect(jsonPath("$.description").value(reviewCategoryResponse.description()));
+  }
+
+  @Test
+  @WithMockUser(username = "admin", roles = { "ADMIN" })
+  void updateReviewCategory_success() throws Exception {
+    ReviewCategoryResponse reviewCategoryResponse = reviewCategoryResponseMock();
+    ReviewCategoryRequest request = reviewCategoryRequestMock();
+    when(reviewCategoryService.updateReviewCategory(anyInt(), any(ReviewCategoryRequest.class)))
+        .thenReturn(reviewCategoryResponse);
+
+    mockMvc.perform(put("/api/review-categories/{id}", 1)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(asJsonString(request))
+        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").value(reviewCategoryResponse.name()))
+        .andExpect(jsonPath("$.description").value(reviewCategoryResponse.description()));
+  }
 }
