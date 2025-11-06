@@ -1,14 +1,27 @@
 package com.app.panama_trips.presentation.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-
+import com.app.panama_trips.persistence.entity.ReviewCategory;
+import com.app.panama_trips.presentation.dto.ReviewCategoryResponse;
 import com.app.panama_trips.service.implementation.ReviewCategoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static com.app.panama_trips.DataProvider.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ReviewCategoryController.class)
 public class ReviewCategoryControllerTest {
@@ -24,5 +37,36 @@ public class ReviewCategoryControllerTest {
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper.writeValueAsString(obj);
+    }
+
+    @Test
+  @WithMockUser(username = "admin", roles = { "ADMIN" })
+  void getAllReviewCategories_success() throws Exception {
+    Page<ReviewCategoryResponse> page = new PageImpl<>(reviewCategoryResponseListMock());
+    when(reviewCategoryService.getAllReviewCategories(any(Pageable.class))).thenReturn(page);
+
+    mockMvc.perform(get("/api/review-categories")
+        .param("page", "0")
+        .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[0].id").value(reviewCategoryResponseListMock().getFirst().id()))
+        .andExpect(jsonPath("$.content[0].name").value(reviewCategoryResponseListMock().getFirst().name()))
+        .andExpect(
+            jsonPath("$.content[0].description").value(reviewCategoryResponseListMock().getFirst().description()));
+  }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    void getReviewCategoryById_success() throws Exception {
+        ReviewCategory category = reviewCategoryOneMock();
+        category.setId(1);
+        ReviewCategoryResponse reviewCategoryResponse = new ReviewCategoryResponse(category);
+        when(reviewCategoryService.getReviewCategoryById(anyInt())).thenReturn(reviewCategoryResponse);
+
+        mockMvc.perform(get("/api/review-categories/{id}", 1))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(reviewCategoryResponse.id()))
+            .andExpect(jsonPath("$.name").value(reviewCategoryResponse.name()))
+            .andExpect(jsonPath("$.description").value(reviewCategoryResponse.description()));
     }
 }
