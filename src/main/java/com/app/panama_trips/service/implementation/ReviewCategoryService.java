@@ -1,0 +1,75 @@
+package com.app.panama_trips.service.implementation;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.app.panama_trips.exception.ResourceNotFoundException;
+import com.app.panama_trips.persistence.entity.ReviewCategory;
+import com.app.panama_trips.persistence.repository.ReviewCategoryRepository;
+import com.app.panama_trips.presentation.dto.ReviewCategoryRequest;
+import com.app.panama_trips.presentation.dto.ReviewCategoryResponse;
+import com.app.panama_trips.service.interfaces.IReviewCategoryService;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class ReviewCategoryService implements IReviewCategoryService {
+
+  private final ReviewCategoryRepository repository;
+
+  @Override
+  @Transactional(readOnly = true)
+  public Page<ReviewCategoryResponse> getAllReviewCategories(Pageable pageable) {
+    return repository.findAll(pageable)
+        .map(ReviewCategoryResponse::new);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public ReviewCategoryResponse getReviewCategoryById(Integer id) {
+    ReviewCategory category = repository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Review category not found"));
+    return new ReviewCategoryResponse(category);
+  }
+
+  @Override
+  @Transactional
+  public ReviewCategoryResponse saveReviewCategory(ReviewCategoryRequest request) {
+    ReviewCategory category = builderFromRequest(request);
+    return new ReviewCategoryResponse(repository.save(category));
+  }
+
+  @Override
+  @Transactional
+  public ReviewCategoryResponse updateReviewCategory(Integer id, ReviewCategoryRequest request) {
+    ReviewCategory category = repository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Review category not found"));
+    updateCategoryFields(category, request);
+    return new ReviewCategoryResponse(repository.save(category));
+  }
+
+  @Override
+  @Transactional
+  public void deleteReviewCategory(Integer id) {
+    if (!repository.existsById(id)) {
+      throw new ResourceNotFoundException("Review category not found");
+    }
+    repository.deleteById(id);
+  }
+
+  // Helper methods
+  private ReviewCategory builderFromRequest(ReviewCategoryRequest request) {
+    return ReviewCategory.builder()
+        .name(request.name())
+        .description(request.description())
+        .build();
+  }
+
+  private void updateCategoryFields(ReviewCategory category, ReviewCategoryRequest request) {
+    category.setName(request.name());
+    category.setDescription(request.description());
+  }
+}
