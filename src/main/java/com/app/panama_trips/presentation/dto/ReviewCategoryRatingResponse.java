@@ -8,5 +8,12 @@ public record ReviewCategoryRatingResponse(
     String categoryName,
     Integer rating
 ) {
-    
+    public ReviewCategoryRatingResponse(ReviewCategoryRating reviewCategoryRating) {
+        this(
+            reviewCategoryRating.getId().getReviewId(),
+            reviewCategoryRating.getId().getCategoryId(),
+            reviewCategoryRating.getCategory().getName(),
+            reviewCategoryRating.getRating()
+        );
+    }
 }
