@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Map;
 
-public interface IReviewCategoryRating {
+public interface IReviewCategoryRatingService {
   // CRUD operations
   Page<ReviewCategoryRatingResponse> getAllReviewCategoryRatings(Pageable pageable);
   ReviewCategoryRatingResponse getReviewCategoryRatingById(Integer reviewId, Integer categoryId);
