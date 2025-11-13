@@ -5,12 +5,20 @@ import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
+import com.app.panama_trips.persistence.repository.ReviewCategoryRatingRepository;
 import com.app.panama_trips.presentation.dto.ReviewCategoryRatingRequest;
 import com.app.panama_trips.presentation.dto.ReviewCategoryRatingResponse;
 import com.app.panama_trips.service.interfaces.IReviewCategoryRatingService;
 
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
 public class ReviewCategoryRatingService implements IReviewCategoryRatingService {
+
+  private final ReviewCategoryRatingRepository repository;
 
   @Override
   public Page<ReviewCategoryRatingResponse> getAllReviewCategoryRatings(Pageable pageable) {
