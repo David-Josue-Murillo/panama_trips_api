@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.panama_trips.exception.ResourceNotFoundException;
+import com.app.panama_trips.persistence.entity.Review;
+import com.app.panama_trips.persistence.entity.ReviewCategory;
 import com.app.panama_trips.persistence.entity.ReviewCategoryRating;
 import com.app.panama_trips.persistence.entity.ReviewCategoryRatingId;
 import com.app.panama_trips.persistence.repository.ReviewCategoryRatingRepository;
@@ -109,4 +111,23 @@ public class ReviewCategoryRatingService implements IReviewCategoryRatingService
     throw new UnsupportedOperationException("Unimplemented method 'existsByReviewAndCategory'");
   }
 
+  // Helper methods
+  private ReviewCategoryRating builderFromRequest(ReviewCategoryRatingRequest request, Review review,
+      ReviewCategory category) {
+    ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+        .reviewId(review.getId().intValue())
+        .categoryId(category.getId())
+        .build();
+
+    return ReviewCategoryRating.builder()
+        .id(id)
+        .review(review)
+        .category(category)
+        .rating(request.rating())
+        .build();
+  }
+
+  private void updateRatingFields(ReviewCategoryRating rating, ReviewCategoryRatingRequest request) {
+    rating.setRating(request.rating());
+  }
 }
