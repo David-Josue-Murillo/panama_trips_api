@@ -1,5 +1,6 @@
 package com.app.panama_trips.service.implementation;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -115,15 +116,27 @@ public class ReviewCategoryRatingService implements IReviewCategoryRatingService
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Double getAverageRatingByCategory(Integer categoryId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getAverageRatingByCategory'");
+    if (!reviewCategoryRepository.existsById(categoryId)) {
+      throw new ResourceNotFoundException("Review category not found");
+    }
+    return repository.getAverageRatingByCategory(categoryId);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Map<Integer, Double> getAverageRatingsByCategoryForTour(Long tourPlanId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getAverageRatingsByCategoryForTour'");
+    List<Object[]> results = repository.getAverageRatingsByCategoryForTour(tourPlanId);
+    Map<Integer, Double> averages = new HashMap<>();
+
+    for (Object[] result : results) {
+        Integer categoryId = (Integer) result[0];
+        Double average = (Double) result[1];
+        averages.put(categoryId, average);
+    }
+
+    return averages;
   }
 
   @Override
