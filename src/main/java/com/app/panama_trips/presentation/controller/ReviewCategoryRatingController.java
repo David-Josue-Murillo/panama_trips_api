@@ -3,6 +3,7 @@ package com.app.panama_trips.presentation.controller;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -65,5 +66,22 @@ public class ReviewCategoryRatingController {
   public ResponseEntity<List<ReviewCategoryRatingResponse>> getRatingsByReview(
       @PathVariable Integer reviewId) {
     return ResponseEntity.ok(service.getRatingsByReview(reviewId));
+  }
+
+  @GetMapping("/categories/{categoryId}")
+  public ResponseEntity<List<ReviewCategoryRatingResponse>> getRatingsByCategory(
+      @PathVariable Integer categoryId) {
+    return ResponseEntity.ok(service.getRatingsByCategory(categoryId));
+  }
+
+  @GetMapping("/categories/{categoryId}/average")
+  public ResponseEntity<Double> getAverageRatingByCategory(@PathVariable Integer categoryId) {
+    return ResponseEntity.ok(service.getAverageRatingByCategory(categoryId));
+  }
+
+  @GetMapping("/tour-plans/{tourPlanId}/averages")
+  public ResponseEntity<Map<Integer, Double>> getAverageRatingsByCategoryForTour(
+      @PathVariable Long tourPlanId) {
+    return ResponseEntity.ok(service.getAverageRatingsByCategoryForTour(tourPlanId));
   }
 }
