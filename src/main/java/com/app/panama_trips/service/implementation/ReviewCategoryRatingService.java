@@ -93,15 +93,25 @@ public class ReviewCategoryRatingService implements IReviewCategoryRatingService
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ReviewCategoryRatingResponse> getRatingsByReview(Integer reviewId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getRatingsByReview'");
-  }
+    Review review = reviewRepository.findById(reviewId.longValue())
+        .orElseThrow(() -> new ResourceNotFoundException("Review not found"));
+
+    return repository.findByReview(review).stream()
+        .map(ReviewCategoryRatingResponse::new)
+        .toList();
+      }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ReviewCategoryRatingResponse> getRatingsByCategory(Integer categoryId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getRatingsByCategory'");
+    ReviewCategory category = reviewCategoryRepository.findById(categoryId)
+        .orElseThrow(() -> new ResourceNotFoundException("Review category not found"));
+
+    return repository.findByCategory(category).stream()
+        .map(ReviewCategoryRatingResponse::new)
+        .toList();
   }
 
   @Override
