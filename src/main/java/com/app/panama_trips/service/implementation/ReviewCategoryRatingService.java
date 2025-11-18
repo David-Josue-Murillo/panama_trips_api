@@ -52,8 +52,14 @@ public class ReviewCategoryRatingService implements IReviewCategoryRatingService
   @Override
   @Transactional
   public ReviewCategoryRatingResponse saveReviewCategoryRating(ReviewCategoryRatingRequest request) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'updateReviewCategoryRating'");
+    Review review = reviewRepository.findById(request.reviewId().longValue())
+        .orElseThrow(() -> new ResourceNotFoundException("Review not found"));
+
+    ReviewCategory category = reviewCategoryRepository.findById(request.categoryId())
+        .orElseThrow(() -> new ResourceNotFoundException("Review category not found"));
+
+    ReviewCategoryRating rating = builderFromRequest(request, review, category);
+    return new ReviewCategoryRatingResponse(repository.save(rating));
   }
 
   @Override
