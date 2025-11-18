@@ -23,84 +23,84 @@ import com.app.panama_trips.service.implementation.ReviewCategoryRatingService;
 @RequiredArgsConstructor
 public class ReviewCategoryRatingController {
 
-  private final ReviewCategoryRatingService service;
-  
-  // CRUD operations
-  @GetMapping
-  public ResponseEntity<Page<ReviewCategoryRatingResponse>> getAllReviewCategoryRatings(Pageable pageable) {
-    return ResponseEntity.ok(service.getAllReviewCategoryRatings(pageable));
-  }
+    private final ReviewCategoryRatingService service;
 
-  @GetMapping("/reviews/{reviewId}/categories/{categoryId}")
-  public ResponseEntity<ReviewCategoryRatingResponse> getReviewCategoryRatingById(
-      @PathVariable Integer reviewId,
-      @PathVariable Integer categoryId) {
-    return ResponseEntity.ok(service.getReviewCategoryRatingById(reviewId, categoryId));
-  }
+    // CRUD operations
+    @GetMapping
+    public ResponseEntity<Page<ReviewCategoryRatingResponse>> getAllReviewCategoryRatings(Pageable pageable) {
+        return ResponseEntity.ok(service.getAllReviewCategoryRatings(pageable));
+    }
 
-  @PostMapping
-  public ResponseEntity<ReviewCategoryRatingResponse> saveReviewCategoryRating(
-      @RequestBody ReviewCategoryRatingRequest request) {
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(service.saveReviewCategoryRating(request));
-  }
+    @GetMapping("/reviews/{reviewId}/categories/{categoryId}")
+    public ResponseEntity<ReviewCategoryRatingResponse> getReviewCategoryRatingById(
+            @PathVariable Integer reviewId,
+            @PathVariable Integer categoryId) {
+        return ResponseEntity.ok(service.getReviewCategoryRatingById(reviewId, categoryId));
+    }
 
-  @PutMapping("/reviews/{reviewId}/categories/{categoryId}")
-  public ResponseEntity<ReviewCategoryRatingResponse> updateReviewCategoryRating(
-      @PathVariable Integer reviewId,
-      @PathVariable Integer categoryId,
-      @RequestBody ReviewCategoryRatingRequest request) {
-    return ResponseEntity.ok(service.updateReviewCategoryRating(reviewId, categoryId, request));
-  }
+    @PostMapping
+    public ResponseEntity<ReviewCategoryRatingResponse> saveReviewCategoryRating(
+            @RequestBody ReviewCategoryRatingRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.saveReviewCategoryRating(request));
+    }
 
-  @DeleteMapping("/reviews/{reviewId}/categories/{categoryId}")
-  public ResponseEntity<Void> deleteReviewCategoryRating(
-      @PathVariable Integer reviewId,
-      @PathVariable Integer categoryId) {
-    service.deleteReviewCategoryRating(reviewId, categoryId);
-    return ResponseEntity.noContent().build();
-  }
+    @PutMapping("/reviews/{reviewId}/categories/{categoryId}")
+    public ResponseEntity<ReviewCategoryRatingResponse> updateReviewCategoryRating(
+            @PathVariable Integer reviewId,
+            @PathVariable Integer categoryId,
+            @RequestBody ReviewCategoryRatingRequest request) {
+        return ResponseEntity.ok(service.updateReviewCategoryRating(reviewId, categoryId, request));
+    }
 
-  // Business operations
-  @GetMapping("/reviews/{reviewId}")
-  public ResponseEntity<List<ReviewCategoryRatingResponse>> getRatingsByReview(
-      @PathVariable Integer reviewId) {
-    return ResponseEntity.ok(service.getRatingsByReview(reviewId));
-  }
+    @DeleteMapping("/reviews/{reviewId}/categories/{categoryId}")
+    public ResponseEntity<Void> deleteReviewCategoryRating(
+            @PathVariable Integer reviewId,
+            @PathVariable Integer categoryId) {
+        service.deleteReviewCategoryRating(reviewId, categoryId);
+        return ResponseEntity.noContent().build();
+    }
 
-  @GetMapping("/categories/{categoryId}")
-  public ResponseEntity<List<ReviewCategoryRatingResponse>> getRatingsByCategory(
-      @PathVariable Integer categoryId) {
-    return ResponseEntity.ok(service.getRatingsByCategory(categoryId));
-  }
+    // Business operations
+    @GetMapping("/reviews/{reviewId}")
+    public ResponseEntity<List<ReviewCategoryRatingResponse>> getRatingsByReview(
+            @PathVariable Integer reviewId) {
+        return ResponseEntity.ok(service.getRatingsByReview(reviewId));
+    }
 
-  @GetMapping("/categories/{categoryId}/average")
-  public ResponseEntity<Double> getAverageRatingByCategory(@PathVariable Integer categoryId) {
-    return ResponseEntity.ok(service.getAverageRatingByCategory(categoryId));
-  }
+    @GetMapping("/categories/{categoryId}")
+    public ResponseEntity<List<ReviewCategoryRatingResponse>> getRatingsByCategory(
+            @PathVariable Integer categoryId) {
+        return ResponseEntity.ok(service.getRatingsByCategory(categoryId));
+    }
 
-  @GetMapping("/tour-plans/{tourPlanId}/averages")
-  public ResponseEntity<Map<Integer, Double>> getAverageRatingsByCategoryForTour(
-      @PathVariable Long tourPlanId) {
-    return ResponseEntity.ok(service.getAverageRatingsByCategoryForTour(tourPlanId));
-  }
+    @GetMapping("/categories/{categoryId}/average")
+    public ResponseEntity<Double> getAverageRatingByCategory(@PathVariable Integer categoryId) {
+        return ResponseEntity.ok(service.getAverageRatingByCategory(categoryId));
+    }
 
-  @GetMapping("/count")
-  public ResponseEntity<Long> countRatingsGreaterThanEqual(
-      @RequestParam Integer minRating) {
-    return ResponseEntity.ok(service.countRatingsGreaterThanEqual(minRating));
-  }
+    @GetMapping("/tour-plans/{tourPlanId}/averages")
+    public ResponseEntity<Map<Integer, Double>> getAverageRatingsByCategoryForTour(
+            @PathVariable Long tourPlanId) {
+        return ResponseEntity.ok(service.getAverageRatingsByCategoryForTour(tourPlanId));
+    }
 
-  @DeleteMapping("/reviews/{reviewId}/all")
-  public ResponseEntity<Void> deleteRatingsByReview(@PathVariable Integer reviewId) {
-    service.deleteRatingsByReview(reviewId);
-    return ResponseEntity.noContent().build();
-  }
+    @GetMapping("/count")
+    public ResponseEntity<Long> countRatingsGreaterThanEqual(
+            @RequestParam Integer minRating) {
+        return ResponseEntity.ok(service.countRatingsGreaterThanEqual(minRating));
+    }
 
-  @GetMapping("/exists")
-  public ResponseEntity<Boolean> existsByReviewAndCategory(
-      @RequestParam Integer reviewId,
-      @RequestParam Integer categoryId) {
-    return ResponseEntity.ok(service.existsByReviewAndCategory(reviewId, categoryId));
-  }
+    @DeleteMapping("/reviews/{reviewId}/all")
+    public ResponseEntity<Void> deleteRatingsByReview(@PathVariable Integer reviewId) {
+        service.deleteRatingsByReview(reviewId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/exists")
+    public ResponseEntity<Boolean> existsByReviewAndCategory(
+            @RequestParam Integer reviewId,
+            @RequestParam Integer categoryId) {
+        return ResponseEntity.ok(service.existsByReviewAndCategory(reviewId, categoryId));
+    }
 }
