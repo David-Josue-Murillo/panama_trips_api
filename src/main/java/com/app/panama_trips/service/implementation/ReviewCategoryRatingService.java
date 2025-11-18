@@ -138,17 +138,18 @@ public class ReviewCategoryRatingService implements IReviewCategoryRatingService
 
     return averages;
   }
-
   @Override
+  @Transactional(readOnly = true)
   public Long countRatingsGreaterThanEqual(Integer minRating) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'countRatingsGreaterThanEqual'");
+    return repository.countByRatingGreaterThanEqual(minRating);
   }
 
   @Override
+  @Transactional
   public void deleteRatingsByReview(Integer reviewId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'deleteRatingsByReview'");
+    Review review = reviewRepository.findById(reviewId.longValue())
+        .orElseThrow(() -> new ResourceNotFoundException("Review not found"));
+    repository.deleteByReview(review);
   }
 
   @Override
