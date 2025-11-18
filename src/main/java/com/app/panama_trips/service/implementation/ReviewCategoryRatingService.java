@@ -8,6 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
+import com.app.panama_trips.persistence.entity.ReviewCategoryRating;
+import com.app.panama_trips.persistence.entity.ReviewCategoryRatingId;
 import com.app.panama_trips.persistence.repository.ReviewCategoryRatingRepository;
 import com.app.panama_trips.persistence.repository.ReviewCategoryRepository;
 import com.app.panama_trips.persistence.repository.ReviewRepository;
@@ -33,15 +36,22 @@ public class ReviewCategoryRatingService implements IReviewCategoryRatingService
   }
 
   @Override
+  @Transactional(readOnly = true)
   public ReviewCategoryRatingResponse getReviewCategoryRatingById(Integer reviewId, Integer categoryId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getReviewCategoryRatingById'");
+    ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+        .reviewId(reviewId)
+        .categoryId(categoryId)
+        .build();
+    ReviewCategoryRating rating = repository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Review category rating not found"));
+    return new ReviewCategoryRatingResponse(rating);
   }
 
   @Override
+  @Transactional
   public ReviewCategoryRatingResponse saveReviewCategoryRating(ReviewCategoryRatingRequest request) {
     // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'saveReviewCategoryRating'");
+    throw new UnsupportedOperationException("Unimplemented method 'updateReviewCategoryRating'");
   }
 
   @Override
