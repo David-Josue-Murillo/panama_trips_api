@@ -84,4 +84,23 @@ public class ReviewCategoryRatingController {
       @PathVariable Long tourPlanId) {
     return ResponseEntity.ok(service.getAverageRatingsByCategoryForTour(tourPlanId));
   }
+
+  @GetMapping("/count")
+  public ResponseEntity<Long> countRatingsGreaterThanEqual(
+      @RequestParam Integer minRating) {
+    return ResponseEntity.ok(service.countRatingsGreaterThanEqual(minRating));
+  }
+
+  @DeleteMapping("/reviews/{reviewId}/all")
+  public ResponseEntity<Void> deleteRatingsByReview(@PathVariable Integer reviewId) {
+    service.deleteRatingsByReview(reviewId);
+    return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/exists")
+  public ResponseEntity<Boolean> existsByReviewAndCategory(
+      @RequestParam Integer reviewId,
+      @RequestParam Integer categoryId) {
+    return ResponseEntity.ok(service.existsByReviewAndCategory(reviewId, categoryId));
+  }
 }
