@@ -63,16 +63,33 @@ public class ReviewCategoryRatingService implements IReviewCategoryRatingService
   }
 
   @Override
+  @Transactional
   public ReviewCategoryRatingResponse updateReviewCategoryRating(Integer reviewId, Integer categoryId,
       ReviewCategoryRatingRequest request) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'updateReviewCategoryRating'");
+    ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+        .reviewId(reviewId)
+        .categoryId(categoryId)
+        .build();
+
+    ReviewCategoryRating rating = repository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Review category rating not found"));
+
+    updateRatingFields(rating, request);
+    return new ReviewCategoryRatingResponse(repository.save(rating));
   }
 
   @Override
+  @Transactional
   public void deleteReviewCategoryRating(Integer reviewId, Integer categoryId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'deleteReviewCategoryRating'");
+    ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+        .reviewId(reviewId)
+        .categoryId(categoryId)
+        .build();
+
+    if (!repository.existsById(id)) {
+      throw new ResourceNotFoundException("Review category rating not found");
+    }
+    repository.deleteById(id);
   }
 
   @Override
