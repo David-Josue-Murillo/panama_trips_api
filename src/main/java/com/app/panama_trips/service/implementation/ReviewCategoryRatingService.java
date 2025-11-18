@@ -153,9 +153,15 @@ public class ReviewCategoryRatingService implements IReviewCategoryRatingService
   }
 
   @Override
+  @Transactional(readOnly = true)
   public boolean existsByReviewAndCategory(Integer reviewId, Integer categoryId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'existsByReviewAndCategory'");
+    Review review = reviewRepository.findById(reviewId.longValue())
+        .orElseThrow(() -> new ResourceNotFoundException("Review not found"));
+
+    ReviewCategory category = reviewCategoryRepository.findById(categoryId)
+        .orElseThrow(() -> new ResourceNotFoundException("Review category not found"));
+
+    return repository.existsByReviewAndCategory(review, category);
   }
 
   // Helper methods
