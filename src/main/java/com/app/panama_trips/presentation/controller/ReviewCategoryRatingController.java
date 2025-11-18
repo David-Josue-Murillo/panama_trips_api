@@ -4,11 +4,14 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import com.app.panama_trips.presentation.dto.ReviewCategoryRatingRequest;
 import com.app.panama_trips.presentation.dto.ReviewCategoryRatingResponse;
 import com.app.panama_trips.service.implementation.ReviewCategoryRatingService;
 
@@ -25,4 +28,33 @@ public class ReviewCategoryRatingController {
     return ResponseEntity.ok(service.getAllReviewCategoryRatings(pageable));
   }
 
+  @GetMapping("/reviews/{reviewId}/categories/{categoryId}")
+  public ResponseEntity<ReviewCategoryRatingResponse> getReviewCategoryRatingById(
+      @PathVariable Integer reviewId,
+      @PathVariable Integer categoryId) {
+    return ResponseEntity.ok(service.getReviewCategoryRatingById(reviewId, categoryId));
+  }
+
+  @PostMapping
+  public ResponseEntity<ReviewCategoryRatingResponse> saveReviewCategoryRating(
+      @RequestBody ReviewCategoryRatingRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(service.saveReviewCategoryRating(request));
+  }
+
+  @PutMapping("/reviews/{reviewId}/categories/{categoryId}")
+  public ResponseEntity<ReviewCategoryRatingResponse> updateReviewCategoryRating(
+      @PathVariable Integer reviewId,
+      @PathVariable Integer categoryId,
+      @RequestBody ReviewCategoryRatingRequest request) {
+    return ResponseEntity.ok(service.updateReviewCategoryRating(reviewId, categoryId, request));
+  }
+
+  @DeleteMapping("/reviews/{reviewId}/categories/{categoryId}")
+  public ResponseEntity<Void> deleteReviewCategoryRating(
+      @PathVariable Integer reviewId,
+      @PathVariable Integer categoryId) {
+    service.deleteReviewCategoryRating(reviewId, categoryId);
+    return ResponseEntity.noContent().build();
+  }
 }
