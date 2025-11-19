@@ -2262,4 +2262,12 @@ public class DataProvider {
                 .rating(5)
                 .build();
     }
+
+    public static List<ReviewCategoryRating> reviewCategoryRatingListMock() {
+        return List.of(
+                reviewCategoryRatingOneMock(),
+                reviewCategoryRatingTwoMock(),
+                reviewCategoryRatingThreeMock()
+        );
+    }
 }
