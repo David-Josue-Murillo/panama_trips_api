@@ -2267,8 +2267,7 @@ public class DataProvider {
         return List.of(
                 reviewCategoryRatingOneMock(),
                 reviewCategoryRatingTwoMock(),
-                reviewCategoryRatingThreeMock()
-        );
+                reviewCategoryRatingThreeMock());
     }
 
     public static ReviewCategoryRatingRequest reviewCategoryRatingRequestMock() {
@@ -2277,5 +2276,13 @@ public class DataProvider {
 
     public static ReviewCategoryRatingResponse reviewCategoryRatingResponseMock() {
         return new ReviewCategoryRatingResponse(reviewCategoryRatingOneMock());
+    }
+
+    public static List<ReviewCategoryRatingResponse> reviewCategoryRatingResponseListMock() {
+        return List.of(
+            new ReviewCategoryRatingResponse(reviewCategoryRatingOneMock()),
+            new ReviewCategoryRatingResponse(reviewCategoryRatingTwoMock()),
+            new ReviewCategoryRatingResponse(reviewCategoryRatingThreeMock())
+        );
     }
 }
