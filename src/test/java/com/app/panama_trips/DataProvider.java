@@ -2236,4 +2236,19 @@ public class DataProvider {
                 .rating(4)
                 .build();
     }
+
+    public static ReviewCategoryRating reviewCategoryRatingTwoMock() {
+        ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+                .reviewId(2)
+                .categoryId(2)
+                .build();
+        return ReviewCategoryRating.builder()
+                .id(id)
+                .review(reviewOneMock())
+                .category(reviewCategoryOneMock())
+                .rating(2)
+                .build();
+      }
+    
+     
 }
