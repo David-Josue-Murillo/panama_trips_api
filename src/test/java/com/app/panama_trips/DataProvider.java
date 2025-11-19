@@ -2248,7 +2248,18 @@ public class DataProvider {
                 .category(reviewCategoryOneMock())
                 .rating(2)
                 .build();
-      }
-    
-     
+    }
+
+    public static ReviewCategoryRating reviewCategoryRatingThreeMock() {
+        ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+                .reviewId(3)
+                .categoryId(3)
+                .build();
+        return ReviewCategoryRating.builder()
+                .id(id)
+                .review(reviewOneMock())
+                .category(reviewCategoryOneMock())
+                .rating(5)
+                .build();
+    }
 }
