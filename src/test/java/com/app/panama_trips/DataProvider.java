@@ -2270,4 +2270,8 @@ public class DataProvider {
                 reviewCategoryRatingThreeMock()
         );
     }
+
+    public static ReviewCategoryRatingRequest reviewCategoryRatingRequestMock() {
+        return new ReviewCategoryRatingRequest(1, 1, 4);
+    }
 }
