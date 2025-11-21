@@ -359,4 +359,40 @@ public class ReviewCategoryRatingServiceTest {
         verify(repository, never()).findByCategory(any(ReviewCategory.class));
     }
 
+    @Test
+    @DisplayName("Should return average rating by category when category exists")
+    void getAverageRatingByCategory_whenCategoryExists_shouldReturnAverage() {
+        // Given
+        Integer categoryId = 1;
+        Double average = 4.5;
+
+        when(reviewCategoryRepository.existsById(categoryId)).thenReturn(true);
+        when(repository.getAverageRatingByCategory(categoryId)).thenReturn(average);
+
+        // When
+        Double result = service.getAverageRatingByCategory(categoryId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(average, result);
+        verify(reviewCategoryRepository).existsById(categoryId);
+        verify(repository).getAverageRatingByCategory(categoryId);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when getting average rating by non-existent category")
+    void getAverageRatingByCategory_whenCategoryNotExists_shouldThrowException() {
+        // Given
+        Integer categoryId = 999;
+        when(reviewCategoryRepository.existsById(categoryId)).thenReturn(false);
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getAverageRatingByCategory(categoryId));
+        assertEquals("Review category not found", exception.getMessage());
+        verify(reviewCategoryRepository).existsById(categoryId);
+        verify(repository, never()).getAverageRatingByCategory(anyInt());
+    }
+
 }
