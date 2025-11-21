@@ -7,6 +7,7 @@ import static com.app.panama_trips.DataProvider.reviewCategoryRatingRequestMock;
 import static com.app.panama_trips.DataProvider.reviewOneMock;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -395,4 +396,41 @@ public class ReviewCategoryRatingServiceTest {
         verify(repository, never()).getAverageRatingByCategory(anyInt());
     }
 
+    @Test
+    @DisplayName("Should return average ratings by category for tour")
+    void getAverageRatingsByCategoryForTour_shouldReturnMap() {
+        // Given
+        Long tourPlanId = 1L;
+        List<Object[]> results = List.of(
+                new Object[] { 1, 4.5 },
+                new Object[] { 2, 3.8 });
+
+        when(repository.getAverageRatingsByCategoryForTour(tourPlanId)).thenReturn(results);
+
+        // When
+        Map<Integer, Double> result = service.getAverageRatingsByCategoryForTour(tourPlanId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(4.5, result.get(1));
+        assertEquals(3.8, result.get(2));
+        verify(repository).getAverageRatingsByCategoryForTour(tourPlanId);
+    }
+
+    @Test
+    @DisplayName("Should return empty map when no ratings exist for tour")
+    void getAverageRatingsByCategoryForTour_whenNoRatings_shouldReturnEmptyMap() {
+        // Given
+        Long tourPlanId = 999L;
+        when(repository.getAverageRatingsByCategoryForTour(tourPlanId)).thenReturn(List.of());
+
+        // When
+        Map<Integer, Double> result = service.getAverageRatingsByCategoryForTour(tourPlanId);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(repository).getAverageRatingsByCategoryForTour(tourPlanId);
+    }
 }
