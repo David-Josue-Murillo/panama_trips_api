@@ -542,4 +542,42 @@ public class ReviewCategoryRatingServiceTest {
         verify(reviewCategoryRepository, never()).findById(anyInt());
         verify(repository, never()).existsByReviewAndCategory(any(Review.class), any(ReviewCategory.class));
     }
+
+    @Test
+    @DisplayName("Should throw exception when checking existence with non-existent category")
+    void existsByReviewAndCategory_whenCategoryNotExists_shouldThrowException() {
+        // Given
+        Integer reviewId = 1;
+        Integer categoryId = 999;
+        when(reviewRepository.findById(reviewId.longValue())).thenReturn(Optional.of(review));
+        when(reviewCategoryRepository.findById(categoryId)).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.existsByReviewAndCategory(reviewId, categoryId));
+        assertEquals("Review category not found", exception.getMessage());
+        verify(reviewRepository).findById(reviewId.longValue());
+        verify(reviewCategoryRepository).findById(categoryId);
+        verify(repository, never()).existsByReviewAndCategory(any(Review.class), any(ReviewCategory.class));
+    }
+
+    // Additional Tests
+    @Test
+    @DisplayName("Should return empty page when no review category ratings exist")
+    void getAllReviewCategoryRatings_whenNoRatingsExist_shouldReturnEmptyPage() {
+        // Given
+        Page<ReviewCategoryRating> emptyPage = new PageImpl<>(List.of());
+        Pageable pageable = PageRequest.of(0, 10);
+        when(repository.findAll(pageable)).thenReturn(emptyPage);
+
+        // When
+        Page<ReviewCategoryRatingResponse> result = service.getAllReviewCategoryRatings(pageable);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(0, result.getTotalElements());
+        assertTrue(result.getContent().isEmpty());
+        verify(repository).findAll(pageable);
+    }
 }
