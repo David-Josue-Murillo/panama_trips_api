@@ -190,4 +190,57 @@ public class ReviewCategoryRatingServiceTest {
         verify(reviewCategoryRepository).findById(request.categoryId());
         verify(repository, never()).save(any(ReviewCategoryRating.class));
     }
+
+    @Test
+    @DisplayName("Should update review category rating successfully")
+    void updateReviewCategoryRating_success() {
+        // Given
+        Integer reviewId = 1;
+        Integer categoryId = 1;
+        ReviewCategoryRatingRequest updateRequest = new ReviewCategoryRatingRequest(1, 1, 5);
+        ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+                .reviewId(reviewId)
+                .categoryId(categoryId)
+                .build();
+
+        ReviewCategoryRating updatedRating = reviewCategoryRatingOneMock();
+        updatedRating.setRating(5);
+
+        when(repository.findById(id)).thenReturn(Optional.of(categoryRating));
+        when(repository.save(any(ReviewCategoryRating.class))).thenReturn(updatedRating);
+
+        // When
+        ReviewCategoryRatingResponse result = service.updateReviewCategoryRating(reviewId, categoryId, updateRequest);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(updateRequest.rating(), result.rating());
+        verify(repository).findById(id);
+        verify(repository).save(categoryRatingCaptor.capture());
+        ReviewCategoryRating updatedRatingFromCapture = categoryRatingCaptor.getValue();
+        assertEquals(updateRequest.rating(), updatedRatingFromCapture.getRating());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating non-existent review category rating")
+    void updateReviewCategoryRating_whenNotExists_shouldThrowException() {
+        // Given
+        Integer reviewId = 999;
+        Integer categoryId = 999;
+        ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+                .reviewId(reviewId)
+                .categoryId(categoryId)
+                .build();
+
+        when(repository.findById(id)).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.updateReviewCategoryRating(reviewId, categoryId, request));
+        assertEquals("Review category rating not found", exception.getMessage());
+        verify(repository).findById(id);
+        verify(repository, never()).save(any(ReviewCategoryRating.class));
+    }
+
 }
