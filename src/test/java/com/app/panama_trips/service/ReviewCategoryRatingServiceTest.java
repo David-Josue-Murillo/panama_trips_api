@@ -433,4 +433,37 @@ public class ReviewCategoryRatingServiceTest {
         assertTrue(result.isEmpty());
         verify(repository).getAverageRatingsByCategoryForTour(tourPlanId);
     }
+
+    @Test
+    @DisplayName("Should count ratings greater than or equal to min rating")
+    void countRatingsGreaterThanEqual_shouldReturnCount() {
+        // Given
+        Integer minRating = 4;
+        Long count = 10L;
+
+        when(repository.countByRatingGreaterThanEqual(minRating)).thenReturn(count);
+
+        // When
+        Long result = service.countRatingsGreaterThanEqual(minRating);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(count, result);
+        verify(repository).countByRatingGreaterThanEqual(minRating);
+    }
+
+    @Test
+    @DisplayName("Should delete ratings by review when review exists")
+    void deleteRatingsByReview_whenReviewExists_success() {
+        // Given
+        Integer reviewId = 1;
+        when(reviewRepository.findById(reviewId.longValue())).thenReturn(Optional.of(review));
+
+        // When
+        service.deleteRatingsByReview(reviewId);
+
+        // Then
+        verify(reviewRepository).findById(reviewId.longValue());
+        verify(repository).deleteByReview(review);
+    }
 }
