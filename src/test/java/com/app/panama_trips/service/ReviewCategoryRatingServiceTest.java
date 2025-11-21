@@ -243,4 +243,46 @@ public class ReviewCategoryRatingServiceTest {
         verify(repository, never()).save(any(ReviewCategoryRating.class));
     }
 
+    @Test
+    @DisplayName("Should delete review category rating successfully when exists")
+    void deleteReviewCategoryRating_whenExists_success() {
+        // Given
+        Integer reviewId = 1;
+        Integer categoryId = 1;
+        ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+                .reviewId(reviewId)
+                .categoryId(categoryId)
+                .build();
+
+        when(repository.existsById(id)).thenReturn(true);
+
+        // When
+        service.deleteReviewCategoryRating(reviewId, categoryId);
+
+        // Then
+        verify(repository).existsById(id);
+        verify(repository).deleteById(id);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when deleting non-existent review category rating")
+    void deleteReviewCategoryRating_whenNotExists_shouldThrowException() {
+        // Given
+        Integer reviewId = 999;
+        Integer categoryId = 999;
+        ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+                .reviewId(reviewId)
+                .categoryId(categoryId)
+                .build();
+
+        when(repository.existsById(id)).thenReturn(false);
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.deleteReviewCategoryRating(reviewId, categoryId));
+        assertEquals("Review category rating not found", exception.getMessage());
+        verify(repository).existsById(id);
+        verify(repository, never()).deleteById(any(ReviewCategoryRatingId.class));
+    }
 }
