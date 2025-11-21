@@ -580,4 +580,24 @@ public class ReviewCategoryRatingServiceTest {
         assertTrue(result.getContent().isEmpty());
         verify(repository).findAll(pageable);
     }
+
+    @Test
+    @DisplayName("Should handle pagination correctly with multiple pages")
+    void getAllReviewCategoryRatings_withMultiplePages_shouldHandlePagination() {
+        // Given
+        List<ReviewCategoryRating> singleRating = List.of(categoryRating);
+        Page<ReviewCategoryRating> page = new PageImpl<>(singleRating, PageRequest.of(1, 1), categoryRatingList.size());
+        Pageable pageable = PageRequest.of(1, 1);
+        when(repository.findAll(pageable)).thenReturn(page);
+
+        // When
+        Page<ReviewCategoryRatingResponse> result = service.getAllReviewCategoryRatings(pageable);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(categoryRatingList.size(), result.getTotalElements());
+        assertEquals(1, result.getContent().size());
+        assertEquals(1, result.getNumber());
+        verify(repository).findAll(pageable);
+    }
 }
