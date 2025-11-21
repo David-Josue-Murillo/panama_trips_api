@@ -322,4 +322,41 @@ public class ReviewCategoryRatingServiceTest {
         verify(reviewRepository).findById(reviewId.longValue());
         verify(repository, never()).findByReview(any(Review.class));
     }
+
+    @Test
+    @DisplayName("Should return ratings by category when category exists")
+    void getRatingsByCategory_whenCategoryExists_shouldReturnRatings() {
+        // Given
+        Integer categoryId = 1;
+        List<ReviewCategoryRating> ratings = List.of(categoryRating);
+
+        when(reviewCategoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+        when(repository.findByCategory(category)).thenReturn(ratings);
+
+        // When
+        List<ReviewCategoryRatingResponse> result = service.getRatingsByCategory(categoryId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(ratings.size(), result.size());
+        verify(reviewCategoryRepository).findById(categoryId);
+        verify(repository).findByCategory(category);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when getting ratings by non-existent category")
+    void getRatingsByCategory_whenCategoryNotExists_shouldThrowException() {
+        // Given
+        Integer categoryId = 999;
+        when(reviewCategoryRepository.findById(categoryId)).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getRatingsByCategory(categoryId));
+        assertEquals("Review category not found", exception.getMessage());
+        verify(reviewCategoryRepository).findById(categoryId);
+        verify(repository, never()).findByCategory(any(ReviewCategory.class));
+    }
+
 }
