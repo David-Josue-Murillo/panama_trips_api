@@ -135,4 +135,59 @@ public class ReviewCategoryRatingServiceTest {
         assertEquals("Review category rating not found", exception.getMessage());
         verify(repository).findById(id);
     }
+
+    @Test
+    @DisplayName("Should save review category rating successfully")
+    void saveReviewCategoryRating_success() {
+        // Given
+        ReviewCategoryRating savedRating = reviewCategoryRatingOneMock();
+        when(reviewRepository.findById(request.reviewId().longValue())).thenReturn(Optional.of(review));
+        when(reviewCategoryRepository.findById(request.categoryId())).thenReturn(Optional.of(category));
+        when(repository.save(any(ReviewCategoryRating.class))).thenReturn(savedRating);
+
+        // When
+        ReviewCategoryRatingResponse result = service.saveReviewCategoryRating(request);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(savedRating.getRating(), result.rating());
+        verify(reviewRepository).findById(request.reviewId().longValue());
+        verify(reviewCategoryRepository).findById(request.categoryId());
+        verify(repository).save(categoryRatingCaptor.capture());
+        ReviewCategoryRating savedRatingFromCapture = categoryRatingCaptor.getValue();
+        assertEquals(request.rating(), savedRatingFromCapture.getRating());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when saving review category rating with non-existent review")
+    void saveReviewCategoryRating_whenReviewNotExists_shouldThrowException() {
+        // Given
+        when(reviewRepository.findById(request.reviewId().longValue())).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.saveReviewCategoryRating(request));
+        assertEquals("Review not found", exception.getMessage());
+        verify(reviewRepository).findById(request.reviewId().longValue());
+        verify(reviewCategoryRepository, never()).findById(anyInt());
+        verify(repository, never()).save(any(ReviewCategoryRating.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when saving review category rating with non-existent category")
+    void saveReviewCategoryRating_whenCategoryNotExists_shouldThrowException() {
+        // Given
+        when(reviewRepository.findById(request.reviewId().longValue())).thenReturn(Optional.of(review));
+        when(reviewCategoryRepository.findById(request.categoryId())).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.saveReviewCategoryRating(request));
+        assertEquals("Review category not found", exception.getMessage());
+        verify(reviewRepository).findById(request.reviewId().longValue());
+        verify(reviewCategoryRepository).findById(request.categoryId());
+        verify(repository, never()).save(any(ReviewCategoryRating.class));
+    }
 }
