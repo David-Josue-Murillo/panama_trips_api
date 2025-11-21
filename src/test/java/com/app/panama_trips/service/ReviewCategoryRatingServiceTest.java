@@ -503,4 +503,43 @@ public class ReviewCategoryRatingServiceTest {
         verify(reviewCategoryRepository).findById(categoryId);
         verify(repository).existsByReviewAndCategory(review, category);
     }
+
+    @Test
+    @DisplayName("Should return false when rating does not exist by review and category")
+    void existsByReviewAndCategory_whenNotExists_shouldReturnFalse() {
+        // Given
+        Integer reviewId = 1;
+        Integer categoryId = 1;
+
+        when(reviewRepository.findById(reviewId.longValue())).thenReturn(Optional.of(review));
+        when(reviewCategoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+        when(repository.existsByReviewAndCategory(review, category)).thenReturn(false);
+
+        // When
+        boolean result = service.existsByReviewAndCategory(reviewId, categoryId);
+
+        // Then
+        assertFalse(result);
+        verify(reviewRepository).findById(reviewId.longValue());
+        verify(reviewCategoryRepository).findById(categoryId);
+        verify(repository).existsByReviewAndCategory(review, category);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when checking existence with non-existent review")
+    void existsByReviewAndCategory_whenReviewNotExists_shouldThrowException() {
+        // Given
+        Integer reviewId = 999;
+        Integer categoryId = 1;
+        when(reviewRepository.findById(reviewId.longValue())).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.existsByReviewAndCategory(reviewId, categoryId));
+        assertEquals("Review not found", exception.getMessage());
+        verify(reviewRepository).findById(reviewId.longValue());
+        verify(reviewCategoryRepository, never()).findById(anyInt());
+        verify(repository, never()).existsByReviewAndCategory(any(Review.class), any(ReviewCategory.class));
+    }
 }
