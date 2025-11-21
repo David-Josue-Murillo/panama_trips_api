@@ -285,4 +285,41 @@ public class ReviewCategoryRatingServiceTest {
         verify(repository).existsById(id);
         verify(repository, never()).deleteById(any(ReviewCategoryRatingId.class));
     }
+
+    // Business Operations Tests
+    @Test
+    @DisplayName("Should return ratings by review when review exists")
+    void getRatingsByReview_whenReviewExists_shouldReturnRatings() {
+        // Given
+        Integer reviewId = 1;
+        List<ReviewCategoryRating> ratings = List.of(categoryRating);
+
+        when(reviewRepository.findById(reviewId.longValue())).thenReturn(Optional.of(review));
+        when(repository.findByReview(review)).thenReturn(ratings);
+
+        // When
+        List<ReviewCategoryRatingResponse> result = service.getRatingsByReview(reviewId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(ratings.size(), result.size());
+        verify(reviewRepository).findById(reviewId.longValue());
+        verify(repository).findByReview(review);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when getting ratings by non-existent review")
+    void getRatingsByReview_whenReviewNotExists_shouldThrowException() {
+        // Given
+        Integer reviewId = 999;
+        when(reviewRepository.findById(reviewId.longValue())).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getRatingsByReview(reviewId));
+        assertEquals("Review not found", exception.getMessage());
+        verify(reviewRepository).findById(reviewId.longValue());
+        verify(repository, never()).findByReview(any(Review.class));
+    }
 }
