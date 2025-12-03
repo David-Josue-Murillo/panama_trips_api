@@ -6,6 +6,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.app.panama_trips.service.implementation.ReviewCategoryRatingService;
+import com.app.panama_trips.utility.ParseJson;
 
 @WebMvcTest(ReviewCategoryRatingController.class)
 public class ReviewCategoryRatingControllerTest {
