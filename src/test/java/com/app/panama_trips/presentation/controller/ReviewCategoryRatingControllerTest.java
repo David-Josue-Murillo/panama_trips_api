@@ -159,4 +159,39 @@ public class ReviewCategoryRatingControllerTest {
         verify(reviewCategoryService).deleteReviewCategoryRating(reviewId, categoryId);
     }
 
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return ratings by review successfully")
+    void getRatingsByReview_success() throws Exception {
+        // Given
+        Integer reviewId = request.reviewId();
+        when(reviewCategoryService.getRatingsByReview(reviewId)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/review-category-ratings/reviews/{reviewId}", reviewId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].reviewId").value(response.reviewId()))
+                .andExpect(jsonPath("$[0].categoryId").value(response.categoryId()))
+                .andExpect(jsonPath("$[0].rating").value(response.rating()));
+
+        verify(reviewCategoryService).getRatingsByReview(reviewId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return ratings by category successfully")
+    void getRatingsByCategory_success() throws Exception {
+        // Given
+        Integer categoryId = request.categoryId();
+        when(reviewCategoryService.getRatingsByCategory(categoryId)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/review-category-ratings/categories/{categoryId}", categoryId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].reviewId").value(response.reviewId()))
+                .andExpect(jsonPath("$[0].categoryId").value(response.categoryId()))
+                .andExpect(jsonPath("$[0].rating").value(response.rating()));
+
+        verify(reviewCategoryService).getRatingsByCategory(categoryId);
+    }
 }
