@@ -233,4 +233,23 @@ public class ReviewCategoryRatingControllerTest {
 
         verify(reviewCategoryService).getAverageRatingsByCategoryForTour(tourPlanId);
     }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count ratings greater than or equal to minimum rating")
+    void countRatingsGreaterThanEqual_success() throws Exception {
+        // Given
+        Integer minRating = 4;
+        Long count = 10L;
+        when(reviewCategoryService.countRatingsGreaterThanEqual(minRating)).thenReturn(count);
+
+        // When/Then
+        mockMvc.perform(get("/api/review-category-ratings/count")
+                .param("minRating", minRating.toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(count.toString()));
+
+        verify(reviewCategoryService).countRatingsGreaterThanEqual(minRating);
+    }
+
 }
