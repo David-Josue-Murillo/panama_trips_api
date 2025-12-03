@@ -3,6 +3,7 @@ package com.app.panama_trips.presentation.controller;
 import com.app.panama_trips.presentation.dto.ReviewCategoryRatingRequest;
 import com.app.panama_trips.presentation.dto.ReviewCategoryRatingResponse;
 import com.app.panama_trips.service.implementation.ReviewCategoryRatingService;
+import com.app.panama_trips.utility.ParseJson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -22,9 +25,13 @@ import static com.app.panama_trips.DataProvider.reviewCategoryRatingResponseList
 import static com.app.panama_trips.DataProvider.reviewCategoryRatingResponseMock;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -88,4 +95,68 @@ public class ReviewCategoryRatingControllerTest {
 
         verify(reviewCategoryService).getReviewCategoryRatingById(reviewId, categoryId);
     }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should save review category rating successfully")
+    void saveReviewCategoryRating_success() throws Exception {
+        // Given
+        when(reviewCategoryService.saveReviewCategoryRating(any(ReviewCategoryRatingRequest.class)))
+                .thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(post("/api/review-category-ratings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ParseJson.asJsonString(request))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.reviewId").value(response.reviewId()))
+                .andExpect(jsonPath("$.categoryId").value(response.categoryId()))
+                .andExpect(jsonPath("$.rating").value(response.rating()));
+
+        verify(reviewCategoryService).saveReviewCategoryRating(any(ReviewCategoryRatingRequest.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should update review category rating successfully")
+    void updateReviewCategoryRating_success() throws Exception {
+        // Given
+        Integer reviewId = request.reviewId();
+        Integer categoryId = request.categoryId();
+        when(reviewCategoryService.updateReviewCategoryRating(eq(reviewId), eq(categoryId),
+                any(ReviewCategoryRatingRequest.class))).thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(put("/api/review-category-ratings/reviews/{reviewId}/categories/{categoryId}", reviewId,
+                categoryId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ParseJson.asJsonString(request))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reviewId").value(response.reviewId()))
+                .andExpect(jsonPath("$.categoryId").value(response.categoryId()))
+                .andExpect(jsonPath("$.rating").value(response.rating()));
+
+        verify(reviewCategoryService).updateReviewCategoryRating(eq(reviewId), eq(categoryId),
+                any(ReviewCategoryRatingRequest.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should delete review category rating successfully")
+    void deleteReviewCategoryRating_success() throws Exception {
+        // Given
+        Integer reviewId = request.reviewId();
+        Integer categoryId = request.categoryId();
+
+        // When/Then
+        mockMvc.perform(delete("/api/review-category-ratings/reviews/{reviewId}/categories/{categoryId}", reviewId,
+                categoryId)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(reviewCategoryService).deleteReviewCategoryRating(reviewId, categoryId);
+    }
+
 }
