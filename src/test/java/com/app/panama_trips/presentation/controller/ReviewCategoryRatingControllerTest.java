@@ -266,4 +266,23 @@ public class ReviewCategoryRatingControllerTest {
 
         verify(reviewCategoryService).deleteRatingsByReview(reviewId);
     }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if rating exists by review and category")
+    void existsByReviewAndCategory_success() throws Exception {
+        // Given
+        Integer reviewId = request.reviewId();
+        Integer categoryId = request.categoryId();
+        when(reviewCategoryService.existsByReviewAndCategory(reviewId, categoryId)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/review-category-ratings/exists")
+                .param("reviewId", reviewId.toString())
+                .param("categoryId", categoryId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(reviewCategoryService).existsByReviewAndCategory(reviewId, categoryId);
+    }
 }
