@@ -19,6 +19,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.app.panama_trips.DataProvider.reviewCategoryRatingRequestMock;
 import static com.app.panama_trips.DataProvider.reviewCategoryRatingResponseListMock;
@@ -32,6 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -193,5 +195,42 @@ public class ReviewCategoryRatingControllerTest {
                 .andExpect(jsonPath("$[0].rating").value(response.rating()));
 
         verify(reviewCategoryService).getRatingsByCategory(categoryId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return average rating by category successfully")
+    void getAverageRatingByCategory_success() throws Exception {
+        // Given
+        Integer categoryId = request.categoryId();
+        Double average = 4.5;
+        when(reviewCategoryService.getAverageRatingByCategory(categoryId)).thenReturn(average);
+
+        // When/Then
+        mockMvc.perform(get("/api/review-category-ratings/categories/{categoryId}/average", categoryId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(average.toString()));
+
+        verify(reviewCategoryService).getAverageRatingByCategory(categoryId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return average ratings by category for tour successfully")
+    void getAverageRatingsByCategoryForTour_success() throws Exception {
+        // Given
+        Long tourPlanId = 1L;
+        Map<Integer, Double> averages = Map.of(
+                1, 4.5,
+                2, 3.8);
+        when(reviewCategoryService.getAverageRatingsByCategoryForTour(tourPlanId)).thenReturn(averages);
+
+        // When/Then
+        mockMvc.perform(get("/api/review-category-ratings/tour-plans/{tourPlanId}/averages", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$['1']").value(4.5))
+                .andExpect(jsonPath("$['2']").value(3.8));
+
+        verify(reviewCategoryService).getAverageRatingsByCategoryForTour(tourPlanId);
     }
 }
