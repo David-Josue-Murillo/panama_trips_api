@@ -252,4 +252,18 @@ public class ReviewCategoryRatingControllerTest {
         verify(reviewCategoryService).countRatingsGreaterThanEqual(minRating);
     }
 
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should delete all ratings by review successfully")
+    void deleteRatingsByReview_success() throws Exception {
+        // Given
+        Integer reviewId = request.reviewId();
+
+        // When/Then
+        mockMvc.perform(delete("/api/review-category-ratings/reviews/{reviewId}/all", reviewId)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(reviewCategoryService).deleteRatingsByReview(reviewId);
+    }
 }
