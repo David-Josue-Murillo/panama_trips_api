@@ -1405,7 +1405,8 @@ public class DataProvider {
                 .id(11)
                 .tourPlan(tourPlanThreeMock)
                 .question("¿Qué incluye el tour?")
-                .answer("El tour incluye transporte en vehículo climatizado desde y hacia su hotel, guía turístico certificado bilingüe (español e inglés), entradas a todos los sitios turísticos mencionados en el itinerario, refrigerio con bebidas y snacks locales, seguro de viajero durante la duración del tour, fotos profesionales del grupo (opcional), y certificado de participación. No incluye propinas para el guía y conductor, comidas principales, bebidas alcohólicas, gastos personales, ni servicios no mencionados en el itinerario.")
+                .answer(
+                        "El tour incluye transporte en vehículo climatizado desde y hacia su hotel, guía turístico certificado bilingüe (español e inglés), entradas a todos los sitios turísticos mencionados en el itinerario, refrigerio con bebidas y snacks locales, seguro de viajero durante la duración del tour, fotos profesionales del grupo (opcional), y certificado de participación. No incluye propinas para el guía y conductor, comidas principales, bebidas alcohólicas, gastos personales, ni servicios no mencionados en el itinerario.")
                 .displayOrder(3)
                 .createdAt(LocalDateTime.now().minusDays(1))
                 .updatedAt(LocalDateTime.now())
@@ -2158,36 +2159,36 @@ public class DataProvider {
      * 
      */
 
-     public static ReviewCategory reviewCategoryOneMock() {
+    public static ReviewCategory reviewCategoryOneMock() {
         return ReviewCategory.builder()
                 .name("Quality")
                 .description("Quality of the tour")
                 .build();
     }
 
-     public static ReviewCategory reviewCategoryTwoMock() {
+    public static ReviewCategory reviewCategoryTwoMock() {
         return ReviewCategory.builder()
                 .name("Price")
                 .description("Price of the tour")
                 .build();
     }
 
-     public static ReviewCategory reviewCategoryThreeMock() {
+    public static ReviewCategory reviewCategoryThreeMock() {
         return ReviewCategory.builder()
                 .name("Location")
                 .description("Location of the tour")
                 .build();
     }
 
-     public static List<ReviewCategory> reviewCategoryListMock() {
+    public static List<ReviewCategory> reviewCategoryListMock() {
         return List.of(
                 reviewCategoryOneMock(),
                 reviewCategoryTwoMock(),
                 reviewCategoryThreeMock());
     }
 
-     public static ReviewCategoryResponse reviewCategoryResponseMock() {
-      return new ReviewCategoryResponse(reviewCategoryOneMock());
+    public static ReviewCategoryResponse reviewCategoryResponseMock() {
+        return new ReviewCategoryResponse(reviewCategoryOneMock());
     }
 
     public static ReviewCategoryRequest reviewCategoryRequestMock() {
@@ -2199,5 +2200,89 @@ public class DataProvider {
                 new ReviewCategoryResponse(reviewCategoryOneMock()),
                 new ReviewCategoryResponse(reviewCategoryTwoMock()),
                 new ReviewCategoryResponse(reviewCategoryThreeMock()));
+    }
+
+    /*
+     * Review instances
+     */
+
+    public static Review reviewOneMock() {
+        Review review = new Review();
+        review.setId(1L);
+        review.setUserId(userCustomer());
+        review.setTourPlanId(tourPlanOneMock);
+        review.setTitle("Great tour");
+        review.setRating(5);
+        review.setComment("Excellent experience");
+        review.setVerifiedPurchase(true);
+        review.setStatus("ACTIVE");
+        review.setCreatedAt(LocalDateTime.now());
+        return review;
+    }
+
+    /*
+     * ReviewCategoryRating instances
+     */
+
+    public static ReviewCategoryRating reviewCategoryRatingOneMock() {
+        ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+                .reviewId(1)
+                .categoryId(1)
+                .build();
+        return ReviewCategoryRating.builder()
+                .id(id)
+                .review(reviewOneMock())
+                .category(reviewCategoryOneMock())
+                .rating(4)
+                .build();
+    }
+
+    public static ReviewCategoryRating reviewCategoryRatingTwoMock() {
+        ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+                .reviewId(2)
+                .categoryId(2)
+                .build();
+        return ReviewCategoryRating.builder()
+                .id(id)
+                .review(reviewOneMock())
+                .category(reviewCategoryOneMock())
+                .rating(2)
+                .build();
+    }
+
+    public static ReviewCategoryRating reviewCategoryRatingThreeMock() {
+        ReviewCategoryRatingId id = ReviewCategoryRatingId.builder()
+                .reviewId(3)
+                .categoryId(3)
+                .build();
+        return ReviewCategoryRating.builder()
+                .id(id)
+                .review(reviewOneMock())
+                .category(reviewCategoryOneMock())
+                .rating(5)
+                .build();
+    }
+
+    public static List<ReviewCategoryRating> reviewCategoryRatingListMock() {
+        return List.of(
+                reviewCategoryRatingOneMock(),
+                reviewCategoryRatingTwoMock(),
+                reviewCategoryRatingThreeMock());
+    }
+
+    public static ReviewCategoryRatingRequest reviewCategoryRatingRequestMock() {
+        return new ReviewCategoryRatingRequest(1, 1, 4);
+    }
+
+    public static ReviewCategoryRatingResponse reviewCategoryRatingResponseMock() {
+        return new ReviewCategoryRatingResponse(reviewCategoryRatingOneMock());
+    }
+
+    public static List<ReviewCategoryRatingResponse> reviewCategoryRatingResponseListMock() {
+        return List.of(
+            new ReviewCategoryRatingResponse(reviewCategoryRatingOneMock()),
+            new ReviewCategoryRatingResponse(reviewCategoryRatingTwoMock()),
+            new ReviewCategoryRatingResponse(reviewCategoryRatingThreeMock())
+        );
     }
 }
