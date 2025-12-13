@@ -46,15 +46,21 @@ public class LanguageService implements ILanguageService {
     }
 
     @Override
+    @Transactional
     public LanguageResponse updateLanguage(String code, LanguageRequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateLanguage'");
+        Language existingLanguage = languageRepository.findById(code)
+                .orElseThrow(() -> new ResourceNotFoundException("Language not found with code " + code));
+        updateLanguageFields(existingLanguage, request);
+        return new LanguageResponse(languageRepository.save(existingLanguage));
     }
 
     @Override
+    @Transactional
     public void deleteLanguage(String code) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteLanguage'");
+        if (!languageRepository.existsById(code)) {
+            throw new ResourceNotFoundException("Language not found with code " + code);
+        }
+        languageRepository.deleteById(code);
     }
 
     @Override
