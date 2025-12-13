@@ -103,4 +103,16 @@ public class LanguageService implements ILanguageService {
                 .isActive(request.isActive() != null ? request.isActive() : true)
                 .build();
     }
+
+    private void updateLanguageFields(Language language, LanguageRequest request) {
+        // Validar que el nombre no esté duplicado (excepto si es el mismo idioma)
+        if (!language.getName().equalsIgnoreCase(request.name())
+                && languageRepository.existsByNameIgnoreCase(request.name())) {
+            throw new IllegalArgumentException("Language with name " + request.name() + " already exists");
+        }
+        language.setName(request.name());
+        if (request.isActive() != null) {
+            language.setIsActive(request.isActive());
+        }
+    }
 }
