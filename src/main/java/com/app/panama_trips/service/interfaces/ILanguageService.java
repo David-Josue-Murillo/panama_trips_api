@@ -19,5 +19,7 @@ public interface ILanguageService {
     List<LanguageResponse> getAllActiveLanguages();
     LanguageResponse getLanguageByName(String name);
     List<LanguageResponse> searchActiveLanguages(String keyword);
-
+    long countActiveLanguages();
+    boolean existsByCode(String code);
+    boolean existsByName(String name);
 }
