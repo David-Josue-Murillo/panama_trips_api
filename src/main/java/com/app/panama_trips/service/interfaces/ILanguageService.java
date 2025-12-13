@@ -14,4 +14,10 @@ public interface ILanguageService {
     LanguageResponse saveLanguage(LanguageRequest request);
     LanguageResponse updateLanguage(String code, LanguageRequest request);
     void deleteLanguage(String code);
+
+    // Business operations
+    List<LanguageResponse> getAllActiveLanguages();
+    LanguageResponse getLanguageByName(String name);
+    List<LanguageResponse> searchActiveLanguages(String keyword);
+
 }
