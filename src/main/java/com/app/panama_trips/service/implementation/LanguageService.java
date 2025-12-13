@@ -64,15 +64,19 @@ public class LanguageService implements ILanguageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<LanguageResponse> getAllActiveLanguages() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllActiveLanguages'");
+        return languageRepository.findByIsActiveTrue().stream()
+                .map(LanguageResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public LanguageResponse getLanguageByName(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getLanguageByName'");
+        Language language = languageRepository.findByNameIgnoreCase(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Language not found with name " + name));
+        return new LanguageResponse(language);
     }
 
     @Override
