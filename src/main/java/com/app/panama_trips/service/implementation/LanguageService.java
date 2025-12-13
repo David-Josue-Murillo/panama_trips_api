@@ -85,4 +85,13 @@ public class LanguageService implements ILanguageService {
         throw new UnsupportedOperationException("Unimplemented method 'existsByName'");
     }
 
+    // Private helper methods
+    private void validateLanguage(LanguageRequest request) {
+        if (languageRepository.existsById(request.code())) {
+            throw new IllegalArgumentException("Language with code " + request.code() + " already exists");
+        }
+        if (languageRepository.existsByNameIgnoreCase(request.name())) {
+            throw new IllegalArgumentException("Language with name " + request.name() + " already exists");
+        }
+    }
 }
