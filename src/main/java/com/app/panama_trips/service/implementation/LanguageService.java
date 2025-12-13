@@ -88,21 +88,21 @@ public class LanguageService implements ILanguageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countActiveLanguages() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'countActiveLanguages'");
+        return languageRepository.countActiveLanguages();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByCode(String code) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsByCode'");
+        return languageRepository.existsById(code);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByName(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsByName'");
+        return languageRepository.existsByNameIgnoreCase(name);
     }
 
     // Private helper methods
