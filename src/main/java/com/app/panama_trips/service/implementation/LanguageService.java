@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.app.panama_trips.persistence.entity.Language;
 import com.app.panama_trips.persistence.repository.LanguageRepository;
 import com.app.panama_trips.presentation.dto.LanguageRequest;
 import com.app.panama_trips.presentation.dto.LanguageResponse;
@@ -93,5 +94,13 @@ public class LanguageService implements ILanguageService {
         if (languageRepository.existsByNameIgnoreCase(request.name())) {
             throw new IllegalArgumentException("Language with name " + request.name() + " already exists");
         }
+    }
+
+    private Language buildLanguageFromRequest(LanguageRequest request) {
+        return Language.builder()
+                .code(request.code())
+                .name(request.name())
+                .isActive(request.isActive() != null ? request.isActive() : true)
+                .build();
     }
 }
