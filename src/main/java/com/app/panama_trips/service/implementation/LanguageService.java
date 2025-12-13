@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.Language;
 import com.app.panama_trips.persistence.repository.LanguageRepository;
 import com.app.panama_trips.presentation.dto.LanguageRequest;
@@ -21,21 +23,26 @@ public class LanguageService implements ILanguageService {
     private final LanguageRepository languageRepository;
     
     @Override
+    @Transactional(readOnly = true)
     public Page<LanguageResponse> getAllLanguages(Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllLanguages'");
+        return languageRepository.findAll(pageable)
+                .map(LanguageResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public LanguageResponse getLanguageByCode(String code) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getLanguageByCode'");
+        Language language = languageRepository.findById(code)
+                .orElseThrow(() -> new ResourceNotFoundException("Language not found with code " + code));
+        return new LanguageResponse(language);
     }
 
     @Override
+    @Transactional
     public LanguageResponse saveLanguage(LanguageRequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'saveLanguage'");
+        validateLanguage(request);
+        Language language = buildLanguageFromRequest(request);
+        return new LanguageResponse(languageRepository.save(language));
     }
 
     @Override
