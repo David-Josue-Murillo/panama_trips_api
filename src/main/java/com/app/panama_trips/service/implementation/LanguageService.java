@@ -80,9 +80,11 @@ public class LanguageService implements ILanguageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<LanguageResponse> searchActiveLanguages(String keyword) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchActiveLanguages'");
+        return languageRepository.searchActiveLanguages(keyword).stream()
+                .map(LanguageResponse::new)
+                .toList();
     }
 
     @Override
