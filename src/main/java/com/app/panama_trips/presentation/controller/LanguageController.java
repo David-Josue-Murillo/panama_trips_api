@@ -74,4 +74,14 @@ public class LanguageController {
     public ResponseEntity<Long> countActiveLanguages() {
         return ResponseEntity.ok(service.countActiveLanguages());
     }
+
+    @GetMapping("/exists/code")
+    public ResponseEntity<Boolean> existsByCode(@RequestParam String code) {
+        return ResponseEntity.ok(service.existsByCode(code));
+    }
+
+    @GetMapping("/exists/name")
+    public ResponseEntity<Boolean> existsByName(@RequestParam String name) {
+        return ResponseEntity.ok(service.existsByName(name));
+    }
 }
