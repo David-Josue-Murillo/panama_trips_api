@@ -63,4 +63,15 @@ public class LanguageController {
     public ResponseEntity<LanguageResponse> getLanguageByName(@PathVariable String name) {
         return ResponseEntity.ok(service.getLanguageByName(name));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<LanguageResponse>> searchActiveLanguages(
+            @RequestParam String keyword) {
+        return ResponseEntity.ok(service.searchActiveLanguages(keyword));
+    }
+
+    @GetMapping("/active/count")
+    public ResponseEntity<Long> countActiveLanguages() {
+        return ResponseEntity.ok(service.countActiveLanguages());
+    }
 }
