@@ -14,8 +14,11 @@ import com.app.panama_trips.presentation.dto.LanguageRequest;
 import com.app.panama_trips.presentation.dto.LanguageResponse;
 import com.app.panama_trips.service.implementation.LanguageService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/languages")
+@RequiredArgsConstructor
 public class LanguageController {
     private final LanguageService service;
 
