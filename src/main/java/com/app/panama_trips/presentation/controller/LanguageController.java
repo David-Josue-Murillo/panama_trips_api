@@ -15,6 +15,7 @@ import com.app.panama_trips.presentation.dto.LanguageResponse;
 import com.app.panama_trips.service.implementation.LanguageService;
 
 import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/languages")
@@ -50,5 +51,16 @@ public class LanguageController {
     public ResponseEntity<Void> deleteLanguage(@PathVariable String code) {
         service.deleteLanguage(code);
         return ResponseEntity.noContent().build();
+    }
+
+    // Business operations
+    @GetMapping("/active")
+    public ResponseEntity<List<LanguageResponse>> getAllActiveLanguages() {
+        return ResponseEntity.ok(service.getAllActiveLanguages());
+    }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<LanguageResponse> getLanguageByName(@PathVariable String name) {
+        return ResponseEntity.ok(service.getLanguageByName(name));
     }
 }
