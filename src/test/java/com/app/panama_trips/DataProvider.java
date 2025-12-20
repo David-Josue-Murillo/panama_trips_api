@@ -2321,4 +2321,12 @@ public class DataProvider {
                 languageFrenchMock()
         );
     }
+
+    public static LanguageResponse languageResponse() {
+        return new LanguageResponse(languageSpanishMock());
+    }
+
+    public static LanguageRequest languageRequestMock() {
+        return new LanguageRequest("ES", "Español", true);
+    }
 }
