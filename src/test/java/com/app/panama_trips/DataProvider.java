@@ -2313,4 +2313,12 @@ public class DataProvider {
                 .isActive(true)
                 .build();
     }
+
+    public static List<Language> languageListMock() {
+        return List.of(
+                languageSpanishMock(),
+                languageEnglishMock(),
+                languageFrenchMock()
+        );
+    }
 }
