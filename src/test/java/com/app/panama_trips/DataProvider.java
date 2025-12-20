@@ -2280,9 +2280,37 @@ public class DataProvider {
 
     public static List<ReviewCategoryRatingResponse> reviewCategoryRatingResponseListMock() {
         return List.of(
-            new ReviewCategoryRatingResponse(reviewCategoryRatingOneMock()),
-            new ReviewCategoryRatingResponse(reviewCategoryRatingTwoMock()),
-            new ReviewCategoryRatingResponse(reviewCategoryRatingThreeMock())
-        );
+                new ReviewCategoryRatingResponse(reviewCategoryRatingOneMock()),
+                new ReviewCategoryRatingResponse(reviewCategoryRatingTwoMock()),
+                new ReviewCategoryRatingResponse(reviewCategoryRatingThreeMock()));
+    }
+
+    /*
+     * Language instances
+     * 
+     * 
+     */
+    public static Language languageSpanishMock() {
+        return Language.builder()
+                .code("ES")
+                .name("Español")
+                .isActive(true)
+                .build();
+    }
+
+    public static Language languageEnglishMock() {
+        return Language.builder()
+                .code("EN")
+                .name("English")
+                .isActive(true)
+                .build();
+    }
+
+    public static Language languageFrenchMock() {
+        return Language.builder()
+                .code("FR")
+                .name("Français")
+                .isActive(true)
+                .build();
     }
 }
