@@ -2322,11 +2322,17 @@ public class DataProvider {
         );
     }
 
+    private static LanguageResponse convertToResponseDTO(Language language) {
+        return new LanguageResponse(language);
+    }
+
     public static LanguageResponse languageResponse() {
         return new LanguageResponse(languageSpanishMock());
     }
 
-    public static LanguageRequest languageRequestMock() {
-        return new LanguageRequest("ES", "Español", true);
+    public static LanguageResponse languageResponseMock() {
+        return convertToResponseDTO(languageSpanishMock());
     }
+
+    
 }
