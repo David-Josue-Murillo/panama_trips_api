@@ -2334,5 +2334,11 @@ public class DataProvider {
         return convertToResponseDTO(languageSpanishMock());
     }
 
-    
+    public static List<LanguageResponse> languageResponseListMock() {
+        return List.of(
+                convertToResponseDTO(languageSpanishMock()),
+                convertToResponseDTO(languageEnglishMock()),
+                convertToResponseDTO(languageFrenchMock())
+        );
+    }
 }
