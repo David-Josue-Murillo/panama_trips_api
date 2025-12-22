@@ -103,4 +103,27 @@ public class LanguageServiceTest {
         assertEquals("Language not found with code " + code, exception.getMessage());
         verify(repository).findById(code);
     }
+
+    @Test
+    @DisplayName("Should save language successfully")
+    void saveLanguage_success() {
+        // Given
+        when(repository.existsById(languageRequest.code())).thenReturn(false);
+        when(repository.existsByNameIgnoreCase(languageRequest.name())).thenReturn(false);
+        when(repository.save(any(Language.class))).thenReturn(language);
+
+        // When
+        LanguageResponse result = service.saveLanguage(languageRequest);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(language.getCode(), result.code());
+        assertEquals(language.getName(), result.name());
+        verify(repository).existsById(languageRequest.code());
+        verify(repository).existsByNameIgnoreCase(languageRequest.name());
+        verify(repository).save(languageCaptor.capture());
+        Language savedLanguage = languageCaptor.getValue();
+        assertEquals(languageRequest.code(), savedLanguage.getCode());
+        assertEquals(languageRequest.name(), savedLanguage.getName());
+    }
 }
