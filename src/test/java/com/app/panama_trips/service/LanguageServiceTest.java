@@ -383,4 +383,37 @@ public class LanguageServiceTest {
         assertEquals("Language not found with name " + name, exception.getMessage());
         verify(repository).findByNameIgnoreCase(name);
     }
+
+    @Test
+    @DisplayName("Should return active languages matching keyword")
+    void searchActiveLanguages_shouldReturnMatchingLanguages() {
+        // Given
+        String keyword = "es";
+        List<Language> matchingLanguages = List.of(languageSpanishMock(), languageEnglishMock());
+        when(repository.searchActiveLanguages(keyword)).thenReturn(matchingLanguages);
+
+        // When
+        List<LanguageResponse> result = service.searchActiveLanguages(keyword);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(matchingLanguages.size(), result.size());
+        verify(repository).searchActiveLanguages(keyword);
+    }
+
+    @Test
+    @DisplayName("Should return empty list when no active languages match keyword")
+    void searchActiveLanguages_whenNoMatches_shouldReturnEmptyList() {
+        // Given
+        String keyword = "xyz";
+        when(repository.searchActiveLanguages(keyword)).thenReturn(List.of());
+
+        // When
+        List<LanguageResponse> result = service.searchActiveLanguages(keyword);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(repository).searchActiveLanguages(keyword);
+    }
 }
