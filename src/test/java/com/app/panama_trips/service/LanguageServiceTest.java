@@ -300,4 +300,35 @@ public class LanguageServiceTest {
         Language capturedLanguage = languageCaptor.getValue();
         assertTrue(capturedLanguage.getIsActive());
     }
+
+    @Test
+    @DisplayName("Should delete language successfully when exists")
+    void deleteLanguage_whenExists_success() {
+        // Given
+        String code = "ES";
+        when(repository.existsById(code)).thenReturn(true);
+
+        // When
+        service.deleteLanguage(code);
+
+        // Then
+        verify(repository).existsById(code);
+        verify(repository).deleteById(code);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when deleting non-existent language")
+    void deleteLanguage_whenNotExists_shouldThrowException() {
+        // Given
+        String code = "XX";
+        when(repository.existsById(code)).thenReturn(false);
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.deleteLanguage(code));
+        assertEquals("Language not found with code " + code, exception.getMessage());
+        verify(repository).existsById(code);
+        verify(repository, never()).deleteById(anyString());
+    }
 }
