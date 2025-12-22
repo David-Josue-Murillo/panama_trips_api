@@ -1,6 +1,7 @@
 package com.app.panama_trips.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.Language;
 import com.app.panama_trips.persistence.repository.LanguageRepository;
 import com.app.panama_trips.presentation.dto.LanguageRequest;
@@ -67,5 +69,38 @@ public class LanguageServiceTest {
         assertNotNull(result);
         assertEquals(languages.size(), result.getTotalElements());
         verify(repository).findAll(pageable);
+    }
+
+    @Test
+    @DisplayName("Should return language by code when exists")
+    void getLanguageByCode_whenExists_shouldReturnLanguage() {
+        // Given
+        String code = "ES";
+        when(repository.findById(code)).thenReturn(Optional.of(language));
+
+        // When
+        LanguageResponse result = service.getLanguageByCode(code);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(language.getCode(), result.code());
+        assertEquals(language.getName(), result.name());
+        assertEquals(language.getIsActive(), result.isActive());
+        verify(repository).findById(code);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when getting language by code that doesn't exist")
+    void getLanguageByCode_whenNotExists_shouldThrowException() {
+        // Given
+        String code = "XX";
+        when(repository.findById(code)).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getLanguageByCode(code));
+        assertEquals("Language not found with code " + code, exception.getMessage());
+        verify(repository).findById(code);
     }
 }
