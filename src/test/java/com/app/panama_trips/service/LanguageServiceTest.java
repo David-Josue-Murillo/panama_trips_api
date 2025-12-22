@@ -416,4 +416,19 @@ public class LanguageServiceTest {
         assertTrue(result.isEmpty());
         verify(repository).searchActiveLanguages(keyword);
     }
+
+    @Test
+    @DisplayName("Should return count of active languages")
+    void countActiveLanguages_shouldReturnCorrectCount() {
+        // Given
+        long expectedCount = 3L;
+        when(repository.countActiveLanguages()).thenReturn(expectedCount);
+
+        // When
+        long result = service.countActiveLanguages();
+
+        // Then
+        assertEquals(expectedCount, result);
+        verify(repository).countActiveLanguages();
+    }
 }
