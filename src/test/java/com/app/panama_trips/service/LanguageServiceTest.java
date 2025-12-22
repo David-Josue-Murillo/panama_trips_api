@@ -159,4 +159,60 @@ public class LanguageServiceTest {
         verify(repository).existsByNameIgnoreCase(languageRequest.name());
         verify(repository, never()).save(any(Language.class));
     }
+
+    @Test
+    @DisplayName("Should set isActive to true by default when saving language with null isActive")
+    void saveLanguage_withNullIsActive_shouldSetDefaultTrue() {
+        // Given
+        LanguageRequest requestWithNullIsActive = new LanguageRequest("DE", "Deutsch", null);
+        Language savedLanguage = Language.builder()
+                .code("DE")
+                .name("Deutsch")
+                .isActive(true)
+                .build();
+
+        when(repository.existsById("DE")).thenReturn(false);
+        when(repository.existsByNameIgnoreCase("Deutsch")).thenReturn(false);
+        when(repository.save(any(Language.class))).thenReturn(savedLanguage);
+
+        // When
+        LanguageResponse result = service.saveLanguage(requestWithNullIsActive);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isActive());
+        verify(repository).save(languageCaptor.capture());
+        Language capturedLanguage = languageCaptor.getValue();
+        assertTrue(capturedLanguage.getIsActive());
+    }
+
+    @Test
+    @DisplayName("Should update language successfully")
+    void updateLanguage_success() {
+        // Given
+        String code = "ES";
+        LanguageRequest updateRequest = new LanguageRequest("ES", "Español Actualizado", false);
+        Language updatedLanguage = Language.builder()
+                .code("ES")
+                .name("Español Actualizado")
+                .isActive(false)
+                .build();
+
+        when(repository.findById(code)).thenReturn(Optional.of(language));
+        when(repository.existsByNameIgnoreCase(updateRequest.name())).thenReturn(false);
+        when(repository.save(any(Language.class))).thenReturn(updatedLanguage);
+
+        // When
+        LanguageResponse result = service.updateLanguage(code, updateRequest);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(updateRequest.name(), result.name());
+        assertEquals(updateRequest.isActive(), result.isActive());
+        verify(repository).findById(code);
+        verify(repository).save(languageCaptor.capture());
+        Language capturedLanguage = languageCaptor.getValue();
+        assertEquals(updateRequest.name(), capturedLanguage.getName());
+        assertEquals(updateRequest.isActive(), capturedLanguage.getIsActive());
+    }
 }
