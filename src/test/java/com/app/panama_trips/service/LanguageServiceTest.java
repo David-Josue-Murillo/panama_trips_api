@@ -126,4 +126,37 @@ public class LanguageServiceTest {
         assertEquals(languageRequest.code(), savedLanguage.getCode());
         assertEquals(languageRequest.name(), savedLanguage.getName());
     }
+
+    @Test
+    @DisplayName("Should throw exception when saving language with duplicate code")
+    void saveLanguage_withDuplicateCode_shouldThrowException() {
+        // Given
+        when(repository.existsById(languageRequest.code())).thenReturn(true);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.saveLanguage(languageRequest));
+        assertEquals("Language with code " + languageRequest.code() + " already exists", exception.getMessage());
+        verify(repository).existsById(languageRequest.code());
+        verify(repository, never()).existsByNameIgnoreCase(anyString());
+        verify(repository, never()).save(any(Language.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when saving language with duplicate name")
+    void saveLanguage_withDuplicateName_shouldThrowException() {
+        // Given
+        when(repository.existsById(languageRequest.code())).thenReturn(false);
+        when(repository.existsByNameIgnoreCase(languageRequest.name())).thenReturn(true);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.saveLanguage(languageRequest));
+        assertEquals("Language with name " + languageRequest.name() + " already exists", exception.getMessage());
+        verify(repository).existsById(languageRequest.code());
+        verify(repository).existsByNameIgnoreCase(languageRequest.name());
+        verify(repository, never()).save(any(Language.class));
+    }
 }
