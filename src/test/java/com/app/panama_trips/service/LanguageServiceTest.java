@@ -252,4 +252,52 @@ public class LanguageServiceTest {
         verify(repository).existsByNameIgnoreCase(updateRequest.name());
         verify(repository, never()).save(any(Language.class));
     }
+
+    @Test
+    @DisplayName("Should not throw exception when updating language with same name")
+    void updateLanguage_withSameName_shouldNotThrowException() {
+        // Given
+        String code = "ES";
+        LanguageRequest updateRequest = new LanguageRequest("ES", "Español", false);
+        Language existingLanguage = languageSpanishMock();
+
+        when(repository.findById(code)).thenReturn(Optional.of(existingLanguage));
+        when(repository.save(any(Language.class))).thenReturn(existingLanguage);
+
+        // When
+        LanguageResponse result = service.updateLanguage(code, updateRequest);
+
+        // Then
+        assertNotNull(result);
+        verify(repository).findById(code);
+        verify(repository).save(any(Language.class));
+    }
+
+    @Test
+    @DisplayName("Should preserve isActive when updating language with null isActive")
+    void updateLanguage_withNullIsActive_shouldPreserveCurrentValue() {
+        // Given
+        String code = "ES";
+        LanguageRequest updateRequest = new LanguageRequest("ES", "Español Actualizado", null);
+        Language existingLanguage = languageSpanishMock();
+        existingLanguage.setIsActive(true);
+        Language updatedLanguage = Language.builder()
+                .code("ES")
+                .name("Español Actualizado")
+                .isActive(true)
+                .build();
+
+        when(repository.findById(code)).thenReturn(Optional.of(existingLanguage));
+        when(repository.save(any(Language.class))).thenReturn(updatedLanguage);
+
+        // When
+        LanguageResponse result = service.updateLanguage(code, updateRequest);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isActive());
+        verify(repository).save(languageCaptor.capture());
+        Language capturedLanguage = languageCaptor.getValue();
+        assertTrue(capturedLanguage.getIsActive());
+    }
 }
