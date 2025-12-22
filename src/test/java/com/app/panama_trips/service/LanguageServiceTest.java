@@ -331,4 +331,56 @@ public class LanguageServiceTest {
         verify(repository).existsById(code);
         verify(repository, never()).deleteById(anyString());
     }
+
+    // Business Operations Tests
+    @Test
+    @DisplayName("Should return all active languages")
+    void getAllActiveLanguages_shouldReturnActiveLanguages() {
+        // Given
+        List<Language> activeLanguages = languages.stream()
+                .filter(l -> l.getIsActive())
+                .toList();
+        when(repository.findByIsActiveTrue()).thenReturn(activeLanguages);
+
+        // When
+        List<LanguageResponse> result = service.getAllActiveLanguages();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(activeLanguages.size(), result.size());
+        assertTrue(result.stream().allMatch(l -> l.isActive()));
+        verify(repository).findByIsActiveTrue();
+    }
+
+    @Test
+    @DisplayName("Should return language by name when exists")
+    void getLanguageByName_whenExists_shouldReturnLanguage() {
+        // Given
+        String name = "Español";
+        when(repository.findByNameIgnoreCase(name)).thenReturn(Optional.of(language));
+
+        // When
+        LanguageResponse result = service.getLanguageByName(name);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(language.getCode(), result.code());
+        assertEquals(language.getName(), result.name());
+        verify(repository).findByNameIgnoreCase(name);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when getting language by name that doesn't exist")
+    void getLanguageByName_whenNotExists_shouldThrowException() {
+        // Given
+        String name = "NonExistent";
+        when(repository.findByNameIgnoreCase(name)).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getLanguageByName(name));
+        assertEquals("Language not found with name " + name, exception.getMessage());
+        verify(repository).findByNameIgnoreCase(name);
+    }
 }
