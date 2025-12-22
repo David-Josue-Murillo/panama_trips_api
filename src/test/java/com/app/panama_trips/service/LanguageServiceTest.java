@@ -431,4 +431,65 @@ public class LanguageServiceTest {
         assertEquals(expectedCount, result);
         verify(repository).countActiveLanguages();
     }
+
+    // Check Operations Tests
+    @Test
+    @DisplayName("Should check if language exists by code when exists")
+    void existsByCode_whenExists_returnsTrue() {
+        // Given
+        String code = "ES";
+        when(repository.existsById(code)).thenReturn(true);
+
+        // When
+        boolean result = service.existsByCode(code);
+
+        // Then
+        assertTrue(result);
+        verify(repository).existsById(code);
+    }
+
+    @Test
+    @DisplayName("Should check if language does not exist by code")
+    void existsByCode_whenNotExists_returnsFalse() {
+        // Given
+        String code = "XX";
+        when(repository.existsById(code)).thenReturn(false);
+
+        // When
+        boolean result = service.existsByCode(code);
+
+        // Then
+        assertFalse(result);
+        verify(repository).existsById(code);
+    }
+
+    @Test
+    @DisplayName("Should check if language exists by name when exists")
+    void existsByName_whenExists_returnsTrue() {
+        // Given
+        String name = "Español";
+        when(repository.existsByNameIgnoreCase(name)).thenReturn(true);
+
+        // When
+        boolean result = service.existsByName(name);
+
+        // Then
+        assertTrue(result);
+        verify(repository).existsByNameIgnoreCase(name);
+    }
+
+    @Test
+    @DisplayName("Should check if language does not exist by name")
+    void existsByName_whenNotExists_returnsFalse() {
+        // Given
+        String name = "NonExistent";
+        when(repository.existsByNameIgnoreCase(name)).thenReturn(false);
+
+        // When
+        boolean result = service.existsByName(name);
+
+        // Then
+        assertFalse(result);
+        verify(repository).existsByNameIgnoreCase(name);
+    }
 }
