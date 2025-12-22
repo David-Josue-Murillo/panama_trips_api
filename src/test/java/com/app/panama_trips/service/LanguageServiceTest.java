@@ -215,4 +215,41 @@ public class LanguageServiceTest {
         assertEquals(updateRequest.name(), capturedLanguage.getName());
         assertEquals(updateRequest.isActive(), capturedLanguage.getIsActive());
     }
+
+    @Test
+    @DisplayName("Should throw exception when updating non-existent language")
+    void updateLanguage_whenNotExists_shouldThrowException() {
+        // Given
+        String code = "XX";
+        when(repository.findById(code)).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.updateLanguage(code, languageRequest));
+        assertEquals("Language not found with code " + code, exception.getMessage());
+        verify(repository).findById(code);
+        verify(repository, never()).save(any(Language.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating language with duplicate name")
+    void updateLanguage_withDuplicateName_shouldThrowException() {
+        // Given
+        String code = "ES";
+        LanguageRequest updateRequest = new LanguageRequest("ES", "English", true);
+        Language existingLanguage = languageSpanishMock();
+
+        when(repository.findById(code)).thenReturn(Optional.of(existingLanguage));
+        when(repository.existsByNameIgnoreCase(updateRequest.name())).thenReturn(true);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updateLanguage(code, updateRequest));
+        assertEquals("Language with name " + updateRequest.name() + " already exists", exception.getMessage());
+        verify(repository).findById(code);
+        verify(repository).existsByNameIgnoreCase(updateRequest.name());
+        verify(repository, never()).save(any(Language.class));
+    }
 }
