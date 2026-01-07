@@ -67,4 +67,22 @@ public class LanguageControllerTest {
 
         verify(languageService).getAllLanguages(any(Pageable.class));
     }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should return language by code when exists")
+    void getLanguageByCode_success() throws Exception {
+        // Given
+        String code = response.code();
+        when(languageService.getLanguageByCode(code)).thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(get("/api/languages/{code}", code))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(response.code()))
+                .andExpect(jsonPath("$.name").value(response.name()))
+                .andExpect(jsonPath("$.isActive").value(response.isActive()));
+
+        verify(languageService).getLanguageByCode(code);
+    }
 }
