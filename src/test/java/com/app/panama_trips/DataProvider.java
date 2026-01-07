@@ -2318,8 +2318,7 @@ public class DataProvider {
         return List.of(
                 languageSpanishMock(),
                 languageEnglishMock(),
-                languageFrenchMock()
-        );
+                languageFrenchMock());
     }
 
     private static LanguageResponse convertToResponseDTO(Language language) {
@@ -2338,7 +2337,10 @@ public class DataProvider {
         return List.of(
                 convertToResponseDTO(languageSpanishMock()),
                 convertToResponseDTO(languageEnglishMock()),
-                convertToResponseDTO(languageFrenchMock())
-        );
+                convertToResponseDTO(languageFrenchMock()));
+    }
+
+    public static LanguageRequest languageRequestMock() {
+        return new LanguageRequest("ES", "Español", true);
     }
 }
