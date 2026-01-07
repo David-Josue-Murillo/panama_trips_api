@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -183,5 +184,74 @@ public class LanguageControllerTest {
                 .andExpect(jsonPath("$.isActive").value(response.isActive()));
 
         verify(languageService).getLanguageByName(name);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should search active languages by keyword successfully")
+    void searchActiveLanguages_success() throws Exception {
+        // Given
+        String keyword = "es";
+        when(languageService.searchActiveLanguages(keyword)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/languages/search")
+                .param("keyword", keyword))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].code").value(response.code()))
+                .andExpect(jsonPath("$[0].name").value(response.name()))
+                .andExpect(jsonPath("$[0].isActive").value(response.isActive()));
+
+        verify(languageService).searchActiveLanguages(keyword);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should count active languages successfully")
+    void countActiveLanguages_success() throws Exception {
+        // Given
+        Long count = 3L;
+        when(languageService.countActiveLanguages()).thenReturn(count);
+
+        // When/Then
+        mockMvc.perform(get("/api/languages/active/count"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(count.toString()));
+
+        verify(languageService).countActiveLanguages();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if language exists by code")
+    void existsByCode_success() throws Exception {
+        // Given
+        String code = response.code();
+        when(languageService.existsByCode(code)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/languages/exists/code")
+                .param("code", code))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(languageService).existsByCode(code);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    @DisplayName("Should check if language exists by name")
+    void existsByName_success() throws Exception {
+        // Given
+        String name = response.name();
+        when(languageService.existsByName(name)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/languages/exists/name")
+                .param("name", name))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(languageService).existsByName(name);
     }
 }
