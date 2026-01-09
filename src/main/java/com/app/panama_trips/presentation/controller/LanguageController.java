@@ -1,0 +1,87 @@
+package com.app.panama_trips.presentation.controller;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
+
+import com.app.panama_trips.presentation.dto.LanguageRequest;
+import com.app.panama_trips.presentation.dto.LanguageResponse;
+import com.app.panama_trips.service.implementation.LanguageService;
+
+import lombok.RequiredArgsConstructor;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/languages")
+@RequiredArgsConstructor
+public class LanguageController {
+    private final LanguageService service;
+
+    // CRUD operations
+    @GetMapping
+    public ResponseEntity<Page<LanguageResponse>> getAllLanguages(Pageable pageable) {
+        return ResponseEntity.ok(service.getAllLanguages(pageable));
+    }
+
+    @GetMapping("/{code}")
+    public ResponseEntity<LanguageResponse> getLanguageByCode(@PathVariable String code) {
+        return ResponseEntity.ok(service.getLanguageByCode(code));
+    }
+
+    @PostMapping
+    public ResponseEntity<LanguageResponse> saveLanguage(@RequestBody LanguageRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.saveLanguage(request));
+    }
+
+    @PutMapping("/{code}")
+    public ResponseEntity<LanguageResponse> updateLanguage(
+            @PathVariable String code,
+            @RequestBody LanguageRequest request) {
+        return ResponseEntity.ok(service.updateLanguage(code, request));
+    }
+
+    @DeleteMapping("/{code}")
+    public ResponseEntity<Void> deleteLanguage(@PathVariable String code) {
+        service.deleteLanguage(code);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Business operations
+    @GetMapping("/active")
+    public ResponseEntity<List<LanguageResponse>> getAllActiveLanguages() {
+        return ResponseEntity.ok(service.getAllActiveLanguages());
+    }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<LanguageResponse> getLanguageByName(@PathVariable String name) {
+        return ResponseEntity.ok(service.getLanguageByName(name));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<LanguageResponse>> searchActiveLanguages(
+            @RequestParam String keyword) {
+        return ResponseEntity.ok(service.searchActiveLanguages(keyword));
+    }
+
+    @GetMapping("/active/count")
+    public ResponseEntity<Long> countActiveLanguages() {
+        return ResponseEntity.ok(service.countActiveLanguages());
+    }
+
+    @GetMapping("/exists/code")
+    public ResponseEntity<Boolean> existsByCode(@RequestParam String code) {
+        return ResponseEntity.ok(service.existsByCode(code));
+    }
+
+    @GetMapping("/exists/name")
+    public ResponseEntity<Boolean> existsByName(@RequestParam String name) {
+        return ResponseEntity.ok(service.existsByName(name));
+    }
+}

@@ -2280,9 +2280,67 @@ public class DataProvider {
 
     public static List<ReviewCategoryRatingResponse> reviewCategoryRatingResponseListMock() {
         return List.of(
-            new ReviewCategoryRatingResponse(reviewCategoryRatingOneMock()),
-            new ReviewCategoryRatingResponse(reviewCategoryRatingTwoMock()),
-            new ReviewCategoryRatingResponse(reviewCategoryRatingThreeMock())
-        );
+                new ReviewCategoryRatingResponse(reviewCategoryRatingOneMock()),
+                new ReviewCategoryRatingResponse(reviewCategoryRatingTwoMock()),
+                new ReviewCategoryRatingResponse(reviewCategoryRatingThreeMock()));
+    }
+
+    /*
+     * Language instances
+     * 
+     * 
+     */
+    public static Language languageSpanishMock() {
+        return Language.builder()
+                .code("ES")
+                .name("Español")
+                .isActive(true)
+                .build();
+    }
+
+    public static Language languageEnglishMock() {
+        return Language.builder()
+                .code("EN")
+                .name("English")
+                .isActive(true)
+                .build();
+    }
+
+    public static Language languageFrenchMock() {
+        return Language.builder()
+                .code("FR")
+                .name("Français")
+                .isActive(true)
+                .build();
+    }
+
+    public static List<Language> languageListMock() {
+        return List.of(
+                languageSpanishMock(),
+                languageEnglishMock(),
+                languageFrenchMock());
+    }
+
+    private static LanguageResponse convertToResponseDTO(Language language) {
+        return new LanguageResponse(language);
+    }
+
+    public static LanguageResponse languageResponse() {
+        return new LanguageResponse(languageSpanishMock());
+    }
+
+    public static LanguageResponse languageResponseMock() {
+        return convertToResponseDTO(languageSpanishMock());
+    }
+
+    public static List<LanguageResponse> languageResponseListMock() {
+        return List.of(
+                convertToResponseDTO(languageSpanishMock()),
+                convertToResponseDTO(languageEnglishMock()),
+                convertToResponseDTO(languageFrenchMock()));
+    }
+
+    public static LanguageRequest languageRequestMock() {
+        return new LanguageRequest("ES", "Español", true);
     }
 }
