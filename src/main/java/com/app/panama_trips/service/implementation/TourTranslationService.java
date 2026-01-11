@@ -108,15 +108,17 @@ public class TourTranslationService implements ITourTranslationService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByTourPlanIdAndLanguageCode(Integer tourPlanId, String languageCode) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsByTourPlanIdAndLanguageCode'");
+        return tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode).isPresent();
     }
 
     @Override
+    @Transactional
     public void deleteAllTranslationsByTourPlanId(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteAllTranslationsByTourPlanId'");
+        TourPlan tourPlan = tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tour Plan not found with id " + tourPlanId));
+        tourTranslationRepository.deleteByTourPlan(tourPlan);
     }
 
     @Override
