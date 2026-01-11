@@ -92,15 +92,19 @@ public class TourTranslationService implements ITourTranslationService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourTranslationResponse> getTourTranslationsByTourPlanId(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTourTranslationsByTourPlanId'");
+        return tourTranslationRepository.findByTourPlanId(tourPlanId).stream()
+                .map(TourTranslationResponse::new)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourTranslationResponse> getTourTranslationsByLanguageCode(String languageCode) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTourTranslationsByLanguageCode'");
+        return tourTranslationRepository.findByLanguageCode(languageCode).stream()
+                .map(TourTranslationResponse::new)
+                .toList();
     }
 
     @Override
