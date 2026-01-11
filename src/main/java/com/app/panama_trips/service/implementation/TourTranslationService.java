@@ -122,21 +122,23 @@ public class TourTranslationService implements ITourTranslationService{
     }
 
     @Override
+    @Transactional
     public void deleteAllTranslationsByLanguageCode(String languageCode) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteAllTranslationsByLanguageCode'");
+        Language language = languageRepository.findById(languageCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Language not found with code " + languageCode));
+        tourTranslationRepository.deleteByLanguage(language);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long countTranslationsByTourPlanId(Integer tourPlanId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'countTranslationsByTourPlanId'");
+        return tourTranslationRepository.countTranslationsByTourPlanId(tourPlanId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countAllTourTranslations() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'countAllTourTranslations'");
+        return tourTranslationRepository.count();
     }
 
     // Private helper methods
