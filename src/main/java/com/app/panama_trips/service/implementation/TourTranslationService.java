@@ -4,12 +4,29 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
+import com.app.panama_trips.persistence.entity.Language;
+import com.app.panama_trips.persistence.entity.TourPlan;
+import com.app.panama_trips.persistence.entity.TourTranslation;
+import com.app.panama_trips.persistence.entity.TourTranslationId;
+import com.app.panama_trips.persistence.repository.LanguageRepository;
+import com.app.panama_trips.persistence.repository.TourPlanRepository;
+import com.app.panama_trips.persistence.repository.TourTranslationRepository;
 import com.app.panama_trips.presentation.dto.TourTranslationRequest;
 import com.app.panama_trips.presentation.dto.TourTranslationResponse;
 import com.app.panama_trips.service.interfaces.ITourTranslationService;
 
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
 public class TourTranslationService implements ITourTranslationService{
+
+    private final TourTranslationRepository tourTranslationRepository;
+    private final TourPlanRepository tourPlanRepository;
+    private final LanguageRepository languageRepository;
+
 
     @Override
     public Page<TourTranslationResponse> getAllTourTranslations(Pageable pageable) {
@@ -85,4 +102,5 @@ public class TourTranslationService implements ITourTranslationService{
         throw new UnsupportedOperationException("Unimplemented method 'countAllTourTranslations'");
     }
 
+    
 }
