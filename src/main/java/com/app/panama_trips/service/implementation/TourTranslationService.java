@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.Language;
@@ -30,16 +31,22 @@ public class TourTranslationService implements ITourTranslationService{
 
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TourTranslationResponse> getAllTourTranslations(Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllTourTranslations'");
+        return tourTranslationRepository.findAll(pageable)
+                .map(TourTranslationResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TourTranslationResponse getTourTranslationByTourPlanIdAndLanguageCode(Integer tourPlanId,
             String languageCode) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTourTranslationByTourPlanIdAndLanguageCode'");
+        TourTranslation tourTranslation = tourTranslationRepository
+                .findByTourPlanIdAndLanguageCode(tourPlanId, languageCode)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Tour Translation not found with tourPlanId " + tourPlanId + " and languageCode "
+                                + languageCode));
+        return new TourTranslationResponse(tourTranslation);
     }
 
     @Override
@@ -122,7 +129,7 @@ public class TourTranslationService implements ITourTranslationService{
                     + " and languageCode " + request.languageCode());
         }
     }
-    
+
     private TourTranslation buildTourTranslationFromRequest(TourTranslationRequest request) {
         TourPlan tourPlan = tourPlanRepository.findById(request.tourPlanId())
                 .orElseThrow(
