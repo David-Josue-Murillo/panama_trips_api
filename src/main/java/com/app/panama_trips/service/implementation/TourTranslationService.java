@@ -104,6 +104,34 @@ public class TourTranslationService implements ITourTranslationService{
     }
 
     // Private helper methods
+    private TourTranslation buildTourTranslationFromRequest(TourTranslationRequest request) {
+        TourPlan tourPlan = tourPlanRepository.findById(request.tourPlanId())
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Tour Plan not found with id " + request.tourPlanId()));
+
+        Language language = languageRepository.findById(request.languageCode())
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Language not found with code " + request.languageCode()));
+
+        TourTranslationId id = TourTranslationId.builder()
+                .tourPlanId(request.tourPlanId())
+                .languageCode(request.languageCode())
+                .build();
+
+        return TourTranslation.builder()
+                .id(id)
+                .tourPlan(tourPlan)
+                .language(language)
+                .title(request.title())
+                .shortDescription(request.shortDescription())
+                .description(request.description())
+                .includedServices(request.includedServices())
+                .excludedServices(request.excludedServices())
+                .whatToBring(request.whatToBring())
+                .meetingPoint(request.meetingPoint())
+                .build();
+    }
+
     private void updateTourTranslationFields(TourTranslation tourTranslation, TourTranslationRequest request) {
         tourTranslation.setTitle(request.title());
         tourTranslation.setShortDescription(request.shortDescription());
