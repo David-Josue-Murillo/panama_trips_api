@@ -50,16 +50,30 @@ public class TourTranslationService implements ITourTranslationService{
     }
 
     @Override
+    @Transactional
     public TourTranslationResponse saveTourTranslation(TourTranslationRequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'saveTourTranslation'");
+        validateTourTranslationRequest(request);
+        TourTranslation tourTranslation = buildTourTranslationFromRequest(request);
+        return new TourTranslationResponse(tourTranslationRepository.save(tourTranslation));
     }
 
     @Override
+    @Transactional
     public TourTranslationResponse updateTourTranslation(Integer tourPlanId, String languageCode,
             TourTranslationRequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateTourTranslation'");
+        // Validar que los IDs del request coincidan con los parámetros
+        if (!tourPlanId.equals(request.tourPlanId()) || !languageCode.equals(request.languageCode())) {
+            throw new IllegalArgumentException(
+                    "The tourPlanId and languageCode in the request must match the path parameters");
+        }
+
+        TourTranslation existingTranslation = tourTranslationRepository
+                .findByTourPlanIdAndLanguageCode(tourPlanId, languageCode)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Tour Translation not found with tourPlanId " + tourPlanId + " and languageCode "
+                                + languageCode));
+        updateTourTranslationFields(existingTranslation, request);
+        return new TourTranslationResponse(tourTranslationRepository.save(existingTranslation));
     }
 
     @Override
