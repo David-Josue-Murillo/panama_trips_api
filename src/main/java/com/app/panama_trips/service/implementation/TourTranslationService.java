@@ -104,6 +104,25 @@ public class TourTranslationService implements ITourTranslationService{
     }
 
     // Private helper methods
+    private void validateTourTranslationRequest(TourTranslationRequest request) {
+        // Validar que el TourPlan existe
+        if (!tourPlanRepository.existsById(request.tourPlanId())) {
+            throw new ResourceNotFoundException("Tour Plan not found with id " + request.tourPlanId());
+        }
+
+        // Validar que el Language existe
+        if (!languageRepository.existsById(request.languageCode())) {
+            throw new ResourceNotFoundException("Language not found with code " + request.languageCode());
+        }
+
+        // Validar que no exista ya una traducción para esta combinación
+        if (tourTranslationRepository.findByTourPlanIdAndLanguageCode(request.tourPlanId(), request.languageCode())
+                .isPresent()) {
+            throw new IllegalArgumentException("Tour Translation already exists for tourPlanId " + request.tourPlanId()
+                    + " and languageCode " + request.languageCode());
+        }
+    }
+    
     private TourTranslation buildTourTranslationFromRequest(TourTranslationRequest request) {
         TourPlan tourPlan = tourPlanRepository.findById(request.tourPlanId())
                 .orElseThrow(
