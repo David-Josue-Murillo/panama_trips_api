@@ -77,9 +77,18 @@ public class TourTranslationService implements ITourTranslationService{
     }
 
     @Override
+    @Transactional
     public void deleteTourTranslation(Integer tourPlanId, String languageCode) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteTourTranslation'");
+        TourTranslationId id = TourTranslationId.builder()
+                .tourPlanId(tourPlanId)
+                .languageCode(languageCode)
+                .build();
+
+        if (!tourTranslationRepository.existsById(id)) {
+            throw new ResourceNotFoundException(
+                    "Tour Translation not found with tourPlanId " + tourPlanId + " and languageCode " + languageCode);
+        }
+        tourTranslationRepository.deleteById(id);
     }
 
     @Override
