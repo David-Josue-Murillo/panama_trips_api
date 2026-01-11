@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.Language;
 import com.app.panama_trips.persistence.entity.TourPlan;
 import com.app.panama_trips.persistence.entity.TourTranslation;
@@ -102,5 +103,14 @@ public class TourTranslationService implements ITourTranslationService{
         throw new UnsupportedOperationException("Unimplemented method 'countAllTourTranslations'");
     }
 
-    
+    // Private helper methods
+    private void updateTourTranslationFields(TourTranslation tourTranslation, TourTranslationRequest request) {
+        tourTranslation.setTitle(request.title());
+        tourTranslation.setShortDescription(request.shortDescription());
+        tourTranslation.setDescription(request.description());
+        tourTranslation.setIncludedServices(request.includedServices());
+        tourTranslation.setExcludedServices(request.excludedServices());
+        tourTranslation.setWhatToBring(request.whatToBring());
+        tourTranslation.setMeetingPoint(request.meetingPoint());
+    }
 }
