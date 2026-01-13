@@ -1,5 +1,7 @@
 package com.app.panama_trips.presentation.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -60,5 +62,12 @@ public class TourTranslationController {
             @PathVariable String languageCode) {
         service.deleteTourTranslation(tourPlanId, languageCode);
         return ResponseEntity.noContent().build();
+    }
+
+    // Business operations
+    @GetMapping("/tour-plan/{tourPlanId}")
+    public ResponseEntity<List<TourTranslationResponse>> getTourTranslationsByTourPlanId(
+            @PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.getTourTranslationsByTourPlanId(tourPlanId));
     }
 }
