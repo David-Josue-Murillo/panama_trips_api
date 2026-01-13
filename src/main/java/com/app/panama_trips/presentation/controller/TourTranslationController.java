@@ -96,4 +96,14 @@ public class TourTranslationController {
         service.deleteAllTranslationsByLanguageCode(languageCode);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/tour-plan/{tourPlanId}/count")
+    public ResponseEntity<Long> countTranslationsByTourPlanId(@PathVariable Integer tourPlanId) {
+        return ResponseEntity.ok(service.countTranslationsByTourPlanId(tourPlanId));
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Long> countAllTourTranslations() {
+        return ResponseEntity.ok(service.countAllTourTranslations());
+    }
 }
