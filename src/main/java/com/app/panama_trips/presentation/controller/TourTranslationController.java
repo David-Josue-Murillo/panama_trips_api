@@ -84,4 +84,16 @@ public class TourTranslationController {
             @RequestParam String languageCode) {
         return ResponseEntity.ok(service.existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode));
     }
+
+    @DeleteMapping("/tour-plan/{tourPlanId}")
+    public ResponseEntity<Void> deleteAllTranslationsByTourPlanId(@PathVariable Integer tourPlanId) {
+        service.deleteAllTranslationsByTourPlanId(tourPlanId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/language/{languageCode}")
+    public ResponseEntity<Void> deleteAllTranslationsByLanguageCode(@PathVariable String languageCode) {
+        service.deleteAllTranslationsByLanguageCode(languageCode);
+        return ResponseEntity.noContent().build();
+    }
 }
