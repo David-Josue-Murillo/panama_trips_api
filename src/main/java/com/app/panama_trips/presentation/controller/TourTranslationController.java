@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,5 +23,12 @@ public class TourTranslationController {
     @GetMapping
     public ResponseEntity<Page<TourTranslationResponse>> getAllTourTranslations(Pageable pageable) {
         return ResponseEntity.ok(service.getAllTourTranslations(pageable));
+    }
+
+    @GetMapping("/{tourPlanId}/{languageCode}")
+    public ResponseEntity<TourTranslationResponse> getTourTranslationByTourPlanIdAndLanguageCode(
+            @PathVariable Integer tourPlanId,
+            @PathVariable String languageCode) {
+        return ResponseEntity.ok(service.getTourTranslationByTourPlanIdAndLanguageCode(tourPlanId, languageCode));
     }
 }
