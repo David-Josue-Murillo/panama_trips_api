@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.panama_trips.presentation.dto.TourTranslationRequest;
@@ -69,5 +70,18 @@ public class TourTranslationController {
     public ResponseEntity<List<TourTranslationResponse>> getTourTranslationsByTourPlanId(
             @PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(service.getTourTranslationsByTourPlanId(tourPlanId));
+    }
+
+    @GetMapping("/language/{languageCode}")
+    public ResponseEntity<List<TourTranslationResponse>> getTourTranslationsByLanguageCode(
+            @PathVariable String languageCode) {
+        return ResponseEntity.ok(service.getTourTranslationsByLanguageCode(languageCode));
+    }
+
+    @GetMapping("/exists")
+    public ResponseEntity<Boolean> existsByTourPlanIdAndLanguageCode(
+            @RequestParam Integer tourPlanId,
+            @RequestParam String languageCode) {
+        return ResponseEntity.ok(service.existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode));
     }
 }
