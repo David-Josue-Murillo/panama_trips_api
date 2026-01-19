@@ -121,4 +121,32 @@ public class TourTranslationServiceTest {
         verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
     }
 
+    @Test
+    @DisplayName("Should save tour translation successfully")
+    void saveTourTranslation_success() {
+        // Given
+        when(tourPlanRepository.existsById(tourTranslationRequest.tourPlanId())).thenReturn(true);
+        when(languageRepository.existsById(tourTranslationRequest.languageCode())).thenReturn(true);
+        when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(
+                tourTranslationRequest.tourPlanId(), tourTranslationRequest.languageCode()))
+                .thenReturn(Optional.empty());
+        when(tourPlanRepository.findById(tourTranslationRequest.tourPlanId()))
+                .thenReturn(Optional.of(tourPlan));
+        when(languageRepository.findById(tourTranslationRequest.languageCode()))
+                .thenReturn(Optional.of(language));
+        when(tourTranslationRepository.save(any(TourTranslation.class))).thenReturn(tourTranslation);
+
+        // When
+        TourTranslationResponse result = service.saveTourTranslation(tourTranslationRequest);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(tourTranslation.getId().getTourPlanId(), result.tourPlanId());
+        assertEquals(tourTranslation.getId().getLanguageCode(), result.languageCode());
+        verify(tourPlanRepository).existsById(tourTranslationRequest.tourPlanId());
+        verify(languageRepository).existsById(tourTranslationRequest.languageCode());
+        verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(
+                tourTranslationRequest.tourPlanId(), tourTranslationRequest.languageCode());
+        verify(tourTranslationRepository).save(tourTranslationCaptor.capture());
+    }
 }
