@@ -149,4 +149,59 @@ public class TourTranslationServiceTest {
                 tourTranslationRequest.tourPlanId(), tourTranslationRequest.languageCode());
         verify(tourTranslationRepository).save(tourTranslationCaptor.capture());
     }
+
+    @Test
+    @DisplayName("Should throw exception when saving tour translation with non-existent tour plan")
+    void saveTourTranslation_whenTourPlanNotExists_shouldThrowException() {
+        // Given
+        when(tourPlanRepository.existsById(tourTranslationRequest.tourPlanId())).thenReturn(false);
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.saveTourTranslation(tourTranslationRequest));
+        assertTrue(exception.getMessage().contains("Tour Plan not found"));
+        verify(tourPlanRepository).existsById(tourTranslationRequest.tourPlanId());
+        verify(languageRepository, never()).existsById(anyString());
+        verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when saving tour translation with non-existent language")
+    void saveTourTranslation_whenLanguageNotExists_shouldThrowException() {
+        // Given
+        when(tourPlanRepository.existsById(tourTranslationRequest.tourPlanId())).thenReturn(true);
+        when(languageRepository.existsById(tourTranslationRequest.languageCode())).thenReturn(false);
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.saveTourTranslation(tourTranslationRequest));
+        assertTrue(exception.getMessage().contains("Language not found"));
+        verify(tourPlanRepository).existsById(tourTranslationRequest.tourPlanId());
+        verify(languageRepository).existsById(tourTranslationRequest.languageCode());
+        verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when saving tour translation that already exists")
+    void saveTourTranslation_whenAlreadyExists_shouldThrowException() {
+        // Given
+        when(tourPlanRepository.existsById(tourTranslationRequest.tourPlanId())).thenReturn(true);
+        when(languageRepository.existsById(tourTranslationRequest.languageCode())).thenReturn(true);
+        when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(
+                tourTranslationRequest.tourPlanId(), tourTranslationRequest.languageCode()))
+                .thenReturn(Optional.of(tourTranslation));
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.saveTourTranslation(tourTranslationRequest));
+        assertTrue(exception.getMessage().contains("Tour Translation already exists"));
+        verify(tourPlanRepository).existsById(tourTranslationRequest.tourPlanId());
+        verify(languageRepository).existsById(tourTranslationRequest.languageCode());
+        verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(
+                tourTranslationRequest.tourPlanId(), tourTranslationRequest.languageCode());
+        verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+    }
 }
