@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.Language;
 import com.app.panama_trips.persistence.entity.TourPlan;
 import com.app.panama_trips.persistence.entity.TourTranslation;
@@ -102,4 +103,22 @@ public class TourTranslationServiceTest {
         assertEquals(tourTranslation.getTitle(), result.title());
         verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
     }
+
+    @Test
+    @DisplayName("Should throw exception when getting tour translation that doesn't exist")
+    void getTourTranslationByTourPlanIdAndLanguageCode_whenNotExists_shouldThrowException() {
+        // Given
+        Integer tourPlanId = 999;
+        String languageCode = "XX";
+        when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
+                .thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getTourTranslationByTourPlanIdAndLanguageCode(tourPlanId, languageCode));
+        assertTrue(exception.getMessage().contains("Tour Translation not found"));
+        verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
+    }
+
 }
