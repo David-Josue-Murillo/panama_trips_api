@@ -21,6 +21,7 @@ import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.Language;
 import com.app.panama_trips.persistence.entity.TourPlan;
 import com.app.panama_trips.persistence.entity.TourTranslation;
+import com.app.panama_trips.persistence.entity.TourTranslationId;
 import com.app.panama_trips.persistence.repository.LanguageRepository;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.persistence.repository.TourTranslationRepository;
@@ -309,5 +310,49 @@ public class TourTranslationServiceTest {
         assertTrue(exception.getMessage().contains("must match the path parameters"));
         verify(tourTranslationRepository, never()).findByTourPlanIdAndLanguageCode(anyInt(), anyString());
         verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+    }
+
+    @Test
+    @DisplayName("Should delete tour translation successfully")
+    void deleteTourTranslation_success() {
+        // Given
+        Integer tourPlanId = 1;
+        String languageCode = "ES";
+        TourTranslationId id = TourTranslationId.builder()
+                .tourPlanId(tourPlanId)
+                .languageCode(languageCode)
+                .build();
+
+        when(tourTranslationRepository.existsById(id)).thenReturn(true);
+        doNothing().when(tourTranslationRepository).deleteById(id);
+
+        // When
+        service.deleteTourTranslation(tourPlanId, languageCode);
+
+        // Then
+        verify(tourTranslationRepository).existsById(id);
+        verify(tourTranslationRepository).deleteById(id);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when deleting non-existent tour translation")
+    void deleteTourTranslation_whenNotExists_shouldThrowException() {
+        // Given
+        Integer tourPlanId = 999;
+        String languageCode = "XX";
+        TourTranslationId id = TourTranslationId.builder()
+                .tourPlanId(tourPlanId)
+                .languageCode(languageCode)
+                .build();
+
+        when(tourTranslationRepository.existsById(id)).thenReturn(false);
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.deleteTourTranslation(tourPlanId, languageCode));
+        assertTrue(exception.getMessage().contains("Tour Translation not found"));
+        verify(tourTranslationRepository).existsById(id);
+        verify(tourTranslationRepository, never()).deleteById(any());
     }
 }
