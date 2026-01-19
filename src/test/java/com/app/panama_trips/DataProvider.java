@@ -2343,4 +2343,84 @@ public class DataProvider {
     public static LanguageRequest languageRequestMock() {
         return new LanguageRequest("ES", "Español", true);
     }
+
+    /*
+     * TourTranslation instances
+     * 
+     * 
+     */
+    public static TourTranslation tourTranslationSpanishMock() {
+        return TourTranslation.builder()
+                .id(TourTranslationId.builder()
+                        .tourPlanId(1)
+                        .languageCode("ES")
+                        .build())
+                .tourPlan(tourPlanOneMock)
+                .language(languageSpanishMock())
+                .title("Tour por la Ciudad de Panamá")
+                .description("Disfruta de los mejores lugares históricos de la ciudad de Panamá.")
+                .build();
+    }
+
+    public static TourTranslation tourTranslationEnglishMock() {
+        return TourTranslation.builder()
+                .id(TourTranslationId.builder()
+                        .tourPlanId(1)
+                        .languageCode("EN")
+                        .build())
+                .tourPlan(tourPlanOneMock)
+                .language(languageEnglishMock())
+                .title("Panama City Tour")
+                .description("Enjoy the best historical sites in Panama City.")
+                .build();
+    }
+
+    public static TourTranslation tourTranslationFrenchMock() {
+        return TourTranslation.builder()
+                .id(TourTranslationId.builder()
+                        .tourPlanId(1)
+                        .languageCode("FR")
+                        .build())
+                .tourPlan(tourPlanOneMock)
+                .language(languageFrenchMock())
+                .title("Visite de la ville de Panama")
+                .description("Profitez des meilleurs sites historiques de la ville de Panama.")
+                .build();
+    }
+
+    public static List<TourTranslation> tourTranslationListMock() {
+        return List.of(
+                tourTranslationSpanishMock(),
+                tourTranslationEnglishMock(),
+                tourTranslationFrenchMock());
+    }
+
+    private static TourTranslationResponse convertToTourTranslationResponse(TourTranslation tourTranslation) {
+        return new TourTranslationResponse(tourTranslation);
+    }
+
+    public static TourTranslationResponse tourTranslationResponseMock() {
+        return convertToTourTranslationResponse(tourTranslationSpanishMock());
+    }
+
+    public static List<TourTranslationResponse> tourTranslationResponseListMock() {
+        return List.of(
+                convertToTourTranslationResponse(tourTranslationSpanishMock()),
+                convertToTourTranslationResponse(tourTranslationEnglishMock()),
+                convertToTourTranslationResponse(tourTranslationFrenchMock()));
+    }
+
+    public static TourTranslationRequest tourTranslationRequestMock() {
+        return new TourTranslationRequest(
+                1,
+                "ES",
+                "Tour por la Ciudad de Panamá",
+                "Disfruta de los mejores lugares históricos de la ciudad de Panamá.",
+                "Incluye transporte y guía local.",
+                "No incluye comidas.",
+                "Llevar ropa cómoda, protector solar y agua.",
+                "Hotel Central, Casco Antiguo",
+                "Tour disponible todos los sábados."
+        );
+    }
 }
