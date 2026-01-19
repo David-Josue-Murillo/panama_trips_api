@@ -204,4 +204,110 @@ public class TourTranslationServiceTest {
                 tourTranslationRequest.tourPlanId(), tourTranslationRequest.languageCode());
         verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
     }
+
+    @Test
+    @DisplayName("Should update tour translation successfully")
+    void updateTourTranslation_success() {
+        // Given
+        Integer tourPlanId = 1;
+        String languageCode = "ES";
+        TourTranslationRequest updateRequest = tourTranslationRequestMock();
+        TourTranslation updatedTranslation = tourTranslationSpanishMock();
+        updatedTranslation.setTitle("Updated Title");
+
+        when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
+                .thenReturn(Optional.of(tourTranslation));
+        when(tourTranslationRepository.save(any(TourTranslation.class))).thenReturn(updatedTranslation);
+
+        // When
+        TourTranslationResponse result = service.updateTourTranslation(tourPlanId, languageCode, updateRequest);
+
+        // Then
+        assertNotNull(result);
+        verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
+        verify(tourTranslationRepository).save(tourTranslationCaptor.capture());
+        TourTranslation capturedTranslation = tourTranslationCaptor.getValue();
+        assertEquals(updateRequest.title(), capturedTranslation.getTitle());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating non-existent tour translation")
+    void updateTourTranslation_whenNotExists_shouldThrowException() {
+        // Given
+        Integer tourPlanId = 999;
+        String languageCode = "XX";
+        TourTranslationRequest requestWithMatchingIds = new TourTranslationRequest(
+                tourPlanId, // Matching tourPlanId
+                languageCode, // Matching languageCode
+                "Title",
+                "Short Description",
+                "Description",
+                "Included",
+                "Excluded",
+                "What to bring",
+                "Meeting point");
+
+        when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
+                .thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.updateTourTranslation(tourPlanId, languageCode, requestWithMatchingIds));
+        assertTrue(exception.getMessage().contains("Tour Translation not found"));
+        verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
+        verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when tourPlanId in request doesn't match path parameter")
+    void updateTourTranslation_whenTourPlanIdMismatch_shouldThrowException() {
+        // Given
+        Integer tourPlanId = 1;
+        String languageCode = "ES";
+        TourTranslationRequest requestWithDifferentId = new TourTranslationRequest(
+                999, // Different tourPlanId
+                languageCode,
+                "Title",
+                "Short Description",
+                "Description",
+                "Included",
+                "Excluded",
+                "What to bring",
+                "Meeting point");
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updateTourTranslation(tourPlanId, languageCode, requestWithDifferentId));
+        assertTrue(exception.getMessage().contains("must match the path parameters"));
+        verify(tourTranslationRepository, never()).findByTourPlanIdAndLanguageCode(anyInt(), anyString());
+        verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when languageCode in request doesn't match path parameter")
+    void updateTourTranslation_whenLanguageCodeMismatch_shouldThrowException() {
+        // Given
+        Integer tourPlanId = 1;
+        String languageCode = "ES";
+        TourTranslationRequest requestWithDifferentCode = new TourTranslationRequest(
+                tourPlanId,
+                "EN", // Different languageCode
+                "Title",
+                "Short Description",
+                "Description",
+                "Included",
+                "Excluded",
+                "What to bring",
+                "Meeting point");
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updateTourTranslation(tourPlanId, languageCode, requestWithDifferentCode));
+        assertTrue(exception.getMessage().contains("must match the path parameters"));
+        verify(tourTranslationRepository, never()).findByTourPlanIdAndLanguageCode(anyInt(), anyString());
+        verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+    }
 }
