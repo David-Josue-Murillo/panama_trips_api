@@ -1,6 +1,7 @@
 package com.app.panama_trips.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -79,5 +80,26 @@ public class TourTranslationServiceTest {
         assertNotNull(result);
         assertEquals(tourTranslations.size(), result.getTotalElements());
         verify(tourTranslationRepository).findAll(pageable);
+    }
+
+    @Test
+    @DisplayName("Should return tour translation by tourPlanId and languageCode when exists")
+    void getTourTranslationByTourPlanIdAndLanguageCode_whenExists_shouldReturnTranslation() {
+        // Given
+        Integer tourPlanId = 1;
+        String languageCode = "ES";
+        when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
+                .thenReturn(Optional.of(tourTranslation));
+
+        // When
+        TourTranslationResponse result = service.getTourTranslationByTourPlanIdAndLanguageCode(tourPlanId,
+                languageCode);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(tourTranslation.getId().getTourPlanId(), result.tourPlanId());
+        assertEquals(tourTranslation.getId().getLanguageCode(), result.languageCode());
+        assertEquals(tourTranslation.getTitle(), result.title());
+        verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
     }
 }
