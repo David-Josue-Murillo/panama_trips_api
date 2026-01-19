@@ -534,4 +534,48 @@ public class TourTranslationServiceTest {
         assertEquals(expectedCount, result);
         verify(tourTranslationRepository).countTranslationsByTourPlanId(tourPlanId);
     }
+
+    @Test
+    @DisplayName("Should return zero when no translations exist for tourPlanId")
+    void countTranslationsByTourPlanId_whenNoTranslations_shouldReturnZero() {
+        // Given
+        Integer tourPlanId = 999;
+        when(tourTranslationRepository.countTranslationsByTourPlanId(tourPlanId)).thenReturn(0L);
+
+        // When
+        Long result = service.countTranslationsByTourPlanId(tourPlanId);
+
+        // Then
+        assertEquals(0L, result);
+        verify(tourTranslationRepository).countTranslationsByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    @DisplayName("Should return total count of all tour translations")
+    void countAllTourTranslations_success() {
+        // Given
+        long expectedCount = 10L;
+        when(tourTranslationRepository.count()).thenReturn(expectedCount);
+
+        // When
+        long result = service.countAllTourTranslations();
+
+        // Then
+        assertEquals(expectedCount, result);
+        verify(tourTranslationRepository).count();
+    }
+
+    @Test
+    @DisplayName("Should return zero when no tour translations exist")
+    void countAllTourTranslations_whenNoTranslations_shouldReturnZero() {
+        // Given
+        when(tourTranslationRepository.count()).thenReturn(0L);
+
+        // When
+        long result = service.countAllTourTranslations();
+
+        // Then
+        assertEquals(0L, result);
+        verify(tourTranslationRepository).count();
+    }
 }
