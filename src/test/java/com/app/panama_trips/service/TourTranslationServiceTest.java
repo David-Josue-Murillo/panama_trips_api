@@ -355,4 +355,85 @@ public class TourTranslationServiceTest {
         verify(tourTranslationRepository).existsById(id);
         verify(tourTranslationRepository, never()).deleteById(any());
     }
+
+    @Test
+    @DisplayName("Should return tour translations by tourPlanId")
+    void getTourTranslationsByTourPlanId_success() {
+        // Given
+        Integer tourPlanId = 1;
+        when(tourTranslationRepository.findByTourPlanId(tourPlanId)).thenReturn(tourTranslations);
+
+        // When
+        List<TourTranslationResponse> result = service.getTourTranslationsByTourPlanId(tourPlanId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(tourTranslations.size(), result.size());
+        verify(tourTranslationRepository).findByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    @DisplayName("Should return empty list when no translations exist for tourPlanId")
+    void getTourTranslationsByTourPlanId_whenNoTranslations_shouldReturnEmptyList() {
+        // Given
+        Integer tourPlanId = 999;
+        when(tourTranslationRepository.findByTourPlanId(tourPlanId)).thenReturn(List.of());
+
+        // When
+        List<TourTranslationResponse> result = service.getTourTranslationsByTourPlanId(tourPlanId);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(tourTranslationRepository).findByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    @DisplayName("Should return tour translations by languageCode")
+    void getTourTranslationsByLanguageCode_success() {
+        // Given
+        String languageCode = "ES";
+        when(tourTranslationRepository.findByLanguageCode(languageCode)).thenReturn(tourTranslations);
+
+        // When
+        List<TourTranslationResponse> result = service.getTourTranslationsByLanguageCode(languageCode);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(tourTranslations.size(), result.size());
+        verify(tourTranslationRepository).findByLanguageCode(languageCode);
+    }
+
+    @Test
+    @DisplayName("Should return empty list when no translations exist for languageCode")
+    void getTourTranslationsByLanguageCode_whenNoTranslations_shouldReturnEmptyList() {
+        // Given
+        String languageCode = "XX";
+        when(tourTranslationRepository.findByLanguageCode(languageCode)).thenReturn(List.of());
+
+        // When
+        List<TourTranslationResponse> result = service.getTourTranslationsByLanguageCode(languageCode);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(tourTranslationRepository).findByLanguageCode(languageCode);
+    }
+
+    @Test
+    @DisplayName("Should return true when tour translation exists")
+    void existsByTourPlanIdAndLanguageCode_whenExists_shouldReturnTrue() {
+        // Given
+        Integer tourPlanId = 1;
+        String languageCode = "ES";
+        when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
+                .thenReturn(Optional.of(tourTranslation));
+
+        // When
+        boolean result = service.existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
+
+        // Then
+        assertTrue(result);
+        verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
+    }
 }
