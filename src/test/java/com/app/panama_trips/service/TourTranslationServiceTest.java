@@ -485,4 +485,53 @@ public class TourTranslationServiceTest {
         verify(tourPlanRepository).findById(tourPlanId);
         verify(tourTranslationRepository, never()).deleteByTourPlan(any());
     }
+
+    @Test
+    @DisplayName("Should delete all translations by languageCode successfully")
+    void deleteAllTranslationsByLanguageCode_success() {
+        // Given
+        String languageCode = "ES";
+        when(languageRepository.findById(languageCode)).thenReturn(Optional.of(language));
+        doNothing().when(tourTranslationRepository).deleteByLanguage(language);
+
+        // When
+        service.deleteAllTranslationsByLanguageCode(languageCode);
+
+        // Then
+        verify(languageRepository).findById(languageCode);
+        verify(tourTranslationRepository).deleteByLanguage(language);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when deleting translations for non-existent language")
+    void deleteAllTranslationsByLanguageCode_whenLanguageNotExists_shouldThrowException() {
+        // Given
+        String languageCode = "XX";
+        when(languageRepository.findById(languageCode)).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.deleteAllTranslationsByLanguageCode(languageCode));
+        assertTrue(exception.getMessage().contains("Language not found"));
+        verify(languageRepository).findById(languageCode);
+        verify(tourTranslationRepository, never()).deleteByLanguage(any());
+    }
+
+    @Test
+    @DisplayName("Should return count of translations by tourPlanId")
+    void countTranslationsByTourPlanId_success() {
+        // Given
+        Integer tourPlanId = 1;
+        Long expectedCount = 3L;
+        when(tourTranslationRepository.countTranslationsByTourPlanId(tourPlanId)).thenReturn(expectedCount);
+
+        // When
+        Long result = service.countTranslationsByTourPlanId(tourPlanId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(expectedCount, result);
+        verify(tourTranslationRepository).countTranslationsByTourPlanId(tourPlanId);
+    }
 }
