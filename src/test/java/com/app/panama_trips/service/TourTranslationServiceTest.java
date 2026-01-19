@@ -436,4 +436,53 @@ public class TourTranslationServiceTest {
         assertTrue(result);
         verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
     }
+
+    @Test
+    @DisplayName("Should return false when tour translation doesn't exist")
+    void existsByTourPlanIdAndLanguageCode_whenNotExists_shouldReturnFalse() {
+        // Given
+        Integer tourPlanId = 999;
+        String languageCode = "XX";
+        when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
+                .thenReturn(Optional.empty());
+
+        // When
+        boolean result = service.existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
+
+        // Then
+        assertFalse(result);
+        verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
+    }
+
+    @Test
+    @DisplayName("Should delete all translations by tourPlanId successfully")
+    void deleteAllTranslationsByTourPlanId_success() {
+        // Given
+        Integer tourPlanId = 1;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
+        doNothing().when(tourTranslationRepository).deleteByTourPlan(tourPlan);
+
+        // When
+        service.deleteAllTranslationsByTourPlanId(tourPlanId);
+
+        // Then
+        verify(tourPlanRepository).findById(tourPlanId);
+        verify(tourTranslationRepository).deleteByTourPlan(tourPlan);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when deleting translations for non-existent tour plan")
+    void deleteAllTranslationsByTourPlanId_whenTourPlanNotExists_shouldThrowException() {
+        // Given
+        Integer tourPlanId = 999;
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.empty());
+
+        // When/Then
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.deleteAllTranslationsByTourPlanId(tourPlanId));
+        assertTrue(exception.getMessage().contains("Tour Plan not found"));
+        verify(tourPlanRepository).findById(tourPlanId);
+        verify(tourTranslationRepository, never()).deleteByTourPlan(any());
+    }
 }
