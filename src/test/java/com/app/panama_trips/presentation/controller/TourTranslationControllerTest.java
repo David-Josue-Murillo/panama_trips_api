@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -158,5 +159,61 @@ public class TourTranslationControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(tourTranslationService).deleteTourTranslation(tourPlanId, languageCode);
+    }
+
+    // Business Operations Tests
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("Should return tour translations by tourPlanId")
+    void getTourTranslationsByTourPlanId_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        when(tourTranslationService.getTourTranslationsByTourPlanId(tourPlanId)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-translations/tour-plan/{tourPlanId}", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].tourPlanId").value(response.tourPlanId()))
+                .andExpect(jsonPath("$[0].languageCode").value(response.languageCode()))
+                .andExpect(jsonPath("$[0].title").value(response.title()));
+
+        verify(tourTranslationService).getTourTranslationsByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("Should return tour translations by languageCode")
+    void getTourTranslationsByLanguageCode_success() throws Exception {
+        // Given
+        String languageCode = "ES";
+        when(tourTranslationService.getTourTranslationsByLanguageCode(languageCode)).thenReturn(responseList);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-translations/language/{languageCode}", languageCode))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].tourPlanId").value(response.tourPlanId()))
+                .andExpect(jsonPath("$[0].languageCode").value(response.languageCode()))
+                .andExpect(jsonPath("$[0].title").value(response.title()));
+
+        verify(tourTranslationService).getTourTranslationsByLanguageCode(languageCode);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("Should check if tour translation exists")
+    void existsByTourPlanIdAndLanguageCode_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        String languageCode = "ES";
+        when(tourTranslationService.existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode)).thenReturn(true);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-translations/exists")
+                        .param("tourPlanId", tourPlanId.toString())
+                        .param("languageCode", languageCode))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(tourTranslationService).existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
     }
 }
