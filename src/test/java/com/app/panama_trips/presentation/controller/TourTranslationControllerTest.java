@@ -7,8 +7,10 @@ import static com.app.panama_trips.DataProvider.tourTranslationResponseListMock;
 import static com.app.panama_trips.DataProvider.tourTranslationResponseMock;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -139,5 +141,22 @@ public class TourTranslationControllerTest {
                 .andExpect(jsonPath("$.title").value(response.title()));
 
         verify(tourTranslationService).updateTourTranslation(eq(tourPlanId), eq(languageCode), any(TourTranslationRequest.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("Should delete tour translation successfully")
+    void deleteTourTranslation_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        String languageCode = "ES";
+        doNothing().when(tourTranslationService).deleteTourTranslation(tourPlanId, languageCode);
+
+        // When/Then
+        mockMvc.perform(delete("/api/tour-translations/{tourPlanId}/{languageCode}", tourPlanId, languageCode)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(tourTranslationService).deleteTourTranslation(tourPlanId, languageCode);
     }
 }
