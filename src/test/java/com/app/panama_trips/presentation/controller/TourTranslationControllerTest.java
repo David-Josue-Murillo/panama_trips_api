@@ -235,4 +235,53 @@ public class TourTranslationControllerTest {
 
         verify(tourTranslationService).existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
     }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("Should delete all translations by tourPlanId")
+    void deleteAllTranslationsByTourPlanId_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        doNothing().when(tourTranslationService).deleteAllTranslationsByTourPlanId(tourPlanId);
+
+        // When/Then
+        mockMvc.perform(delete("/api/tour-translations/tour-plan/{tourPlanId}", tourPlanId)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(tourTranslationService).deleteAllTranslationsByTourPlanId(tourPlanId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("Should delete all translations by languageCode")
+    void deleteAllTranslationsByLanguageCode_success() throws Exception {
+        // Given
+        String languageCode = "ES";
+        doNothing().when(tourTranslationService).deleteAllTranslationsByLanguageCode(languageCode);
+
+        // When/Then
+        mockMvc.perform(delete("/api/tour-translations/language/{languageCode}", languageCode)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(tourTranslationService).deleteAllTranslationsByLanguageCode(languageCode);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("Should count translations by tourPlanId")
+    void countTranslationsByTourPlanId_success() throws Exception {
+        // Given
+        Integer tourPlanId = 1;
+        Long count = 3L;
+        when(tourTranslationService.countTranslationsByTourPlanId(tourPlanId)).thenReturn(count);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-translations/tour-plan/{tourPlanId}/count", tourPlanId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(count.toString()));
+
+        verify(tourTranslationService).countTranslationsByTourPlanId(tourPlanId);
+    }
 }
