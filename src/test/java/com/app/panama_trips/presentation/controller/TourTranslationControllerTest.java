@@ -6,9 +6,12 @@ import static com.app.panama_trips.DataProvider.tourTranslationRequestMock;
 import static com.app.panama_trips.DataProvider.tourTranslationResponseListMock;
 import static com.app.panama_trips.DataProvider.tourTranslationResponseMock;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -20,13 +23,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.app.panama_trips.presentation.dto.TourTranslationRequest;
 import com.app.panama_trips.presentation.dto.TourTranslationResponse;
 import com.app.panama_trips.service.interfaces.ITourTranslationService;
+import com.app.panama_trips.utility.ParseJson;
 
 @WebMvcTest(TourTranslationController.class)
 public class TourTranslationControllerTest {
@@ -89,5 +95,49 @@ public class TourTranslationControllerTest {
                 .andExpect(jsonPath("$.description").value(response.description()));
 
         verify(tourTranslationService).getTourTranslationByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("Should save tour translation successfully")
+    void saveTourTranslation_success() throws Exception {
+        // Given
+        when(tourTranslationService.saveTourTranslation(any(TourTranslationRequest.class)))
+                .thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(post("/api/tour-translations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(ParseJson.asJsonString(request))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.tourPlanId").value(response.tourPlanId()))
+                .andExpect(jsonPath("$.languageCode").value(response.languageCode()))
+                .andExpect(jsonPath("$.title").value(response.title()));
+
+        verify(tourTranslationService).saveTourTranslation(any(TourTranslationRequest.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("Should update tour translation successfully")
+    void updateTourTranslation_success() throws Exception {
+        // Given
+        Integer tourPlanId = request.tourPlanId();
+        String languageCode = request.languageCode();
+        when(tourTranslationService.updateTourTranslation(eq(tourPlanId), eq(languageCode), any(TourTranslationRequest.class)))
+                .thenReturn(response);
+
+        // When/Then
+        mockMvc.perform(put("/api/tour-translations/{tourPlanId}/{languageCode}", tourPlanId, languageCode)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(ParseJson.asJsonString(request))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tourPlanId").value(response.tourPlanId()))
+                .andExpect(jsonPath("$.languageCode").value(response.languageCode()))
+                .andExpect(jsonPath("$.title").value(response.title()));
+
+        verify(tourTranslationService).updateTourTranslation(eq(tourPlanId), eq(languageCode), any(TourTranslationRequest.class));
     }
 }
