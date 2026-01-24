@@ -216,4 +216,23 @@ public class TourTranslationControllerTest {
 
         verify(tourTranslationService).existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
     }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("Should return false when tour translation does not exist")
+    void existsByTourPlanIdAndLanguageCode_notExists() throws Exception {
+        // Given
+        Integer tourPlanId = 999;
+        String languageCode = "XX";
+        when(tourTranslationService.existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode)).thenReturn(false);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-translations/exists")
+                        .param("tourPlanId", tourPlanId.toString())
+                        .param("languageCode", languageCode))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+
+        verify(tourTranslationService).existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
+    }
 }
