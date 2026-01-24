@@ -284,4 +284,35 @@ public class TourTranslationControllerTest {
 
         verify(tourTranslationService).countTranslationsByTourPlanId(tourPlanId);
     }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("Should count all tour translations")
+    void countAllTourTranslations_success() throws Exception {
+        // Given
+        Long count = 10L;
+        when(tourTranslationService.countAllTourTranslations()).thenReturn(count);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-translations/count"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(count.toString()));
+
+        verify(tourTranslationService).countAllTourTranslations();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("Should return zero when no tour translations exist")
+    void countAllTourTranslations_zero() throws Exception {
+        // Given
+        when(tourTranslationService.countAllTourTranslations()).thenReturn(0L);
+
+        // When/Then
+        mockMvc.perform(get("/api/tour-translations/count"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("0"));
+
+        verify(tourTranslationService).countAllTourTranslations();
+    }
 }
