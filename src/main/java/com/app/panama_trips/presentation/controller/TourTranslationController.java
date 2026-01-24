@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.app.panama_trips.presentation.dto.TourTranslationRequest;
 import com.app.panama_trips.presentation.dto.TourTranslationResponse;
-import com.app.panama_trips.service.implementation.TourTranslationService;
+import com.app.panama_trips.service.interfaces.ITourTranslationService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/tour-translations")
 @RequiredArgsConstructor
 public class TourTranslationController {
-    private final TourTranslationService service;
+    private final ITourTranslationService service;
 
     // CRUD operations
     @GetMapping
