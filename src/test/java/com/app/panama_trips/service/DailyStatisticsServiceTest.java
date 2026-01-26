@@ -1,6 +1,5 @@
 package com.app.panama_trips.service;
 
-import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.DailyStatistics;
 import com.app.panama_trips.persistence.repository.DailyStatisticsRepository;
 import com.app.panama_trips.presentation.dto.DailyStatisticsRequest;
