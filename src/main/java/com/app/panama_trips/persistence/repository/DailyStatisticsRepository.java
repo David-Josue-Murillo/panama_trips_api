@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface DailyStatisticsRepository extends JpaRepository<DailyStatistics, LocalDate> {
+public interface DailyStatisticsRepository extends JpaRepository<DailyStatistics, Long> {
 
     List<DailyStatistics> findByDateBetween(LocalDate startDate, LocalDate endDate);
 
