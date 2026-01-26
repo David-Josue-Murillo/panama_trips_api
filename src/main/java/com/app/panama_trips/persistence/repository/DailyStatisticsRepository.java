@@ -16,6 +16,8 @@ import java.util.Optional;
 @Repository
 public interface DailyStatisticsRepository extends JpaRepository<DailyStatistics, Long> {
 
+    Optional<DailyStatistics> findByDate(LocalDate date);
+
     List<DailyStatistics> findByDateBetween(LocalDate startDate, LocalDate endDate);
 
     List<DailyStatistics> findByTotalRevenueGreaterThan(BigDecimal amount);
