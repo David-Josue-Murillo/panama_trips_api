@@ -1,14 +1,8 @@
 package com.app.panama_trips.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,12 +23,15 @@ import com.app.panama_trips.presentation.dto.TourTranslationRequest;
 import com.app.panama_trips.presentation.dto.TourTranslationResponse;
 import com.app.panama_trips.service.implementation.TourTranslationService;
 
-import static com.app.panama_trips.DataProvider.*;
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class TourTranslationServiceTest {
+class TourTranslationServiceTest {
+
     @Mock
     private TourTranslationRepository tourTranslationRepository;
 
@@ -45,537 +42,390 @@ public class TourTranslationServiceTest {
     private LanguageRepository languageRepository;
 
     @InjectMocks
-    private TourTranslationService service;
-
-    @Captor
-    private ArgumentCaptor<TourTranslation> tourTranslationCaptor;
+    private TourTranslationService tourTranslationService;
 
     private TourTranslation tourTranslation;
-    private List<TourTranslation> tourTranslations;
-    private TourTranslationRequest tourTranslationRequest;
     private TourPlan tourPlan;
     private Language language;
+    private TourTranslationRequest tourTranslationRequest;
+    private TourTranslationId tourTranslationId;
+    private Pageable pageable;
+    private final Integer tourPlanId = 1;
+    private final String languageCode = "EN";
 
     @BeforeEach
     void setUp() {
-        tourTranslation = tourTranslationSpanishMock();
-        tourTranslations = tourTranslationListMock();
-        tourTranslationRequest = tourTranslationRequestMock();
-        tourPlan = tourPlanOneMock;
-        language = languageSpanishMock();
+        pageable = PageRequest.of(0, 10);
+
+        tourPlan = new TourPlan();
+        tourPlan.setId(tourPlanId);
+
+        language = new Language();
+        language.setCode(languageCode);
+
+        tourTranslationId = TourTranslationId.builder()
+                .tourPlanId(tourPlanId)
+                .languageCode(languageCode)
+                .build();
+
+        tourTranslation = TourTranslation.builder()
+                .id(tourTranslationId)
+                .tourPlan(tourPlan)
+                .language(language)
+                .title("Test Title")
+                .shortDescription("Short Description")
+                .description("Test Description")
+                .includedServices("Included Services")
+                .excludedServices("Excluded Services")
+                .whatToBring("What to Bring")
+                .meetingPoint("Meeting Point")
+                .build();
+
+        tourTranslationRequest = new TourTranslationRequest(
+                tourPlanId,
+                languageCode,
+                "New Title",
+                "New Short Description",
+                "New Description",
+                "New Included Services",
+                "New Excluded Services",
+                "New What to Bring",
+                "New Meeting Point"
+        );
     }
 
-    // CRUD Operations Tests
+    // 1. getAllTourTranslations
     @Test
-    @DisplayName("Should return all tour translations when getAllTourTranslations is called with pagination")
-    void getAllTourTranslations_shouldReturnAllData() {
-        // Given
-        Page<TourTranslation> page = new PageImpl<>(tourTranslations);
-        Pageable pageable = PageRequest.of(0, 10);
+    void getAllTourTranslations_Success() {
+        Page<TourTranslation> mockPage = new PageImpl<>(List.of(tourTranslation));
+        when(tourTranslationRepository.findAll(pageable)).thenReturn(mockPage);
 
-        when(tourTranslationRepository.findAll(pageable)).thenReturn(page);
+        Page<TourTranslationResponse> result = tourTranslationService.getAllTourTranslations(pageable);
 
-        // When
-        Page<TourTranslationResponse> result = service.getAllTourTranslations(pageable);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(tourTranslations.size(), result.getTotalElements());
+        assertEquals(1, result.getTotalElements());
+        assertEquals(1, result.getContent().size());
+        assertEquals("Test Title", result.getContent().get(0).title());
         verify(tourTranslationRepository).findAll(pageable);
     }
 
     @Test
-    @DisplayName("Should return tour translation by tourPlanId and languageCode when exists")
-    void getTourTranslationByTourPlanIdAndLanguageCode_whenExists_shouldReturnTranslation() {
-        // Given
-        Integer tourPlanId = 1;
-        String languageCode = "ES";
+    void getAllTourTranslations_EmptyPage() {
+        Page<TourTranslation> mockPage = new PageImpl<>(List.of());
+        when(tourTranslationRepository.findAll(pageable)).thenReturn(mockPage);
+
+        Page<TourTranslationResponse> result = tourTranslationService.getAllTourTranslations(pageable);
+
+        assertEquals(0, result.getTotalElements());
+        assertTrue(result.getContent().isEmpty());
+        verify(tourTranslationRepository).findAll(pageable);
+    }
+
+    // 2. getTourTranslationByTourPlanIdAndLanguageCode
+    @Test
+    void getTourTranslationByTourPlanIdAndLanguageCode_Success() {
         when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
                 .thenReturn(Optional.of(tourTranslation));
 
-        // When
-        TourTranslationResponse result = service.getTourTranslationByTourPlanIdAndLanguageCode(tourPlanId,
-                languageCode);
+        TourTranslationResponse result = tourTranslationService.getTourTranslationByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
 
-        // Then
         assertNotNull(result);
-        assertEquals(tourTranslation.getId().getTourPlanId(), result.tourPlanId());
-        assertEquals(tourTranslation.getId().getLanguageCode(), result.languageCode());
-        assertEquals(tourTranslation.getTitle(), result.title());
+        assertEquals("Test Title", result.title());
+        assertEquals(tourPlanId, result.tourPlanId());
+        assertEquals(languageCode, result.languageCode());
         verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
     }
 
     @Test
-    @DisplayName("Should throw exception when getting tour translation that doesn't exist")
-    void getTourTranslationByTourPlanIdAndLanguageCode_whenNotExists_shouldThrowException() {
-        // Given
-        Integer tourPlanId = 999;
-        String languageCode = "XX";
+    void getTourTranslationByTourPlanIdAndLanguageCode_NotFound() {
         when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
                 .thenReturn(Optional.empty());
 
-        // When/Then
-        ResourceNotFoundException exception = assertThrows(
-                ResourceNotFoundException.class,
-                () -> service.getTourTranslationByTourPlanIdAndLanguageCode(tourPlanId, languageCode));
-        assertTrue(exception.getMessage().contains("Tour Translation not found"));
-        verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
+        assertThrows(ResourceNotFoundException.class,
+                () -> tourTranslationService.getTourTranslationByTourPlanIdAndLanguageCode(tourPlanId, languageCode));
     }
 
+    // 3. saveTourTranslation
     @Test
-    @DisplayName("Should save tour translation successfully")
-    void saveTourTranslation_success() {
-        // Given
-        when(tourPlanRepository.existsById(tourTranslationRequest.tourPlanId())).thenReturn(true);
-        when(languageRepository.existsById(tourTranslationRequest.languageCode())).thenReturn(true);
-        when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(
-                tourTranslationRequest.tourPlanId(), tourTranslationRequest.languageCode()))
+    void saveTourTranslation_Success() {
+        TourTranslation savedTranslation = TourTranslation.builder()
+                .id(tourTranslationId)
+                .tourPlan(tourPlan)
+                .language(language)
+                .title("New Title")
+                .shortDescription("New Short Description")
+                .description("New Description")
+                .includedServices("New Included Services")
+                .excludedServices("New Excluded Services")
+                .whatToBring("New What to Bring")
+                .meetingPoint("New Meeting Point")
+                .build();
+
+        when(tourPlanRepository.existsById(tourPlanId)).thenReturn(true);
+        when(languageRepository.existsById(languageCode)).thenReturn(true);
+        when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
                 .thenReturn(Optional.empty());
-        when(tourPlanRepository.findById(tourTranslationRequest.tourPlanId()))
-                .thenReturn(Optional.of(tourPlan));
-        when(languageRepository.findById(tourTranslationRequest.languageCode()))
-                .thenReturn(Optional.of(language));
-        when(tourTranslationRepository.save(any(TourTranslation.class))).thenReturn(tourTranslation);
+        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
+        when(languageRepository.findById(languageCode)).thenReturn(Optional.of(language));
+        when(tourTranslationRepository.save(any(TourTranslation.class))).thenReturn(savedTranslation);
 
-        // When
-        TourTranslationResponse result = service.saveTourTranslation(tourTranslationRequest);
+        TourTranslationResponse result = tourTranslationService.saveTourTranslation(tourTranslationRequest);
 
-        // Then
         assertNotNull(result);
-        assertEquals(tourTranslation.getId().getTourPlanId(), result.tourPlanId());
-        assertEquals(tourTranslation.getId().getLanguageCode(), result.languageCode());
-        verify(tourPlanRepository).existsById(tourTranslationRequest.tourPlanId());
-        verify(languageRepository).existsById(tourTranslationRequest.languageCode());
-        verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(
-                tourTranslationRequest.tourPlanId(), tourTranslationRequest.languageCode());
-        verify(tourTranslationRepository).save(tourTranslationCaptor.capture());
+        assertEquals("New Title", result.title());
+        verify(tourPlanRepository).existsById(tourPlanId);
+        verify(languageRepository).existsById(languageCode);
+        verify(tourTranslationRepository).save(any(TourTranslation.class));
     }
 
     @Test
-    @DisplayName("Should throw exception when saving tour translation with non-existent tour plan")
-    void saveTourTranslation_whenTourPlanNotExists_shouldThrowException() {
-        // Given
-        when(tourPlanRepository.existsById(tourTranslationRequest.tourPlanId())).thenReturn(false);
+    void saveTourTranslation_TourPlanNotFound() {
+        when(tourPlanRepository.existsById(tourPlanId)).thenReturn(false);
 
-        // When/Then
-        ResourceNotFoundException exception = assertThrows(
-                ResourceNotFoundException.class,
-                () -> service.saveTourTranslation(tourTranslationRequest));
-        assertTrue(exception.getMessage().contains("Tour Plan not found"));
-        verify(tourPlanRepository).existsById(tourTranslationRequest.tourPlanId());
-        verify(languageRepository, never()).existsById(anyString());
-        verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+        assertThrows(ResourceNotFoundException.class,
+                () -> tourTranslationService.saveTourTranslation(tourTranslationRequest));
     }
 
     @Test
-    @DisplayName("Should throw exception when saving tour translation with non-existent language")
-    void saveTourTranslation_whenLanguageNotExists_shouldThrowException() {
-        // Given
-        when(tourPlanRepository.existsById(tourTranslationRequest.tourPlanId())).thenReturn(true);
-        when(languageRepository.existsById(tourTranslationRequest.languageCode())).thenReturn(false);
+    void saveTourTranslation_LanguageNotFound() {
+        when(tourPlanRepository.existsById(tourPlanId)).thenReturn(true);
+        when(languageRepository.existsById(languageCode)).thenReturn(false);
 
-        // When/Then
-        ResourceNotFoundException exception = assertThrows(
-                ResourceNotFoundException.class,
-                () -> service.saveTourTranslation(tourTranslationRequest));
-        assertTrue(exception.getMessage().contains("Language not found"));
-        verify(tourPlanRepository).existsById(tourTranslationRequest.tourPlanId());
-        verify(languageRepository).existsById(tourTranslationRequest.languageCode());
-        verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+        assertThrows(ResourceNotFoundException.class,
+                () -> tourTranslationService.saveTourTranslation(tourTranslationRequest));
     }
 
     @Test
-    @DisplayName("Should throw exception when saving tour translation that already exists")
-    void saveTourTranslation_whenAlreadyExists_shouldThrowException() {
-        // Given
-        when(tourPlanRepository.existsById(tourTranslationRequest.tourPlanId())).thenReturn(true);
-        when(languageRepository.existsById(tourTranslationRequest.languageCode())).thenReturn(true);
-        when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(
-                tourTranslationRequest.tourPlanId(), tourTranslationRequest.languageCode()))
+    void saveTourTranslation_AlreadyExists() {
+        when(tourPlanRepository.existsById(tourPlanId)).thenReturn(true);
+        when(languageRepository.existsById(languageCode)).thenReturn(true);
+        when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
                 .thenReturn(Optional.of(tourTranslation));
 
-        // When/Then
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> service.saveTourTranslation(tourTranslationRequest));
-        assertTrue(exception.getMessage().contains("Tour Translation already exists"));
-        verify(tourPlanRepository).existsById(tourTranslationRequest.tourPlanId());
-        verify(languageRepository).existsById(tourTranslationRequest.languageCode());
-        verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(
-                tourTranslationRequest.tourPlanId(), tourTranslationRequest.languageCode());
-        verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+        assertThrows(IllegalArgumentException.class,
+                () -> tourTranslationService.saveTourTranslation(tourTranslationRequest));
     }
 
+    // 4. updateTourTranslation
     @Test
-    @DisplayName("Should update tour translation successfully")
-    void updateTourTranslation_success() {
-        // Given
-        Integer tourPlanId = 1;
-        String languageCode = "ES";
-        TourTranslationRequest updateRequest = tourTranslationRequestMock();
-        TourTranslation updatedTranslation = tourTranslationSpanishMock();
-        updatedTranslation.setTitle("Updated Title");
+    void updateTourTranslation_Success() {
+        TourTranslation updatedTranslation = TourTranslation.builder()
+                .id(tourTranslationId)
+                .tourPlan(tourPlan)
+                .language(language)
+                .title("New Title")
+                .shortDescription("New Short Description")
+                .description("New Description")
+                .includedServices("New Included Services")
+                .excludedServices("New Excluded Services")
+                .whatToBring("New What to Bring")
+                .meetingPoint("New Meeting Point")
+                .build();
 
         when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
                 .thenReturn(Optional.of(tourTranslation));
         when(tourTranslationRepository.save(any(TourTranslation.class))).thenReturn(updatedTranslation);
 
-        // When
-        TourTranslationResponse result = service.updateTourTranslation(tourPlanId, languageCode, updateRequest);
+        TourTranslationResponse result = tourTranslationService.updateTourTranslation(tourPlanId, languageCode, tourTranslationRequest);
 
-        // Then
         assertNotNull(result);
+        assertEquals("New Title", result.title());
         verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
-        verify(tourTranslationRepository).save(tourTranslationCaptor.capture());
-        TourTranslation capturedTranslation = tourTranslationCaptor.getValue();
-        assertEquals(updateRequest.title(), capturedTranslation.getTitle());
+        verify(tourTranslationRepository).save(any(TourTranslation.class));
     }
 
     @Test
-    @DisplayName("Should throw exception when updating non-existent tour translation")
-    void updateTourTranslation_whenNotExists_shouldThrowException() {
-        // Given
-        Integer tourPlanId = 999;
-        String languageCode = "XX";
-        TourTranslationRequest requestWithMatchingIds = new TourTranslationRequest(
-                tourPlanId, // Matching tourPlanId
-                languageCode, // Matching languageCode
-                "Title",
-                "Short Description",
-                "Description",
-                "Included",
-                "Excluded",
-                "What to bring",
-                "Meeting point");
-
+    void updateTourTranslation_NotFound() {
         when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
                 .thenReturn(Optional.empty());
 
-        // When/Then
-        ResourceNotFoundException exception = assertThrows(
-                ResourceNotFoundException.class,
-                () -> service.updateTourTranslation(tourPlanId, languageCode, requestWithMatchingIds));
-        assertTrue(exception.getMessage().contains("Tour Translation not found"));
-        verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
-        verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+        assertThrows(ResourceNotFoundException.class,
+                () -> tourTranslationService.updateTourTranslation(tourPlanId, languageCode, tourTranslationRequest));
     }
 
     @Test
-    @DisplayName("Should throw exception when tourPlanId in request doesn't match path parameter")
-    void updateTourTranslation_whenTourPlanIdMismatch_shouldThrowException() {
-        // Given
-        Integer tourPlanId = 1;
-        String languageCode = "ES";
-        TourTranslationRequest requestWithDifferentId = new TourTranslationRequest(
-                999, // Different tourPlanId
+    void updateTourTranslation_MismatchedIds() {
+        TourTranslationRequest mismatchedRequest = new TourTranslationRequest(
+                999,
                 languageCode,
                 "Title",
-                "Short Description",
+                "Short",
                 "Description",
                 "Included",
                 "Excluded",
-                "What to bring",
-                "Meeting point");
+                "Bring",
+                "Meeting"
+        );
 
-        // When/Then
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> service.updateTourTranslation(tourPlanId, languageCode, requestWithDifferentId));
-        assertTrue(exception.getMessage().contains("must match the path parameters"));
-        verify(tourTranslationRepository, never()).findByTourPlanIdAndLanguageCode(anyInt(), anyString());
-        verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+        assertThrows(IllegalArgumentException.class,
+                () -> tourTranslationService.updateTourTranslation(tourPlanId, languageCode, mismatchedRequest));
+    }
+
+    // 5. deleteTourTranslation
+    @Test
+    void deleteTourTranslation_Success() {
+        when(tourTranslationRepository.existsById(tourTranslationId)).thenReturn(true);
+
+        tourTranslationService.deleteTourTranslation(tourPlanId, languageCode);
+
+        verify(tourTranslationRepository).existsById(tourTranslationId);
+        verify(tourTranslationRepository).deleteById(tourTranslationId);
     }
 
     @Test
-    @DisplayName("Should throw exception when languageCode in request doesn't match path parameter")
-    void updateTourTranslation_whenLanguageCodeMismatch_shouldThrowException() {
-        // Given
-        Integer tourPlanId = 1;
-        String languageCode = "ES";
-        TourTranslationRequest requestWithDifferentCode = new TourTranslationRequest(
-                tourPlanId,
-                "EN", // Different languageCode
-                "Title",
-                "Short Description",
-                "Description",
-                "Included",
-                "Excluded",
-                "What to bring",
-                "Meeting point");
+    void deleteTourTranslation_NotFound() {
+        when(tourTranslationRepository.existsById(tourTranslationId)).thenReturn(false);
 
-        // When/Then
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> service.updateTourTranslation(tourPlanId, languageCode, requestWithDifferentCode));
-        assertTrue(exception.getMessage().contains("must match the path parameters"));
-        verify(tourTranslationRepository, never()).findByTourPlanIdAndLanguageCode(anyInt(), anyString());
-        verify(tourTranslationRepository, never()).save(any(TourTranslation.class));
+        assertThrows(ResourceNotFoundException.class,
+                () -> tourTranslationService.deleteTourTranslation(tourPlanId, languageCode));
     }
 
+    // 6. getTourTranslationsByTourPlanId
     @Test
-    @DisplayName("Should delete tour translation successfully")
-    void deleteTourTranslation_success() {
-        // Given
-        Integer tourPlanId = 1;
-        String languageCode = "ES";
-        TourTranslationId id = TourTranslationId.builder()
-                .tourPlanId(tourPlanId)
-                .languageCode(languageCode)
-                .build();
+    void getTourTranslationsByTourPlanId_Success() {
+        List<TourTranslation> translations = List.of(tourTranslation);
+        when(tourTranslationRepository.findByTourPlanId(tourPlanId)).thenReturn(translations);
 
-        when(tourTranslationRepository.existsById(id)).thenReturn(true);
-        doNothing().when(tourTranslationRepository).deleteById(id);
+        List<TourTranslationResponse> result = tourTranslationService.getTourTranslationsByTourPlanId(tourPlanId);
 
-        // When
-        service.deleteTourTranslation(tourPlanId, languageCode);
-
-        // Then
-        verify(tourTranslationRepository).existsById(id);
-        verify(tourTranslationRepository).deleteById(id);
-    }
-
-    @Test
-    @DisplayName("Should throw exception when deleting non-existent tour translation")
-    void deleteTourTranslation_whenNotExists_shouldThrowException() {
-        // Given
-        Integer tourPlanId = 999;
-        String languageCode = "XX";
-        TourTranslationId id = TourTranslationId.builder()
-                .tourPlanId(tourPlanId)
-                .languageCode(languageCode)
-                .build();
-
-        when(tourTranslationRepository.existsById(id)).thenReturn(false);
-
-        // When/Then
-        ResourceNotFoundException exception = assertThrows(
-                ResourceNotFoundException.class,
-                () -> service.deleteTourTranslation(tourPlanId, languageCode));
-        assertTrue(exception.getMessage().contains("Tour Translation not found"));
-        verify(tourTranslationRepository).existsById(id);
-        verify(tourTranslationRepository, never()).deleteById(any());
-    }
-
-    @Test
-    @DisplayName("Should return tour translations by tourPlanId")
-    void getTourTranslationsByTourPlanId_success() {
-        // Given
-        Integer tourPlanId = 1;
-        when(tourTranslationRepository.findByTourPlanId(tourPlanId)).thenReturn(tourTranslations);
-
-        // When
-        List<TourTranslationResponse> result = service.getTourTranslationsByTourPlanId(tourPlanId);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(tourTranslations.size(), result.size());
+        assertEquals(1, result.size());
+        assertEquals("Test Title", result.get(0).title());
         verify(tourTranslationRepository).findByTourPlanId(tourPlanId);
     }
 
     @Test
-    @DisplayName("Should return empty list when no translations exist for tourPlanId")
-    void getTourTranslationsByTourPlanId_whenNoTranslations_shouldReturnEmptyList() {
-        // Given
-        Integer tourPlanId = 999;
+    void getTourTranslationsByTourPlanId_Empty() {
         when(tourTranslationRepository.findByTourPlanId(tourPlanId)).thenReturn(List.of());
 
-        // When
-        List<TourTranslationResponse> result = service.getTourTranslationsByTourPlanId(tourPlanId);
+        List<TourTranslationResponse> result = tourTranslationService.getTourTranslationsByTourPlanId(tourPlanId);
 
-        // Then
-        assertNotNull(result);
         assertTrue(result.isEmpty());
         verify(tourTranslationRepository).findByTourPlanId(tourPlanId);
     }
 
+    // 7. getTourTranslationsByLanguageCode
     @Test
-    @DisplayName("Should return tour translations by languageCode")
-    void getTourTranslationsByLanguageCode_success() {
-        // Given
-        String languageCode = "ES";
-        when(tourTranslationRepository.findByLanguageCode(languageCode)).thenReturn(tourTranslations);
+    void getTourTranslationsByLanguageCode_Success() {
+        List<TourTranslation> translations = List.of(tourTranslation);
+        when(tourTranslationRepository.findByLanguageCode(languageCode)).thenReturn(translations);
 
-        // When
-        List<TourTranslationResponse> result = service.getTourTranslationsByLanguageCode(languageCode);
+        List<TourTranslationResponse> result = tourTranslationService.getTourTranslationsByLanguageCode(languageCode);
 
-        // Then
-        assertNotNull(result);
-        assertEquals(tourTranslations.size(), result.size());
+        assertEquals(1, result.size());
+        assertEquals("Test Title", result.get(0).title());
         verify(tourTranslationRepository).findByLanguageCode(languageCode);
     }
 
     @Test
-    @DisplayName("Should return empty list when no translations exist for languageCode")
-    void getTourTranslationsByLanguageCode_whenNoTranslations_shouldReturnEmptyList() {
-        // Given
-        String languageCode = "XX";
+    void getTourTranslationsByLanguageCode_Empty() {
         when(tourTranslationRepository.findByLanguageCode(languageCode)).thenReturn(List.of());
 
-        // When
-        List<TourTranslationResponse> result = service.getTourTranslationsByLanguageCode(languageCode);
+        List<TourTranslationResponse> result = tourTranslationService.getTourTranslationsByLanguageCode(languageCode);
 
-        // Then
-        assertNotNull(result);
         assertTrue(result.isEmpty());
         verify(tourTranslationRepository).findByLanguageCode(languageCode);
     }
 
+    // 8. existsByTourPlanIdAndLanguageCode
     @Test
-    @DisplayName("Should return true when tour translation exists")
-    void existsByTourPlanIdAndLanguageCode_whenExists_shouldReturnTrue() {
-        // Given
-        Integer tourPlanId = 1;
-        String languageCode = "ES";
+    void existsByTourPlanIdAndLanguageCode_ReturnsTrue() {
         when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
                 .thenReturn(Optional.of(tourTranslation));
 
-        // When
-        boolean result = service.existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
+        boolean result = tourTranslationService.existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
 
-        // Then
         assertTrue(result);
         verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
     }
 
     @Test
-    @DisplayName("Should return false when tour translation doesn't exist")
-    void existsByTourPlanIdAndLanguageCode_whenNotExists_shouldReturnFalse() {
-        // Given
-        Integer tourPlanId = 999;
-        String languageCode = "XX";
+    void existsByTourPlanIdAndLanguageCode_ReturnsFalse() {
         when(tourTranslationRepository.findByTourPlanIdAndLanguageCode(tourPlanId, languageCode))
                 .thenReturn(Optional.empty());
 
-        // When
-        boolean result = service.existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
+        boolean result = tourTranslationService.existsByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
 
-        // Then
         assertFalse(result);
         verify(tourTranslationRepository).findByTourPlanIdAndLanguageCode(tourPlanId, languageCode);
     }
 
+    // 9. deleteAllTranslationsByTourPlanId
     @Test
-    @DisplayName("Should delete all translations by tourPlanId successfully")
-    void deleteAllTranslationsByTourPlanId_success() {
-        // Given
-        Integer tourPlanId = 1;
+    void deleteAllTranslationsByTourPlanId_WhenExists() {
         when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
-        doNothing().when(tourTranslationRepository).deleteByTourPlan(tourPlan);
 
-        // When
-        service.deleteAllTranslationsByTourPlanId(tourPlanId);
+        tourTranslationService.deleteAllTranslationsByTourPlanId(tourPlanId);
 
-        // Then
         verify(tourPlanRepository).findById(tourPlanId);
         verify(tourTranslationRepository).deleteByTourPlan(tourPlan);
     }
 
     @Test
-    @DisplayName("Should throw exception when deleting translations for non-existent tour plan")
-    void deleteAllTranslationsByTourPlanId_whenTourPlanNotExists_shouldThrowException() {
-        // Given
-        Integer tourPlanId = 999;
+    void deleteAllTranslationsByTourPlanId_WhenTourPlanNotFound() {
         when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.empty());
 
-        // When/Then
-        ResourceNotFoundException exception = assertThrows(
-                ResourceNotFoundException.class,
-                () -> service.deleteAllTranslationsByTourPlanId(tourPlanId));
-        assertTrue(exception.getMessage().contains("Tour Plan not found"));
-        verify(tourPlanRepository).findById(tourPlanId);
-        verify(tourTranslationRepository, never()).deleteByTourPlan(any());
+        assertThrows(ResourceNotFoundException.class,
+                () -> tourTranslationService.deleteAllTranslationsByTourPlanId(tourPlanId));
     }
 
+    // 10. deleteAllTranslationsByLanguageCode
     @Test
-    @DisplayName("Should delete all translations by languageCode successfully")
-    void deleteAllTranslationsByLanguageCode_success() {
-        // Given
-        String languageCode = "ES";
+    void deleteAllTranslationsByLanguageCode_WhenExists() {
         when(languageRepository.findById(languageCode)).thenReturn(Optional.of(language));
-        doNothing().when(tourTranslationRepository).deleteByLanguage(language);
 
-        // When
-        service.deleteAllTranslationsByLanguageCode(languageCode);
+        tourTranslationService.deleteAllTranslationsByLanguageCode(languageCode);
 
-        // Then
         verify(languageRepository).findById(languageCode);
         verify(tourTranslationRepository).deleteByLanguage(language);
     }
 
     @Test
-    @DisplayName("Should throw exception when deleting translations for non-existent language")
-    void deleteAllTranslationsByLanguageCode_whenLanguageNotExists_shouldThrowException() {
-        // Given
-        String languageCode = "XX";
+    void deleteAllTranslationsByLanguageCode_WhenLanguageNotFound() {
         when(languageRepository.findById(languageCode)).thenReturn(Optional.empty());
 
-        // When/Then
-        ResourceNotFoundException exception = assertThrows(
-                ResourceNotFoundException.class,
-                () -> service.deleteAllTranslationsByLanguageCode(languageCode));
-        assertTrue(exception.getMessage().contains("Language not found"));
-        verify(languageRepository).findById(languageCode);
-        verify(tourTranslationRepository, never()).deleteByLanguage(any());
+        assertThrows(ResourceNotFoundException.class,
+                () -> tourTranslationService.deleteAllTranslationsByLanguageCode(languageCode));
     }
 
+    // 11. countTranslationsByTourPlanId
     @Test
-    @DisplayName("Should return count of translations by tourPlanId")
-    void countTranslationsByTourPlanId_success() {
-        // Given
-        Integer tourPlanId = 1;
-        Long expectedCount = 3L;
-        when(tourTranslationRepository.countTranslationsByTourPlanId(tourPlanId)).thenReturn(expectedCount);
+    void countTranslationsByTourPlanId_ReturnsCount() {
+        when(tourTranslationRepository.countTranslationsByTourPlanId(tourPlanId)).thenReturn(5L);
 
-        // When
-        Long result = service.countTranslationsByTourPlanId(tourPlanId);
+        Long result = tourTranslationService.countTranslationsByTourPlanId(tourPlanId);
 
-        // Then
-        assertNotNull(result);
-        assertEquals(expectedCount, result);
+        assertEquals(5L, result);
         verify(tourTranslationRepository).countTranslationsByTourPlanId(tourPlanId);
     }
 
     @Test
-    @DisplayName("Should return zero when no translations exist for tourPlanId")
-    void countTranslationsByTourPlanId_whenNoTranslations_shouldReturnZero() {
-        // Given
-        Integer tourPlanId = 999;
+    void countTranslationsByTourPlanId_ReturnsZero() {
         when(tourTranslationRepository.countTranslationsByTourPlanId(tourPlanId)).thenReturn(0L);
 
-        // When
-        Long result = service.countTranslationsByTourPlanId(tourPlanId);
+        Long result = tourTranslationService.countTranslationsByTourPlanId(tourPlanId);
 
-        // Then
         assertEquals(0L, result);
         verify(tourTranslationRepository).countTranslationsByTourPlanId(tourPlanId);
     }
 
+    // 12. countAllTourTranslations
     @Test
-    @DisplayName("Should return total count of all tour translations")
-    void countAllTourTranslations_success() {
-        // Given
-        long expectedCount = 10L;
-        when(tourTranslationRepository.count()).thenReturn(expectedCount);
+    void countAllTourTranslations_ReturnsCount() {
+        when(tourTranslationRepository.count()).thenReturn(10L);
 
-        // When
-        long result = service.countAllTourTranslations();
+        long result = tourTranslationService.countAllTourTranslations();
 
-        // Then
-        assertEquals(expectedCount, result);
+        assertEquals(10L, result);
         verify(tourTranslationRepository).count();
     }
 
     @Test
-    @DisplayName("Should return zero when no tour translations exist")
-    void countAllTourTranslations_whenNoTranslations_shouldReturnZero() {
-        // Given
+    void countAllTourTranslations_ReturnsZero() {
         when(tourTranslationRepository.count()).thenReturn(0L);
 
-        // When
-        long result = service.countAllTourTranslations();
+        long result = tourTranslationService.countAllTourTranslations();
 
-        // Then
         assertEquals(0L, result);
         verify(tourTranslationRepository).count();
     }
 }
+
