@@ -16,6 +16,9 @@ import java.time.LocalDate;
 public class DailyStatistics {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "date")
     private LocalDate date;
 
