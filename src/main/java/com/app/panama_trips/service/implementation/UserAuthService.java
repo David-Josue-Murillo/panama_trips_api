@@ -65,7 +65,7 @@ public class UserAuthService {
                 .lastname(lastname)
                 .dni(dni)
                 .email(email)
-                .passwordHash(password)
+                .passwordHash(this.passwordEncoder.encode(password))
                 .role_id(this.roleRepository.findByRoleEnum(RoleEnum.valueOf(role)))
                 .build();
 
