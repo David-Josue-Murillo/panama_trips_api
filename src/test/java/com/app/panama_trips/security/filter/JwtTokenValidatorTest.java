@@ -8,6 +8,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,18 +17,19 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class JwtTokenValidatorTest {
+class JwtTokenValidatorTest {
 
     @Mock
     private JwtUtil jwtUtil;
@@ -53,45 +56,203 @@ public class JwtTokenValidatorTest {
 
     @BeforeEach
     void setUp() {
-        // Limpiar el contexto de seguridad antes de cada prueba
         SecurityContextHolder.clearContext();
     }
 
-    @Test
-    void doFilterChain_shouldSetAuthentication_whenTokenIsValid() throws ServletException, IOException {
-        // Given
-        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer ".concat(VALID_JWT));
-        when(jwtUtil.validateToken((VALID_JWT))).thenReturn(decodedJWT);
-        when(jwtUtil.getUsernameFromToken(decodedJWT)).thenReturn("username");
-        when(jwtUtil.getSpecificClaim(decodedJWT, "authorities")).thenReturn(claim);
-        when(claim.asString()).thenReturn("ROLE_ADMIN");
+    @Nested
+    @DisplayName("Valid Token Tests")
+    class ValidTokenTests {
 
-        // When
-        jwtTokenValidator.doFilterInternal(request, response, filterChain);
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
+        @Test
+        @DisplayName("Should set authentication when token is valid with single role")
+        void doFilterChain_shouldSetAuthentication_whenTokenIsValid() throws ServletException, IOException {
+            // Given
+            when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer ".concat(VALID_JWT));
+            when(jwtUtil.validateToken(VALID_JWT)).thenReturn(decodedJWT);
+            when(jwtUtil.getUsernameFromToken(decodedJWT)).thenReturn("username");
+            when(jwtUtil.getSpecificClaim(decodedJWT, "authorities")).thenReturn(claim);
+            when(claim.asString()).thenReturn("ROLE_ADMIN");
 
-        // Then
-        assertNotNull(authentication);
-        assertEquals("username", authentication.getName());
-        assertEquals("ROLE_ADMIN", authentication.getAuthorities().iterator().next().getAuthority());
+            // When
+            jwtTokenValidator.doFilterInternal(request, response, filterChain);
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            Authentication authentication = securityContext.getAuthentication();
 
-        verify(filterChain).doFilter(request, response);
+            // Then
+            assertNotNull(authentication);
+            assertEquals("username", authentication.getName());
+            assertEquals("ROLE_ADMIN", authentication.getAuthorities().iterator().next().getAuthority());
+            verify(filterChain).doFilter(request, response);
+        }
+
+        @Test
+        @DisplayName("Should set authentication with multiple authorities")
+        void doFilterChain_shouldSetMultipleAuthorities_whenTokenHasMultipleRoles() throws ServletException, IOException {
+            // Given
+            when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer ".concat(VALID_JWT));
+            when(jwtUtil.validateToken(VALID_JWT)).thenReturn(decodedJWT);
+            when(jwtUtil.getUsernameFromToken(decodedJWT)).thenReturn("admin");
+            when(jwtUtil.getSpecificClaim(decodedJWT, "authorities")).thenReturn(claim);
+            when(claim.asString()).thenReturn("ROLE_ADMIN,USER_READ,USER_CREATE");
+
+            // When
+            jwtTokenValidator.doFilterInternal(request, response, filterChain);
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            Authentication authentication = securityContext.getAuthentication();
+
+            // Then
+            assertNotNull(authentication);
+            assertEquals("admin", authentication.getName());
+            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+            assertEquals(3, authorities.size());
+            String authoritiesString = authorities.stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.joining(","));
+            assertTrue(authoritiesString.contains("ROLE_ADMIN"));
+            assertTrue(authoritiesString.contains("USER_READ"));
+            assertTrue(authoritiesString.contains("USER_CREATE"));
+            verify(filterChain).doFilter(request, response);
+        }
+
+        @Test
+        @DisplayName("Should set credentials to null in authentication")
+        void doFilterChain_shouldSetCredentialsToNull_whenAuthenticated() throws ServletException, IOException {
+            // Given
+            when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer ".concat(VALID_JWT));
+            when(jwtUtil.validateToken(VALID_JWT)).thenReturn(decodedJWT);
+            when(jwtUtil.getUsernameFromToken(decodedJWT)).thenReturn("username");
+            when(jwtUtil.getSpecificClaim(decodedJWT, "authorities")).thenReturn(claim);
+            when(claim.asString()).thenReturn("ROLE_CUSTOMER");
+
+            // When
+            jwtTokenValidator.doFilterInternal(request, response, filterChain);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Then
+            assertNotNull(authentication);
+            assertNull(authentication.getCredentials());
+            verify(filterChain).doFilter(request, response);
+        }
     }
 
-    @Test
-    void doFilterChain_shouldNotSetAuthentication_whenTokenIsInvalid() throws ServletException, IOException {
-        // Given
-        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer invalid.jwt.token");
-        when(jwtUtil.validateToken("invalid.jwt.token")).thenReturn(null);
+    @Nested
+    @DisplayName("Invalid Token Tests")
+    class InvalidTokenTests {
 
-        // When
-        jwtTokenValidator.doFilterInternal(request, response, filterChain);
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
+        @Test
+        @DisplayName("Should not set authentication when token is invalid")
+        void doFilterChain_shouldNotSetAuthentication_whenTokenIsInvalid() throws ServletException, IOException {
+            // Given
+            when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer invalid.jwt.token");
+            when(jwtUtil.validateToken("invalid.jwt.token")).thenReturn(null);
 
-        // Then
-        assertEquals(null, authentication); // No debe establecer autenticación
-        verify(filterChain).doFilter(request, response);
+            // When
+            jwtTokenValidator.doFilterInternal(request, response, filterChain);
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            Authentication authentication = securityContext.getAuthentication();
+
+            // Then
+            assertNull(authentication);
+            verify(filterChain).doFilter(request, response);
+        }
+
+        @Test
+        @DisplayName("Should not set authentication when authorization header is null")
+        void doFilterChain_shouldNotSetAuthentication_whenHeaderIsNull() throws ServletException, IOException {
+            // Given
+            when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
+
+            // When
+            jwtTokenValidator.doFilterInternal(request, response, filterChain);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Then
+            assertNull(authentication);
+            verify(filterChain).doFilter(request, response);
+            verify(jwtUtil, never()).validateToken(anyString());
+        }
+
+        @Test
+        @DisplayName("Should not set authentication when header does not start with Bearer")
+        void doFilterChain_shouldNotSetAuthentication_whenHeaderDoesNotStartWithBearer() throws ServletException, IOException {
+            // Given
+            when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+
+            // When
+            jwtTokenValidator.doFilterInternal(request, response, filterChain);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Then
+            assertNull(authentication);
+            verify(filterChain).doFilter(request, response);
+            verify(jwtUtil, never()).validateToken(anyString());
+        }
+
+        @Test
+        @DisplayName("Should not set authentication when header is just Bearer without token")
+        void doFilterChain_shouldNotSetAuthentication_whenHeaderIsOnlyBearer() throws ServletException, IOException {
+            // Given
+            when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer ");
+            when(jwtUtil.validateToken("")).thenReturn(null);
+
+            // When
+            jwtTokenValidator.doFilterInternal(request, response, filterChain);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Then
+            assertNull(authentication);
+            verify(filterChain).doFilter(request, response);
+        }
+
+        @Test
+        @DisplayName("Should not set authentication when authorization header is empty string")
+        void doFilterChain_shouldNotSetAuthentication_whenHeaderIsEmpty() throws ServletException, IOException {
+            // Given
+            when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("");
+
+            // When
+            jwtTokenValidator.doFilterInternal(request, response, filterChain);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Then
+            assertNull(authentication);
+            verify(filterChain).doFilter(request, response);
+            verify(jwtUtil, never()).validateToken(anyString());
+        }
+    }
+
+    @Nested
+    @DisplayName("Filter Chain Tests")
+    class FilterChainTests {
+
+        @Test
+        @DisplayName("Should always continue filter chain regardless of authentication result")
+        void doFilterChain_shouldAlwaysContinueFilterChain() throws ServletException, IOException {
+            // Given - no authorization header
+            when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
+
+            // When
+            jwtTokenValidator.doFilterInternal(request, response, filterChain);
+
+            // Then
+            verify(filterChain, times(1)).doFilter(request, response);
+        }
+
+        @Test
+        @DisplayName("Should continue filter chain after successful authentication")
+        void doFilterChain_shouldContinueFilterChain_afterSuccessfulAuth() throws ServletException, IOException {
+            // Given
+            when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer ".concat(VALID_JWT));
+            when(jwtUtil.validateToken(VALID_JWT)).thenReturn(decodedJWT);
+            when(jwtUtil.getUsernameFromToken(decodedJWT)).thenReturn("username");
+            when(jwtUtil.getSpecificClaim(decodedJWT, "authorities")).thenReturn(claim);
+            when(claim.asString()).thenReturn("ROLE_ADMIN");
+
+            // When
+            jwtTokenValidator.doFilterInternal(request, response, filterChain);
+
+            // Then
+            verify(filterChain, times(1)).doFilter(request, response);
+        }
     }
 }
