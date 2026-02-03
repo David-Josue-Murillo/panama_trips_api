@@ -161,7 +161,7 @@ public class TourPlanService implements ITourPlanService {
             throw new IllegalArgumentException("Tour Plan with title " + tourPlanRequest.title() + " already exists");
         }
 
-        if(this.providerRepository.existsById(tourPlanRequest.providerId())) {
+        if(!this.providerRepository.existsById(tourPlanRequest.providerId())) {
             throw new ResourceNotFoundException("Provider with id " + tourPlanRequest.providerId() + " not found");
         }
     }

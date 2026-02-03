@@ -82,6 +82,8 @@ public class TourPlanServiceTest {
     @Test
     void saveTourPlan_shouldReturnTourPlan() {
         // Given
+        when(tourPlanRepository.existsByTitleIgnoreCase(anyString())).thenReturn(false);
+        when(providerRepository.existsById(anyInt())).thenReturn(true);
         when(providerRepository.findById(anyInt())).thenReturn(Optional.of(DataProvider.providerOneMock));
         when(tourPlanRepository.save(any(TourPlan.class))).thenReturn(tourPlanOneMock);
 
@@ -99,7 +101,8 @@ public class TourPlanServiceTest {
     @Test
     void saveTourPlan_shouldThrowExceptionWhenProviderNotExits() {
         // Given
-        when(providerRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(tourPlanRepository.existsByTitleIgnoreCase(anyString())).thenReturn(false);
+        when(providerRepository.existsById(anyInt())).thenReturn(false);
 
         // When
         Exception exception = assertThrows(ResourceNotFoundException.class, () -> tourPlanService.saveTourPlan(tourPlanRequestMock));
