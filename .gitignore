@@ -32,6 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 
+### Sensitive configuration files ###
+src/main/resources/application-dev.properties
 
 TODO.md
 WORKFLOWS.md
