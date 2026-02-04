@@ -57,7 +57,7 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(userAuthCreateUserRequestMock()))
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Email already exists"))
                 .andExpect(jsonPath("$.errorCode").value("BAD_CREDENTIALS"));
     }
@@ -85,7 +85,7 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(userAuthLoginRequestMock()))
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Invalid password"))
                 .andExpect(jsonPath("$.errorCode").value("BAD_CREDENTIALS"));
     }
