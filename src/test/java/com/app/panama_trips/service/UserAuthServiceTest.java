@@ -49,14 +49,14 @@ class UserAuthServiceTest {
     void login_shouldReturnValidAuthResponse() {
         mockUserDetails = new User(
                 "admin",
-                "adminpassword", // Contraseña encriptada
+                "Admin123!", // Contraseña encriptada
                 List.of(() -> "ROLE_ADMIN")
         );
 
         // Given
         when(userDetailService.loadUserByUsername("admin")).thenReturn(mockUserDetails);
         when(jwtUtil.generateToken(any(Authentication.class))).thenReturn("mocked_jwt_token");
-        when(passwordEncoder.matches("adminpassword", mockUserDetails.getPassword())).thenReturn(true);
+        when(passwordEncoder.matches("Admin123!", mockUserDetails.getPassword())).thenReturn(true);
         AuthLoginRequest authLoginRequest = DataProvider.userAuthLoginRequestMock();
 
         // When

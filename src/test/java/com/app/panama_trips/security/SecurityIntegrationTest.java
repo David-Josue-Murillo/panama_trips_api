@@ -91,9 +91,9 @@ class SecurityIntegrationTest {
         @Test
         @DisplayName("Should login successfully with valid credentials")
         void login_shouldReturnToken_whenCredentialsAreValid() throws Exception {
-            UserEntity user = createUser("testuser", "test@example.com", "password123", customerRole);
+            UserEntity user = createUser("testuser", "test@example.com", "Password123!", customerRole);
 
-            AuthLoginRequest loginRequest = new AuthLoginRequest("testuser", "password123");
+            AuthLoginRequest loginRequest = new AuthLoginRequest("testuser", "Password123!");
 
             mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -108,7 +108,7 @@ class SecurityIntegrationTest {
         @Test
         @DisplayName("Should return error when username does not exist")
         void login_shouldReturnError_whenUserDoesNotExist() throws Exception {
-            AuthLoginRequest loginRequest = new AuthLoginRequest("nonexistent", "password123");
+            AuthLoginRequest loginRequest = new AuthLoginRequest("nonexistent", "Password123!");
 
             mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -119,7 +119,7 @@ class SecurityIntegrationTest {
         @Test
         @DisplayName("Should return 401 when password is incorrect")
         void login_shouldReturnUnauthorized_whenPasswordIsIncorrect() throws Exception {
-            createUser("testuser", "test@example.com", "password123", customerRole);
+            createUser("testuser", "test@example.com", "Password123!", customerRole);
 
             AuthLoginRequest loginRequest = new AuthLoginRequest("testuser", "wrongpassword");
 
@@ -133,7 +133,7 @@ class SecurityIntegrationTest {
         @Test
         @DisplayName("Should return 400 when username is blank")
         void login_shouldReturnBadRequest_whenUsernameIsBlank() throws Exception {
-            AuthLoginRequest loginRequest = new AuthLoginRequest("", "password123");
+            AuthLoginRequest loginRequest = new AuthLoginRequest("", "Password123!");
 
             mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -165,7 +165,7 @@ class SecurityIntegrationTest {
                     "Doe",
                     "8-123-456789",
                     "john.doe@example.com",
-                    "password123"
+                    "Password123!"
             );
 
             mockMvc.perform(post("/auth/signup")
@@ -188,7 +188,7 @@ class SecurityIntegrationTest {
                     "User",
                     "8-123-456788",
                     "existing@example.com",
-                    "password123"
+                    "Password123!"
             );
 
             mockMvc.perform(post("/auth/signup")
@@ -201,7 +201,7 @@ class SecurityIntegrationTest {
                     "Doe",
                     "8-123-456789",
                     "existing@example.com",
-                    "password123"
+                    "Password123!"
             );
 
             mockMvc.perform(post("/auth/signup")
@@ -219,7 +219,7 @@ class SecurityIntegrationTest {
                     "Doe",
                     "8-123-456789",
                     "john.doe@example.com",
-                    "password123"
+                    "Password123!"
             );
 
             mockMvc.perform(post("/auth/signup")
@@ -236,7 +236,7 @@ class SecurityIntegrationTest {
                     "Doe",
                     "12345678",
                     "john.doe@example.com",
-                    "password123"
+                    "Password123!"
             );
 
             mockMvc.perform(post("/auth/signup")
@@ -253,7 +253,7 @@ class SecurityIntegrationTest {
                     "Doe",
                     "8-123-456789",
                     "invalid-email",
-                    "password123"
+                    "Password123!"
             );
 
             mockMvc.perform(post("/auth/signup")
@@ -364,9 +364,9 @@ class SecurityIntegrationTest {
         @Test
         @DisplayName("Should allow access to login endpoint without token")
         void loginEndpoint_shouldBeAccessible_withoutToken() throws Exception {
-            createUser("accessibleuser", "accessible@example.com", "password123", customerRole);
+            createUser("accessibleuser", "accessible@example.com", "Password123!", customerRole);
 
-            AuthLoginRequest loginRequest = new AuthLoginRequest("accessibleuser", "password123");
+            AuthLoginRequest loginRequest = new AuthLoginRequest("accessibleuser", "Password123!");
 
             mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -382,7 +382,7 @@ class SecurityIntegrationTest {
                     "User",
                     "8-111-111111",
                     "test.user@example.com",
-                    "password123"
+                    "Password123!"
             );
 
             mockMvc.perform(post("/auth/signup")
@@ -413,9 +413,9 @@ class SecurityIntegrationTest {
         @Test
         @DisplayName("Should generate valid token on login")
         void login_shouldGenerateValidToken() throws Exception {
-            createUser("testuser", "test@example.com", "password123", customerRole);
+            createUser("testuser", "test@example.com", "Password123!", customerRole);
 
-            AuthLoginRequest loginRequest = new AuthLoginRequest("testuser", "password123");
+            AuthLoginRequest loginRequest = new AuthLoginRequest("testuser", "Password123!");
 
             MvcResult result = mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -434,9 +434,9 @@ class SecurityIntegrationTest {
         @Test
         @DisplayName("Should include correct username in token")
         void login_tokenShouldContainCorrectUsername() throws Exception {
-            createUser("testuser", "test@example.com", "password123", customerRole);
+            createUser("testuser", "test@example.com", "Password123!", customerRole);
 
-            AuthLoginRequest loginRequest = new AuthLoginRequest("testuser", "password123");
+            AuthLoginRequest loginRequest = new AuthLoginRequest("testuser", "Password123!");
 
             MvcResult result = mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -454,9 +454,9 @@ class SecurityIntegrationTest {
         @Test
         @DisplayName("Should include authorities in token")
         void login_tokenShouldContainAuthorities() throws Exception {
-            createUser("testuser", "test@example.com", "password123", customerRole);
+            createUser("testuser", "test@example.com", "Password123!", customerRole);
 
-            AuthLoginRequest loginRequest = new AuthLoginRequest("testuser", "password123");
+            AuthLoginRequest loginRequest = new AuthLoginRequest("testuser", "Password123!");
 
             MvcResult result = mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -487,7 +487,7 @@ class SecurityIntegrationTest {
                     "Test",
                     "8-999-999999",
                     "newuser@example.com",
-                    "password123"
+                    "Password123!"
             );
 
             mockMvc.perform(post("/auth/signup")
@@ -495,7 +495,7 @@ class SecurityIntegrationTest {
                             .content(objectMapper.writeValueAsString(registerRequest)))
                     .andExpect(status().isCreated());
 
-            AuthLoginRequest loginRequest = new AuthLoginRequest("NewUser", "password123");
+            AuthLoginRequest loginRequest = new AuthLoginRequest("NewUser", "Password123!");
 
             mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -508,9 +508,9 @@ class SecurityIntegrationTest {
         @Test
         @DisplayName("Should access protected endpoint with token from login")
         void fullFlow_loginAndAccessProtectedEndpoint_shouldSucceed() throws Exception {
-            createUser("adminuser", "admin@example.com", "password123", adminRole);
+            createUser("adminuser", "admin@example.com", "Password123!", adminRole);
 
-            AuthLoginRequest loginRequest = new AuthLoginRequest("adminuser", "password123");
+            AuthLoginRequest loginRequest = new AuthLoginRequest("adminuser", "Password123!");
 
             MvcResult loginResult = mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -529,9 +529,9 @@ class SecurityIntegrationTest {
         @Test
         @DisplayName("Should deny access when using token from CUSTOMER for ADMIN endpoint")
         void fullFlow_customerTokenForAdminEndpoint_shouldFail() throws Exception {
-            createUser("customeruser", "customer@example.com", "password123", customerRole);
+            createUser("customeruser", "customer@example.com", "Password123!", customerRole);
 
-            AuthLoginRequest loginRequest = new AuthLoginRequest("customeruser", "password123");
+            AuthLoginRequest loginRequest = new AuthLoginRequest("customeruser", "Password123!");
 
             MvcResult loginResult = mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -556,7 +556,7 @@ class SecurityIntegrationTest {
         @DisplayName("Should reject or error request without Content-Type header for POST")
         void postEndpoint_shouldRejectWithoutContentType() throws Exception {
             mockMvc.perform(post("/auth/login")
-                            .content("{\"username\":\"test\",\"password\":\"password123\"}"))
+                            .content("{\"username\":\"test\",\"password\":\"Password123!\"}"))
                     .andExpect(status().is5xxServerError());
         }
 
@@ -565,7 +565,7 @@ class SecurityIntegrationTest {
         void postEndpoint_shouldRejectWrongContentType() throws Exception {
             mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.TEXT_PLAIN)
-                            .content("{\"username\":\"test\",\"password\":\"password123\"}"))
+                            .content("{\"username\":\"test\",\"password\":\"Password123!\"}"))
                     .andExpect(status().is5xxServerError());
         }
     }
