@@ -6,8 +6,6 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,18 +15,19 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Getter
-@Setter
 @Component
 public class JwtUtil {
+
     @Value("${security.jwt.key.secret}")
     private String privateKey;
 
     @Value("${security.jwt.user.generator}")
-    private String useGenerator;
+    private String issuer;
+
+    @Value("${security.jwt.expiration}")
+    private long expirationTime;
 
     public String generateToken(Authentication authentication) {
-        // Algorithm
         Algorithm algorithm = Algorithm.HMAC256(privateKey);
         String username = authentication.getPrincipal().toString();
         String authorities = authentication.getAuthorities().stream()
@@ -36,21 +35,21 @@ public class JwtUtil {
                 .collect(Collectors.joining(","));
 
         return JWT.create()
-                .withIssuer(this.useGenerator) // Emisor
-                .withSubject(username) // Usuario
-                .withClaim("authorities", authorities) // Permisos
-                .withIssuedAt(new Date()) // Fecha de emisión{
-                .withExpiresAt(new Date(System.currentTimeMillis() + 1800000)) // 30 minutes
-                .withJWTId(UUID.randomUUID().toString()) // Identificador único
-                .withNotBefore(new Date(System.currentTimeMillis())) // Entra en vigencia inmediatamente
-                .sign(algorithm); // Firma
+                .withIssuer(this.issuer)
+                .withSubject(username)
+                .withClaim("authorities", authorities)
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
+                .withJWTId(UUID.randomUUID().toString())
+                .withNotBefore(new Date(System.currentTimeMillis()))
+                .sign(algorithm);
     }
 
     public DecodedJWT validateToken(String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(privateKey);
             JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer(this.useGenerator)
+                    .withIssuer(this.issuer)
                     .build();
 
             return verifier.verify(token);

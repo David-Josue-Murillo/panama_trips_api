@@ -268,11 +268,11 @@ public class DataProvider {
      *
      */
     public static AuthCreateUserRequest userAuthCreateUserRequestMock() {
-        return new AuthCreateUserRequest("admin", "admin", "1-111-1111", "admin@example.com", "adminpassword");
+        return new AuthCreateUserRequest("admin", "admin", "1-111-1111", "admin@example.com", "Admin123!");
     }
 
     public static AuthLoginRequest userAuthLoginRequestMock() {
-        return new AuthLoginRequest("admin", "adminpassword");
+        return new AuthLoginRequest("admin", "Admin123!");
     }
 
     public static AuthResponse userAuthResponseMock() {

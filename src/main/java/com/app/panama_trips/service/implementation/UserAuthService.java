@@ -10,6 +10,8 @@ import com.app.panama_trips.presentation.dto.AuthResponse;
 import com.app.panama_trips.utility.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
+
+import java.util.regex.Pattern;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,6 +25,11 @@ import java.util.ArrayList;
 @Service
 @RequiredArgsConstructor
 public class UserAuthService {
+
+    // Password pattern: min 8 chars, at least 1 digit, 1 lowercase, 1 uppercase, 1 special char, no whitespace
+    private static final String PASSWORD_PATTERN =
+            "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$";
+    private static final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
 
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
@@ -65,7 +72,7 @@ public class UserAuthService {
                 .lastname(lastname)
                 .dni(dni)
                 .email(email)
-                .passwordHash(password)
+                .passwordHash(this.passwordEncoder.encode(password))
                 .role_id(this.roleRepository.findByRoleEnum(RoleEnum.valueOf(role)))
                 .build();
 
@@ -93,12 +100,23 @@ public class UserAuthService {
             throw new BadCredentialsException("Email is required");
         }
 
-        if(password == null || password.trim().isEmpty()) {
+        if(password == null || password.isBlank()) {
             throw new BadCredentialsException("Password is required");
         }
 
-        if(password.length() < 6) {
-            throw new BadCredentialsException("Password must be at least 6 characters long");
+        if(password.length() < 8) {
+            throw new BadCredentialsException("Password must be at least 8 characters long");
+        }
+
+        if(password.length() > 128) {
+            throw new BadCredentialsException("Password cannot exceed 128 characters");
+        }
+
+        if(!pattern.matcher(password).matches()) {
+            throw new BadCredentialsException(
+                "Password must contain at least: one digit, one lowercase letter, " +
+                "one uppercase letter, one special character (@#$%^&+=!), and no whitespace"
+            );
         }
     }
 

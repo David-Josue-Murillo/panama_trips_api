@@ -6,6 +6,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.Authentication;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collections;
 
@@ -21,8 +22,9 @@ public class JwtUtilTest {
     @BeforeEach
     void setUp() {
         this.jwtUtil = new JwtUtil();
-        this.jwtUtil.setPrivateKey("testPrivateKey");
-        this.jwtUtil.setUseGenerator("testIssuer");
+        ReflectionTestUtils.setField(jwtUtil, "privateKey", "testPrivateKey");
+        ReflectionTestUtils.setField(jwtUtil, "issuer", "testIssuer");
+        ReflectionTestUtils.setField(jwtUtil, "expirationTime", 1800000L);
         this.authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn("testUser");
         when(authentication.getAuthorities()).thenReturn(Collections.emptyList());

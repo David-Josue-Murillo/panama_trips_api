@@ -79,7 +79,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
         logger.warn("Bad credentials: {}", ex.getMessage());
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), "BAD_CREDENTIALS");
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), "BAD_CREDENTIALS");
     }
 
     @ExceptionHandler(UnauthorizedException.class)

@@ -384,7 +384,6 @@ public class TourFaqServiceTest {
         // Given
         Integer tourPlanId = 1;
         List<Integer> faqIdsInOrder = List.of(1, 2, 6); // Use FAQs that belong to tour plan 1
-        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
         when(repository.findById(1)).thenReturn(Optional.of(tourFaqOneMock()));
         when(repository.findById(2)).thenReturn(Optional.of(tourFaqTwoMock()));
         when(repository.findById(6)).thenReturn(Optional.of(tourFaqWithHighDisplayOrderMock()));
@@ -404,7 +403,6 @@ public class TourFaqServiceTest {
         // Given
         Integer tourPlanId = 1;
         List<Integer> faqIdsInOrder = List.of(999);
-        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
         when(repository.findById(999)).thenReturn(Optional.empty());
 
         // When/Then
@@ -421,7 +419,6 @@ public class TourFaqServiceTest {
         // Given
         Integer tourPlanId = 1;
         List<Integer> faqIdsInOrder = List.of(3);
-        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
         when(repository.findById(3)).thenReturn(Optional.of(tourFaqThreeMock()));
 
         // When/Then
