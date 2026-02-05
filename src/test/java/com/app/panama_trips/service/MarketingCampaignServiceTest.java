@@ -1,4 +1,4 @@
-package com.app.panama_trips.service.implementation;
+package com.app.panama_trips.service;
 
 import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.ResourceNotFoundException;
@@ -12,6 +12,8 @@ import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.persistence.repository.UserEntityRepository;
 import com.app.panama_trips.presentation.dto.MarketingCampaignRequest;
 import com.app.panama_trips.presentation.dto.MarketingCampaignResponse;
+import com.app.panama_trips.service.implementation.MarketingCampaignService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
