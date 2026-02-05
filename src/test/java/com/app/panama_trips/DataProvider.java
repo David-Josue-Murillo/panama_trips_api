@@ -2520,4 +2520,903 @@ public class DataProvider {
                 new MarketingCampaignResponse(marketingCampaignTwoMock()),
                 new MarketingCampaignResponse(marketingCampaignThreeMock()));
     }
+
+    // ===== MARKETING CAMPAIGN - REQUESTS VÁLIDOS =====
+
+    public static MarketingCampaignRequest marketingCampaignRequestValidMock() {
+        return new MarketingCampaignRequest(
+                "Valid Campaign",
+                "A valid marketing campaign description",
+                "Valid Audience",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("500.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                1000L,
+                List.of(1, 2, 3)
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestMinimalMock() {
+        return new MarketingCampaignRequest(
+                "Min",
+                null,
+                "A",
+                CampaignType.DISCOUNT,
+                CampaignStatus.ACTIVE,
+                BigDecimal.ZERO,
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                null,
+                null
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestMaxBudgetMock() {
+        return new MarketingCampaignRequest(
+                "Premium Campaign",
+                "High budget marketing campaign",
+                "Premium Audience",
+                CampaignType.BANNER,
+                CampaignStatus.DRAFT,
+                new BigDecimal("999999.99"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(90),
+                100000L,
+                List.of(1, 2, 3, 4, 5)
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestWithEmptyToursMock() {
+        return new MarketingCampaignRequest(
+                "Campaign No Tours",
+                "Campaign without tours",
+                "General Audience",
+                CampaignType.SOCIAL_MEDIA,
+                CampaignStatus.DRAFT,
+                new BigDecimal("250.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(15),
+                500L,
+                List.of()
+        );
+    }
+
+    // ===== MARKETING CAMPAIGN - REQUESTS INVÁLIDOS =====
+
+    public static MarketingCampaignRequest marketingCampaignRequestBlankNameMock() {
+        return new MarketingCampaignRequest(
+                "",
+                "Description",
+                "Audience",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("100.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                null,
+                null
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestNameTooShortMock() {
+        return new MarketingCampaignRequest(
+                "AB",
+                "Description",
+                "Audience",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("100.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                null,
+                null
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestNameTooLongMock() {
+        String longName = "A".repeat(256);
+        return new MarketingCampaignRequest(
+                longName,
+                "Description",
+                "Audience",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("100.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                null,
+                null
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestDescriptionTooLongMock() {
+        String longDescription = "X".repeat(1001);
+        return new MarketingCampaignRequest(
+                "Valid Name",
+                longDescription,
+                "Audience",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("100.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                null,
+                null
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestBlankAudienceMock() {
+        return new MarketingCampaignRequest(
+                "Valid Name",
+                "Description",
+                "",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("100.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                null,
+                null
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestAudienceTooLongMock() {
+        String longAudience = "X".repeat(51);
+        return new MarketingCampaignRequest(
+                "Valid Name",
+                "Description",
+                longAudience,
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("100.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                null,
+                null
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestNegativeBudgetMock() {
+        return new MarketingCampaignRequest(
+                "Valid Name",
+                "Description",
+                "Audience",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("-100.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                null,
+                null
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestStartDateInPastMock() {
+        return new MarketingCampaignRequest(
+                "Valid Name",
+                "Description",
+                "Audience",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("100.00"),
+                CAMPAIGN_NOW.minusDays(5),
+                CAMPAIGN_NOW.plusDays(30),
+                null,
+                null
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestEndDateInPastMock() {
+        return new MarketingCampaignRequest(
+                "Valid Name",
+                "Description",
+                "Audience",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("100.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.minusDays(5),
+                null,
+                null
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestEndDateBeforeStartDateMock() {
+        return new MarketingCampaignRequest(
+                "Valid Name",
+                "Description",
+                "Audience",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("100.00"),
+                CAMPAIGN_NOW.plusDays(30),
+                CAMPAIGN_NOW.plusDays(1),
+                null,
+                null
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestNegativeTargetClicksMock() {
+        return new MarketingCampaignRequest(
+                "Valid Name",
+                "Description",
+                "Audience",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("100.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                -5L,
+                null
+        );
+    }
+
+    // ===== MARKETING CAMPAIGN - REQUEST LISTS =====
+
+    public static List<MarketingCampaignRequest> marketingCampaignRequestListMock() {
+        return List.of(
+                marketingCampaignRequestValidMock(),
+                marketingCampaignRequestMaxBudgetMock(),
+                marketingCampaignRequestWithEmptyToursMock()
+        );
+    }
+
+    public static List<MarketingCampaignRequest> marketingCampaignRequestListEmptyMock() {
+        return List.of();
+    }
+
+    // ===== MARKETING CAMPAIGN ENTITY - ADDITIONAL STATES =====
+
+    public static MarketingCampaign marketingCampaignDraftMock() {
+        return MarketingCampaign.builder()
+                .id(1)
+                .name("Draft Campaign")
+                .description("A draft marketing campaign")
+                .type(CampaignType.SOCIAL_MEDIA)
+                .status(CampaignStatus.DRAFT)
+                .budget(new BigDecimal("1000.00"))
+                .targetAudience("Families")
+                .startDate(CAMPAIGN_NOW.plusDays(1))
+                .endDate(CAMPAIGN_NOW.plusDays(45))
+                .targetClicks(5000L)
+                .actualClicks(0L)
+                .coupon(null)
+                .createdBy(null)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .tours(List.of())
+                .build();
+    }
+
+    public static MarketingCampaign marketingCampaignActiveMock() {
+        return MarketingCampaign.builder()
+                .id(2)
+                .name("Active Campaign")
+                .description("An active marketing campaign")
+                .type(CampaignType.EMAIL)
+                .status(CampaignStatus.ACTIVE)
+                .budget(new BigDecimal("2000.00"))
+                .targetAudience("Professionals")
+                .startDate(CAMPAIGN_NOW.minusDays(5))
+                .endDate(CAMPAIGN_NOW.plusDays(25))
+                .targetClicks(10000L)
+                .actualClicks(3500L)
+                .coupon(null)
+                .createdBy(null)
+                .createdAt(LocalDateTime.now().minusDays(10))
+                .updatedAt(LocalDateTime.now())
+                .tours(List.of())
+                .build();
+    }
+
+    public static MarketingCampaign marketingCampaignCompletedMock() {
+        return MarketingCampaign.builder()
+                .id(3)
+                .name("Completed Campaign")
+                .description("A completed marketing campaign")
+                .type(CampaignType.DISCOUNT)
+                .status(CampaignStatus.COMPLETED)
+                .budget(new BigDecimal("500.00"))
+                .targetAudience("Couples")
+                .startDate(CAMPAIGN_NOW.minusDays(30))
+                .endDate(CAMPAIGN_NOW.minusDays(5))
+                .targetClicks(2000L)
+                .actualClicks(2000L)
+                .coupon(null)
+                .createdBy(null)
+                .createdAt(LocalDateTime.now().minusDays(40))
+                .updatedAt(LocalDateTime.now().minusDays(5))
+                .tours(List.of())
+                .build();
+    }
+
+    public static MarketingCampaign marketingCampaignPausedMock() {
+        return MarketingCampaign.builder()
+                .id(4)
+                .name("Paused Campaign")
+                .description("A paused marketing campaign")
+                .type(CampaignType.BANNER)
+                .status(CampaignStatus.PAUSED)
+                .budget(new BigDecimal("1500.00"))
+                .targetAudience("Students")
+                .startDate(CAMPAIGN_NOW.minusDays(10))
+                .endDate(CAMPAIGN_NOW.plusDays(20))
+                .targetClicks(5000L)
+                .actualClicks(1200L)
+                .coupon(null)
+                .createdBy(null)
+                .createdAt(LocalDateTime.now().minusDays(15))
+                .updatedAt(LocalDateTime.now().minusDays(2))
+                .tours(List.of())
+                .build();
+    }
+
+    public static MarketingCampaign marketingCampaignCancelledMock() {
+        return MarketingCampaign.builder()
+                .id(5)
+                .name("Cancelled Campaign")
+                .description("A cancelled marketing campaign")
+                .type(CampaignType.SOCIAL_MEDIA)
+                .status(CampaignStatus.CANCELLED)
+                .budget(new BigDecimal("750.00"))
+                .targetAudience("Adventurers")
+                .startDate(CAMPAIGN_NOW.minusDays(20))
+                .endDate(CAMPAIGN_NOW.plusDays(10))
+                .targetClicks(3000L)
+                .actualClicks(500L)
+                .coupon(null)
+                .createdBy(null)
+                .createdAt(LocalDateTime.now().minusDays(25))
+                .updatedAt(LocalDateTime.now().minusDays(3))
+                .tours(List.of())
+                .build();
+    }
+
+    public static List<MarketingCampaign> marketingCampaignListByStatusMock(CampaignStatus status) {
+        return switch (status) {
+            case DRAFT -> List.of(marketingCampaignDraftMock());
+            case ACTIVE -> List.of(marketingCampaignActiveMock());
+            case COMPLETED -> List.of(marketingCampaignCompletedMock());
+            case PAUSED -> List.of(marketingCampaignPausedMock());
+            case CANCELLED -> List.of(marketingCampaignCancelledMock());
+        };
+    }
+
+    public static List<MarketingCampaign> marketingCampaignListMixedStatusesMock() {
+        return List.of(
+                marketingCampaignDraftMock(),
+                marketingCampaignActiveMock(),
+                marketingCampaignCompletedMock(),
+                marketingCampaignPausedMock(),
+                marketingCampaignCancelledMock()
+        );
+    }
+
+    // ===== MARKETING CAMPAIGN RESPONSE - ADDITIONAL METHODS =====
+
+    public static MarketingCampaignResponse marketingCampaignResponseWithIdMock(Integer id) {
+        MarketingCampaign campaign = MarketingCampaign.builder()
+                .id(id)
+                .name("Campaign " + id)
+                .description("Campaign description " + id)
+                .type(CampaignType.EMAIL)
+                .status(CampaignStatus.ACTIVE)
+                .budget(new BigDecimal("1000.00"))
+                .targetAudience("Audience " + id)
+                .startDate(CAMPAIGN_NOW.plusDays(1))
+                .endDate(CAMPAIGN_NOW.plusDays(30))
+                .targetClicks(5000L)
+                .actualClicks(1500L)
+                .coupon(null)
+                .createdBy(null)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .tours(List.of())
+                .build();
+        return new MarketingCampaignResponse(campaign);
+    }
+
+    public static MarketingCampaignResponse marketingCampaignResponseDraftMock() {
+        return new MarketingCampaignResponse(marketingCampaignDraftMock());
+    }
+
+    public static MarketingCampaignResponse marketingCampaignResponseActiveMock() {
+        return new MarketingCampaignResponse(marketingCampaignActiveMock());
+    }
+
+    public static MarketingCampaignResponse marketingCampaignResponseCompletedMock() {
+        return new MarketingCampaignResponse(marketingCampaignCompletedMock());
+    }
+
+    public static MarketingCampaignResponse marketingCampaignResponsePausedMock() {
+        return new MarketingCampaignResponse(marketingCampaignPausedMock());
+    }
+
+    public static MarketingCampaignResponse marketingCampaignResponseCancelledMock() {
+        return new MarketingCampaignResponse(marketingCampaignCancelledMock());
+    }
+
+    public static List<MarketingCampaignResponse> marketingCampaignResponseListByStatusMock(CampaignStatus status) {
+        return marketingCampaignListByStatusMock(status).stream()
+                .map(MarketingCampaignResponse::new)
+                .toList();
+    }
+
+    public static List<MarketingCampaignResponse> marketingCampaignResponseListMixedStatusesMock() {
+        return marketingCampaignListMixedStatusesMock().stream()
+                .map(MarketingCampaignResponse::new)
+                .toList();
+    }
+
+    public static List<MarketingCampaignResponse> marketingCampaignResponseListActiveMock() {
+        return List.of(
+                marketingCampaignResponseActiveMock(),
+                new MarketingCampaignResponse(
+                        MarketingCampaign.builder()
+                                .id(10)
+                                .name("Active Campaign 2")
+                                .description("Another active campaign")
+                                .type(CampaignType.DISCOUNT)
+                                .status(CampaignStatus.ACTIVE)
+                                .budget(new BigDecimal("1500.00"))
+                                .targetAudience("Couples")
+                                .startDate(CAMPAIGN_NOW.minusDays(2))
+                                .endDate(CAMPAIGN_NOW.plusDays(28))
+                                .targetClicks(8000L)
+                                .actualClicks(2000L)
+                                .coupon(null)
+                                .createdBy(null)
+                                .createdAt(LocalDateTime.now().minusDays(5))
+                                .updatedAt(LocalDateTime.now())
+                                .tours(List.of())
+                                .build()
+                )
+        );
+    }
+
+    // ===== MARKETING CAMPAIGN - REQUESTS VÁLIDOS (ADICIONALES) =====
+
+    public static MarketingCampaignRequest marketingCampaignRequestWithZeroBudgetMock() {
+        return new MarketingCampaignRequest(
+                "Zero Budget Campaign",
+                "Campaign with zero budget",
+                "Students",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("0.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                0L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestWithZeroTargetClicksMock() {
+        return new MarketingCampaignRequest(
+                "No Clicks Campaign",
+                "Campaign with zero target clicks",
+                "All",
+                CampaignType.SOCIAL_MEDIA,
+                CampaignStatus.DRAFT,
+                new BigDecimal("2500.00"),
+                CAMPAIGN_NOW.plusDays(2),
+                CAMPAIGN_NOW.plusDays(20),
+                0L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestWithHighBudgetMock() {
+        return new MarketingCampaignRequest(
+                "High Budget Campaign",
+                "Enterprise level campaign",
+                "Fortune 500",
+                CampaignType.BANNER,
+                CampaignStatus.ACTIVE,
+                new BigDecimal("999999999.99"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(60),
+                1000000L,
+                List.of(1, 2, 3)
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestWithEmptyDescriptionMock() {
+        return new MarketingCampaignRequest(
+                "No Description Campaign",
+                "",
+                "Everyone",
+                CampaignType.DISCOUNT,
+                CampaignStatus.DRAFT,
+                new BigDecimal("1000.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                5000L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestWithStartDateTodayMock() {
+        LocalDateTime now = LocalDateTime.now().plusSeconds(30);
+        return new MarketingCampaignRequest(
+                "Today Start Campaign",
+                "Campaign starting today",
+                "Tourists",
+                CampaignType.EMAIL,
+                CampaignStatus.ACTIVE,
+                new BigDecimal("1500.00"),
+                now,
+                now.plusDays(15),
+                3000L,
+                List.of()
+        );
+    }
+
+    // ===== MARKETING CAMPAIGN - REQUESTS INVÁLIDOS (ADICIONALES) =====
+
+    public static MarketingCampaignRequest marketingCampaignRequestNameMinBoundaryMock() {
+        return new MarketingCampaignRequest(
+                "abc",
+                "Exactly 3 character name",
+                "Students",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("1000.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                5000L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestNameMaxBoundaryMock() {
+        String maxName = "N".repeat(255);
+        return new MarketingCampaignRequest(
+                maxName,
+                "Exactly 255 character name",
+                "Everyone",
+                CampaignType.SOCIAL_MEDIA,
+                CampaignStatus.DRAFT,
+                new BigDecimal("2000.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                5000L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestAudienceMaxBoundaryMock() {
+        String maxAudience = "A".repeat(50);
+        return new MarketingCampaignRequest(
+                "Max Audience Campaign",
+                "Campaign with maximum audience length",
+                maxAudience,
+                CampaignType.BANNER,
+                CampaignStatus.DRAFT,
+                new BigDecimal("1500.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                5000L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestDescriptionMaxBoundaryMock() {
+        String maxDesc = "D".repeat(1000);
+        return new MarketingCampaignRequest(
+                "Max Description Campaign",
+                maxDesc,
+                "Everyone",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("1000.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                5000L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestNullBudgetMock() {
+        return new MarketingCampaignRequest(
+                "Null Budget Campaign",
+                "Campaign with null budget",
+                "Students",
+                CampaignType.SOCIAL_MEDIA,
+                CampaignStatus.DRAFT,
+                null,
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                5000L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestStartDateNullMock() {
+        return new MarketingCampaignRequest(
+                "Null Start Date Campaign",
+                "Campaign with null start date",
+                "Everyone",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("1000.00"),
+                null,
+                CAMPAIGN_NOW.plusDays(30),
+                5000L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestEndDateNullMock() {
+        return new MarketingCampaignRequest(
+                "Null End Date Campaign",
+                "Campaign with null end date",
+                "Travelers",
+                CampaignType.BANNER,
+                CampaignStatus.DRAFT,
+                new BigDecimal("1500.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                null,
+                5000L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestNullTypeMock() {
+        return new MarketingCampaignRequest(
+                "Null Type Campaign",
+                "Campaign with null type",
+                "Everyone",
+                null,
+                CampaignStatus.DRAFT,
+                new BigDecimal("1000.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                5000L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestNullStatusMock() {
+        return new MarketingCampaignRequest(
+                "Null Status Campaign",
+                "Campaign with null status",
+                "Everyone",
+                CampaignType.EMAIL,
+                null,
+                new BigDecimal("1000.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                5000L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestBudgetMinBoundaryMock() {
+        return new MarketingCampaignRequest(
+                "Min Budget Campaign",
+                "Campaign with minimum allowed budget",
+                "Everyone",
+                CampaignType.SOCIAL_MEDIA,
+                CampaignStatus.DRAFT,
+                new BigDecimal("0.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                5000L,
+                List.of()
+        );
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestTargetClicksMaxBoundaryMock() {
+        return new MarketingCampaignRequest(
+                "Max Clicks Campaign",
+                "Campaign with maximum target clicks",
+                "Everyone",
+                CampaignType.EMAIL,
+                CampaignStatus.DRAFT,
+                new BigDecimal("1000.00"),
+                CAMPAIGN_NOW.plusDays(1),
+                CAMPAIGN_NOW.plusDays(30),
+                Long.MAX_VALUE,
+                List.of()
+        );
+    }
+
+    // ===== MARKETING CAMPAIGN - REQUEST LISTS =====
+
+    public static List<MarketingCampaignRequest> marketingCampaignRequestListValidMock() {
+        return List.of(
+                marketingCampaignRequestValidMock(),
+                marketingCampaignRequestMinimalMock(),
+                marketingCampaignRequestMaxBudgetMock()
+        );
+    }
+
+    public static List<MarketingCampaignRequest> marketingCampaignRequestListBulkMock() {
+        return List.of(
+                marketingCampaignRequestValidMock(),
+                marketingCampaignRequestMinimalMock(),
+                marketingCampaignRequestMaxBudgetMock(),
+                marketingCampaignRequestWithEmptyToursMock(),
+                marketingCampaignRequestWithZeroBudgetMock(),
+                marketingCampaignRequestWithEmptyDescriptionMock(),
+                marketingCampaignRequestWithHighBudgetMock(),
+                marketingCampaignRequestWithZeroTargetClicksMock(),
+                marketingCampaignRequestWithStartDateTodayMock(),
+                new MarketingCampaignRequest(
+                        "Bulk Campaign 10",
+                        "Tenth bulk campaign",
+                        "Bulk Audience",
+                        CampaignType.DISCOUNT,
+                        CampaignStatus.DRAFT,
+                        new BigDecimal("3000.00"),
+                        CAMPAIGN_NOW.plusDays(5),
+                        CAMPAIGN_NOW.plusDays(45),
+                        10000L,
+                        List.of()
+                )
+        );
+    }
+
+    public static List<MarketingCampaignRequest> marketingCampaignRequestListWithOneInvalidMock() {
+        return List.of(
+                marketingCampaignRequestValidMock(),
+                marketingCampaignRequestBlankNameMock(),
+                marketingCampaignRequestMaxBudgetMock()
+        );
+    }
+
+    // ===== MARKETING CAMPAIGN - ENTITIES (ADICIONALES) =====
+
+    public static MarketingCampaign marketingCampaignWithIdOneMock() {
+        return MarketingCampaign.builder()
+                .id(1)
+                .name("Campaign ID 1")
+                .description("Campaign with specific ID 1")
+                .budget(new BigDecimal("1000.00"))
+                .status(CampaignStatus.ACTIVE)
+                .type(CampaignType.EMAIL)
+                .targetAudience("Group A")
+                .startDate(CAMPAIGN_NOW.plusDays(1))
+                .endDate(CAMPAIGN_NOW.plusDays(30))
+                .targetClicks(5000L)
+                .actualClicks(1500L)
+                .createdBy(userAdmin())
+                .tours(List.of())
+                .createdAt(CAMPAIGN_NOW.minusDays(5))
+                .build();
+    }
+
+    public static MarketingCampaign marketingCampaignWithIdTwoMock() {
+        return MarketingCampaign.builder()
+                .id(2)
+                .name("Campaign ID 2")
+                .description("Campaign with specific ID 2")
+                .budget(new BigDecimal("2000.00"))
+                .status(CampaignStatus.ACTIVE)
+                .type(CampaignType.SOCIAL_MEDIA)
+                .targetAudience("Group B")
+                .startDate(CAMPAIGN_NOW.minusDays(5))
+                .endDate(CAMPAIGN_NOW.plusDays(20))
+                .targetClicks(8000L)
+                .actualClicks(3000L)
+                .createdBy(userAdmin())
+                .tours(List.of())
+                .createdAt(CAMPAIGN_NOW.minusDays(10))
+                .build();
+    }
+
+    public static MarketingCampaign marketingCampaignWithHighBudgetMock() {
+        return MarketingCampaign.builder()
+                .id(11)
+                .name("Premium Campaign")
+                .description("High budget enterprise campaign")
+                .budget(new BigDecimal("50000.00"))
+                .status(CampaignStatus.ACTIVE)
+                .type(CampaignType.BANNER)
+                .targetAudience("Enterprise")
+                .startDate(CAMPAIGN_NOW.plusDays(1))
+                .endDate(CAMPAIGN_NOW.plusDays(90))
+                .targetClicks(500000L)
+                .actualClicks(100000L)
+                .createdBy(userAdmin())
+                .tours(List.of())
+                .createdAt(CAMPAIGN_NOW.minusDays(20))
+                .build();
+    }
+
+    public static MarketingCampaign marketingCampaignWithZeroBudgetMock() {
+        return MarketingCampaign.builder()
+                .id(12)
+                .name("Free Campaign")
+                .description("Campaign with zero budget")
+                .budget(new BigDecimal("0.00"))
+                .status(CampaignStatus.DRAFT)
+                .type(CampaignType.EMAIL)
+                .targetAudience("Free Users")
+                .startDate(CAMPAIGN_NOW.plusDays(1))
+                .endDate(CAMPAIGN_NOW.plusDays(15))
+                .targetClicks(100L)
+                .actualClicks(0L)
+                .createdBy(userOperator())
+                .tours(List.of())
+                .createdAt(CAMPAIGN_NOW)
+                .build();
+    }
+
+    public static MarketingCampaign marketingCampaignWithZeroTargetClicksMock() {
+        return MarketingCampaign.builder()
+                .id(13)
+                .name("No Clicks Campaign")
+                .description("Campaign with zero target clicks")
+                .budget(new BigDecimal("1000.00"))
+                .status(CampaignStatus.PAUSED)
+                .type(CampaignType.DISCOUNT)
+                .targetAudience("Pause Test")
+                .startDate(CAMPAIGN_NOW.plusDays(2))
+                .endDate(CAMPAIGN_NOW.plusDays(10))
+                .targetClicks(0L)
+                .actualClicks(0L)
+                .createdBy(userOperator())
+                .tours(List.of())
+                .createdAt(CAMPAIGN_NOW.minusDays(3))
+                .build();
+    }
+
+    // ===== MARKETING CAMPAIGN - ENTITY LISTS (ADICIONALES) =====
+
+    public static List<MarketingCampaign> marketingCampaignListEmptyMock() {
+        return List.of();
+    }
+
+    public static List<MarketingCampaign> marketingCampaignListActiveMock() {
+        return List.of(
+                marketingCampaignActiveMock(),
+                marketingCampaignWithIdTwoMock()
+        );
+    }
+
+    public static List<MarketingCampaign> marketingCampaignListThreeItemsMock() {
+        return List.of(
+                marketingCampaignOneMock(),
+                marketingCampaignTwoMock(),
+                marketingCampaignThreeMock()
+        );
+    }
+
+    // ===== MARKETING CAMPAIGN - RESPONSES (ADICIONALES) =====
+
+    public static MarketingCampaignResponse marketingCampaignResponseWithIdOneMock() {
+        return new MarketingCampaignResponse(marketingCampaignWithIdOneMock());
+    }
+
+    public static MarketingCampaignResponse marketingCampaignResponseWithIdTwoMock() {
+        return new MarketingCampaignResponse(marketingCampaignWithIdTwoMock());
+    }
+
+    public static MarketingCampaignResponse marketingCampaignResponseWithHighBudgetMock() {
+        return new MarketingCampaignResponse(marketingCampaignWithHighBudgetMock());
+    }
+
+    public static MarketingCampaignResponse marketingCampaignResponseActivateStateMock() {
+        MarketingCampaign campaign = marketingCampaignDraftMock();
+        campaign.setStatus(CampaignStatus.ACTIVE);
+        return new MarketingCampaignResponse(campaign);
+    }
+
+    // ===== MARKETING CAMPAIGN - RESPONSE LISTS (ADICIONALES) =====
+
+    public static List<MarketingCampaignResponse> marketingCampaignResponseListEmptyMock() {
+        return List.of();
+    }
+
+    public static List<MarketingCampaignResponse> marketingCampaignResponseListThreeItemsMock() {
+        return List.of(
+                marketingCampaignResponseDraftMock(),
+                marketingCampaignResponseActiveMock(),
+                marketingCampaignResponseCompletedMock()
+        );
+    }
 }
