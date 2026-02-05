@@ -1,6 +1,8 @@
 package com.app.panama_trips;
 
 import com.app.panama_trips.persistence.entity.*;
+import com.app.panama_trips.persistence.entity.enums.CampaignStatus;
+import com.app.panama_trips.persistence.entity.enums.CampaignType;
 import com.app.panama_trips.presentation.dto.*;
 
 import java.math.BigDecimal;
@@ -2422,5 +2424,100 @@ public class DataProvider {
                 "Hotel Central, Casco Antiguo",
                 "Tour disponible todos los sábados."
         );
+    }
+
+    /*
+     * MarketingCampaign instances
+     */
+    private static final LocalDateTime CAMPAIGN_NOW = LocalDateTime.now();
+
+    public static MarketingCampaign marketingCampaignOneMock() {
+        return MarketingCampaign.builder()
+                .id(1)
+                .name("Campaign A")
+                .description("Desc A")
+                .budget(new BigDecimal("1000.00"))
+                .status(CampaignStatus.DRAFT)
+                .type(CampaignType.SOCIAL_MEDIA)
+                .targetAudience("Young Adults")
+                .startDate(CAMPAIGN_NOW.plusDays(1))
+                .endDate(CAMPAIGN_NOW.plusDays(30))
+                .targetClicks(100L)
+                .actualClicks(50L)
+                .createdBy(userAdmin())
+                .tours(List.of(tourPlanOneMock))
+                .createdAt(CAMPAIGN_NOW.minusDays(5))
+                .build();
+    }
+
+    public static MarketingCampaign marketingCampaignTwoMock() {
+        return MarketingCampaign.builder()
+                .id(2)
+                .name("Campaign B")
+                .description("Desc B")
+                .budget(new BigDecimal("2000.00"))
+                .status(CampaignStatus.ACTIVE)
+                .type(CampaignType.EMAIL)
+                .targetAudience("Professionals")
+                .startDate(CAMPAIGN_NOW.minusDays(5))
+                .endDate(CAMPAIGN_NOW.plusDays(20))
+                .targetClicks(200L)
+                .actualClicks(150L)
+                .createdBy(userAdmin())
+                .tours(List.of(tourPlanTwoMock))
+                .createdAt(CAMPAIGN_NOW.minusDays(10))
+                .build();
+    }
+
+    public static MarketingCampaign marketingCampaignThreeMock() {
+        return MarketingCampaign.builder()
+                .id(3)
+                .name("Campaign C")
+                .description("Desc C")
+                .budget(new BigDecimal("500.00"))
+                .status(CampaignStatus.COMPLETED)
+                .type(CampaignType.BANNER)
+                .targetAudience("Elderly")
+                .startDate(CAMPAIGN_NOW.minusDays(60))
+                .endDate(CAMPAIGN_NOW.minusDays(5))
+                .targetClicks(150L)
+                .actualClicks(160L)
+                .createdBy(userOperator())
+                .tours(List.of())
+                .createdAt(CAMPAIGN_NOW.minusDays(65))
+                .build();
+    }
+
+    public static List<MarketingCampaign> marketingCampaignListMock() {
+        return List.of(
+                marketingCampaignOneMock(),
+                marketingCampaignTwoMock(),
+                marketingCampaignThreeMock());
+    }
+
+    public static MarketingCampaignRequest marketingCampaignRequestMock() {
+        return new MarketingCampaignRequest(
+                "New Campaign",
+                "New Description",
+                "New Audience",
+                CampaignType.SOCIAL_MEDIA,
+                CampaignStatus.DRAFT,
+                new BigDecimal("5000.00"),
+                CAMPAIGN_NOW.plusDays(2),
+                CAMPAIGN_NOW.plusDays(45),
+                100L,
+                List.of(1, 2)
+        );
+    }
+
+    public static MarketingCampaignResponse marketingCampaignResponseMock() {
+        return new MarketingCampaignResponse(marketingCampaignOneMock());
+    }
+
+    public static List<MarketingCampaignResponse> marketingCampaignResponseListMock() {
+        return List.of(
+                new MarketingCampaignResponse(marketingCampaignOneMock()),
+                new MarketingCampaignResponse(marketingCampaignTwoMock()),
+                new MarketingCampaignResponse(marketingCampaignThreeMock()));
     }
 }
