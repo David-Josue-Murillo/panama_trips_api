@@ -66,7 +66,6 @@ class MarketingCampaignServiceTest {
     private MarketingCampaign campaign2;
     private MarketingCampaign campaign3;
     private UserEntity testUser;
-    private UserEntity anotherUser;
     private TourPlan tour1;
     private TourPlan tour2;
     private MarketingCampaignRequest validRequest;
@@ -78,7 +77,6 @@ class MarketingCampaignServiceTest {
 
         // Setup usuarios from DataProvider
         testUser = DataProvider.userAdmin();
-        anotherUser = DataProvider.userOperator();
 
         // Setup tours from DataProvider
         tour1 = DataProvider.tourPlanOneMock;
@@ -415,7 +413,6 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-039: findUpcomingCampaigns ordena por startDate ASC")
     void testFindUpcomingCampaigns_Ordered() {
         // Given
-        MarketingCampaign upcoming1 = campaign1;
         MarketingCampaign upcoming2 = MarketingCampaign.builder()
                 .id(4)
                 .name("Future Campaign")
@@ -577,6 +574,7 @@ class MarketingCampaignServiceTest {
         service.bulkUpdateStatus(List.of(10, 11), CampaignStatus.ACTIVE);
 
         // Then
+        @SuppressWarnings("unchecked")
         ArgumentCaptor<List<MarketingCampaign>> captor = ArgumentCaptor.forClass(List.class);
         verify(marketingCampaignRepository).saveAll(captor.capture());
         assertThat(captor.getValue())
@@ -609,6 +607,7 @@ class MarketingCampaignServiceTest {
         service.bulkIncrementClicks(List.of(1, 2));
 
         // Then
+        @SuppressWarnings("unchecked")
         ArgumentCaptor<List<MarketingCampaign>> captor = ArgumentCaptor.forClass(List.class);
         verify(marketingCampaignRepository).saveAll(captor.capture());
         assertThat(captor.getValue())
@@ -983,6 +982,7 @@ class MarketingCampaignServiceTest {
         service.recalculateCampaignStatus();
 
         // Then
+        @SuppressWarnings("unchecked")
         ArgumentCaptor<List<MarketingCampaign>> captor = ArgumentCaptor.forClass(List.class);
         verify(marketingCampaignRepository).saveAll(captor.capture());
         assertThat(captor.getValue())
@@ -1156,6 +1156,7 @@ class MarketingCampaignServiceTest {
         service.bulkIncrementClicks(List.of(1, 1));
 
         // Then
+        @SuppressWarnings("unchecked")
         ArgumentCaptor<List<MarketingCampaign>> captor = ArgumentCaptor.forClass(List.class);
         verify(marketingCampaignRepository).saveAll(captor.capture());
         assertThat(captor.getValue()).hasSize(2);
