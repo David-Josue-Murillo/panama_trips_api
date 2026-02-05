@@ -1,5 +1,6 @@
 package com.app.panama_trips.service.implementation;
 
+import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.MarketingCampaign;
 import com.app.panama_trips.persistence.entity.TourPlan;
@@ -73,93 +74,21 @@ class MarketingCampaignServiceTest {
     void setUp() {
         now = LocalDateTime.now();
 
-        // Setup usuarios
-        testUser = UserEntity.builder()
-                .id(1L)
-                .email("user@test.com")
-                .name("Test User")
-                .build();
+        // Setup usuarios from DataProvider
+        testUser = DataProvider.userAdmin();
+        anotherUser = DataProvider.userOperator();
 
-        anotherUser = UserEntity.builder()
-                .id(2L)
-                .email("another@test.com")
-                .name("Another User")
-                .build();
+        // Setup tours from DataProvider
+        tour1 = DataProvider.tourPlanOneMock;
+        tour2 = DataProvider.tourPlanTwoMock;
 
-        // Setup tours
-        tour1 = TourPlan.builder()
-                .id(101)
-                .build();
+        // Setup campañas from DataProvider
+        campaign1 = DataProvider.marketingCampaignOneMock();
+        campaign2 = DataProvider.marketingCampaignTwoMock();
+        campaign3 = DataProvider.marketingCampaignThreeMock();
 
-        tour2 = TourPlan.builder()
-                .id(102)
-                .build();
-
-        // Setup campañas
-        campaign1 = MarketingCampaign.builder()
-                .id(1)
-                .name("Campaign A")
-                .description("Desc A")
-                .budget(new BigDecimal("1000.00"))
-                .status(CampaignStatus.DRAFT)
-                .type(CampaignType.SOCIAL_MEDIA)
-                .targetAudience("Young Adults")
-                .startDate(now.plusDays(1))
-                .endDate(now.plusDays(30))
-                .targetClicks(100L)
-                .actualClicks(50L)
-                .createdBy(testUser)
-                .tours(List.of(tour1))
-                .createdAt(now.minusDays(5))
-                .build();
-
-        campaign2 = MarketingCampaign.builder()
-                .id(2)
-                .name("Campaign B")
-                .description("Desc B")
-                .budget(new BigDecimal("2000.00"))
-                .status(CampaignStatus.ACTIVE)
-                .type(CampaignType.EMAIL)
-                .targetAudience("Professionals")
-                .startDate(now.minusDays(5))
-                .endDate(now.plusDays(20))
-                .targetClicks(200L)
-                .actualClicks(150L)
-                .createdBy(testUser)
-                .tours(List.of(tour2))
-                .createdAt(now.minusDays(10))
-                .build();
-
-        campaign3 = MarketingCampaign.builder()
-                .id(3)
-                .name("Campaign C")
-                .description("Desc C")
-                .budget(new BigDecimal("500.00"))
-                .status(CampaignStatus.COMPLETED)
-                .type(CampaignType.BANNER)
-                .targetAudience("Elderly")
-                .startDate(now.minusDays(60))
-                .endDate(now.minusDays(5))
-                .targetClicks(150L)
-                .actualClicks(160L)
-                .createdBy(anotherUser)
-                .tours(List.of())
-                .createdAt(now.minusDays(65))
-                .build();
-
-        // Request válido
-        validRequest = new MarketingCampaignRequest(
-                "New Campaign",
-                "New Description",
-                "New Audience",
-                CampaignType.SOCIAL_MEDIA,
-                CampaignStatus.DRAFT,
-                new BigDecimal("5000.00"),
-                now.plusDays(2),
-                now.plusDays(45),
-                100L,
-                List.of(101, 102)
-        );
+        // Request válido from DataProvider
+        validRequest = DataProvider.marketingCampaignRequestMock();
     }
 
     // ==================== GRUPO 1: CRUD BÁSICO ====================
@@ -235,14 +164,14 @@ class MarketingCampaignServiceTest {
         when(marketingCampaignRepository.existsByNameIgnoreCase(validRequest.name())).thenReturn(false);
         SecurityContext context = mock(SecurityContext.class);
         Authentication auth = mock(Authentication.class);
-        when(auth.getName()).thenReturn("user@test.com");
+        when(auth.getName()).thenReturn("admin@example.com");
         when(context.getAuthentication()).thenReturn(auth);
 
         try (var securityMock = mockStatic(SecurityContextHolder.class)) {
             securityMock.when(SecurityContextHolder::getContext).thenReturn(context);
-            when(userEntityRepository.findUserEntitiesByEmail("user@test.com")).thenReturn(Optional.of(testUser));
-            when(tourPlanRepository.findById(101)).thenReturn(Optional.of(tour1));
-            when(tourPlanRepository.findById(102)).thenReturn(Optional.of(tour2));
+            when(userEntityRepository.findUserEntitiesByEmail("admin@example.com")).thenReturn(Optional.of(testUser));
+            when(tourPlanRepository.findById(1)).thenReturn(Optional.of(tour1));
+            when(tourPlanRepository.findById(2)).thenReturn(Optional.of(tour2));
 
             MarketingCampaign savedCampaign = campaign1;
             savedCampaign.setName(validRequest.name());
@@ -311,8 +240,8 @@ class MarketingCampaignServiceTest {
 
         when(marketingCampaignRepository.findById(1)).thenReturn(Optional.of(campaign1));
         when(marketingCampaignRepository.existsByNameIgnoreCase("Updated Name")).thenReturn(false);
-        when(tourPlanRepository.findById(101)).thenReturn(Optional.of(tour1));
-        when(tourPlanRepository.findById(102)).thenReturn(Optional.of(tour2));
+        when(tourPlanRepository.findById(1)).thenReturn(Optional.of(tour1));
+        when(tourPlanRepository.findById(2)).thenReturn(Optional.of(tour2));
         when(marketingCampaignRepository.save(any(MarketingCampaign.class))).thenReturn(campaign1);
 
         // When
@@ -565,12 +494,12 @@ class MarketingCampaignServiceTest {
         List<MarketingCampaignRequest> requests = List.of(validRequest);
         SecurityContext context = mock(SecurityContext.class);
         Authentication auth = mock(Authentication.class);
-        when(auth.getName()).thenReturn("user@test.com");
+        when(auth.getName()).thenReturn("admin@example.com");
         when(context.getAuthentication()).thenReturn(auth);
 
         try (var securityMock = mockStatic(SecurityContextHolder.class)) {
             securityMock.when(SecurityContextHolder::getContext).thenReturn(context);
-            when(userEntityRepository.findUserEntitiesByEmail("user@test.com")).thenReturn(Optional.of(testUser));
+            when(userEntityRepository.findUserEntitiesByEmail("admin@example.com")).thenReturn(Optional.of(testUser));
             when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tour1));
             when(marketingCampaignRepository.saveAll(anyList())).thenReturn(List.of(campaign1));
 
@@ -1565,16 +1494,16 @@ class MarketingCampaignServiceTest {
         when(marketingCampaignRepository.existsByNameIgnoreCase(validRequest.name())).thenReturn(false);
         SecurityContext context = mock(SecurityContext.class);
         Authentication auth = mock(Authentication.class);
-        when(auth.getName()).thenReturn("user@test.com");
+        when(auth.getName()).thenReturn("admin@example.com");
         when(context.getAuthentication()).thenReturn(auth);
 
         try (var securityMock = mockStatic(SecurityContextHolder.class)) {
             securityMock.when(SecurityContextHolder::getContext).thenReturn(context);
-            when(userEntityRepository.findUserEntitiesByEmail("user@test.com")).thenReturn(Optional.of(testUser));
+            when(userEntityRepository.findUserEntitiesByEmail("admin@example.com")).thenReturn(Optional.of(testUser));
             when(tourPlanRepository.findById(anyInt())).thenAnswer(invocation -> {
                 int id = invocation.getArgument(0);
-                if (id == 101) return Optional.of(tour1);
-                if (id == 102) return Optional.of(tour2);
+                if (id == 1) return Optional.of(tour1);
+                if (id == 2) return Optional.of(tour2);
                 return Optional.empty();  // No existe
             });
 
