@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 
 @Service
@@ -37,6 +38,7 @@ public class UserAuthService {
     private final UserEntityRepository userEntityRepository;
     private final RoleRepository roleRepository;
 
+    @Transactional(readOnly = true)
     public AuthResponse login (AuthLoginRequest authLoginRequest) {
 
         String username = authLoginRequest.username();
@@ -49,6 +51,7 @@ public class UserAuthService {
         return new AuthResponse(username, "Logged in successfully", token, true);
     }
 
+    @Transactional
     public AuthResponse create(AuthCreateUserRequest authCreateUserRequest) {
         // Get dara from the request
         String name = authCreateUserRequest.name();

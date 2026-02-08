@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,12 +25,14 @@ public class TourPlanService implements ITourPlanService {
     private final ProviderRepository providerRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TourPlanResponse> getAllTourPlan(Pageable pageable) {
         return this.tourPlanRepository.findAll(pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TourPlanResponse getTourPlanById(Integer id) {
         return this.tourPlanRepository.findById(id)
                 .map(TourPlanResponse::new)
@@ -37,6 +40,7 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
+    @Transactional
     public TourPlanResponse saveTourPlan(TourPlanRequest tourPlanRequest) {
         validateProvider(tourPlanRequest);
         TourPlan newTourPlan = builderTourPlanFromRequest(tourPlanRequest);
@@ -44,6 +48,7 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
+    @Transactional
     public TourPlanResponse updateTourPlan(Integer id, TourPlanRequest tourPlanRequest) {
         TourPlan tourPlan = this.tourPlanRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tour Plan with id " + id + " not found"));
@@ -52,6 +57,7 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
+    @Transactional
     public void deleteTourPlan(Integer id) {
         if(!this.tourPlanRepository.existsById(id)){
             throw new ResourceNotFoundException("Tour Plan with id " + id + " not found");
@@ -61,6 +67,7 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TourPlanResponse getTourPlanByTitle(String title) {
         return this.tourPlanRepository.findByTitleIgnoreCase(title)
                 .map(TourPlanResponse::new)
@@ -68,6 +75,7 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanResponse> getTourPlanByPrice(BigDecimal price) {
         return this.tourPlanRepository.findByPrice(price)
                 .stream()
@@ -76,12 +84,14 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TourPlanResponse> getTourPlanByPriceBetween(BigDecimal priceAfter, BigDecimal priceBefore, Pageable pageable) {
         return this.tourPlanRepository.findByPriceBetween(priceAfter, priceBefore, pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanResponse> getTourPlanByDuration(Integer duration) {
         return this.tourPlanRepository.findByDuration(duration)
                 .stream()
@@ -90,12 +100,14 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TourPlanResponse> getTourPlanByDurationBetween(Integer durationAfter, Integer durationBefore, Pageable pageable) {
         return this.tourPlanRepository.findByDurationBetween(durationAfter, durationBefore, pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanResponse> getTourPlanByAvailableSpots(Integer availableSpots) {
         return this.tourPlanRepository.findByAvailableSpots(availableSpots)
                 .stream()
@@ -104,12 +116,14 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TourPlanResponse> getTourPlanByAvailableSpotsBetween(Integer availableSpotsAfter, Integer availableSpotsBefore, Pageable pageable) {
         return this.tourPlanRepository.findByAvailableSpotsBetween(availableSpotsAfter, availableSpotsBefore, pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanResponse> getTourPlanByProviderId(Integer providerId) {
         return this.tourPlanRepository.findByProvider_Id(providerId)
                 .stream()
@@ -118,6 +132,7 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanResponse> getTourPlanByTitleAndPrice(String title, BigDecimal price) {
         return this.tourPlanRepository.findByTitleContainingIgnoreCaseAndPrice(title, price)
                 .stream()
@@ -126,18 +141,21 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TourPlanResponse> getTourPlanByTitleAndPriceBetween(String title, BigDecimal priceAfter, BigDecimal priceBefore, Pageable pageable) {
         return this.tourPlanRepository.findByTitleContainingIgnoreCaseAndPriceBetween(title, priceAfter, priceBefore, pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TourPlanResponse> getTourPlanByTitleAndPriceBetweenAndDurationBetween(String title, BigDecimal priceAfter, BigDecimal priceBefore, Integer durationAfter, Integer durationBefore, Pageable pageable) {
         return this.tourPlanRepository.findByTitleContainingIgnoreCaseAndPriceBetweenAndDurationBetween(title, priceAfter, priceBefore, durationAfter, durationBefore, pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourPlanResponse> getTop10TourPlanByTitleContaining(String keyword, Pageable pageable) {
         return this.tourPlanRepository.findTop10ByTitleContainingIgnoreCaseOrderByTitleAsc(keyword, pageable)
                 .stream()
@@ -146,11 +164,13 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsTourPlanByTitle(String title) {
         return this.tourPlanRepository.existsByTitleIgnoreCase(title);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countTourPlan() {
         return this.tourPlanRepository.count();
     }

@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AuditLogServiceTest {
-
+    
     @Mock
     private AuditLogRepository repository;
 
