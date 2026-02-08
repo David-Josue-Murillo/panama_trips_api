@@ -119,7 +119,7 @@ public interface IAuditLogService {
 
     // Utility operations
     void cleanupOldAuditLogs(int daysToKeep);
-    void archiveAuditLogs(LocalDateTime beforeDate);
+    void deleteOldAuditLogs(LocalDateTime beforeDate);
     List<AuditLog> searchAuditLogsByKeyword(String keyword);
     List<AuditLog> searchAuditLogsByUserAgent(String userAgent);
     Optional<AuditLog> findLatestAuditLogByEntity(String entityType, Integer entityId);
