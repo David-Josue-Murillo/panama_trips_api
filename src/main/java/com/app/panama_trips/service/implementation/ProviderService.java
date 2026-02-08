@@ -11,7 +11,8 @@ import com.app.panama_trips.persistence.repository.ProviderRepository;
 import com.app.panama_trips.persistence.repository.ProvinceRepository;
 import com.app.panama_trips.presentation.dto.ProviderRequest;
 import com.app.panama_trips.presentation.dto.ProviderResponse;
-import com.app.panama_trips.service.interfaces.IProvideService;
+import com.app.panama_trips.service.interfaces.IProviderService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ProviderService implements IProvideService {
+public class ProviderService implements IProviderService {
 
     private final ProviderRepository providerRepository;
     private final ProvinceRepository provinceRepository;
