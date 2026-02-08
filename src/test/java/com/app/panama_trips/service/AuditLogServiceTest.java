@@ -12,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,8 +22,10 @@ import org.springframework.data.domain.Pageable;
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.AuditLog;
 import com.app.panama_trips.persistence.entity.UserEntity;
+import com.app.panama_trips.persistence.entity.enums.AuditAction;
 import com.app.panama_trips.persistence.repository.AuditLogRepository;
 import com.app.panama_trips.service.implementation.AuditLogService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.app.panama_trips.DataProvider.*;
 
@@ -31,9 +34,12 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AuditLogServiceTest {
-    
+
     @Mock
     private AuditLogRepository repository;
+
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
     private AuditLogService service;
@@ -309,7 +315,7 @@ public class AuditLogServiceTest {
     void findByUserId_shouldReturnMatchingLogs() {
         // Given
         Integer userId = 1;
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+        when(repository.findByUser_Id(1L)).thenReturn(auditLogListByUserMock());
 
         // When
         List<AuditLog> result = service.findByUserId(userId);
@@ -317,7 +323,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(2, result.size());
-        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).findByUser_Id(1L);
     }
 
     @Test
@@ -388,11 +394,14 @@ public class AuditLogServiceTest {
     }
 
     @Test
-    @DisplayName("Should find audit logs by entity type using stream filtering")
+    @DisplayName("Should find audit logs by entity type")
     void findByEntityType_shouldReturnMatchingLogs() {
         // Given
         String entityType = "Reservation";
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> expectedLogs = auditLogs.stream()
+                .filter(log -> entityType.equals(log.getEntityType()))
+                .toList();
+        when(repository.findByEntityType(entityType)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.findByEntityType(entityType);
@@ -400,15 +409,18 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> entityType.equals(log.getEntityType())));
-        verify(repository).findAll();
+        verify(repository).findByEntityType(entityType);
     }
 
     @Test
-    @DisplayName("Should find audit logs by entity id using stream filtering")
+    @DisplayName("Should find audit logs by entity id")
     void findByEntityId_shouldReturnMatchingLogs() {
         // Given
         Integer entityId = 1;
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> expectedLogs = auditLogs.stream()
+                .filter(log -> entityId.equals(log.getEntityId()))
+                .toList();
+        when(repository.findByEntityId(entityId)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.findByEntityId(entityId);
@@ -416,7 +428,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> entityId.equals(log.getEntityId())));
-        verify(repository).findAll();
+        verify(repository).findByEntityId(entityId);
     }
 
     @Test
@@ -424,7 +436,10 @@ public class AuditLogServiceTest {
     void findByUserAndAction_shouldReturnMatchingLogs() {
         // Given
         String action = "CREATE";
-        when(repository.findByUser(user)).thenReturn(auditLogListByUserMock());
+        List<AuditLog> expectedLogs = auditLogListByUserMock().stream()
+                .filter(log -> action.equals(log.getAction()))
+                .toList();
+        when(repository.findByUser_IdAndAction(user.getId(), action)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.findByUserAndAction(user, action);
@@ -432,7 +447,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> action.equals(log.getAction())));
-        verify(repository).findByUser(user);
+        verify(repository).findByUser_IdAndAction(user.getId(), action);
     }
 
     @Test
@@ -440,7 +455,10 @@ public class AuditLogServiceTest {
     void findByUserAndEntityType_shouldReturnMatchingLogs() {
         // Given
         String entityType = "User";
-        when(repository.findByUser(user)).thenReturn(auditLogListByUserMock());
+        List<AuditLog> expectedLogs = auditLogListByUserMock().stream()
+                .filter(log -> entityType.equals(log.getEntityType()))
+                .toList();
+        when(repository.findByUser_IdAndEntityType(user.getId(), entityType)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.findByUserAndEntityType(user, entityType);
@@ -448,7 +466,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> entityType.equals(log.getEntityType())));
-        verify(repository).findByUser(user);
+        verify(repository).findByUser_IdAndEntityType(user.getId(), entityType);
     }
 
     @Test
@@ -457,14 +475,14 @@ public class AuditLogServiceTest {
         // Given
         String action = "CREATE";
         String entityType = "User";
-        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+        when(repository.findByActionAndEntityType(action, entityType)).thenReturn(auditLogListByActionMock());
 
         // When
         List<AuditLog> result = service.findByActionAndEntityType(action, entityType);
 
         // Then
         assertNotNull(result);
-        verify(repository).findByAction(action);
+        verify(repository).findByActionAndEntityType(action, entityType);
     }
 
     @Test
@@ -472,7 +490,10 @@ public class AuditLogServiceTest {
     void findByTimestampAfter_shouldReturnMatchingLogs() {
         // Given
         LocalDateTime timestamp = LocalDateTime.now().minusDays(1);
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> expectedLogs = auditLogs.stream()
+                .filter(log -> log.getActionTimestamp().isAfter(timestamp))
+                .toList();
+        when(repository.findByActionTimestampAfter(timestamp)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.findByTimestampAfter(timestamp);
@@ -480,7 +501,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isAfter(timestamp)));
-        verify(repository).findAll();
+        verify(repository).findByActionTimestampAfter(timestamp);
     }
 
     @Test
@@ -488,7 +509,10 @@ public class AuditLogServiceTest {
     void findByTimestampBefore_shouldReturnMatchingLogs() {
         // Given
         LocalDateTime timestamp = LocalDateTime.now().plusDays(1);
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> expectedLogs = auditLogs.stream()
+                .filter(log -> log.getActionTimestamp().isBefore(timestamp))
+                .toList();
+        when(repository.findByActionTimestampBefore(timestamp)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.findByTimestampBefore(timestamp);
@@ -496,7 +520,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isBefore(timestamp)));
-        verify(repository).findAll();
+        verify(repository).findByActionTimestampBefore(timestamp);
     }
 
     // Business Logic Operations Tests
@@ -505,7 +529,7 @@ public class AuditLogServiceTest {
     void getRecentActivity_shouldReturnRecentActivityWithLimit() {
         // Given
         int limit = 3;
-        when(repository.findAll()).thenReturn(auditLogs);
+        when(repository.findRecentActivity(PageRequest.of(0, limit))).thenReturn(auditLogListRecentMock());
 
         // When
         List<AuditLog> result = service.getRecentActivity(limit);
@@ -513,7 +537,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.size() <= limit);
-        verify(repository).findAll();
+        verify(repository).findRecentActivity(PageRequest.of(0, limit));
     }
 
     @Test
@@ -538,7 +562,7 @@ public class AuditLogServiceTest {
     void getActivityByUser_shouldReturnUserActivity() {
         // Given
         Integer userId = 1;
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+        when(repository.findByUser_Id(1L)).thenReturn(auditLogListByUserMock());
 
         // When
         List<AuditLog> result = service.getActivityByUser(userId);
@@ -546,7 +570,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(2, result.size());
-        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).findByUser_Id(1L);
     }
 
     @Test
@@ -554,7 +578,10 @@ public class AuditLogServiceTest {
     void getActivityByEntityType_shouldReturnEntityTypeActivity() {
         // Given
         String entityType = "User";
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> expectedLogs = auditLogs.stream()
+                .filter(log -> entityType.equals(log.getEntityType()))
+                .toList();
+        when(repository.findByEntityType(entityType)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.getActivityByEntityType(entityType);
@@ -562,7 +589,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> entityType.equals(log.getEntityType())));
-        verify(repository).findAll();
+        verify(repository).findByEntityType(entityType);
     }
 
     @Test
@@ -604,16 +631,15 @@ public class AuditLogServiceTest {
         Integer userId = 1;
         LocalDateTime startDate = LocalDateTime.now().minusDays(1);
         LocalDateTime endDate = LocalDateTime.now().plusDays(1);
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+        when(repository.findByUser_IdAndActionTimestampBetween(1L, startDate, endDate))
+                .thenReturn(auditLogListByUserMock());
 
         // When
         List<AuditLog> result = service.getActivityByUserAndDateRange(userId, startDate, endDate);
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isAfter(startDate) &&
-                log.getActionTimestamp().isBefore(endDate)));
-        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).findByUser_IdAndActionTimestampBetween(1L, startDate, endDate);
     }
 
     @Test
@@ -624,16 +650,15 @@ public class AuditLogServiceTest {
         Integer entityId = 1;
         LocalDateTime startDate = LocalDateTime.now().minusDays(1);
         LocalDateTime endDate = LocalDateTime.now().plusDays(1);
-        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+        when(repository.findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate, endDate))
+                .thenReturn(auditLogListByUserMock());
 
         // When
         List<AuditLog> result = service.getActivityByEntityAndDateRange(entityType, entityId, startDate, endDate);
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isAfter(startDate) &&
-                log.getActionTimestamp().isBefore(endDate)));
-        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+        verify(repository).findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate, endDate);
     }
 
     // Advanced Queries Tests
@@ -643,7 +668,10 @@ public class AuditLogServiceTest {
         // Given
         String entityType = "User";
         int limit = 2;
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> expectedLogs = auditLogs.stream()
+                .filter(log -> entityType.equals(log.getEntityType()))
+                .toList();
+        when(repository.findRecentActivityByEntityType(entityType, LocalDateTime.MIN)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.getRecentActivityByEntityType(entityType, limit);
@@ -651,8 +679,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.size() <= limit);
-        assertTrue(result.stream().allMatch(log -> entityType.equals(log.getEntityType())));
-        verify(repository).findAll();
+        verify(repository).findRecentActivityByEntityType(entityType, LocalDateTime.MIN);
     }
 
     @Test
@@ -660,7 +687,10 @@ public class AuditLogServiceTest {
     void getActivityByUserAgent_shouldReturnMatchingActivity() {
         // Given
         String userAgent = "Mozilla/5.0";
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> expectedLogs = auditLogs.stream()
+                .filter(log -> userAgent.equals(log.getUserAgent()))
+                .toList();
+        when(repository.findByUserAgent(userAgent)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.getActivityByUserAgent(userAgent);
@@ -668,7 +698,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> userAgent.equals(log.getUserAgent())));
-        verify(repository).findAll();
+        verify(repository).findByUserAgent(userAgent);
     }
 
     @Test
@@ -676,16 +706,17 @@ public class AuditLogServiceTest {
     void getActivityByUserAgentContaining_shouldReturnMatchingActivity() {
         // Given
         String userAgentPattern = "Mozilla";
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> expectedLogs = auditLogs.stream()
+                .filter(log -> log.getUserAgent() != null && log.getUserAgent().contains(userAgentPattern))
+                .toList();
+        when(repository.findByUserAgentContaining(userAgentPattern)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.getActivityByUserAgentContaining(userAgentPattern);
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream()
-                .allMatch(log -> log.getUserAgent() != null && log.getUserAgent().contains(userAgentPattern)));
-        verify(repository).findAll();
+        verify(repository).findByUserAgentContaining(userAgentPattern);
     }
 
     @Test
@@ -695,16 +726,15 @@ public class AuditLogServiceTest {
         String ipAddress = "192.168.1.1";
         LocalDateTime startDate = LocalDateTime.now().minusDays(1);
         LocalDateTime endDate = LocalDateTime.now().plusDays(1);
-        when(repository.findByIpAddress(ipAddress)).thenReturn(auditLogs);
+        when(repository.findByIpAddressAndActionTimestampBetween(ipAddress, startDate, endDate))
+                .thenReturn(auditLogs);
 
         // When
         List<AuditLog> result = service.getActivityByIpAddressAndDateRange(ipAddress, startDate, endDate);
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isAfter(startDate) &&
-                log.getActionTimestamp().isBefore(endDate)));
-        verify(repository).findByIpAddress(ipAddress);
+        verify(repository).findByIpAddressAndActionTimestampBetween(ipAddress, startDate, endDate);
     }
 
     @Test
@@ -714,14 +744,15 @@ public class AuditLogServiceTest {
         String action = "CREATE";
         LocalDateTime startDate = LocalDateTime.now().minusDays(1);
         LocalDateTime endDate = LocalDateTime.now().plusDays(1);
-        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+        when(repository.findByActionAndActionTimestampBetween(action, startDate, endDate))
+                .thenReturn(auditLogListByActionMock());
 
         // When
         List<AuditLog> result = service.getActivityByActionAndDateRange(action, startDate, endDate);
 
         // Then
         assertNotNull(result);
-        verify(repository).findByAction(action);
+        verify(repository).findByActionAndActionTimestampBetween(action, startDate, endDate);
     }
 
     @Test
@@ -730,14 +761,14 @@ public class AuditLogServiceTest {
         // Given
         String entityType = "User";
         String action = "CREATE";
-        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+        when(repository.findByActionAndEntityType(action, entityType)).thenReturn(auditLogListByActionMock());
 
         // When
         List<AuditLog> result = service.getActivityByEntityTypeAndAction(entityType, action);
 
         // Then
         assertNotNull(result);
-        verify(repository).findByAction(action);
+        verify(repository).findByActionAndEntityType(action, entityType);
     }
 
     @Test
@@ -746,7 +777,10 @@ public class AuditLogServiceTest {
         // Given
         Integer userId = 1;
         String action = "CREATE";
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+        List<AuditLog> expectedLogs = auditLogListByUserMock().stream()
+                .filter(log -> action.equals(log.getAction()))
+                .toList();
+        when(repository.findByUser_IdAndAction(1L, action)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.getActivityByUserAndAction(userId, action);
@@ -754,7 +788,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> action.equals(log.getAction())));
-        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).findByUser_IdAndAction(1L, action);
     }
 
     @Test
@@ -763,7 +797,10 @@ public class AuditLogServiceTest {
         // Given
         Integer userId = 1;
         String entityType = "User";
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+        List<AuditLog> expectedLogs = auditLogListByUserMock().stream()
+                .filter(log -> entityType.equals(log.getEntityType()))
+                .toList();
+        when(repository.findByUser_IdAndEntityType(1L, entityType)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.getActivityByUserAndEntityType(userId, entityType);
@@ -771,7 +808,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> entityType.equals(log.getEntityType())));
-        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).findByUser_IdAndEntityType(1L, entityType);
     }
 
     // Bulk Operations Tests
@@ -810,16 +847,12 @@ public class AuditLogServiceTest {
     void bulkDeleteAuditLogsByEntityType_success() {
         // Given
         String entityType = "User";
-        when(repository.findAll()).thenReturn(auditLogs);
 
         // When
         service.bulkDeleteAuditLogsByEntityType(entityType);
 
         // Then
-        verify(repository).findAll();
-        verify(repository).deleteAll(auditLogsCaptor.capture());
-        List<AuditLog> deletedLogs = auditLogsCaptor.getValue();
-        assertTrue(deletedLogs.stream().allMatch(log -> entityType.equals(log.getEntityType())));
+        verify(repository).deleteByEntityType(entityType);
     }
 
     @Test
@@ -827,16 +860,12 @@ public class AuditLogServiceTest {
     void bulkDeleteAuditLogsByUser_success() {
         // Given
         Integer userId = 1;
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
 
         // When
         service.bulkDeleteAuditLogsByUser(userId);
 
         // Then
-        verify(repository).findByUser(any(UserEntity.class));
-        verify(repository).deleteAll(auditLogsCaptor.capture());
-        List<AuditLog> deletedLogs = auditLogsCaptor.getValue();
-        assertEquals(2, deletedLogs.size());
+        verify(repository).deleteByUser_Id(1L);
     }
 
     @Test
@@ -862,16 +891,12 @@ public class AuditLogServiceTest {
     void bulkDeleteAuditLogsByAction_success() {
         // Given
         String action = "CREATE";
-        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
 
         // When
         service.bulkDeleteAuditLogsByAction(action);
 
         // Then
-        verify(repository).findByAction(action);
-        verify(repository).deleteAll(auditLogsCaptor.capture());
-        List<AuditLog> deletedLogs = auditLogsCaptor.getValue();
-        assertEquals(2, deletedLogs.size());
+        verify(repository).deleteByAction(action);
     }
 
     // Check Operations Tests
@@ -911,14 +936,14 @@ public class AuditLogServiceTest {
         // Given
         String entityType = "User";
         Integer entityId = 1;
-        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+        when(repository.existsByEntityTypeAndEntityId(entityType, entityId)).thenReturn(true);
 
         // When
         boolean result = service.existsByEntityTypeAndEntityId(entityType, entityId);
 
         // Then
         assertTrue(result);
-        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+        verify(repository).existsByEntityTypeAndEntityId(entityType, entityId);
     }
 
     @Test
@@ -927,14 +952,14 @@ public class AuditLogServiceTest {
         // Given
         String entityType = "NonExistent";
         Integer entityId = 999;
-        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(List.of());
+        when(repository.existsByEntityTypeAndEntityId(entityType, entityId)).thenReturn(false);
 
         // When
         boolean result = service.existsByEntityTypeAndEntityId(entityType, entityId);
 
         // Then
         assertFalse(result);
-        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+        verify(repository).existsByEntityTypeAndEntityId(entityType, entityId);
     }
 
     @Test
@@ -942,14 +967,14 @@ public class AuditLogServiceTest {
     void existsByUser_whenExists_returnsTrue() {
         // Given
         Integer userId = 1;
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+        when(repository.existsByUser_Id(1L)).thenReturn(true);
 
         // When
         boolean result = service.existsByUser(userId);
 
         // Then
         assertTrue(result);
-        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).existsByUser_Id(1L);
     }
 
     @Test
@@ -957,14 +982,14 @@ public class AuditLogServiceTest {
     void existsByUser_whenNotExists_returnsFalse() {
         // Given
         Integer userId = 999;
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(List.of());
+        when(repository.existsByUser_Id(999L)).thenReturn(false);
 
         // When
         boolean result = service.existsByUser(userId);
 
         // Then
         assertFalse(result);
-        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).existsByUser_Id(999L);
     }
 
     @Test
@@ -972,14 +997,14 @@ public class AuditLogServiceTest {
     void existsByAction_whenExists_returnsTrue() {
         // Given
         String action = "CREATE";
-        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+        when(repository.existsByAction(action)).thenReturn(true);
 
         // When
         boolean result = service.existsByAction(action);
 
         // Then
         assertTrue(result);
-        verify(repository).findByAction(action);
+        verify(repository).existsByAction(action);
     }
 
     @Test
@@ -987,14 +1012,14 @@ public class AuditLogServiceTest {
     void existsByAction_whenNotExists_returnsFalse() {
         // Given
         String action = "NON_EXISTENT";
-        when(repository.findByAction(action)).thenReturn(List.of());
+        when(repository.existsByAction(action)).thenReturn(false);
 
         // When
         boolean result = service.existsByAction(action);
 
         // Then
         assertFalse(result);
-        verify(repository).findByAction(action);
+        verify(repository).existsByAction(action);
     }
 
     @Test
@@ -1002,14 +1027,14 @@ public class AuditLogServiceTest {
     void existsByIpAddress_whenExists_returnsTrue() {
         // Given
         String ipAddress = "192.168.1.1";
-        when(repository.findByIpAddress(ipAddress)).thenReturn(auditLogs);
+        when(repository.existsByIpAddress(ipAddress)).thenReturn(true);
 
         // When
         boolean result = service.existsByIpAddress(ipAddress);
 
         // Then
         assertTrue(result);
-        verify(repository).findByIpAddress(ipAddress);
+        verify(repository).existsByIpAddress(ipAddress);
     }
 
     @Test
@@ -1017,14 +1042,14 @@ public class AuditLogServiceTest {
     void existsByIpAddress_whenNotExists_returnsFalse() {
         // Given
         String ipAddress = "999.999.999.999";
-        when(repository.findByIpAddress(ipAddress)).thenReturn(List.of());
+        when(repository.existsByIpAddress(ipAddress)).thenReturn(false);
 
         // When
         boolean result = service.existsByIpAddress(ipAddress);
 
         // Then
         assertFalse(result);
-        verify(repository).findByIpAddress(ipAddress);
+        verify(repository).existsByIpAddress(ipAddress);
     }
 
     // Count Operations Tests
@@ -1033,14 +1058,14 @@ public class AuditLogServiceTest {
     void countByEntityType_shouldReturnCorrectCount() {
         // Given
         String entityType = "User";
-        when(repository.findAll()).thenReturn(auditLogs);
+        when(repository.countByEntityType(entityType)).thenReturn(2L);
 
         // When
         long result = service.countByEntityType(entityType);
 
         // Then
-        assertTrue(result >= 0);
-        verify(repository).findAll();
+        assertEquals(2L, result);
+        verify(repository).countByEntityType(entityType);
     }
 
     @Test
@@ -1048,14 +1073,14 @@ public class AuditLogServiceTest {
     void countByUser_shouldReturnCorrectCount() {
         // Given
         Integer userId = 1;
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+        when(repository.countByUser_Id(1L)).thenReturn(2L);
 
         // When
         long result = service.countByUser(userId);
 
         // Then
         assertEquals(2, result);
-        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).countByUser_Id(1L);
     }
 
     @Test
@@ -1063,14 +1088,14 @@ public class AuditLogServiceTest {
     void countByAction_shouldReturnCorrectCount() {
         // Given
         String action = "CREATE";
-        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+        when(repository.countByAction(action)).thenReturn(2L);
 
         // When
         long result = service.countByAction(action);
 
         // Then
         assertEquals(2, result);
-        verify(repository).findByAction(action);
+        verify(repository).countByAction(action);
     }
 
     @Test
@@ -1079,14 +1104,14 @@ public class AuditLogServiceTest {
         // Given
         LocalDateTime startDate = LocalDateTime.now().minusDays(1);
         LocalDateTime endDate = LocalDateTime.now().plusDays(1);
-        when(repository.findByActionTimestampBetween(startDate, endDate)).thenReturn(auditLogListByDateRangeMock());
+        when(repository.countByActionTimestampBetween(startDate, endDate)).thenReturn(5L);
 
         // When
         long result = service.countByDateRange(startDate, endDate);
 
         // Then
         assertEquals(5, result);
-        verify(repository).findByActionTimestampBetween(startDate, endDate);
+        verify(repository).countByActionTimestampBetween(startDate, endDate);
     }
 
     @Test
@@ -1094,14 +1119,14 @@ public class AuditLogServiceTest {
     void countByIpAddress_shouldReturnCorrectCount() {
         // Given
         String ipAddress = "192.168.1.1";
-        when(repository.findByIpAddress(ipAddress)).thenReturn(auditLogs);
+        when(repository.countByIpAddress(ipAddress)).thenReturn(5L);
 
         // When
         long result = service.countByIpAddress(ipAddress);
 
         // Then
-        assertEquals(auditLogs.size(), result);
-        verify(repository).findByIpAddress(ipAddress);
+        assertEquals(5L, result);
+        verify(repository).countByIpAddress(ipAddress);
     }
 
     // Audit Trail Operations Tests
@@ -1111,7 +1136,8 @@ public class AuditLogServiceTest {
         // Given
         String entityType = "User";
         Integer entityId = 1;
-        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+        when(repository.findByEntityTypeAndEntityIdOrderByActionTimestampAsc(entityType, entityId))
+                .thenReturn(auditLogListByUserMock());
 
         // When
         List<AuditLog> result = service.getAuditTrailForEntity(entityType, entityId);
@@ -1119,11 +1145,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(2, result.size());
-        // Verify that the trail is sorted by timestamp (ascending)
-        for (int i = 1; i < result.size(); i++) {
-            assertTrue(result.get(i - 1).getActionTimestamp().compareTo(result.get(i).getActionTimestamp()) <= 0);
-        }
-        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+        verify(repository).findByEntityTypeAndEntityIdOrderByActionTimestampAsc(entityType, entityId);
     }
 
     @Test
@@ -1131,7 +1153,7 @@ public class AuditLogServiceTest {
     void getAuditTrailForUser_shouldReturnSortedTrail() {
         // Given
         Integer userId = 1;
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+        when(repository.findByUser_IdOrderByActionTimestampAsc(1L)).thenReturn(auditLogListByUserMock());
 
         // When
         List<AuditLog> result = service.getAuditTrailForUser(userId);
@@ -1139,11 +1161,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(2, result.size());
-        // Verify that the trail is sorted by timestamp (ascending)
-        for (int i = 1; i < result.size(); i++) {
-            assertTrue(result.get(i - 1).getActionTimestamp().compareTo(result.get(i).getActionTimestamp()) <= 0);
-        }
-        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).findByUser_IdOrderByActionTimestampAsc(1L);
     }
 
     @Test
@@ -1153,7 +1171,8 @@ public class AuditLogServiceTest {
         String entityType = "User";
         Integer entityId = 1;
         Integer userId = 1;
-        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+        when(repository.findByEntityTypeAndEntityIdOrderByActionTimestampAsc(entityType, entityId))
+                .thenReturn(auditLogListByUserMock());
 
         // When
         List<AuditLog> result = service.getAuditTrailForEntityAndUser(entityType, entityId, userId);
@@ -1162,7 +1181,7 @@ public class AuditLogServiceTest {
         assertNotNull(result);
         assertTrue(
                 result.stream().allMatch(log -> log.getUser() != null && userId.longValue() == log.getUser().getId()));
-        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+        verify(repository).findByEntityTypeAndEntityIdOrderByActionTimestampAsc(entityType, entityId);
     }
 
     @Test
@@ -1172,7 +1191,8 @@ public class AuditLogServiceTest {
         String entityType = "User";
         Integer entityId = 1;
         String action = "CREATE";
-        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+        when(repository.findByEntityTypeAndEntityIdOrderByActionTimestampAsc(entityType, entityId))
+                .thenReturn(auditLogListByUserMock());
 
         // When
         List<AuditLog> result = service.getAuditTrailForEntityAndAction(entityType, entityId, action);
@@ -1180,7 +1200,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> action.equals(log.getAction())));
-        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+        verify(repository).findByEntityTypeAndEntityIdOrderByActionTimestampAsc(entityType, entityId);
     }
 
     @Test
@@ -1189,7 +1209,10 @@ public class AuditLogServiceTest {
         // Given
         Integer userId = 1;
         String action = "CREATE";
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+        List<AuditLog> expectedLogs = auditLogListByUserMock().stream()
+                .filter(log -> action.equals(log.getAction()))
+                .toList();
+        when(repository.findByUser_IdAndAction(1L, action)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.getAuditTrailForUserAndAction(userId, action);
@@ -1197,7 +1220,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> action.equals(log.getAction())));
-        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).findByUser_IdAndAction(1L, action);
     }
 
     @Test
@@ -1208,16 +1231,15 @@ public class AuditLogServiceTest {
         Integer entityId = 1;
         LocalDateTime startDate = LocalDateTime.now().minusDays(1);
         LocalDateTime endDate = LocalDateTime.now().plusDays(1);
-        when(repository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(auditLogListByUserMock());
+        when(repository.findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate, endDate))
+                .thenReturn(auditLogListByUserMock());
 
         // When
         List<AuditLog> result = service.getAuditTrailForEntityAndDateRange(entityType, entityId, startDate, endDate);
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isAfter(startDate) &&
-                log.getActionTimestamp().isBefore(endDate)));
-        verify(repository).findByEntityTypeAndEntityId(entityType, entityId);
+        verify(repository).findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate, endDate);
     }
 
     @Test
@@ -1227,16 +1249,15 @@ public class AuditLogServiceTest {
         Integer userId = 1;
         LocalDateTime startDate = LocalDateTime.now().minusDays(1);
         LocalDateTime endDate = LocalDateTime.now().plusDays(1);
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+        when(repository.findByUser_IdAndActionTimestampBetween(1L, startDate, endDate))
+                .thenReturn(auditLogListByUserMock());
 
         // When
         List<AuditLog> result = service.getAuditTrailForUserAndDateRange(userId, startDate, endDate);
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream().allMatch(log -> log.getActionTimestamp().isAfter(startDate) &&
-                log.getActionTimestamp().isBefore(endDate)));
-        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).findByUser_IdAndActionTimestampBetween(1L, startDate, endDate);
     }
 
     // Statistics and Analytics Tests
@@ -1259,14 +1280,14 @@ public class AuditLogServiceTest {
     void getTotalAuditLogsByEntityType_shouldReturnCorrectCount() {
         // Given
         String entityType = "User";
-        when(repository.findAll()).thenReturn(auditLogs);
+        when(repository.countByEntityType(entityType)).thenReturn(2L);
 
         // When
         long result = service.getTotalAuditLogsByEntityType(entityType);
 
         // Then
-        assertTrue(result >= 0);
-        verify(repository).findAll();
+        assertEquals(2L, result);
+        verify(repository).countByEntityType(entityType);
     }
 
     @Test
@@ -1274,14 +1295,14 @@ public class AuditLogServiceTest {
     void getTotalAuditLogsByUser_shouldReturnCorrectCount() {
         // Given
         Integer userId = 1;
-        when(repository.findByUser(any(UserEntity.class))).thenReturn(auditLogListByUserMock());
+        when(repository.countByUser_Id(1L)).thenReturn(2L);
 
         // When
         long result = service.getTotalAuditLogsByUser(userId);
 
         // Then
         assertEquals(2, result);
-        verify(repository).findByUser(any(UserEntity.class));
+        verify(repository).countByUser_Id(1L);
     }
 
     @Test
@@ -1289,14 +1310,14 @@ public class AuditLogServiceTest {
     void getTotalAuditLogsByAction_shouldReturnCorrectCount() {
         // Given
         String action = "CREATE";
-        when(repository.findByAction(action)).thenReturn(auditLogListByActionMock());
+        when(repository.countByAction(action)).thenReturn(2L);
 
         // When
         long result = service.getTotalAuditLogsByAction(action);
 
         // Then
         assertEquals(2, result);
-        verify(repository).findByAction(action);
+        verify(repository).countByAction(action);
     }
 
     @Test
@@ -1305,14 +1326,14 @@ public class AuditLogServiceTest {
         // Given
         LocalDateTime startDate = LocalDateTime.now().minusDays(1);
         LocalDateTime endDate = LocalDateTime.now().plusDays(1);
-        when(repository.findByActionTimestampBetween(startDate, endDate)).thenReturn(auditLogListByDateRangeMock());
+        when(repository.countByActionTimestampBetween(startDate, endDate)).thenReturn(5L);
 
         // When
         long result = service.getTotalAuditLogsByDateRange(startDate, endDate);
 
         // Then
         assertEquals(5, result);
-        verify(repository).findByActionTimestampBetween(startDate, endDate);
+        verify(repository).countByActionTimestampBetween(startDate, endDate);
     }
 
     @Test
@@ -1320,14 +1341,14 @@ public class AuditLogServiceTest {
     void getTotalAuditLogsByIpAddress_shouldReturnCorrectCount() {
         // Given
         String ipAddress = "192.168.1.1";
-        when(repository.findByIpAddress(ipAddress)).thenReturn(auditLogs);
+        when(repository.countByIpAddress(ipAddress)).thenReturn(5L);
 
         // When
         long result = service.getTotalAuditLogsByIpAddress(ipAddress);
 
         // Then
-        assertEquals(auditLogs.size(), result);
-        verify(repository).findByIpAddress(ipAddress);
+        assertEquals(5L, result);
+        verify(repository).countByIpAddress(ipAddress);
     }
 
     @Test
@@ -1344,7 +1365,7 @@ public class AuditLogServiceTest {
         assertNotNull(result);
         assertTrue(result.size() <= limit);
         assertTrue(result.stream().allMatch(log -> log.getUser() != null));
-        verify(repository, atLeastOnce()).findAll();
+        verify(repository).findAll();
     }
 
     @Test
@@ -1360,7 +1381,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.size() <= limit);
-        verify(repository, atLeastOnce()).findAll();
+        verify(repository).findAll();
     }
 
     @Test
@@ -1376,7 +1397,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.size() <= limit);
-        verify(repository, atLeastOnce()).findAll();
+        verify(repository).findAll();
     }
 
     @Test
@@ -1393,7 +1414,7 @@ public class AuditLogServiceTest {
         assertNotNull(result);
         assertTrue(result.size() <= limit);
         assertTrue(result.stream().allMatch(log -> log.getIpAddress() != null));
-        verify(repository, atLeastOnce()).findAll();
+        verify(repository).findAll();
     }
 
     @Test
@@ -1462,16 +1483,17 @@ public class AuditLogServiceTest {
     void getActivityByMultipleIpAddresses_shouldReturnMatchingActivity() {
         // Given
         List<String> ipAddresses = List.of("192.168.1.1", "192.168.1.2");
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> expectedLogs = auditLogs.stream()
+                .filter(log -> log.getIpAddress() != null && ipAddresses.contains(log.getIpAddress()))
+                .toList();
+        when(repository.findByIpAddressIn(ipAddresses)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.getActivityByMultipleIpAddresses(ipAddresses);
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream()
-                .allMatch(log -> log.getIpAddress() != null && ipAddresses.contains(log.getIpAddress())));
-        verify(repository).findAll();
+        verify(repository).findByIpAddressIn(ipAddresses);
     }
 
     @Test
@@ -1479,93 +1501,93 @@ public class AuditLogServiceTest {
     void getActivityByUserAgentPattern_shouldReturnMatchingActivity() {
         // Given
         String pattern = "Mozilla";
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> expectedLogs = auditLogs.stream()
+                .filter(log -> log.getUserAgent() != null && log.getUserAgent().contains(pattern))
+                .toList();
+        when(repository.findByUserAgentContaining(pattern)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.getActivityByUserAgentPattern(pattern);
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream().allMatch(log -> log.getUserAgent() != null && log.getUserAgent().contains(pattern)));
-        verify(repository).findAll();
+        verify(repository).findByUserAgentContaining(pattern);
     }
 
     @Test
     @DisplayName("Should get failed login attempts")
     void getFailedLoginAttempts_shouldReturnFailedLogins() {
         // Given
-        when(repository.findAll()).thenReturn(auditLogListSecurityMock());
+        List<AuditLog> failedLogs = auditLogListSecurityMock().stream()
+                .filter(log -> AuditAction.getFailedLoginActions().contains(log.getAction()))
+                .toList();
+        when(repository.findByActionIn(AuditAction.getFailedLoginActions())).thenReturn(failedLogs);
 
         // When
         List<AuditLog> result = service.getFailedLoginAttempts();
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream().allMatch(log -> log.getAction() != null &&
-                (log.getAction().contains("LOGIN_FAILED") ||
-                        log.getAction().contains("AUTHENTICATION_FAILED") ||
-                        log.getAction().contains("FAILED_LOGIN"))));
-        verify(repository).findAll();
+        verify(repository).findByActionIn(AuditAction.getFailedLoginActions());
     }
 
     @Test
     @DisplayName("Should get successful login attempts")
     void getSuccessfulLoginAttempts_shouldReturnSuccessfulLogins() {
         // Given
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> successLogs = auditLogs.stream()
+                .filter(log -> AuditAction.getSuccessfulLoginActions().contains(log.getAction()))
+                .toList();
+        when(repository.findByActionIn(AuditAction.getSuccessfulLoginActions())).thenReturn(successLogs);
 
         // When
         List<AuditLog> result = service.getSuccessfulLoginAttempts();
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream().allMatch(log -> log.getAction() == null ||
-                (!log.getAction().contains("LOGIN_FAILED") &&
-                        !log.getAction().contains("AUTHENTICATION_FAILED") &&
-                        !log.getAction().contains("FAILED_LOGIN"))));
-        verify(repository).findAll();
+        verify(repository).findByActionIn(AuditAction.getSuccessfulLoginActions());
     }
 
     @Test
     @DisplayName("Should get data modification activity")
     void getDataModificationActivity_shouldReturnModificationLogs() {
         // Given
-        when(repository.findAll()).thenReturn(auditLogs);
+        when(repository.findByActionIn(AuditAction.getDataModificationActions())).thenReturn(auditLogs);
 
         // When
         List<AuditLog> result = service.getDataModificationActivity();
 
         // Then
         assertNotNull(result);
-        verify(repository).findAll();
+        verify(repository).findByActionIn(AuditAction.getDataModificationActions());
     }
 
     @Test
     @DisplayName("Should get data access activity")
     void getDataAccessActivity_shouldReturnAccessLogs() {
         // Given
-        when(repository.findAll()).thenReturn(auditLogs);
+        when(repository.findByActionIn(AuditAction.getDataAccessActions())).thenReturn(auditLogs);
 
         // When
         List<AuditLog> result = service.getDataAccessActivity();
 
         // Then
         assertNotNull(result);
-        verify(repository).findAll();
+        verify(repository).findByActionIn(AuditAction.getDataAccessActions());
     }
 
     @Test
     @DisplayName("Should get data deletion activity")
     void getDataDeletionActivity_shouldReturnDeletionLogs() {
         // Given
-        when(repository.findAll()).thenReturn(auditLogs);
+        when(repository.findByActionIn(AuditAction.getDataDeletionActions())).thenReturn(auditLogs);
 
         // When
         List<AuditLog> result = service.getDataDeletionActivity();
 
         // Then
         assertNotNull(result);
-        verify(repository).findAll();
+        verify(repository).findByActionIn(AuditAction.getDataDeletionActions());
     }
 
     // Data Integrity Operations Tests
@@ -1573,7 +1595,10 @@ public class AuditLogServiceTest {
     @DisplayName("Should get audit logs with missing user")
     void getAuditLogsWithMissingUser_shouldReturnLogsWithoutUser() {
         // Given
-        when(repository.findAll()).thenReturn(auditLogListWithNullsMock());
+        List<AuditLog> logsWithNullUser = auditLogListWithNullsMock().stream()
+                .filter(log -> log.getUser() == null)
+                .toList();
+        when(repository.findByUserIsNull()).thenReturn(logsWithNullUser);
 
         // When
         List<AuditLog> result = service.getAuditLogsWithMissingUser();
@@ -1581,14 +1606,17 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> log.getUser() == null));
-        verify(repository).findAll();
+        verify(repository).findByUserIsNull();
     }
 
     @Test
     @DisplayName("Should get audit logs with missing ip address")
     void getAuditLogsWithMissingIpAddress_shouldReturnLogsWithoutIp() {
         // Given
-        when(repository.findAll()).thenReturn(auditLogListWithNullsMock());
+        List<AuditLog> logsWithNullIp = auditLogListWithNullsMock().stream()
+                .filter(log -> log.getIpAddress() == null || log.getIpAddress().trim().isEmpty())
+                .toList();
+        when(repository.findByIpAddressIsNullOrEmpty()).thenReturn(logsWithNullIp);
 
         // When
         List<AuditLog> result = service.getAuditLogsWithMissingIpAddress();
@@ -1596,7 +1624,7 @@ public class AuditLogServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.stream().allMatch(log -> log.getIpAddress() == null || log.getIpAddress().trim().isEmpty()));
-        verify(repository).findAll();
+        verify(repository).findByIpAddressIsNullOrEmpty();
     }
 
     @Test
@@ -1617,47 +1645,52 @@ public class AuditLogServiceTest {
     @DisplayName("Should get audit logs with empty old values")
     void getAuditLogsWithEmptyOldValues_shouldReturnLogsWithEmptyOldValues() {
         // Given
-        when(repository.findAll()).thenReturn(auditLogListWithNullsMock());
+        List<AuditLog> logsWithEmptyOld = auditLogListWithNullsMock().stream()
+                .filter(log -> log.getOldValues() == null || log.getOldValues().trim().isEmpty())
+                .toList();
+        when(repository.findByOldValuesIsNullOrEmpty()).thenReturn(logsWithEmptyOld);
 
         // When
         List<AuditLog> result = service.getAuditLogsWithEmptyOldValues();
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream().allMatch(log -> log.getOldValues() == null || log.getOldValues().trim().isEmpty()));
-        verify(repository).findAll();
+        verify(repository).findByOldValuesIsNullOrEmpty();
     }
 
     @Test
     @DisplayName("Should get audit logs with empty new values")
     void getAuditLogsWithEmptyNewValues_shouldReturnLogsWithEmptyNewValues() {
         // Given
-        when(repository.findAll()).thenReturn(auditLogListWithNullsMock());
+        List<AuditLog> logsWithEmptyNew = auditLogListWithNullsMock().stream()
+                .filter(log -> log.getNewValues() == null || log.getNewValues().trim().isEmpty())
+                .toList();
+        when(repository.findByNewValuesIsNullOrEmpty()).thenReturn(logsWithEmptyNew);
 
         // When
         List<AuditLog> result = service.getAuditLogsWithEmptyNewValues();
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream().allMatch(log -> log.getNewValues() == null || log.getNewValues().trim().isEmpty()));
-        verify(repository).findAll();
+        verify(repository).findByNewValuesIsNullOrEmpty();
     }
 
     @Test
     @DisplayName("Should get audit logs with both empty values")
     void getAuditLogsWithBothEmptyValues_shouldReturnLogsWithBothEmptyValues() {
         // Given
-        when(repository.findAll()).thenReturn(auditLogListWithNullsMock());
+        List<AuditLog> logsWithBothEmpty = auditLogListWithNullsMock().stream()
+                .filter(log -> (log.getOldValues() == null || log.getOldValues().trim().isEmpty()) &&
+                        (log.getNewValues() == null || log.getNewValues().trim().isEmpty()))
+                .toList();
+        when(repository.findByBothValuesNullOrEmpty()).thenReturn(logsWithBothEmpty);
 
         // When
         List<AuditLog> result = service.getAuditLogsWithBothEmptyValues();
 
         // Then
         assertNotNull(result);
-        assertTrue(
-                result.stream().allMatch(log -> (log.getOldValues() == null || log.getOldValues().trim().isEmpty()) &&
-                        (log.getNewValues() == null || log.getNewValues().trim().isEmpty())));
-        verify(repository).findAll();
+        verify(repository).findByBothValuesNullOrEmpty();
     }
 
     // Utility Operations Tests
@@ -1666,34 +1699,25 @@ public class AuditLogServiceTest {
     void cleanupOldAuditLogs_shouldDeleteOldLogs() {
         // Given
         int daysToKeep = 30;
-        when(repository.findAll()).thenReturn(auditLogListOldMock());
 
         // When
         service.cleanupOldAuditLogs(daysToKeep);
 
         // Then
-        verify(repository).findAll();
-        verify(repository).deleteAll(auditLogsCaptor.capture());
-        List<AuditLog> deletedLogs = auditLogsCaptor.getValue();
-        assertTrue(deletedLogs.stream()
-                .allMatch(log -> log.getActionTimestamp().isBefore(LocalDateTime.now().minusDays(daysToKeep))));
+        verify(repository).deleteByActionTimestampBefore(any(LocalDateTime.class));
     }
 
     @Test
-    @DisplayName("Should archive audit logs")
-    void archiveAuditLogs_shouldArchiveOldLogs() {
+    @DisplayName("Should delete old audit logs")
+    void deleteOldAuditLogs_shouldDeleteOldLogs() {
         // Given
         LocalDateTime beforeDate = LocalDateTime.now().minusDays(30);
-        when(repository.findAll()).thenReturn(auditLogListOldMock());
 
         // When
-        service.archiveAuditLogs(beforeDate);
+        service.deleteOldAuditLogs(beforeDate);
 
         // Then
-        verify(repository).findAll();
-        verify(repository).deleteAll(auditLogsCaptor.capture());
-        List<AuditLog> archivedLogs = auditLogsCaptor.getValue();
-        assertTrue(archivedLogs.stream().allMatch(log -> log.getActionTimestamp().isBefore(beforeDate)));
+        verify(repository).deleteByActionTimestampBefore(beforeDate);
     }
 
     @Test
@@ -1701,14 +1725,14 @@ public class AuditLogServiceTest {
     void searchAuditLogsByKeyword_shouldReturnMatchingLogs() {
         // Given
         String keyword = "User";
-        when(repository.findAll()).thenReturn(auditLogs);
+        when(repository.searchByKeyword(keyword)).thenReturn(auditLogs);
 
         // When
         List<AuditLog> result = service.searchAuditLogsByKeyword(keyword);
 
         // Then
         assertNotNull(result);
-        verify(repository).findAll();
+        verify(repository).searchByKeyword(keyword);
     }
 
     @Test
@@ -1716,15 +1740,17 @@ public class AuditLogServiceTest {
     void searchAuditLogsByUserAgent_shouldReturnMatchingLogs() {
         // Given
         String userAgent = "Mozilla/5.0";
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> expectedLogs = auditLogs.stream()
+                .filter(log -> userAgent.equals(log.getUserAgent()))
+                .toList();
+        when(repository.findByUserAgent(userAgent)).thenReturn(expectedLogs);
 
         // When
         List<AuditLog> result = service.searchAuditLogsByUserAgent(userAgent);
 
         // Then
         assertNotNull(result);
-        assertTrue(result.stream().allMatch(log -> userAgent.equals(log.getUserAgent())));
-        verify(repository).findAll();
+        verify(repository).findByUserAgent(userAgent);
     }
 
     @Test
@@ -1747,34 +1773,36 @@ public class AuditLogServiceTest {
     @DisplayName("Should get audit logs with json data")
     void getAuditLogsWithJsonData_shouldReturnLogsWithJson() {
         // Given
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> logsWithJson = auditLogs.stream()
+                .filter(log -> (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) ||
+                        (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()))
+                .toList();
+        when(repository.findByOldValuesOrNewValuesNotEmpty()).thenReturn(logsWithJson);
 
         // When
         List<AuditLog> result = service.getAuditLogsWithJsonData();
 
         // Then
         assertNotNull(result);
-        assertTrue(
-                result.stream().allMatch(log -> (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) ||
-                        (log.getNewValues() != null && !log.getNewValues().trim().isEmpty())));
-        verify(repository).findAll();
+        verify(repository).findByOldValuesOrNewValuesNotEmpty();
     }
 
     @Test
     @DisplayName("Should get audit logs without json data")
     void getAuditLogsWithoutJsonData_shouldReturnLogsWithoutJson() {
         // Given
-        when(repository.findAll()).thenReturn(auditLogs);
+        List<AuditLog> logsWithoutJson = auditLogs.stream()
+                .filter(log -> (log.getOldValues() == null || log.getOldValues().trim().isEmpty()) &&
+                        (log.getNewValues() == null || log.getNewValues().trim().isEmpty()))
+                .toList();
+        when(repository.findByOldValuesAndNewValuesNullOrEmpty()).thenReturn(logsWithoutJson);
 
         // When
         List<AuditLog> result = service.getAuditLogsWithoutJsonData();
 
         // Then
         assertNotNull(result);
-        assertTrue(
-                result.stream().allMatch(log -> (log.getOldValues() == null || log.getOldValues().trim().isEmpty()) &&
-                        (log.getNewValues() == null || log.getNewValues().trim().isEmpty())));
-        verify(repository).findAll();
+        verify(repository).findByOldValuesAndNewValuesNullOrEmpty();
     }
 
     @Test

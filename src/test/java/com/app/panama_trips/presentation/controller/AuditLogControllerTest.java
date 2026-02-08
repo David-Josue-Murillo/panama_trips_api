@@ -1443,18 +1443,18 @@ public class AuditLogControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = { "ADMIN" })
-    @DisplayName("Should archive audit logs when archiveAuditLogs is called")
-    void archiveAuditLogs_success() throws Exception {
+    @DisplayName("Should delete old audit logs when deleteOldAuditLogs is called")
+    void deleteOldAuditLogs_success() throws Exception {
         // Given
         LocalDateTime beforeDate = LocalDateTime.now().minusDays(30);
-        doNothing().when(service).archiveAuditLogs(beforeDate);
+        doNothing().when(service).deleteOldAuditLogs(beforeDate);
 
         // When/Then
         mockMvc.perform(post("/api/audit-logs/archive/{beforeDate}", beforeDate)
                 .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk());
 
-        verify(service).archiveAuditLogs(beforeDate);
+        verify(service).deleteOldAuditLogs(beforeDate);
     }
 
     @Test
