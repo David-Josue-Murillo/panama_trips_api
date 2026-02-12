@@ -1,12 +1,15 @@
 package com.app.panama_trips.service.implementation;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.PaymentInstallment;
+import com.app.panama_trips.persistence.entity.PaymentInstallmentBusinessLogic;
+import com.app.panama_trips.persistence.entity.PaymentInstallmentStatus;
 import com.app.panama_trips.persistence.entity.Payment;
 import com.app.panama_trips.persistence.entity.Reservation;
 import com.app.panama_trips.persistence.repository.PaymentInstallmentRepository;
@@ -17,13 +20,17 @@ import com.app.panama_trips.presentation.dto.PaymentInstallmentResponse;
 import com.app.panama_trips.service.interfaces.IPaymentInstallmentService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import static com.app.panama_trips.persistence.entity.PaymentInstallmentConstants.*;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentInstallmentService implements IPaymentInstallmentService {
@@ -72,187 +79,141 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
         repository.deleteById(id);
     }
 
+    // Find operations by entity relationships
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> findByReservationId(Integer reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
-        return repository.findByReservation(reservation).stream()
-                .map(PaymentInstallmentResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findByReservation(reservation));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> findByPaymentId(Integer paymentId) {
-        // This method requires finding the payment first, but we'll implement a basic
-        // version
-        // that returns empty list since the repository doesn't have a direct
-        // findByPaymentId method
-        return List.of();
+        return toResponseList(repository.findByPayment_Id(paymentId));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> findByStatus(String status) {
-        return repository.findByStatus(status)
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByStatus(status));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> findByDueDateBefore(LocalDate date) {
-        return repository.findByDueDateBefore(date)
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByDueDateBefore(date));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> findByDueDateBetween(LocalDate startDate, LocalDate endDate) {
-        return repository.findByDueDateBetween(startDate, endDate)
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
-
+        return toResponseList(repository.findByDueDateBetween(startDate, endDate));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> findByReminderSent(Boolean reminderSent) {
-        return repository.findByReminderSent(reminderSent)
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
-
+        return toResponseList(repository.findByReminderSent(reminderSent));
     }
 
     // Specialized queries from repository
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> findByReservationIdAndStatus(Integer reservationId, String status) {
-        return repository.findByReservationIdAndStatus(reservationId, status)
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByReservationIdAndStatus(reservationId, status));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> findPendingInstallmentsWithoutReminder(LocalDate date) {
-        return repository.findPendingInstallmentsWithoutReminder(date)
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findPendingInstallmentsWithoutReminder(date));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal sumPendingAmountByReservation(Integer reservationId) {
         return repository.sumPendingAmountByReservation(reservationId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long countOverdueInstallments(String status, LocalDate date) {
         return repository.countOverdueInstallments(status, date);
     }
 
     // Business logic operations
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getOverdueInstallments() {
-        return repository.findByStatus("OVERDUE")
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByStatus(PaymentInstallmentStatus.OVERDUE.getCode()));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getPendingInstallments() {
-        return repository.findByStatus("PENDING")
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByStatus(PaymentInstallmentStatus.PENDING.getCode()));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getPaidInstallments() {
-        return repository.findByStatus("PAID")
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByStatus(PaymentInstallmentStatus.PAID.getCode()));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getCancelledInstallments() {
-        return repository.findByStatus("CANCELLED")
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByStatus(PaymentInstallmentStatus.CANCELLED.getCode()));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getInstallmentsRequiringReminder() {
-        return repository.findByReminderSent(false)
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByReminderSent(false));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getInstallmentsByDateRange(LocalDate startDate, LocalDate endDate) {
-        return repository.findByDueDateBetween(startDate, endDate)
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByDueDateBetween(startDate, endDate));
     }
 
     @Override
-    public List<PaymentInstallmentResponse> getInstallmentsByReservationAndStatus(Integer reservationId,
-            String status) {
-        return repository.findByReservationIdAndStatus(reservationId, status)
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+    @Transactional(readOnly = true)
+    public List<PaymentInstallmentResponse> getInstallmentsByReservationAndStatus(Integer reservationId, String status) {
+        return toResponseList(repository.findByReservationIdAndStatus(reservationId, status));
     }
 
     // Advanced queries
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getRecentInstallments(int limit) {
-        // Basic implementation - return all installments and limit the result
-        return repository.findAll()
-                .stream()
-                .limit(limit)
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, limit)));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getInstallmentsByAmountRange(BigDecimal minAmount, BigDecimal maxAmount) {
-        // Basic implementation - filter all installments by amount range
-        return repository.findAll()
-                .stream()
-                .filter(installment -> installment.getAmount().compareTo(minAmount) >= 0 &&
-                        installment.getAmount().compareTo(maxAmount) <= 0)
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByAmountBetween(minAmount, maxAmount));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getInstallmentsByUser(Long userId) {
-        // Basic implementation - filter all installments by user
-        return repository.findAll()
-                .stream()
-                .filter(installment -> installment.getReservation().getUser().getId().equals(userId))
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByReservationUserId(userId));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getInstallmentsByTourPlan(Integer tourPlanId) {
-        // Basic implementation - filter all installments by tour plan
-        return repository.findAll()
-                .stream()
-                .filter(installment -> installment.getReservation().getTourPlan().getId().equals(tourPlanId))
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByReservationTourPlanId(tourPlanId));
     }
 
     // Bulk operations
     @Override
+    @Transactional
     public void bulkCreatePaymentInstallments(List<PaymentInstallmentRequest> requests) {
         List<PaymentInstallment> installments = requests.stream()
                 .map(this::buildFromRequest)
@@ -261,16 +222,13 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     }
 
     @Override
-    public void bulkUpdatePaymentInstallments(List<PaymentInstallmentRequest> requests) {
-        // Implementation would depend on how to identify which records to update
-    }
-
-    @Override
+    @Transactional
     public void bulkDeletePaymentInstallments(List<Integer> installmentIds) {
         repository.deleteAllById(installmentIds);
     }
 
     @Override
+    @Transactional
     public void bulkUpdateStatus(List<Integer> installmentIds, String newStatus) {
         List<PaymentInstallment> installments = repository.findAllById(installmentIds);
         installments.forEach(installment -> installment.setStatus(newStatus));
@@ -278,6 +236,7 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
     }
 
     @Override
+    @Transactional
     public void bulkMarkAsReminderSent(List<Integer> installmentIds) {
         List<PaymentInstallment> installments = repository.findAllById(installmentIds);
         installments.forEach(installment -> installment.setReminderSent(true));
@@ -286,86 +245,80 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
 
     // Check operations
     @Override
+    @Transactional(readOnly = true)
     public boolean existsById(Integer id) {
         return repository.existsById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByReservationId(Integer reservationId) {
-        return repository.findAll().stream()
-                .anyMatch(installment -> installment.getReservation().getId().equals(reservationId));
+        return repository.existsByReservation_Id(reservationId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByPaymentId(Integer paymentId) {
-        return repository.findAll().stream()
-                .anyMatch(installment -> installment.getPayment() != null &&
-                        installment.getPayment().getId().equals(paymentId));
+        return repository.existsByPayment_Id(paymentId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countByReservationId(Integer reservationId) {
-        return repository.findAll().stream()
-                .filter(installment -> installment.getReservation().getId().equals(reservationId))
-                .count();
+        return repository.countByReservation_Id(reservationId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countByStatus(String status) {
-        return repository.findByStatus(status).size();
+        return repository.countByStatus(status);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countByDueDateBefore(LocalDate date) {
-        return repository.findByDueDateBefore(date).size();
+        return repository.countByDueDateBefore(date);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countByReminderSent(Boolean reminderSent) {
-        return repository.findByReminderSent(reminderSent).size();
+        return repository.countByReminderSent(reminderSent);
     }
 
     // Financial operations
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal calculateTotalAmountForReservation(Integer reservationId) {
-        return repository.findAll()
-                .stream()
-                .filter(installment -> installment.getReservation().getId().equals(reservationId))
-                .map(PaymentInstallment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return repository.sumAmountByReservationId(reservationId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal calculateTotalPendingAmountForReservation(Integer reservationId) {
         return repository.sumPendingAmountByReservation(reservationId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal calculateTotalOverdueAmountForReservation(Integer reservationId) {
-        return repository.findAll()
-                .stream()
-                .filter(installment -> installment.getReservation().getId().equals(reservationId) &&
-                        "OVERDUE".equals(installment.getStatus()))
-                .map(PaymentInstallment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return repository.sumAmountByReservationIdAndStatus(reservationId, PaymentInstallmentStatus.OVERDUE.getCode());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal calculateTotalLateFeesForReservation(Integer reservationId) {
-        // Basic implementation - calculate late fees based on overdue days
-        return repository.findAll()
-                .stream()
-                .filter(installment -> installment.getReservation().getId().equals(reservationId) &&
-                        installment.isOverdue())
-                .map(installment -> {
-                    long daysOverdue = installment.getDaysOverdue();
-                    return installment.getAmount().multiply(BigDecimal.valueOf(0.05))
-                            .multiply(BigDecimal.valueOf(daysOverdue));
-                })
+        List<PaymentInstallment> overdueInstallments = repository.findByReservationIdAndStatus(
+                reservationId, PaymentInstallmentStatus.OVERDUE.getCode());
+        return overdueInstallments.stream()
+                .map(installment -> PaymentInstallmentBusinessLogic.calculateLateFee(
+                        installment.getAmount(),
+                        PaymentInstallmentBusinessLogic.calculateDaysOverdue(installment.getDueDate())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal calculateTotalAmountByDateRange(LocalDate startDate, LocalDate endDate) {
         return repository.findByDueDateBetween(startDate, endDate)
                 .stream()
@@ -375,243 +328,231 @@ public class PaymentInstallmentService implements IPaymentInstallmentService {
 
     // Statistics and analytics
     @Override
+    @Transactional(readOnly = true)
     public long getTotalInstallments() {
         return repository.count();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long getTotalPendingInstallments() {
-        return repository.findByStatus("PENDING").size();
+        return repository.countByStatus(PaymentInstallmentStatus.PENDING.getCode());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long getTotalPaidInstallments() {
-        return repository.findByStatus("PAID").size();
+        return repository.countByStatus(PaymentInstallmentStatus.PAID.getCode());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long getTotalOverdueInstallments() {
-        return repository.findByStatus("OVERDUE").size();
+        return repository.countByStatus(PaymentInstallmentStatus.OVERDUE.getCode());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long getTotalCancelledInstallments() {
-        return repository.findByStatus("CANCELLED").size();
+        return repository.countByStatus(PaymentInstallmentStatus.CANCELLED.getCode());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getTotalAmountPending() {
-        return repository.findByStatus("PENDING")
-                .stream()
-                .map(PaymentInstallment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return repository.sumAmountByStatus(PaymentInstallmentStatus.PENDING.getCode());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getTotalAmountPaid() {
-        return repository.findByStatus("PAID")
-                .stream()
-                .map(PaymentInstallment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return repository.sumAmountByStatus(PaymentInstallmentStatus.PAID.getCode());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getTotalAmountOverdue() {
-        return repository.findByStatus("OVERDUE")
-                .stream()
-                .map(PaymentInstallment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return repository.sumAmountByStatus(PaymentInstallmentStatus.OVERDUE.getCode());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getTotalLateFees() {
-        return repository.findAll()
-                .stream()
+        List<PaymentInstallment> overdueInstallments = repository.findByStatus(PaymentInstallmentStatus.OVERDUE.getCode());
+        return overdueInstallments.stream()
                 .filter(PaymentInstallment::isOverdue)
-                .map(installment -> {
-                    long daysOverdue = installment.getDaysOverdue();
-                    return installment.getAmount().multiply(BigDecimal.valueOf(0.05))
-                            .multiply(BigDecimal.valueOf(daysOverdue));
-                })
+                .map(installment -> PaymentInstallmentBusinessLogic.calculateLateFee(
+                        installment.getAmount(),
+                        PaymentInstallmentBusinessLogic.calculateDaysOverdue(installment.getDueDate())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public double getPaymentSuccessRate() {
         long total = getTotalInstallments();
-        if (total == 0)
-            return 0.0;
+        if (total == 0) return 0.0;
         long paid = getTotalPaidInstallments();
         return (double) paid / total * 100;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getTopReservationsByInstallmentCount(int limit) {
-        // Basic implementation - return all installments limited by count
-        return repository.findAll()
-                .stream()
-                .limit(limit)
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, limit)));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getInstallmentsByMonth() {
-        // Basic implementation - return all installments
-        return repository.findAll()
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findAll());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getInstallmentsByDayOfWeek() {
-        // Basic implementation - return all installments
-        return repository.findAll()
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findAll());
     }
 
     // Status management operations
     @Override
+    @Transactional
     public PaymentInstallmentResponse markAsPaid(Integer installmentId) {
-        PaymentInstallment installment = repository.findById(installmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
-        installment.setStatus("PAID");
+        PaymentInstallment installment = findInstallmentOrFail(installmentId);
+        installment.setStatus(PaymentInstallmentStatus.PAID.getCode());
         return new PaymentInstallmentResponse(repository.save(installment));
     }
 
     @Override
+    @Transactional
     public PaymentInstallmentResponse markAsOverdue(Integer installmentId) {
-        PaymentInstallment installment = repository.findById(installmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
-        installment.setStatus("OVERDUE");
+        PaymentInstallment installment = findInstallmentOrFail(installmentId);
+        installment.setStatus(PaymentInstallmentStatus.OVERDUE.getCode());
         return new PaymentInstallmentResponse(repository.save(installment));
     }
 
     @Override
+    @Transactional
     public PaymentInstallmentResponse markAsCancelled(Integer installmentId) {
-        PaymentInstallment installment = repository.findById(installmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
-        installment.setStatus("CANCELLED");
+        PaymentInstallment installment = findInstallmentOrFail(installmentId);
+        installment.setStatus(PaymentInstallmentStatus.CANCELLED.getCode());
         return new PaymentInstallmentResponse(repository.save(installment));
     }
 
     @Override
+    @Transactional
     public PaymentInstallmentResponse markAsPending(Integer installmentId) {
-        PaymentInstallment installment = repository.findById(installmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
-        installment.setStatus("PENDING");
+        PaymentInstallment installment = findInstallmentOrFail(installmentId);
+        installment.setStatus(PaymentInstallmentStatus.PENDING.getCode());
         return new PaymentInstallmentResponse(repository.save(installment));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isValidStatusTransition(Integer installmentId, String newStatus) {
         return getValidStatusTransitions(installmentId).contains(newStatus);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<String> getValidStatusTransitions(Integer installmentId) {
-        PaymentInstallment installment = repository.findById(installmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
+        PaymentInstallment installment = findInstallmentOrFail(installmentId);
+        String currentStatus = installment.getStatus();
 
-        return switch (installment.getStatus()) {
-            case "PENDING" -> List.of("PAID", "OVERDUE", "CANCELLED");
-            case "OVERDUE" -> List.of("PAID", "CANCELLED");
-            case "PAID" -> List.of("CANCELLED");
-            case "CANCELLED" -> List.of();
+        return switch (currentStatus) {
+            case "PENDING" -> Arrays.asList(ALLOWED_PENDING_TRANSITIONS);
+            case "OVERDUE" -> Arrays.asList(ALLOWED_OVERDUE_TRANSITIONS);
+            case "PAID" -> Arrays.asList(ALLOWED_PAID_TRANSITIONS);
+            case "CANCELLED" -> Arrays.asList(ALLOWED_CANCELLED_TRANSITIONS);
             default -> List.of();
         };
     }
 
     // Reminder operations
     @Override
+    @Transactional
     public PaymentInstallmentResponse markReminderAsSent(Integer installmentId) {
-        PaymentInstallment installment = repository.findById(installmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
+        PaymentInstallment installment = findInstallmentOrFail(installmentId);
         installment.setReminderSent(true);
         return new PaymentInstallmentResponse(repository.save(installment));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getInstallmentsNeedingReminder() {
-        return repository.findByReminderSent(false)
-                .stream()
-                .map(PaymentInstallmentResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findByReminderSent(false));
     }
 
     @Override
     public void sendRemindersForDueInstallments() {
-        // Implementation for sending reminders
+        log.info("sendRemindersForDueInstallments: not yet implemented");
     }
 
     @Override
     public void sendRemindersForOverdueInstallments() {
-        // Implementation for sending overdue reminders
+        log.info("sendRemindersForOverdueInstallments: not yet implemented");
     }
 
     // Utility operations
     @Override
+    @Transactional
     public void recalculateOverdueStatus() {
-        List<PaymentInstallment> pendingInstallments = repository.findByStatus("PENDING");
-        LocalDate today = LocalDate.now();
-
-        pendingInstallments.stream()
-                .filter(installment -> installment.getDueDate().isBefore(today))
-                .forEach(installment -> {
-                    installment.setStatus("OVERDUE");
-                    repository.save(installment);
-                });
+        List<PaymentInstallment> pendingOverdue = repository.findByStatusAndDueDateBefore(
+                PaymentInstallmentStatus.PENDING.getCode(), LocalDate.now());
+        pendingOverdue.forEach(installment -> installment.setStatus(PaymentInstallmentStatus.OVERDUE.getCode()));
+        repository.saveAll(pendingOverdue);
     }
 
     @Override
+    @Transactional
     public void cleanupOldInstallments(int daysToKeep) {
-        // Basic implementation - no cleanup for now
+        LocalDate cutoffDate = LocalDate.now().minusDays(daysToKeep);
+        List<PaymentInstallment> oldInstallments = repository.findByDueDateBefore(cutoffDate);
+        repository.deleteAll(oldInstallments);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> searchInstallmentsByAmount(BigDecimal amount) {
-        return repository.findAll()
-                .stream()
-                .filter(installment -> installment.getAmount().equals(amount))
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByAmount(amount));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<PaymentInstallmentResponse> findLatestInstallmentByReservation(Integer reservationId) {
-        return repository.findAll()
-                .stream()
-                .filter(installment -> installment.getReservation().getId().equals(reservationId))
-                .max((a, b) -> a.getDueDate().compareTo(b.getDueDate()))
+        return repository.findFirstByReservation_IdOrderByDueDateDesc(reservationId)
                 .map(PaymentInstallmentResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentInstallmentResponse> getInstallmentsWithLateFees() {
-        return repository.findAll()
-                .stream()
-                .filter(PaymentInstallment::isOverdue)
-                .map(PaymentInstallmentResponse::new)
-                .toList();
+        return toResponseList(repository.findByStatusAndDueDateBefore(
+                PaymentInstallmentStatus.OVERDUE.getCode(), LocalDate.now()));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal calculateLateFeeForInstallment(Integer installmentId) {
-        PaymentInstallment installment = repository.findById(installmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
+        PaymentInstallment installment = findInstallmentOrFail(installmentId);
 
-        if (installment.getStatus().equals("OVERDUE")) {
-            LocalDate today = LocalDate.now();
-            long daysOverdue = java.time.temporal.ChronoUnit.DAYS.between(installment.getDueDate(), today);
-            return installment.getAmount().multiply(BigDecimal.valueOf(0.05)).multiply(BigDecimal.valueOf(daysOverdue));
+        if (PaymentInstallmentStatus.OVERDUE.getCode().equals(installment.getStatus())) {
+            long daysOverdue = PaymentInstallmentBusinessLogic.calculateDaysOverdue(installment.getDueDate());
+            return PaymentInstallmentBusinessLogic.calculateLateFee(installment.getAmount(), daysOverdue);
         }
         return BigDecimal.ZERO;
     }
 
     // Helper methods
+    private PaymentInstallment findInstallmentOrFail(Integer id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment installment not found"));
+    }
+
+    private List<PaymentInstallmentResponse> toResponseList(List<PaymentInstallment> installments) {
+        return installments.stream().map(PaymentInstallmentResponse::new).toList();
+    }
+
     private PaymentInstallment buildFromRequest(PaymentInstallmentRequest request) {
         Reservation reservation = reservationRepository.findById(request.reservationId())
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
