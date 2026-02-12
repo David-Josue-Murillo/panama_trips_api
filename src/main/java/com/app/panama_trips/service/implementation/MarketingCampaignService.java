@@ -14,6 +14,7 @@ import com.app.panama_trips.presentation.dto.MarketingCampaignResponse;
 import com.app.panama_trips.service.interfaces.IMarketingCampaignService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,14 +24,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -39,6 +39,11 @@ public class MarketingCampaignService implements IMarketingCampaignService {
     private final MarketingCampaignRepository repository;
     private final TourPlanRepository tourPlanRepository;
     private final UserEntityRepository userEntityRepository;
+
+    // Constants for magic numbers
+    private static final BigDecimal BUDGET_SEARCH_TOLERANCE = BigDecimal.valueOf(0.1);
+    private static final BigDecimal HIGH_BUDGET_MULTIPLIER = BigDecimal.valueOf(1.5);
+    private static final double MAX_CLICK_RATIO = 1.0;
 
     // Valid status transitions map
     private static final Map<CampaignStatus, Set<CampaignStatus>> VALID_TRANSITIONS = Map.of(
@@ -80,7 +85,6 @@ public class MarketingCampaignService implements IMarketingCampaignService {
         MarketingCampaign existing = findCampaignOrThrow(id);
         validateCampaignRequest(request);
 
-        // Check name uniqueness if changed
         if (!existing.getName().equalsIgnoreCase(request.name()) &&
             repository.existsByNameIgnoreCase(request.name())) {
             throw new IllegalArgumentException("Campaign with name '" + request.name() + "' already exists");
@@ -103,78 +107,48 @@ public class MarketingCampaignService implements IMarketingCampaignService {
 
     @Override
     public List<MarketingCampaignResponse> findByCreatedById(Integer createdById) {
-        UserEntity user = userEntityRepository.findById(createdById.longValue())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + createdById));
-        return repository.findByCreatedBy(user).stream()
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        UserEntity user = findUserOrThrow(createdById);
+        return toResponseList(repository.findByCreatedBy(user));
     }
 
     @Override
     public List<MarketingCampaignResponse> findByStatus(CampaignStatus status) {
-        return repository.findAll().stream()
-                .filter(c -> c.getStatus() == status)
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findByStatus(status));
     }
 
     @Override
     public List<MarketingCampaignResponse> findByType(CampaignType type) {
-        return repository.findAll().stream()
-                .filter(c -> c.getType() == type)
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findByType(type));
     }
 
     @Override
     public List<MarketingCampaignResponse> findByStartDateAfter(LocalDateTime date) {
-        return repository.findAll().stream()
-                .filter(c -> c.getStartDate().isAfter(date))
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findByStartDateAfter(date));
     }
 
     @Override
     public List<MarketingCampaignResponse> findByEndDateBefore(LocalDateTime date) {
-        return repository.findAll().stream()
-                .filter(c -> c.getEndDate().isBefore(date))
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findByEndDateBefore(date));
     }
 
     @Override
     public List<MarketingCampaignResponse> findActiveCampaigns() {
-        return repository.findActiveMarketingCampaigns().stream()
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findActiveMarketingCampaigns());
     }
 
     @Override
     public List<MarketingCampaignResponse> findUpcomingCampaigns() {
-        LocalDateTime now = LocalDateTime.now();
-        return repository.findAll().stream()
-                .filter(c -> c.getStartDate().isAfter(now))
-                .sorted((a, b) -> a.getStartDate().compareTo(b.getStartDate()))
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findByStartDateAfterOrderByStartDateAsc(LocalDateTime.now()));
     }
 
     @Override
     public List<MarketingCampaignResponse> findExpiredCampaigns() {
-        LocalDateTime now = LocalDateTime.now();
-        return repository.findAll().stream()
-                .filter(c -> c.getEndDate().isBefore(now))
-                .sorted((a, b) -> b.getEndDate().compareTo(a.getEndDate()))
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findByEndDateBeforeOrderByEndDateDesc(LocalDateTime.now()));
     }
 
     @Override
     public BigDecimal sumBudgetByStatus(CampaignStatus status) {
-        return repository.findAll().stream()
-                .filter(c -> c.getStatus() == status)
-                .map(MarketingCampaign::getBudget)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return repository.sumBudgetByStatus(status);
     }
 
     @Override
@@ -206,20 +180,13 @@ public class MarketingCampaignService implements IMarketingCampaignService {
 
     @Override
     public List<MarketingCampaignResponse> getCampaignsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return repository.findAll().stream()
-                .filter(c -> !c.getStartDate().isBefore(startDate) && !c.getEndDate().isAfter(endDate))
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findByDateRange(startDate, endDate));
     }
 
     @Override
     public List<MarketingCampaignResponse> getCampaignsByCreatedByAndStatus(Integer createdById, CampaignStatus status) {
-        UserEntity user = userEntityRepository.findById(createdById.longValue())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + createdById));
-        return repository.findByCreatedBy(user).stream()
-                .filter(c -> c.getStatus() == status)
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        UserEntity user = findUserOrThrow(createdById);
+        return toResponseList(repository.findByCreatedByAndStatus(user, status));
     }
 
     // ==================== Advanced Queries ====================
@@ -227,31 +194,22 @@ public class MarketingCampaignService implements IMarketingCampaignService {
     @Override
     public List<MarketingCampaignResponse> getRecentCampaigns(int limit) {
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return repository.findAll(pageable).stream()
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findAll(pageable).getContent());
     }
 
     @Override
     public List<MarketingCampaignResponse> getCampaignsByBudgetRange(BigDecimal minBudget, BigDecimal maxBudget) {
-        return repository.findAll().stream()
-                .filter(c -> c.getBudget().compareTo(minBudget) >= 0 && c.getBudget().compareTo(maxBudget) <= 0)
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findByBudgetBetween(minBudget, maxBudget));
     }
 
     @Override
     public List<MarketingCampaignResponse> getCampaignsByTargetAudience(String targetAudience) {
-        return repository.findActiveByTargetAudience(targetAudience).stream()
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findActiveByTargetAudience(targetAudience));
     }
 
     @Override
     public List<MarketingCampaignResponse> getTopCampaignsByClicks(int limit) {
-        return repository.findTopByActualClicksDescLimit(limit).stream()
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findTopByActualClicksDescLimit(limit));
     }
 
     // ==================== Bulk Operations ====================
@@ -259,18 +217,11 @@ public class MarketingCampaignService implements IMarketingCampaignService {
     @Override
     @Transactional
     public void bulkCreateCampaigns(List<MarketingCampaignRequest> requests) {
+        requests.forEach(this::validateCampaignRequest);
         List<MarketingCampaign> campaigns = requests.stream()
-                .peek(this::validateCampaignRequest)
                 .map(this::buildFromRequest)
-                .collect(Collectors.toList());
+                .toList();
         repository.saveAll(campaigns);
-    }
-
-    @Override
-    @Transactional
-    public void bulkUpdateCampaigns(List<MarketingCampaignRequest> requests) {
-        throw new UnsupportedOperationException(
-                "bulkUpdateCampaigns requires campaign IDs. Use individual updateMarketingCampaign instead.");
     }
 
     @Override
@@ -287,27 +238,23 @@ public class MarketingCampaignService implements IMarketingCampaignService {
     @Override
     @Transactional
     public void bulkUpdateStatus(List<Integer> campaignIds, CampaignStatus newStatus) {
-        List<MarketingCampaign> campaigns = campaignIds.stream()
-                .map(this::findCampaignOrThrow)
-                .peek(c -> {
-                    if (!isValidStatusTransition(c.getStatus(), newStatus)) {
-                        throw new IllegalStateException(
-                                "Invalid status transition from " + c.getStatus() + " to " + newStatus +
-                                " for campaign id: " + c.getId());
-                    }
-                    c.setStatus(newStatus);
-                })
-                .collect(Collectors.toList());
+        List<MarketingCampaign> campaigns = repository.findAllById(campaignIds);
+        campaigns.forEach(c -> {
+            if (!isValidStatusTransition(c.getStatus(), newStatus)) {
+                throw new IllegalStateException(
+                        "Invalid status transition from " + c.getStatus() + " to " + newStatus +
+                        " for campaign id: " + c.getId());
+            }
+            c.setStatus(newStatus);
+        });
         repository.saveAll(campaigns);
     }
 
     @Override
     @Transactional
     public void bulkIncrementClicks(List<Integer> campaignIds) {
-        List<MarketingCampaign> campaigns = campaignIds.stream()
-                .map(this::findCampaignOrThrow)
-                .peek(c -> c.setActualClicks(c.getActualClicks() + 1))
-                .collect(Collectors.toList());
+        List<MarketingCampaign> campaigns = repository.findAllById(campaignIds);
+        campaigns.forEach(c -> c.setActualClicks(c.getActualClicks() + 1));
         repository.saveAll(campaigns);
     }
 
@@ -326,54 +273,46 @@ public class MarketingCampaignService implements IMarketingCampaignService {
     @Override
     public boolean existsByCreatedById(Integer createdById) {
         UserEntity user = userEntityRepository.findById(createdById.longValue()).orElse(null);
-        return user != null && !repository.findByCreatedBy(user).isEmpty();
+        return user != null && repository.existsByCreatedBy(user);
     }
 
     @Override
     public long countByCreatedById(Integer createdById) {
         UserEntity user = userEntityRepository.findById(createdById.longValue()).orElse(null);
-        return user != null ? repository.findByCreatedBy(user).size() : 0;
+        return user != null ? repository.countByCreatedBy(user) : 0;
     }
 
     @Override
     public long countByStatus(CampaignStatus status) {
-        return repository.findAll().stream()
-                .filter(c -> c.getStatus() == status)
-                .count();
+        return repository.countByStatus(status);
     }
 
     @Override
     public long countByStartDateAfter(LocalDateTime date) {
-        return repository.findAll().stream()
-                .filter(c -> c.getStartDate().isAfter(date))
-                .count();
+        return repository.countByStartDateAfter(date);
     }
 
     // ==================== Financial Operations ====================
 
     @Override
     public BigDecimal calculateTotalBudget() {
-        return repository.findAll().stream()
-                .map(MarketingCampaign::getBudget)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return repository.sumTotalBudget();
     }
 
     @Override
     public BigDecimal calculateTotalBudgetByStatus(CampaignStatus status) {
-        return sumBudgetByStatus(status);
+        return repository.sumBudgetByStatus(status);
     }
 
     @Override
     public BigDecimal calculateRemainingBudgetByStatus(CampaignStatus status) {
-        // Assuming remaining = total budget - (some spent calculation based on clicks ratio)
-        return repository.findAll().stream()
-                .filter(c -> c.getStatus() == status)
+        return repository.findByStatus(status).stream()
                 .map(c -> {
                     if (c.getTargetClicks() == null || c.getTargetClicks() == 0) {
                         return c.getBudget();
                     }
                     double clickRatio = (double) c.getActualClicks() / c.getTargetClicks();
-                    BigDecimal spent = c.getBudget().multiply(BigDecimal.valueOf(Math.min(clickRatio, 1.0)));
+                    BigDecimal spent = c.getBudget().multiply(BigDecimal.valueOf(Math.min(clickRatio, MAX_CLICK_RATIO)));
                     return c.getBudget().subtract(spent);
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -388,24 +327,25 @@ public class MarketingCampaignService implements IMarketingCampaignService {
 
     @Override
     public long getTotalActiveCampaigns() {
-        return countByStatus(CampaignStatus.ACTIVE);
+        return repository.countByStatus(CampaignStatus.ACTIVE);
     }
 
     @Override
     public long getTotalCompletedCampaigns() {
-        return countByStatus(CampaignStatus.COMPLETED);
+        return repository.countByStatus(CampaignStatus.COMPLETED);
     }
 
     @Override
     public BigDecimal getTotalBudgetSpent() {
-        return repository.findAll().stream()
-                .filter(c -> c.getStatus() == CampaignStatus.COMPLETED || c.getStatus() == CampaignStatus.ACTIVE)
+        List<MarketingCampaign> campaigns = repository.findByStatusIn(
+                List.of(CampaignStatus.COMPLETED, CampaignStatus.ACTIVE));
+        return campaigns.stream()
                 .map(c -> {
                     if (c.getTargetClicks() == null || c.getTargetClicks() == 0) {
                         return c.getStatus() == CampaignStatus.COMPLETED ? c.getBudget() : BigDecimal.ZERO;
                     }
                     double clickRatio = (double) c.getActualClicks() / c.getTargetClicks();
-                    return c.getBudget().multiply(BigDecimal.valueOf(Math.min(clickRatio, 1.0)));
+                    return c.getBudget().multiply(BigDecimal.valueOf(Math.min(clickRatio, MAX_CLICK_RATIO)));
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
@@ -415,8 +355,7 @@ public class MarketingCampaignService implements IMarketingCampaignService {
         long total = getTotalCampaigns();
         if (total == 0) return 0.0;
 
-        long successful = repository.findAll().stream()
-                .filter(c -> c.getStatus() == CampaignStatus.COMPLETED)
+        long successful = repository.findByStatus(CampaignStatus.COMPLETED).stream()
                 .filter(c -> c.getTargetClicks() != null && c.getTargetClicks() > 0)
                 .filter(c -> c.getActualClicks() >= c.getTargetClicks())
                 .count();
@@ -427,21 +366,14 @@ public class MarketingCampaignService implements IMarketingCampaignService {
     @Override
     public List<MarketingCampaignResponse> getTopCampaignsByMonth(int limit) {
         LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
-        return repository.findAll().stream()
-                .filter(c -> c.getCreatedAt() != null && c.getCreatedAt().isAfter(startOfMonth))
-                .sorted((a, b) -> Long.compare(b.getActualClicks(), a.getActualClicks()))
-                .limit(limit)
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findByCreatedAtAfterOrderByActualClicksDesc(
+                startOfMonth, PageRequest.of(0, limit)));
     }
 
     @Override
     public List<MarketingCampaignResponse> getCampaignsByMonth() {
         LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
-        return repository.findAll().stream()
-                .filter(c -> c.getCreatedAt() != null && c.getCreatedAt().isAfter(startOfMonth))
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        return toResponseList(repository.findByCreatedAtAfter(startOfMonth));
     }
 
     // ==================== Status Management Operations ====================
@@ -499,14 +431,13 @@ public class MarketingCampaignService implements IMarketingCampaignService {
                 .filter(c -> c.getTargetClicks() != null && c.getTargetClicks() > 0)
                 .filter(c -> c.getActualClicks() < c.getTargetClicks())
                 .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     @Transactional
     public void updateClicksForActiveCampaigns() {
-        // This method could be used by a scheduler to update clicks from external sources
-        // For now, it's a no-op placeholder
+        log.info("updateClicksForActiveCampaigns: not yet implemented");
     }
 
     // ==================== Utility Operations ====================
@@ -515,37 +446,23 @@ public class MarketingCampaignService implements IMarketingCampaignService {
     @Transactional
     public void recalculateCampaignStatus() {
         LocalDateTime now = LocalDateTime.now();
-        List<MarketingCampaign> campaigns = repository.findAll();
-
-        campaigns.forEach(campaign -> {
-            if (campaign.getStatus() == CampaignStatus.ACTIVE && campaign.getEndDate().isBefore(now)) {
-                campaign.setStatus(CampaignStatus.COMPLETED);
-            } else if (campaign.getStatus() == CampaignStatus.DRAFT &&
-                       campaign.getStartDate().isBefore(now) &&
-                       campaign.getEndDate().isAfter(now)) {
-                // Optionally auto-activate drafts that are within date range
-                // campaign.setStatus(CampaignStatus.ACTIVE);
-            }
-        });
-
-        repository.saveAll(campaigns);
+        List<MarketingCampaign> expiredActive = repository.findByStatusAndEndDateBefore(CampaignStatus.ACTIVE, now);
+        expiredActive.forEach(campaign -> campaign.setStatus(CampaignStatus.COMPLETED));
+        repository.saveAll(expiredActive);
     }
 
     @Override
     @Transactional
     public void cleanupExpiredCampaigns(int daysToKeep) {
         LocalDateTime cutoffDate = LocalDateTime.now().minusDays(daysToKeep);
-        List<MarketingCampaign> expiredCampaigns = repository.findAll().stream()
-                .filter(c -> c.getStatus() == CampaignStatus.COMPLETED || c.getStatus() == CampaignStatus.CANCELLED)
-                .filter(c -> c.getEndDate().isBefore(cutoffDate))
-                .collect(Collectors.toList());
-
+        List<MarketingCampaign> expiredCampaigns = repository.findByStatusInAndEndDateBefore(
+                List.of(CampaignStatus.COMPLETED, CampaignStatus.CANCELLED), cutoffDate);
         repository.deleteAll(expiredCampaigns);
     }
 
     @Override
     public List<MarketingCampaignResponse> searchCampaignsByBudget(BigDecimal budget) {
-        BigDecimal tolerance = budget.multiply(BigDecimal.valueOf(0.1)); // 10% tolerance
+        BigDecimal tolerance = budget.multiply(BUDGET_SEARCH_TOLERANCE);
         BigDecimal minBudget = budget.subtract(tolerance);
         BigDecimal maxBudget = budget.add(tolerance);
         return getCampaignsByBudgetRange(minBudget, maxBudget);
@@ -563,13 +480,9 @@ public class MarketingCampaignService implements IMarketingCampaignService {
 
     @Override
     public List<MarketingCampaignResponse> getHighBudgetCampaigns() {
-        BigDecimal avgBudget = calculateAverageBudget();
-        BigDecimal threshold = avgBudget.multiply(BigDecimal.valueOf(1.5)); // 50% above average
-
-        return repository.findAll().stream()
-                .filter(c -> c.getBudget().compareTo(threshold) > 0)
-                .map(MarketingCampaignResponse::new)
-                .collect(Collectors.toList());
+        BigDecimal avgBudget = repository.avgBudget();
+        BigDecimal threshold = avgBudget.multiply(HIGH_BUDGET_MULTIPLIER);
+        return toResponseList(repository.findByBudgetBetween(threshold, BigDecimal.valueOf(Long.MAX_VALUE)));
     }
 
     // ==================== Private Helper Methods ====================
@@ -577,6 +490,11 @@ public class MarketingCampaignService implements IMarketingCampaignService {
     private MarketingCampaign findCampaignOrThrow(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Marketing campaign not found with id: " + id));
+    }
+
+    private UserEntity findUserOrThrow(Integer userId) {
+        return userEntityRepository.findById(userId.longValue())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
     }
 
     private void validateCampaignRequest(MarketingCampaignRequest request) {
@@ -602,15 +520,17 @@ public class MarketingCampaignService implements IMarketingCampaignService {
         return new MarketingCampaignResponse(repository.save(campaign));
     }
 
-    private BigDecimal calculateAverageBudget() {
-        List<MarketingCampaign> campaigns = repository.findAll();
-        if (campaigns.isEmpty()) return BigDecimal.ZERO;
+    private List<MarketingCampaignResponse> toResponseList(List<MarketingCampaign> campaigns) {
+        return campaigns.stream().map(MarketingCampaignResponse::new).toList();
+    }
 
-        BigDecimal total = campaigns.stream()
-                .map(MarketingCampaign::getBudget)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return total.divide(BigDecimal.valueOf(campaigns.size()), 2, RoundingMode.HALF_UP);
+    private List<TourPlan> resolveTours(List<Integer> tourIds) {
+        if (tourIds == null || tourIds.isEmpty()) return List.of();
+        return tourIds.stream()
+                .map(tourPlanRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
     }
 
     private UserEntity getCurrentUser() {
@@ -620,15 +540,6 @@ public class MarketingCampaignService implements IMarketingCampaignService {
 
     private MarketingCampaign buildFromRequest(MarketingCampaignRequest request) {
         UserEntity createdBy = getCurrentUser();
-
-        List<TourPlan> tours = (request.tourIds() != null && !request.tourIds().isEmpty())
-                ? request.tourIds().stream()
-                        .map(tourPlanRepository::findById)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .toList()
-                : List.of();
-
         return MarketingCampaign.builder()
                 .name(request.name())
                 .description(request.description())
@@ -639,7 +550,7 @@ public class MarketingCampaignService implements IMarketingCampaignService {
                 .startDate(request.startDate())
                 .endDate(request.endDate())
                 .targetClicks(request.targetClicks() != null ? request.targetClicks() : 0L)
-                .tours(tours)
+                .tours(resolveTours(request.tourIds()))
                 .createdBy(createdBy)
                 .build();
     }
@@ -654,14 +565,6 @@ public class MarketingCampaignService implements IMarketingCampaignService {
         existing.setStartDate(request.startDate());
         existing.setEndDate(request.endDate());
         existing.setTargetClicks(request.targetClicks() != null ? request.targetClicks() : 0L);
-
-        List<TourPlan> tours = (request.tourIds() != null && !request.tourIds().isEmpty())
-                ? request.tourIds().stream()
-                        .map(tourPlanRepository::findById)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .toList()
-                : List.of();
-        existing.setTours(tours);
+        existing.setTours(resolveTours(request.tourIds()));
     }
 }
