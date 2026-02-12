@@ -175,12 +175,6 @@ public class PaymentInstallmentController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PutMapping("/bulk")
-    public ResponseEntity<Void> bulkUpdate(@RequestBody List<PaymentInstallmentRequest> requests) {
-        service.bulkUpdatePaymentInstallments(requests);
-        return ResponseEntity.ok().build();
-    }
-
     @DeleteMapping("/bulk")
     public ResponseEntity<Void> bulkDelete(@RequestBody List<Integer> installmentIds) {
         service.bulkDeletePaymentInstallments(installmentIds);
