@@ -50,7 +50,6 @@ public interface IMarketingCampaignService {
 
     // Bulk operations
     void bulkCreateCampaigns(List<MarketingCampaignRequest> requests);
-    void bulkUpdateCampaigns(List<MarketingCampaignRequest> requests);
     void bulkDeleteCampaigns(List<Integer> campaignIds);
     void bulkUpdateStatus(List<Integer> campaignIds, CampaignStatus newStatus);
     void bulkIncrementClicks(List<Integer> campaignIds);
