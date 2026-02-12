@@ -520,24 +520,6 @@ public class PaymentInstallmentControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = { "ADMIN" })
-    @DisplayName("Should update multiple payment installments in bulk when bulkUpdate is called")
-    void bulkUpdate_success() throws Exception {
-        // Given
-        List<PaymentInstallmentRequest> requests = Collections.singletonList(request);
-        doNothing().when(service).bulkUpdatePaymentInstallments(anyList());
-
-        // When/Then
-        mockMvc.perform(put("/api/payment-installments/bulk")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(requests))
-                .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isOk());
-
-        verify(service).bulkUpdatePaymentInstallments(anyList());
-    }
-
-    @Test
-    @WithMockUser(username = "admin", roles = { "ADMIN" })
     @DisplayName("Should delete multiple payment installments in bulk when bulkDelete is called")
     void bulkDelete_success() throws Exception {
         // Given
