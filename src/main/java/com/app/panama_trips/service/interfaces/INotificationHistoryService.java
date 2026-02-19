@@ -37,7 +37,6 @@ public interface INotificationHistoryService {
 
     // Bulk operations
     void bulkCreateNotificationHistory(List<NotificationHistoryRequest> requests);
-    void bulkUpdateNotificationHistory(List<NotificationHistoryRequest> requests);
     void bulkDeleteNotificationHistory(List<Integer> notificationIds);
     void bulkUpdateDeliveryStatus(List<Integer> notificationIds, String newStatus);
 
@@ -54,9 +53,6 @@ public interface INotificationHistoryService {
     long getTotalNotificationsDelivered();
     long getTotalNotificationsFailed();
     double getDeliverySuccessRate();
-    List<NotificationHistoryResponse> getTopUsersByNotificationCount(int limit);
-    List<NotificationHistoryResponse> getNotificationsByHourOfDay();
-    List<NotificationHistoryResponse> getNotificationsByDayOfWeek();
 
     // Utility operations
     void markAsDelivered(Integer notificationId);
