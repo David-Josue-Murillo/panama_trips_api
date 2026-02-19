@@ -19,15 +19,15 @@ public interface ITourPlanService {
     // Additional service methods
     TourPlanResponse getTourPlanByTitle(String title);
     List<TourPlanResponse> getTourPlanByPrice(BigDecimal price);
-    Page<TourPlanResponse> getTourPlanByPriceBetween(BigDecimal priceAfter, BigDecimal priceBefore, Pageable pageable);
+    Page<TourPlanResponse> getTourPlanByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
     List<TourPlanResponse> getTourPlanByDuration(Integer duration);
-    Page<TourPlanResponse> getTourPlanByDurationBetween(Integer durationAfter, Integer durationBefore, Pageable pageable);
+    Page<TourPlanResponse> getTourPlanByDurationBetween(Integer minDuration, Integer maxDuration, Pageable pageable);
     List<TourPlanResponse> getTourPlanByAvailableSpots(Integer availableSpots);
-    Page<TourPlanResponse> getTourPlanByAvailableSpotsBetween(Integer availableSpotsAfter, Integer availableSpotsBefore, Pageable pageable);
+    Page<TourPlanResponse> getTourPlanByAvailableSpotsBetween(Integer minSpots, Integer maxSpots, Pageable pageable);
     List<TourPlanResponse> getTourPlanByProviderId(Integer providerId);
     List<TourPlanResponse> getTourPlanByTitleAndPrice(String title, BigDecimal price);
-    Page<TourPlanResponse> getTourPlanByTitleAndPriceBetween(String title, BigDecimal priceAfter, BigDecimal priceBefore, Pageable pageable);
-    Page<TourPlanResponse> getTourPlanByTitleAndPriceBetweenAndDurationBetween(String title, BigDecimal priceAfter, BigDecimal priceBefore, Integer durationAfter, Integer durationBefore, Pageable pageable);
+    Page<TourPlanResponse> getTourPlanByTitleAndPriceBetween(String title, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
+    Page<TourPlanResponse> getTourPlanByTitleAndPriceBetweenAndDurationBetween(String title, BigDecimal minPrice, BigDecimal maxPrice, Integer minDuration, Integer maxDuration, Pageable pageable);
     List<TourPlanResponse> getTop10TourPlanByTitleContaining(String keyword, Pageable pageable);
     boolean existsTourPlanByTitle(String title);
     long countTourPlan();

@@ -19,174 +19,144 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TourPlanService implements ITourPlanService {
 
     private final TourPlanRepository tourPlanRepository;
     private final ProviderRepository providerRepository;
 
     @Override
-    @Transactional(readOnly = true)
     public Page<TourPlanResponse> getAllTourPlan(Pageable pageable) {
-        return this.tourPlanRepository.findAll(pageable)
+        return tourPlanRepository.findAll(pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public TourPlanResponse getTourPlanById(Integer id) {
-        return this.tourPlanRepository.findById(id)
-                .map(TourPlanResponse::new)
-                .orElseThrow(() -> new ResourceNotFoundException("Tour Plan with id " + id + " not found"));
+        return new TourPlanResponse(findTourPlanOrThrow(id));
     }
 
     @Override
     @Transactional
     public TourPlanResponse saveTourPlan(TourPlanRequest tourPlanRequest) {
-        validateProvider(tourPlanRequest);
-        TourPlan newTourPlan = builderTourPlanFromRequest(tourPlanRequest);
-        return new TourPlanResponse(this.tourPlanRepository.save(newTourPlan));
+        validateTitleUniqueness(tourPlanRequest.title());
+        TourPlan newTourPlan = buildTourPlanFromRequest(tourPlanRequest);
+        return new TourPlanResponse(tourPlanRepository.save(newTourPlan));
     }
 
     @Override
     @Transactional
     public TourPlanResponse updateTourPlan(Integer id, TourPlanRequest tourPlanRequest) {
-        TourPlan tourPlan = this.tourPlanRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Tour Plan with id " + id + " not found"));
+        TourPlan tourPlan = findTourPlanOrThrow(id);
         updateTourPlanEntity(tourPlan, tourPlanRequest);
-        return new TourPlanResponse(this.tourPlanRepository.save(tourPlan));
+        return new TourPlanResponse(tourPlanRepository.save(tourPlan));
     }
 
     @Override
     @Transactional
     public void deleteTourPlan(Integer id) {
-        if(!this.tourPlanRepository.existsById(id)){
+        if (!tourPlanRepository.existsById(id)) {
             throw new ResourceNotFoundException("Tour Plan with id " + id + " not found");
         }
-
-        this.tourPlanRepository.deleteById(id);
+        tourPlanRepository.deleteById(id);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public TourPlanResponse getTourPlanByTitle(String title) {
-        return this.tourPlanRepository.findByTitleIgnoreCase(title)
+        return tourPlanRepository.findByTitleIgnoreCase(title)
                 .map(TourPlanResponse::new)
                 .orElseThrow(() -> new ResourceNotFoundException("Tour Plan with title " + title + " not found"));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<TourPlanResponse> getTourPlanByPrice(BigDecimal price) {
-        return this.tourPlanRepository.findByPrice(price)
-                .stream()
-                .map(TourPlanResponse::new)
-                .toList();
+        return toResponseList(tourPlanRepository.findByPrice(price));
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<TourPlanResponse> getTourPlanByPriceBetween(BigDecimal priceAfter, BigDecimal priceBefore, Pageable pageable) {
-        return this.tourPlanRepository.findByPriceBetween(priceAfter, priceBefore, pageable)
+    public Page<TourPlanResponse> getTourPlanByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+        return tourPlanRepository.findByPriceBetween(minPrice, maxPrice, pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<TourPlanResponse> getTourPlanByDuration(Integer duration) {
-        return this.tourPlanRepository.findByDuration(duration)
-                .stream()
-                .map(TourPlanResponse::new)
-                .toList();
+        return toResponseList(tourPlanRepository.findByDuration(duration));
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<TourPlanResponse> getTourPlanByDurationBetween(Integer durationAfter, Integer durationBefore, Pageable pageable) {
-        return this.tourPlanRepository.findByDurationBetween(durationAfter, durationBefore, pageable)
+    public Page<TourPlanResponse> getTourPlanByDurationBetween(Integer minDuration, Integer maxDuration, Pageable pageable) {
+        return tourPlanRepository.findByDurationBetween(minDuration, maxDuration, pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<TourPlanResponse> getTourPlanByAvailableSpots(Integer availableSpots) {
-        return this.tourPlanRepository.findByAvailableSpots(availableSpots)
-                .stream()
-                .map(TourPlanResponse::new)
-                .toList();
+        return toResponseList(tourPlanRepository.findByAvailableSpots(availableSpots));
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<TourPlanResponse> getTourPlanByAvailableSpotsBetween(Integer availableSpotsAfter, Integer availableSpotsBefore, Pageable pageable) {
-        return this.tourPlanRepository.findByAvailableSpotsBetween(availableSpotsAfter, availableSpotsBefore, pageable)
+    public Page<TourPlanResponse> getTourPlanByAvailableSpotsBetween(Integer minSpots, Integer maxSpots, Pageable pageable) {
+        return tourPlanRepository.findByAvailableSpotsBetween(minSpots, maxSpots, pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<TourPlanResponse> getTourPlanByProviderId(Integer providerId) {
-        return this.tourPlanRepository.findByProvider_Id(providerId)
-                .stream()
-                .map(TourPlanResponse::new)
-                .toList();
+        return toResponseList(tourPlanRepository.findByProvider_Id(providerId));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<TourPlanResponse> getTourPlanByTitleAndPrice(String title, BigDecimal price) {
-        return this.tourPlanRepository.findByTitleContainingIgnoreCaseAndPrice(title, price)
-                .stream()
-                .map(TourPlanResponse::new)
-                .toList();
+        return toResponseList(tourPlanRepository.findByTitleContainingIgnoreCaseAndPrice(title, price));
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<TourPlanResponse> getTourPlanByTitleAndPriceBetween(String title, BigDecimal priceAfter, BigDecimal priceBefore, Pageable pageable) {
-        return this.tourPlanRepository.findByTitleContainingIgnoreCaseAndPriceBetween(title, priceAfter, priceBefore, pageable)
+    public Page<TourPlanResponse> getTourPlanByTitleAndPriceBetween(String title, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+        return tourPlanRepository.findByTitleContainingIgnoreCaseAndPriceBetween(title, minPrice, maxPrice, pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<TourPlanResponse> getTourPlanByTitleAndPriceBetweenAndDurationBetween(String title, BigDecimal priceAfter, BigDecimal priceBefore, Integer durationAfter, Integer durationBefore, Pageable pageable) {
-        return this.tourPlanRepository.findByTitleContainingIgnoreCaseAndPriceBetweenAndDurationBetween(title, priceAfter, priceBefore, durationAfter, durationBefore, pageable)
+    public Page<TourPlanResponse> getTourPlanByTitleAndPriceBetweenAndDurationBetween(String title, BigDecimal minPrice, BigDecimal maxPrice, Integer minDuration, Integer maxDuration, Pageable pageable) {
+        return tourPlanRepository.findByTitleContainingIgnoreCaseAndPriceBetweenAndDurationBetween(title, minPrice, maxPrice, minDuration, maxDuration, pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<TourPlanResponse> getTop10TourPlanByTitleContaining(String keyword, Pageable pageable) {
-        return this.tourPlanRepository.findTop10ByTitleContainingIgnoreCaseOrderByTitleAsc(keyword, pageable)
-                .stream()
-                .map(TourPlanResponse::new)
-                .toList();
+        return toResponseList(tourPlanRepository.findTop10ByTitleContainingIgnoreCaseOrderByTitleAsc(keyword, pageable));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public boolean existsTourPlanByTitle(String title) {
-        return this.tourPlanRepository.existsByTitleIgnoreCase(title);
+        return tourPlanRepository.existsByTitleIgnoreCase(title);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public long countTourPlan() {
-        return this.tourPlanRepository.count();
+        return tourPlanRepository.count();
     }
 
-    // Methods private
-    private void validateProvider(TourPlanRequest tourPlanRequest) {
-        if(this.tourPlanRepository.existsByTitleIgnoreCase(tourPlanRequest.title())) {
-            throw new IllegalArgumentException("Tour Plan with title " + tourPlanRequest.title() + " already exists");
-        }
+    // Private helpers
 
-        if(!this.providerRepository.existsById(tourPlanRequest.providerId())) {
-            throw new ResourceNotFoundException("Provider with id " + tourPlanRequest.providerId() + " not found");
+    private TourPlan findTourPlanOrThrow(Integer id) {
+        return tourPlanRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Tour Plan with id " + id + " not found"));
+    }
+
+    private Provider findProviderOrFail(Integer providerId) {
+        return providerRepository.findById(providerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Provider with id " + providerId + " not found"));
+    }
+
+    private void validateTitleUniqueness(String title) {
+        if (tourPlanRepository.existsByTitleIgnoreCase(title)) {
+            throw new IllegalArgumentException("Tour Plan with title " + title + " already exists");
         }
     }
 
-    private TourPlan builderTourPlanFromRequest(TourPlanRequest tourPlanRequest) {
+    private TourPlan buildTourPlanFromRequest(TourPlanRequest tourPlanRequest) {
         return TourPlan.builder()
                 .title(tourPlanRequest.title())
                 .description(tourPlanRequest.description())
@@ -197,11 +167,6 @@ public class TourPlanService implements ITourPlanService {
                 .build();
     }
 
-    private Provider findProviderOrFail(Integer providerId) {
-        return this.providerRepository.findById(providerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Provider with id " + providerId + " not found"));
-    }
-
     private void updateTourPlanEntity(TourPlan tourPlan, TourPlanRequest tourPlanRequest) {
         tourPlan.setTitle(tourPlanRequest.title());
         tourPlan.setDescription(tourPlanRequest.description());
@@ -209,5 +174,11 @@ public class TourPlanService implements ITourPlanService {
         tourPlan.setDuration(tourPlanRequest.duration());
         tourPlan.setAvailableSpots(tourPlanRequest.availableSpots());
         tourPlan.setProvider(findProviderOrFail(tourPlanRequest.providerId()));
+    }
+
+    private List<TourPlanResponse> toResponseList(List<TourPlan> tourPlans) {
+        return tourPlans.stream()
+                .map(TourPlanResponse::new)
+                .toList();
     }
 }
