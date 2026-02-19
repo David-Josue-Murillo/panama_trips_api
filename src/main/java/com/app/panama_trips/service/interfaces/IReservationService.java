@@ -39,7 +39,7 @@ public interface IReservationService {
     // Special searches
     Page<ReservationResponse> getRecentReservationsByUser(Long userId, LocalDate recentDate, Pageable pageable);
     Page<ReservationResponse> getReservationsByDayOfWeek(int dayOfWeek, Pageable pageable);
-    Page<ReservationResponse> getReservationsByProvince(Integer ProvinceId, Pageable pageable);
+    Page<ReservationResponse> getReservationsByProvince(Integer provinceId, Pageable pageable);
 
     // Counting and statistical operations
     Long countReservationsByStatus(ReservationStatus status);

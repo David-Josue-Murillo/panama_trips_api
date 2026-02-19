@@ -23,6 +23,7 @@ import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReservationService implements IReservationService {
 
     private final ReservationRepository reservationRepository;
@@ -30,25 +31,23 @@ public class ReservationService implements IReservationService {
     private final TourPlanRepository tourPlanRepository;
 
     @Override
-    @Transactional(readOnly = true)
     public Page<ReservationResponse> getAllReservations(Pageable pageable) {
-        return this.reservationRepository.findAll(pageable).map(ReservationResponse::new);
+        return reservationRepository.findAll(pageable).map(ReservationResponse::new);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public ReservationResponse getReservationById(Integer id) {
-        return this.reservationRepository.findById(id)
-                .map(ReservationResponse::new)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + id + " not found"));
+        return new ReservationResponse(findReservationOrThrow(id));
     }
 
     @Override
     @Transactional
     public ReservationResponse saveReservation(ReservationRequest reservationRequest) {
-        validateReservation(reservationRequest);
-        Reservation reservation = builderReservationFromRequest(reservationRequest);
-        return new ReservationResponse(this.reservationRepository.save(reservation));
+        TourPlan tourPlan = findTourPlanOrFail(reservationRequest.tourPlanId());
+        UserEntity user = findUserEntityOrFail(reservationRequest.userId());
+        validateReservation(reservationRequest, tourPlan);
+        Reservation reservation = buildReservationFromRequest(reservationRequest, user, tourPlan);
+        return new ReservationResponse(reservationRepository.save(reservation));
     }
 
     @Override
@@ -56,24 +55,20 @@ public class ReservationService implements IReservationService {
     public ReservationResponse updateStatusReservation(Integer id, String status, String username) {
         ReservationStatus newStatus = getReservationStatus(status);
 
-        // Check if the reservation exists
-        Reservation reservation = this.reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + id + " not found"));
+        Reservation reservation = findReservationOrThrow(id);
 
-        UserEntity currentUser = this.userEntityRepository.findUserEntitiesByName(username)
+        UserEntity currentUser = userEntityRepository.findUserEntitiesByName(username)
                 .orElseThrow(() -> new UserNotFoundException("User with name " + username + " not found"));
 
-        if(!isAuthorizedToModifyReservation(currentUser, reservation)){
+        if (!isAuthorizedToModifyReservation(currentUser, reservation)) {
             throw new UnauthorizedException("You are not authorized to modify this reservation");
         }
 
-        // Verify business rules for status change
         if (!canChangeToStatus(reservation, newStatus)) {
             throw new BusinessRuleException("Cannot change reservation from " +
                     reservation.getReservationStatus() + " to " + newStatus);
         }
 
-        // Apply specific logic based on the new status
         switch (newStatus) {
             case cancelled:
                 handleCancellation(reservation);
@@ -81,212 +76,199 @@ public class ReservationService implements IReservationService {
             case confirmed:
                 handleConfirmation(reservation);
                 break;
-            // otros casos según sea necesario
             default:
                 reservation.setReservationStatus(newStatus);
         }
 
-        return new ReservationResponse(this.reservationRepository.save(reservation));
-}
+        return new ReservationResponse(reservationRepository.save(reservation));
+    }
 
     @Override
     @Transactional
     public void deleteReservation(Integer id) {
-        if(!this.reservationRepository.existsById(id)){
+        if (!reservationRepository.existsById(id)) {
             throw new ResourceNotFoundException("Reservation with id " + id + " not found");
         }
-
-        this.reservationRepository.deleteById(id);
+        reservationRepository.deleteById(id);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Page<ReservationResponse> getReservationByUserId(Long userId, Pageable pageable) {
-        return this.reservationRepository.findRecentReservationsByUser(userId, LocalDate.now(), pageable)
+        return reservationRepository.findRecentReservationsByUser(userId, LocalDate.now(), pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationByTourPlanId(Integer tourPlanId, Pageable pageable) {
-        return this.reservationRepository.findByTourPlan_Id(tourPlanId, pageable)
+        return reservationRepository.findByTourPlan_Id(tourPlanId, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationByReservationStatus(String reservationStatus, Pageable pageable) {
         ReservationStatus status = getReservationStatus(reservationStatus);
-        return this.reservationRepository.findByReservationStatus(status, pageable)
+        return reservationRepository.findByReservationStatus(status, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationByReservationDate(String reservationDate, Pageable pageable) {
         LocalDate date;
-
         try {
             date = LocalDate.parse(reservationDate);
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid reservation date: " + reservationDate);
         }
-
-        return this.reservationRepository.findByReservationDate(date, pageable)
+        return reservationRepository.findByReservationDate(date, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsByUserAndStatus(Long userId, String status, Pageable pageable) {
         ReservationStatus reservationStatus = getReservationStatus(status);
-        return this.reservationRepository.findByUser_IdAndReservationStatus(userId, reservationStatus, pageable)
+        return reservationRepository.findByUser_IdAndReservationStatus(userId, reservationStatus, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsByTourPlanAndStatus(Integer tourPlanId, String status, Pageable pageable) {
         ReservationStatus reservationStatus = getReservationStatus(status);
-        return this.reservationRepository.findByTourPlan_IdAndReservationStatus(tourPlanId, reservationStatus, pageable)
+        return reservationRepository.findByTourPlan_IdAndReservationStatus(tourPlanId, reservationStatus, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsBetweenDates(LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return this.reservationRepository.findByReservationDateBetween(startDate, endDate, pageable)
+        return reservationRepository.findByReservationDateBetween(startDate, endDate, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsByMonth(short month, Pageable pageable) {
-        return this.reservationRepository.findByReservationDate_Month(month, pageable)
+        return reservationRepository.findByReservationDate_Month(month, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsByYear(int year, Pageable pageable) {
-        return this.reservationRepository.findByReservationDate_Year(year, pageable)
+        return reservationRepository.findByReservationDate_Year(year, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsWithPriceGreaterThan(BigDecimal price, Pageable pageable) {
-        return this.reservationRepository.findByTotalPriceGreaterThan(price, pageable)
+        return reservationRepository.findByTotalPriceGreaterThan(price, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsByPriceRange(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
-        return this.reservationRepository.findByTotalPriceBetween(minPrice, maxPrice, pageable)
+        return reservationRepository.findByTotalPriceBetween(minPrice, maxPrice, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getRecentReservationsByUser(Long userId, LocalDate recentDate, Pageable pageable) {
-        return this.reservationRepository.findRecentReservationsByUser(userId, recentDate, pageable)
+        return reservationRepository.findRecentReservationsByUser(userId, recentDate, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Page<ReservationResponse> getReservationsByDayOfWeek(int dayOfWeek, Pageable pageable) {
-        return this.reservationRepository.findByDayOfWeek(dayOfWeek, pageable)
+        return reservationRepository.findByDayOfWeek(dayOfWeek, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
-    public Page<ReservationResponse> getReservationsByProvince(Integer ProvinceId, Pageable pageable) {
-        return this.reservationRepository.findByRegion(ProvinceId, pageable)
+    public Page<ReservationResponse> getReservationsByProvince(Integer provinceId, Pageable pageable) {
+        return reservationRepository.findByRegion(provinceId, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
     public Long countReservationsByStatus(ReservationStatus status) {
-        return this.reservationRepository.countByReservationStatus(status);
+        return reservationRepository.countByReservationStatus(status);
     }
 
     @Override
     public Long countReservationsByTourPlan(Integer tourPlanId) {
-        return this.reservationRepository.countByTourPlan_Id(tourPlanId);
+        return reservationRepository.countByTourPlan_Id(tourPlanId);
     }
 
     @Override
     public Object[] getReservationStatistics() {
-        return this.reservationRepository.getReservationStatistics();
+        return reservationRepository.getReservationStatistics();
     }
 
     @Override
+    @Transactional
     public ReservationResponse cancelReservation(Integer id) {
-        Reservation reservation = this.reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + id + " not found"));
-        this.handleCancellation(reservation);
-        return new ReservationResponse(reservation);
+        Reservation reservation = findReservationOrThrow(id);
+        handleCancellation(reservation);
+        return new ReservationResponse(reservationRepository.save(reservation));
     }
 
     @Override
+    @Transactional
     public ReservationResponse confirmReservation(Integer id) {
-        Reservation reservation = this.reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + id + " not found"));
-        this.handleConfirmation(reservation);
-        return new ReservationResponse(reservation);
+        Reservation reservation = findReservationOrThrow(id);
+        handleConfirmation(reservation);
+        return new ReservationResponse(reservationRepository.save(reservation));
     }
 
-    // Private Methods
-    private void validateReservation(ReservationRequest reservationRequest) {
-        TourPlan tourPlan = tourPlanRepository.findById(reservationRequest.tourPlanId())
-                .orElseThrow(() -> new ResourceNotFoundException("Tour with ID: " + reservationRequest.tourPlanId() + " not found"));
+    // Private helpers
 
-        if(!this.userEntityRepository.existsById(reservationRequest.userId())) {
-            throw new UserNotFoundException("User with id " + reservationRequest.userId() + " not found");
-        }
+    private Reservation findReservationOrThrow(Integer id) {
+        return reservationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + id + " not found"));
+    }
 
-        if (reservationRequest.reservationDate().isBefore(LocalDate.now())) {
+    private UserEntity findUserEntityOrFail(Long userId) {
+        return userEntityRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+    }
+
+    private TourPlan findTourPlanOrFail(Integer tourPlanId) {
+        return tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tour Plan with id " + tourPlanId + " not found"));
+    }
+
+    // Validation
+
+    private void validateReservation(ReservationRequest request, TourPlan tourPlan) {
+        if (request.reservationDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("The booking date cannot be in the past");
         }
 
-        // Validate that the price is consistent with the tour price
-        if (reservationRequest.totalPrice().compareTo(tourPlan.getPrice()) != 0) {
+        if (request.totalPrice().compareTo(tourPlan.getPrice()) != 0) {
             throw new IllegalArgumentException("The booking price must match the tour price");
         }
 
-        // Validate tour availability
-        long reservationCount = reservationRepository.countByTourPlan_Id(reservationRequest.tourPlanId());
+        long reservationCount = reservationRepository.countByTourPlan_Id(request.tourPlanId());
         if (reservationCount >= tourPlan.getAvailableSpots()) {
             throw new IllegalStateException("No hay cupos disponibles para este tour");
         }
 
-        // Verify that the user does not already have a booking for this tour
-        boolean existingReservation = reservationRepository
-                .existsByUser_IdAndTourPlanId(reservationRequest.userId(), reservationRequest.tourPlanId());
-
-        if (existingReservation) {
-            throw new IllegalArgumentException("User with id 1 already reserved this tour");
+        if (reservationRepository.existsByUser_IdAndTourPlanId(request.userId(), request.tourPlanId())) {
+            throw new IllegalArgumentException("User with id " + request.userId() + " already reserved this tour");
         }
     }
 
-    private Reservation builderReservationFromRequest(ReservationRequest reservationRequest) {
+    private Reservation buildReservationFromRequest(ReservationRequest request, UserEntity user, TourPlan tourPlan) {
         return Reservation.builder()
-                .user(findUserEntityOrFail(reservationRequest.userId()))
-                .tourPlan(findTourPlanOrFail(reservationRequest.tourPlanId()))
+                .user(user)
+                .tourPlan(tourPlan)
                 .reservationStatus(ReservationStatus.pending)
-                .reservationDate(reservationRequest.reservationDate())
-                .totalPrice(reservationRequest.totalPrice())
+                .reservationDate(request.reservationDate())
+                .totalPrice(request.totalPrice())
                 .build();
     }
 
-    private UserEntity findUserEntityOrFail(Long userId) {
-        return this.userEntityRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + userId + " not found"));
-    }
+    // Business logic
 
-    private TourPlan findTourPlanOrFail(Integer tourPlanId) {
-        return this.tourPlanRepository.findById(tourPlanId)
-                .orElseThrow(() -> new ResourceNotFoundException("Tour Plan with id: " + tourPlanId + " not found"));
-    }
-
-    // Business logic methods
     private boolean isAuthorizedToModifyReservation(UserEntity user, Reservation reservation) {
-        // If admin, always allow
-        // If the owner of the booking, allow
-        // If the tour provider, allow certain changes
-
         return user.getRole_id().getRoleEnum() == RoleEnum.ADMIN ||
-                reservation.getUser().getRole_id().equals(user.getRole_id()) ||
+                reservation.getUser().getId().equals(user.getId()) ||
                 user.getRole_id().getRoleEnum() == RoleEnum.OPERATOR;
     }
 
@@ -297,9 +279,7 @@ public class ReservationService implements IReservationService {
             return false;
         }
 
-        // Validate cancellations by date
         if (newStatus == ReservationStatus.cancelled) {
-            // Do not allow cancellation if there are less than X days left until the tour
             LocalDate tourDate = reservation.getTourPlan().getSeasonStartDate();
             return ChronoUnit.DAYS.between(LocalDate.now(), tourDate) >= 2;
         }
@@ -308,11 +288,11 @@ public class ReservationService implements IReservationService {
     }
 
     private void handleCancellation(Reservation reservation) {
-        // Pending logic for cancellations
+        reservation.setReservationStatus(ReservationStatus.cancelled);
     }
 
     private void handleConfirmation(Reservation reservation) {
-        // Pending logic for confirmations
+        reservation.setReservationStatus(ReservationStatus.confirmed);
     }
 
     private ReservationStatus getReservationStatus(String status) {
