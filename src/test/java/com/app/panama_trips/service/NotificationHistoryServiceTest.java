@@ -27,7 +27,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,18 +114,18 @@ public class NotificationHistoryServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw exception when getting notification history by id that doesn't exist")
+    @DisplayName("Should throw ResourceNotFoundException when getting notification history by id that doesn't exist")
     void getNotificationHistoryById_whenNotExists_shouldThrowException() {
         // Given
         Integer id = 999;
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         // When/Then
-        RuntimeException exception = assertThrows(
-                RuntimeException.class,
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
                 () -> service.getNotificationHistoryById(id)
         );
-        assertEquals("Notification history not found", exception.getMessage());
+        assertEquals("Notification history not found with: " + id, exception.getMessage());
         verify(repository).findById(id);
     }
 
@@ -209,7 +208,7 @@ public class NotificationHistoryServiceTest {
         assertNotNull(result);
         verify(repository).findById(id);
         verify(repository).save(notificationCaptor.capture());
-        
+
         NotificationHistory updatedNotification = notificationCaptor.getValue();
         assertEquals(request.content(), updatedNotification.getContent());
         assertEquals(request.deliveryStatus(), updatedNotification.getDeliveryStatus());
@@ -217,22 +216,21 @@ public class NotificationHistoryServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw exception when updating non-existent notification history")
+    @DisplayName("Should throw ResourceNotFoundException when updating non-existent notification history")
     void updateNotificationHistory_whenNotExists_shouldThrowException() {
         // Given
         Integer id = 999;
-        // Mock the validation to pass first
         when(notificationTemplateRepository.existsById(request.templateId())).thenReturn(true);
         when(userEntityRepository.existsById(request.userId())).thenReturn(true);
         when(reservationRepository.existsById(request.reservationId())).thenReturn(true);
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         // When/Then
-        RuntimeException exception = assertThrows(
-                RuntimeException.class,
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
                 () -> service.updateNotificationHistory(id, request)
         );
-        assertEquals("Notification history not found", exception.getMessage());
+        assertEquals("Notification history not found with: " + id, exception.getMessage());
         verify(repository).findById(id);
         verify(repository, never()).save(any(NotificationHistory.class));
     }
@@ -389,6 +387,26 @@ public class NotificationHistoryServiceTest {
         verify(repository).findBySentAtBetween(startDate, endDate);
     }
 
+    @Test
+    @DisplayName("Should find notification history by date range and user")
+    void findByDateRangeAndUser_shouldReturnMatchingNotifications() {
+        // Given
+        Long userId = 1L;
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime endDate = LocalDateTime.now();
+        when(userEntityRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(repository.findByUserAndSentAtBetween(user, startDate, endDate)).thenReturn(notifications);
+
+        // When
+        List<NotificationHistoryResponse> result = service.findByDateRangeAndUser(startDate, endDate, userId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(notifications.size(), result.size());
+        verify(userEntityRepository).findById(userId);
+        verify(repository).findByUserAndSentAtBetween(user, startDate, endDate);
+    }
+
     // ========== SPECIALIZED QUERIES TESTS ==========
 
     @Test
@@ -437,21 +455,64 @@ public class NotificationHistoryServiceTest {
     }
 
     @Test
-    @DisplayName("Should get recent notifications with limit")
+    @DisplayName("Should get recent notifications with limit using paginated query")
     void getRecentNotifications_shouldReturnRecentNotifications() {
         // Given
         int limit = 5;
-        when(repository.findAll()).thenReturn(notifications);
+        when(repository.findAllByOrderBySentAtDesc(any(Pageable.class))).thenReturn(notifications);
 
         // When
         List<NotificationHistoryResponse> result = service.getRecentNotifications(limit);
 
         // Then
         assertNotNull(result);
-        verify(repository).findAll();
+        assertEquals(notifications.size(), result.size());
+        verify(repository).findAllByOrderBySentAtDesc(any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("Should get notifications by reservation and channel")
+    void getNotificationsByReservationAndChannel_shouldReturnMatchingNotifications() {
+        // Given
+        Integer reservationId = 1;
+        String channel = "EMAIL";
+        when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(repository.findByReservationAndChannel(reservation, channel)).thenReturn(notifications);
+
+        // When
+        List<NotificationHistoryResponse> result = service.getNotificationsByReservationAndChannel(reservationId, channel);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(notifications.size(), result.size());
+        verify(reservationRepository).findById(reservationId);
+        verify(repository).findByReservationAndChannel(reservation, channel);
     }
 
     // ========== BULK OPERATIONS TESTS ==========
+
+    @Test
+    @DisplayName("Should bulk create notification history")
+    void bulkCreateNotificationHistory_success() {
+        // Given
+        List<NotificationHistoryRequest> requests = List.of(request);
+        when(notificationTemplateRepository.existsById(request.templateId())).thenReturn(true);
+        when(userEntityRepository.existsById(request.userId())).thenReturn(true);
+        when(reservationRepository.existsById(request.reservationId())).thenReturn(true);
+        when(notificationTemplateRepository.findById(request.templateId())).thenReturn(Optional.of(template));
+        when(userEntityRepository.findById(request.userId())).thenReturn(Optional.of(user));
+        when(reservationRepository.findById(request.reservationId())).thenReturn(Optional.of(reservation));
+        when(repository.saveAll(anyList())).thenReturn(List.of(notification));
+
+        // When
+        service.bulkCreateNotificationHistory(requests);
+
+        // Then
+        verify(repository).saveAll(notificationsCaptor.capture());
+        List<NotificationHistory> savedNotifications = notificationsCaptor.getValue();
+        assertEquals(1, savedNotifications.size());
+        assertEquals(request.content(), savedNotifications.getFirst().getContent());
+    }
 
     @Test
     @DisplayName("Should bulk delete notification history")
@@ -464,6 +525,36 @@ public class NotificationHistoryServiceTest {
 
         // Then
         verify(repository).deleteAllById(notificationIds);
+    }
+
+    @Test
+    @DisplayName("Should bulk update delivery status")
+    void bulkUpdateDeliveryStatus_success() {
+        // Given
+        List<Integer> notificationIds = List.of(1, 2);
+        String newStatus = "DELIVERED";
+        when(repository.findAllById(notificationIds)).thenReturn(notifications.subList(0, 2));
+        when(repository.saveAll(anyList())).thenReturn(notifications.subList(0, 2));
+
+        // When
+        service.bulkUpdateDeliveryStatus(notificationIds, newStatus);
+
+        // Then
+        verify(repository).findAllById(notificationIds);
+        verify(repository).saveAll(anyList());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when bulk updating with invalid status")
+    void bulkUpdateDeliveryStatus_withInvalidStatus_shouldThrowException() {
+        // Given
+        List<Integer> notificationIds = List.of(1, 2);
+        String invalidStatus = "INVALID";
+
+        // When/Then
+        assertThrows(IllegalArgumentException.class,
+                () -> service.bulkUpdateDeliveryStatus(notificationIds, invalidStatus));
+        verify(repository, never()).findAllById(anyList());
     }
 
     // ========== CHECK OPERATIONS TESTS ==========
@@ -499,53 +590,85 @@ public class NotificationHistoryServiceTest {
     }
 
     @Test
-    @DisplayName("Should count notification history by user id")
+    @DisplayName("Should check existence by user id and template id")
+    void existsByUserIdAndTemplateId_shouldReturnCorrectResult() {
+        // Given
+        Long userId = 1L;
+        Integer templateId = 1;
+        when(userEntityRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(notificationTemplateRepository.findById(templateId)).thenReturn(Optional.of(template));
+        when(repository.existsByUserAndTemplate(user, template)).thenReturn(true);
+
+        // When
+        boolean result = service.existsByUserIdAndTemplateId(userId, templateId);
+
+        // Then
+        assertTrue(result);
+        verify(repository).existsByUserAndTemplate(user, template);
+    }
+
+    @Test
+    @DisplayName("Should count notification history by user id using repository count query")
     void countByUserId_shouldReturnCorrectCount() {
         // Given
         Long userId = 1L;
         when(userEntityRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(repository.findByUser(user)).thenReturn(notifications);
+        when(repository.countByUser(user)).thenReturn(3L);
 
         // When
         long result = service.countByUserId(userId);
 
         // Then
-        assertEquals(notifications.size(), result);
+        assertEquals(3L, result);
         verify(userEntityRepository).findById(userId);
-        verify(repository).findByUser(user);
+        verify(repository).countByUser(user);
     }
 
     @Test
-    @DisplayName("Should count notification history by delivery status")
+    @DisplayName("Should count notification history by delivery status using repository count query")
     void countByDeliveryStatus_shouldReturnCorrectCount() {
         // Given
         String deliveryStatus = "DELIVERED";
-        when(repository.findByDeliveryStatus(deliveryStatus)).thenReturn(notifications);
+        when(repository.countByDeliveryStatus(deliveryStatus)).thenReturn(5L);
 
         // When
         long result = service.countByDeliveryStatus(deliveryStatus);
 
         // Then
-        assertEquals(notifications.size(), result);
-        verify(repository).findByDeliveryStatus(deliveryStatus);
+        assertEquals(5L, result);
+        verify(repository).countByDeliveryStatus(deliveryStatus);
     }
 
     @Test
-    @DisplayName("Should count notification history by channel")
+    @DisplayName("Should count notification history by channel using repository count query")
     void countByChannel_shouldReturnCorrectCount() {
         // Given
         String channel = "EMAIL";
-        when(repository.findByChannel(channel)).thenReturn(notifications);
+        when(repository.countByChannel(channel)).thenReturn(7L);
 
         // When
         long result = service.countByChannel(channel);
 
         // Then
-        assertEquals(notifications.size(), result);
-        verify(repository).findByChannel(channel);
+        assertEquals(7L, result);
+        verify(repository).countByChannel(channel);
     }
 
+    @Test
+    @DisplayName("Should count notification history by date range")
+    void countByDateRange_shouldReturnCorrectCount() {
+        // Given
+        LocalDateTime startDate = LocalDateTime.now().minusDays(7);
+        LocalDateTime endDate = LocalDateTime.now();
+        when(repository.countBySentAtBetween(startDate, endDate)).thenReturn(10L);
 
+        // When
+        long result = service.countByDateRange(startDate, endDate);
+
+        // Then
+        assertEquals(10L, result);
+        verify(repository).countBySentAtBetween(startDate, endDate);
+    }
 
     // ========== STATISTICS AND ANALYTICS TESTS ==========
 
@@ -567,28 +690,28 @@ public class NotificationHistoryServiceTest {
     @DisplayName("Should get total notifications delivered")
     void getTotalNotificationsDelivered_shouldReturnCorrectCount() {
         // Given
-        when(repository.findByDeliveryStatus("DELIVERED")).thenReturn(notifications);
+        when(repository.countByDeliveryStatus("DELIVERED")).thenReturn(8L);
 
         // When
         long result = service.getTotalNotificationsDelivered();
 
         // Then
-        assertEquals(notifications.size(), result);
-        verify(repository).findByDeliveryStatus("DELIVERED");
+        assertEquals(8L, result);
+        verify(repository).countByDeliveryStatus("DELIVERED");
     }
 
     @Test
     @DisplayName("Should get total notifications failed")
     void getTotalNotificationsFailed_shouldReturnCorrectCount() {
         // Given
-        when(repository.findByDeliveryStatus("FAILED")).thenReturn(notifications);
+        when(repository.countByDeliveryStatus("FAILED")).thenReturn(2L);
 
         // When
         long result = service.getTotalNotificationsFailed();
 
         // Then
-        assertEquals(notifications.size(), result);
-        verify(repository).findByDeliveryStatus("FAILED");
+        assertEquals(2L, result);
+        verify(repository).countByDeliveryStatus("FAILED");
     }
 
     @Test
@@ -596,15 +719,15 @@ public class NotificationHistoryServiceTest {
     void getDeliverySuccessRate_shouldReturnCorrectRate() {
         // Given
         when(repository.count()).thenReturn(100L);
-        when(repository.findByDeliveryStatus("DELIVERED")).thenReturn(notifications);
+        when(repository.countByDeliveryStatus("DELIVERED")).thenReturn(85L);
 
         // When
         double result = service.getDeliverySuccessRate();
 
         // Then
-        assertEquals((double) notifications.size() / 100 * 100, result);
+        assertEquals(85.0, result);
         verify(repository).count();
-        verify(repository).findByDeliveryStatus("DELIVERED");
+        verify(repository).countByDeliveryStatus("DELIVERED");
     }
 
     @Test
@@ -619,24 +742,86 @@ public class NotificationHistoryServiceTest {
         // Then
         assertEquals(0.0, result);
         verify(repository).count();
-        verify(repository, never()).findByDeliveryStatus(anyString());
+        verify(repository, never()).countByDeliveryStatus(anyString());
     }
 
     // ========== UTILITY OPERATIONS TESTS ==========
 
     @Test
-    @DisplayName("Should retry failed notifications")
+    @DisplayName("Should mark notification as delivered")
+    void markAsDelivered_success() {
+        // Given
+        Integer id = 1;
+        when(repository.findById(id)).thenReturn(Optional.of(notification));
+        when(repository.save(any(NotificationHistory.class))).thenReturn(notification);
+
+        // When
+        service.markAsDelivered(id);
+
+        // Then
+        verify(repository).findById(id);
+        verify(repository).save(notificationCaptor.capture());
+        assertEquals("DELIVERED", notificationCaptor.getValue().getDeliveryStatus());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when marking non-existent notification as delivered")
+    void markAsDelivered_whenNotExists_shouldThrowException() {
+        // Given
+        Integer id = 999;
+        when(repository.findById(id)).thenReturn(Optional.empty());
+
+        // When/Then
+        assertThrows(ResourceNotFoundException.class, () -> service.markAsDelivered(id));
+        verify(repository, never()).save(any(NotificationHistory.class));
+    }
+
+    @Test
+    @DisplayName("Should mark notification as failed with reason")
+    void markAsFailed_success() {
+        // Given
+        Integer id = 1;
+        String reason = "Connection timeout";
+        when(repository.findById(id)).thenReturn(Optional.of(notification));
+        when(repository.save(any(NotificationHistory.class))).thenReturn(notification);
+
+        // When
+        service.markAsFailed(id, reason);
+
+        // Then
+        verify(repository).findById(id);
+        verify(repository).save(notificationCaptor.capture());
+        assertEquals("FAILED", notificationCaptor.getValue().getDeliveryStatus());
+    }
+
+    @Test
+    @DisplayName("Should retry failed notifications using saveAll batch")
     void retryFailedNotifications_success() {
         // Given
         when(repository.findByDeliveryStatus("FAILED")).thenReturn(notifications);
-        when(repository.save(any(NotificationHistory.class))).thenReturn(notification);
+        when(repository.saveAll(anyList())).thenReturn(notifications);
 
         // When
         service.retryFailedNotifications();
 
         // Then
         verify(repository).findByDeliveryStatus("FAILED");
-        verify(repository, times(notifications.size())).save(any(NotificationHistory.class));
+        verify(repository).saveAll(notificationsCaptor.capture());
+        List<NotificationHistory> retried = notificationsCaptor.getValue();
+        retried.forEach(n -> assertEquals("PENDING", n.getDeliveryStatus()));
+    }
+
+    @Test
+    @DisplayName("Should cleanup old notifications")
+    void cleanupOldNotifications_success() {
+        // Given
+        int daysToKeep = 30;
+
+        // When
+        service.cleanupOldNotifications(daysToKeep);
+
+        // Then
+        verify(repository).deleteBySentAtBefore(any(LocalDateTime.class));
     }
 
     @Test
@@ -671,12 +856,12 @@ public class NotificationHistoryServiceTest {
     }
 
     @Test
-    @DisplayName("Should find latest notification by user when exists")
+    @DisplayName("Should find latest notification by user using optimized query")
     void findLatestNotificationByUser_whenExists_shouldReturnNotification() {
         // Given
         Long userId = 1L;
         when(userEntityRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(repository.findByUser(user)).thenReturn(notifications);
+        when(repository.findFirstByUserOrderBySentAtDesc(user)).thenReturn(Optional.of(notification));
 
         // When
         Optional<NotificationHistoryResponse> result = service.findLatestNotificationByUser(userId);
@@ -684,7 +869,7 @@ public class NotificationHistoryServiceTest {
         // Then
         assertTrue(result.isPresent());
         verify(userEntityRepository).findById(userId);
-        verify(repository).findByUser(user);
+        verify(repository).findFirstByUserOrderBySentAtDesc(user);
     }
 
     @Test
@@ -693,7 +878,7 @@ public class NotificationHistoryServiceTest {
         // Given
         Long userId = 1L;
         when(userEntityRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(repository.findByUser(user)).thenReturn(Collections.emptyList());
+        when(repository.findFirstByUserOrderBySentAtDesc(user)).thenReturn(Optional.empty());
 
         // When
         Optional<NotificationHistoryResponse> result = service.findLatestNotificationByUser(userId);
@@ -701,7 +886,7 @@ public class NotificationHistoryServiceTest {
         // Then
         assertFalse(result.isPresent());
         verify(userEntityRepository).findById(userId);
-        verify(repository).findByUser(user);
+        verify(repository).findFirstByUserOrderBySentAtDesc(user);
     }
 
     // ========== HELPER METHOD TESTS ==========
@@ -736,6 +921,6 @@ public class NotificationHistoryServiceTest {
                 () -> service.countByChannel(invalidChannel)
         );
         assertEquals("Invalid channel: " + invalidChannel, exception.getMessage());
-        verify(repository, never()).findByChannel(anyString());
+        verify(repository, never()).countByChannel(anyString());
     }
 }
