@@ -1059,7 +1059,7 @@ public class DataProvider {
                 .sentAt(LocalDateTime.now())
                 .deliveryStatus("PENDING")
                 .content("Test Content")
-                .channel("Channel one")
+                .channel("EMAIL")
                 .build();
     }
 
@@ -1072,7 +1072,7 @@ public class DataProvider {
                 .sentAt(LocalDateTime.now().minusDays(1))
                 .deliveryStatus("DELIVERED")
                 .content("Contenido de prueba 2")
-                .channel("Channel two")
+                .channel("SMS")
                 .build();
     }
 
@@ -1085,7 +1085,7 @@ public class DataProvider {
                 .sentAt(LocalDateTime.now().minusHours(5))
                 .deliveryStatus("FAILED")
                 .content("Contenido de prueba 3")
-                .channel("Channel three")
+                .channel("PUSH")
                 .build();
     }
 
@@ -1104,7 +1104,7 @@ public class DataProvider {
             1,
             "PENDING",
             "Test Content",
-            "Channel one");
+            "EMAIL");
 
     public static List<NotificationHistoryResponse> notificationHistoryListResponse = List.of(
             notificationHistoryResponse,
