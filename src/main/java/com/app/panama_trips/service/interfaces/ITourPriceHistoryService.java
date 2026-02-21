@@ -56,8 +56,6 @@ public interface ITourPriceHistoryService {
     BigDecimal getTotalPriceDecreaseForTourPlan(Integer tourPlanId);
     double getAverageChangePercentageForTourPlan(Integer tourPlanId);
     List<TourPriceHistoryResponse> getTopTourPlansByChangeCount(int limit);
-    List<TourPriceHistoryResponse> getChangesByMonth(Integer tourPlanId);
-    List<TourPriceHistoryResponse> getChangesByDayOfWeek(Integer tourPlanId);
 
     // Utility operations
     List<TourPriceHistoryResponse> searchChangesByPrice(BigDecimal price);
