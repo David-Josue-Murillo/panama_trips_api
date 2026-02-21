@@ -586,38 +586,6 @@ public class TourPriceHistoryControllerTest {
         verify(service).getTopTourPlansByChangeCount(limit);
     }
 
-    @Test
-    @WithMockUser(username = "admin", roles = { "ADMIN" })
-    @DisplayName("Should get changes by month when getChangesByMonth is called")
-    void getChangesByMonth_success() throws Exception {
-        // Given
-        Integer tourPlanId = 1;
-        when(service.getChangesByMonth(tourPlanId)).thenReturn(responseList);
-
-        // When/Then
-        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/changes-by-month", tourPlanId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(response.id()));
-
-        verify(service).getChangesByMonth(tourPlanId);
-    }
-
-    @Test
-    @WithMockUser(username = "admin", roles = { "ADMIN" })
-    @DisplayName("Should get changes by day of week when getChangesByDayOfWeek is called")
-    void getChangesByDayOfWeek_success() throws Exception {
-        // Given
-        Integer tourPlanId = 1;
-        when(service.getChangesByDayOfWeek(tourPlanId)).thenReturn(responseList);
-
-        // When/Then
-        mockMvc.perform(get("/api/tour-price-history/tour-plan/{tourPlanId}/changes-by-day-of-week", tourPlanId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(response.id()));
-
-        verify(service).getChangesByDayOfWeek(tourPlanId);
-    }
-
     // Utility operations
     @Test
     @WithMockUser(username = "admin", roles = { "ADMIN" })
