@@ -190,16 +190,6 @@ public class TourPriceHistoryController {
         return ResponseEntity.ok(service.getTopTourPlansByChangeCount(limit));
     }
 
-    @GetMapping("/tour-plan/{tourPlanId}/changes-by-month")
-    public ResponseEntity<List<TourPriceHistoryResponse>> getChangesByMonth(@PathVariable Integer tourPlanId) {
-        return ResponseEntity.ok(service.getChangesByMonth(tourPlanId));
-    }
-
-    @GetMapping("/tour-plan/{tourPlanId}/changes-by-day-of-week")
-    public ResponseEntity<List<TourPriceHistoryResponse>> getChangesByDayOfWeek(@PathVariable Integer tourPlanId) {
-        return ResponseEntity.ok(service.getChangesByDayOfWeek(tourPlanId));
-    }
-
     // Utility operations
     @GetMapping("/search/price/{price}")
     public ResponseEntity<List<TourPriceHistoryResponse>> searchChangesByPrice(@PathVariable BigDecimal price) {
