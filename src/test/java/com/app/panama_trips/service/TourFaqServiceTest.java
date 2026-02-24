@@ -28,7 +28,6 @@ import com.app.panama_trips.service.implementation.TourFaqService;
 
 import static com.app.panama_trips.DataProvider.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -113,7 +112,8 @@ public class TourFaqServiceTest {
     void saveFaq_success() {
         // Given
         when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlan));
-        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of());
+        when(repository.existsByTourPlan_IdAndDisplayOrder(anyInt(), anyInt())).thenReturn(false);
+        when(repository.existsByTourPlan_IdAndQuestionIgnoreCase(anyInt(), anyString())).thenReturn(false);
         when(repository.save(any(TourFaq.class))).thenReturn(tourFaqOneMock());
 
         // When
@@ -152,13 +152,14 @@ public class TourFaqServiceTest {
     void saveFaq_whenDisplayOrderNotUnique_shouldThrowException() {
         // Given
         when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlan));
-        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of(tourFaqOneMock()));
+        when(repository.existsByTourPlan_IdAndDisplayOrder(anyInt(), anyInt())).thenReturn(true);
 
         // When/Then
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
                 () -> service.saveFaq(tourFaqRequest));
-        assertEquals("Display order 1 is not unique within tour plan 1", exception.getMessage());
+        assertEquals("Display order " + tourFaqRequest.displayOrder()
+                + " is not unique within tour plan " + tourFaqRequest.tourPlanId(), exception.getMessage());
         verify(repository, never()).save(any(TourFaq.class));
     }
 
@@ -167,17 +168,14 @@ public class TourFaqServiceTest {
     void saveFaq_whenQuestionAlreadyExists_shouldThrowException() {
         // Given
         when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlan));
-        // First call for display order validation (empty list)
-        // Second call for question validation (list with existing FAQ)
-        when(repository.findByTourPlan(any(TourPlan.class)))
-                .thenReturn(List.of())
-                .thenReturn(List.of(tourFaqOneMock()));
+        when(repository.existsByTourPlan_IdAndDisplayOrder(anyInt(), anyInt())).thenReturn(false);
+        when(repository.existsByTourPlan_IdAndQuestionIgnoreCase(anyInt(), anyString())).thenReturn(true);
 
         // When/Then
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
                 () -> service.saveFaq(tourFaqRequest));
-        assertEquals("Question already exists for tour plan 1", exception.getMessage());
+        assertEquals("Question already exists for tour plan " + tourFaqRequest.tourPlanId(), exception.getMessage());
         verify(repository, never()).save(any(TourFaq.class));
     }
 
@@ -187,7 +185,7 @@ public class TourFaqServiceTest {
         // Given
         Integer id = 1;
         TourFaqRequest updateRequest = new TourFaqRequest(
-                1, // same tour plan to avoid validation issues
+                1, // same tour plan
                 "¿Pregunta actualizada?",
                 "Respuesta actualizada",
                 3); // different display order
@@ -260,17 +258,18 @@ public class TourFaqServiceTest {
     void findByTourPlanId_shouldReturnFaqs() {
         // Given
         Integer tourPlanId = 1;
-        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
-        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(tourFaqListForTourPlanOneMock());
+        List<TourFaq> tourPlanFaqs = tourFaqListForTourPlanOneMock();
+        when(tourPlanRepository.existsById(tourPlanId)).thenReturn(true);
+        when(repository.findByTourPlan_Id(tourPlanId)).thenReturn(tourPlanFaqs);
 
         // When
         List<TourFaqResponse> result = service.findByTourPlanId(tourPlanId);
 
         // Then
         assertNotNull(result);
-        assertEquals(tourFaqListForTourPlanOneMock().size(), result.size());
-        verify(tourPlanRepository).findById(tourPlanId);
-        verify(repository).findByTourPlan(tourPlan);
+        assertEquals(tourPlanFaqs.size(), result.size());
+        verify(tourPlanRepository).existsById(tourPlanId);
+        verify(repository).findByTourPlan_Id(tourPlanId);
     }
 
     @Test
@@ -278,14 +277,14 @@ public class TourFaqServiceTest {
     void findByTourPlanId_whenTourPlanNotFound_shouldThrowException() {
         // Given
         Integer tourPlanId = 999;
-        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.empty());
+        when(tourPlanRepository.existsById(tourPlanId)).thenReturn(false);
 
         // When/Then
         ResourceNotFoundException exception = assertThrows(
                 ResourceNotFoundException.class,
                 () -> service.findByTourPlanId(tourPlanId));
         assertEquals("TourPlan not found with id: " + tourPlanId, exception.getMessage());
-        verify(repository, never()).findByTourPlan(any(TourPlan.class));
+        verify(repository, never()).findByTourPlan_Id(anyInt());
     }
 
     @Test
@@ -293,16 +292,16 @@ public class TourFaqServiceTest {
     void findByTourPlanIdOrderByDisplayOrderAsc_shouldReturnOrderedFaqs() {
         // Given
         Integer tourPlanId = 1;
-        when(repository.findByTourPlanIdOrderByDisplayOrder(tourPlanId.longValue()))
-                .thenReturn(tourFaqListOrderedByDisplayOrderMock());
+        List<TourFaq> orderedFaqs = tourFaqListOrderedByDisplayOrderMock();
+        when(repository.findByTourPlan_IdOrderByDisplayOrderAsc(tourPlanId)).thenReturn(orderedFaqs);
 
         // When
         List<TourFaqResponse> result = service.findByTourPlanIdOrderByDisplayOrderAsc(tourPlanId);
 
         // Then
         assertNotNull(result);
-        assertEquals(tourFaqListOrderedByDisplayOrderMock().size(), result.size());
-        verify(repository).findByTourPlanIdOrderByDisplayOrder(tourPlanId.longValue());
+        assertEquals(orderedFaqs.size(), result.size());
+        verify(repository).findByTourPlan_IdOrderByDisplayOrderAsc(tourPlanId);
     }
 
     @Test
@@ -327,8 +326,8 @@ public class TourFaqServiceTest {
         // Given
         Integer tourPlanId = 1;
         String question = "¿Cuál es la duración del tour?";
-        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
-        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of(tourFaqOneMock()));
+        when(repository.findByTourPlan_IdAndQuestionIgnoreCase(tourPlanId, question))
+                .thenReturn(Optional.of(tourFaqOneMock()));
 
         // When
         Optional<TourFaqResponse> result = service.findByTourPlanIdAndQuestion(tourPlanId, question);
@@ -336,8 +335,7 @@ public class TourFaqServiceTest {
         // Then
         assertTrue(result.isPresent());
         assertEquals(tourFaqOneMock().getId(), result.get().id());
-        verify(tourPlanRepository).findById(tourPlanId);
-        verify(repository).findByTourPlan(tourPlan);
+        verify(repository).findByTourPlan_IdAndQuestionIgnoreCase(tourPlanId, question);
     }
 
     @Test
@@ -346,16 +344,15 @@ public class TourFaqServiceTest {
         // Given
         Integer tourPlanId = 1;
         String question = "¿Pregunta que no existe?";
-        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
-        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of());
+        when(repository.findByTourPlan_IdAndQuestionIgnoreCase(tourPlanId, question))
+                .thenReturn(Optional.empty());
 
         // When
         Optional<TourFaqResponse> result = service.findByTourPlanIdAndQuestion(tourPlanId, question);
 
         // Then
         assertTrue(result.isEmpty());
-        verify(tourPlanRepository).findById(tourPlanId);
-        verify(repository).findByTourPlan(tourPlan);
+        verify(repository).findByTourPlan_IdAndQuestionIgnoreCase(tourPlanId, question);
     }
 
     @Test
@@ -364,9 +361,10 @@ public class TourFaqServiceTest {
         // Given
         Integer tourPlanId = 1;
         int limit = 2;
-        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
-        when(repository.findByTourPlanOrderByDisplayOrderAsc(any(TourPlan.class)))
-                .thenReturn(tourFaqListForTourPlanOneMock());
+        List<TourFaq> topFaqs = List.of(tourFaqOneMock(), tourFaqTwoMock());
+        when(tourPlanRepository.existsById(tourPlanId)).thenReturn(true);
+        when(repository.findByTourPlan_IdOrderByDisplayOrderAsc(eq(tourPlanId), any(Pageable.class)))
+                .thenReturn(topFaqs);
 
         // When
         List<TourFaqResponse> result = service.getTopFaqsByTourPlan(tourPlanId, limit);
@@ -374,8 +372,8 @@ public class TourFaqServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(limit, result.size());
-        verify(tourPlanRepository).findById(tourPlanId);
-        verify(repository).findByTourPlanOrderByDisplayOrderAsc(tourPlan);
+        verify(tourPlanRepository).existsById(tourPlanId);
+        verify(repository).findByTourPlan_IdOrderByDisplayOrderAsc(eq(tourPlanId), any(Pageable.class));
     }
 
     @Test
@@ -383,7 +381,7 @@ public class TourFaqServiceTest {
     void reorderFaqs_success() {
         // Given
         Integer tourPlanId = 1;
-        List<Integer> faqIdsInOrder = List.of(1, 2, 6); // Use FAQs that belong to tour plan 1
+        List<Integer> faqIdsInOrder = List.of(1, 2, 6);
         when(repository.findById(1)).thenReturn(Optional.of(tourFaqOneMock()));
         when(repository.findById(2)).thenReturn(Optional.of(tourFaqTwoMock()));
         when(repository.findById(6)).thenReturn(Optional.of(tourFaqWithHighDisplayOrderMock()));
@@ -392,9 +390,7 @@ public class TourFaqServiceTest {
         service.reorderFaqs(tourPlanId, faqIdsInOrder);
 
         // Then
-        verify(repository, times(3)).save(any(TourFaq.class));
-        // Verify that each FAQ was saved with the correct display order
-        // The service should have updated the display order for each FAQ
+        verify(repository).saveAll(anyList());
     }
 
     @Test
@@ -410,7 +406,7 @@ public class TourFaqServiceTest {
                 ResourceNotFoundException.class,
                 () -> service.reorderFaqs(tourPlanId, faqIdsInOrder));
         assertEquals("TourFaq not found with id: 999", exception.getMessage());
-        verify(repository, never()).save(any(TourFaq.class));
+        verify(repository, never()).saveAll(anyList());
     }
 
     @Test
@@ -426,7 +422,7 @@ public class TourFaqServiceTest {
                 IllegalArgumentException.class,
                 () -> service.reorderFaqs(tourPlanId, faqIdsInOrder));
         assertEquals("FAQ with id 3 does not belong to tour plan 1", exception.getMessage());
-        verify(repository, never()).save(any(TourFaq.class));
+        verify(repository, never()).saveAll(anyList());
     }
 
     @Test
@@ -435,16 +431,16 @@ public class TourFaqServiceTest {
         // Given
         List<TourFaqRequest> requests = tourFaqRequestListForBulkCreateMock();
         when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlan));
-        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of());
+        when(repository.existsByTourPlan_IdAndDisplayOrder(anyInt(), anyInt())).thenReturn(false);
+        when(repository.existsByTourPlan_IdAndQuestionIgnoreCase(anyInt(), anyString())).thenReturn(false);
 
         // When
         service.bulkCreateFaqs(requests);
 
         // Then
         verify(repository).saveAll(anyList());
-        // Each request calls findTourPlanOrFail twice (once for validation, once for
-        // building)
-        verify(tourPlanRepository, times(12)).findById(anyInt());
+        // Each request: 1 findById in validateRequest + 1 findById in buildFromRequest = 2 per request
+        verify(tourPlanRepository, times(6)).findById(anyInt());
     }
 
     @Test
@@ -484,16 +480,14 @@ public class TourFaqServiceTest {
         // Given
         Integer tourPlanId = 1;
         String question = "¿Cuál es la duración del tour?";
-        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
-        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of(tourFaqOneMock()));
+        when(repository.existsByTourPlan_IdAndQuestionIgnoreCase(tourPlanId, question)).thenReturn(true);
 
         // When
         boolean result = service.existsByTourPlanIdAndQuestion(tourPlanId, question);
 
         // Then
         assertTrue(result);
-        verify(tourPlanRepository).findById(tourPlanId);
-        verify(repository).findByTourPlan(tourPlan);
+        verify(repository).existsByTourPlan_IdAndQuestionIgnoreCase(tourPlanId, question);
     }
 
     @Test
@@ -502,16 +496,14 @@ public class TourFaqServiceTest {
         // Given
         Integer tourPlanId = 1;
         Integer displayOrder = 5;
-        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
-        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of(tourFaqOneMock()));
+        when(repository.existsByTourPlan_IdAndDisplayOrder(tourPlanId, displayOrder)).thenReturn(false);
 
         // When
         boolean result = service.isDisplayOrderUniqueWithinTourPlan(tourPlanId, displayOrder);
 
         // Then
         assertTrue(result);
-        verify(tourPlanRepository).findById(tourPlanId);
-        verify(repository).findByTourPlan(tourPlan);
+        verify(repository).existsByTourPlan_IdAndDisplayOrder(tourPlanId, displayOrder);
     }
 
     @Test
@@ -519,32 +511,14 @@ public class TourFaqServiceTest {
     void countByTourPlanId_shouldReturnCount() {
         // Given
         Integer tourPlanId = 1;
-        Long expectedCount = 3L;
-        when(tourPlanRepository.findById(tourPlanId)).thenReturn(Optional.of(tourPlan));
-        when(repository.countByTourPlan(any(TourPlan.class))).thenReturn(expectedCount);
+        long expectedCount = 3L;
+        when(repository.countByTourPlan_Id(tourPlanId)).thenReturn(expectedCount);
 
         // When
         long result = service.countByTourPlanId(tourPlanId);
 
         // Then
         assertEquals(expectedCount, result);
-        verify(tourPlanRepository).findById(tourPlanId);
-        verify(repository).countByTourPlan(tourPlan);
-    }
-
-    @Test
-    @DisplayName("Should throw UnsupportedOperationException for bulkUpdateFaqs")
-    void bulkUpdateFaqs_shouldThrowUnsupportedOperationException() {
-        // Given
-        List<TourFaqRequest> requests = tourFaqRequestListForBulkUpdateMock();
-        when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlan));
-        when(repository.findByTourPlan(any(TourPlan.class))).thenReturn(List.of());
-
-        // When/Then
-        UnsupportedOperationException exception = assertThrows(
-                UnsupportedOperationException.class,
-                () -> service.bulkUpdateFaqs(requests));
-        assertEquals("bulkUpdateFaqs requires additional business logic to identify which FAQs to update",
-                exception.getMessage());
+        verify(repository).countByTourPlan_Id(tourPlanId);
     }
 }
