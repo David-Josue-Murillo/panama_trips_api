@@ -24,6 +24,14 @@ public interface NotificationTemplateRepository extends JpaRepository<Notificati
 
     boolean existsByName(String name);
 
+    boolean existsByNameAndIdNot(String name, Integer id);
+
+    @Query("SELECT nt FROM NotificationTemplate nt WHERE nt.variables LIKE %:variable%")
+    List<NotificationTemplate> findByVariablesContaining(@Param("variable") String variable);
+
+    @Query("SELECT nt FROM NotificationTemplate nt WHERE nt.type = :type AND (LOWER(nt.subject) LIKE LOWER(CONCAT('%', :content, '%')) OR LOWER(nt.body) LIKE LOWER(CONCAT('%', :content, '%')))")
+    List<NotificationTemplate> findByTypeAndContentInSubjectOrBody(@Param("type") String type, @Param("content") String content);
+
     @Query("SELECT COUNT(nt) FROM NotificationTemplate nt WHERE nt.type = :type")
     long countByType(@Param("type") String type);
 }
