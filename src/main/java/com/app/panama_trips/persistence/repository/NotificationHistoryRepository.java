@@ -61,6 +61,9 @@ public interface NotificationHistoryRepository extends JpaRepository<Notificatio
     // Paginated (replaces findAll() + sort + limit)
     List<NotificationHistory> findAllByOrderBySentAtDesc(Pageable pageable);
 
+    // Template usage check
+    boolean existsByTemplate_Id(Integer templateId);
+
     // Delete old records
     void deleteBySentAtBefore(LocalDateTime cutoff);
 }

@@ -2,6 +2,7 @@ package com.app.panama_trips.service;
 
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.NotificationTemplate;
+import com.app.panama_trips.persistence.repository.NotificationHistoryRepository;
 import com.app.panama_trips.persistence.repository.NotificationTemplateRepository;
 import com.app.panama_trips.presentation.dto.NotificationTemplateRequest;
 import com.app.panama_trips.presentation.dto.NotificationTemplateResponse;
@@ -35,6 +36,9 @@ public class NotificationTemplateServiceTest {
     @Mock
     private NotificationTemplateRepository repository;
 
+    @Mock
+    private NotificationHistoryRepository notificationHistoryRepository;
+
     @InjectMocks
     private NotificationTemplateService service;
 
@@ -55,6 +59,7 @@ public class NotificationTemplateServiceTest {
         request = notificationTemplateRequestMock;
     }
 
+    // CRUD operations
     @Test
     @DisplayName("Should return all templates when getAllTemplates is called with pagination")
     void getAllTemplates_shouldReturnAllData() {
@@ -161,7 +166,7 @@ public class NotificationTemplateServiceTest {
         );
 
         when(repository.findById(id)).thenReturn(Optional.of(template));
-        when(repository.existsByName(updateRequest.name())).thenReturn(false);
+        when(repository.existsByNameAndIdNot(updateRequest.name(), id)).thenReturn(false);
         when(repository.save(any(NotificationTemplate.class))).thenReturn(template);
 
         // When
@@ -171,7 +176,7 @@ public class NotificationTemplateServiceTest {
         assertNotNull(result);
 
         verify(repository).findById(id);
-        verify(repository).existsByName(updateRequest.name());
+        verify(repository).existsByNameAndIdNot(updateRequest.name(), id);
         verify(repository).save(templateCaptor.capture());
 
         NotificationTemplate updatedTemplate = templateCaptor.getValue();
@@ -180,6 +185,23 @@ public class NotificationTemplateServiceTest {
         assertEquals(updateRequest.body(), updatedTemplate.getBody());
         assertEquals(updateRequest.types(), updatedTemplate.getType());
         assertEquals(updateRequest.variables(), updatedTemplate.getVariables());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating template with duplicate name")
+    void updateTemplate_withDuplicateName_shouldThrowException() {
+        // Given
+        Integer id = 1;
+        when(repository.findById(id)).thenReturn(Optional.of(template));
+        when(repository.existsByNameAndIdNot(request.name(), id)).thenReturn(true);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updateTemplate(id, request)
+        );
+        assertEquals("A template with this name already exists", exception.getMessage());
+        verify(repository, never()).save(any(NotificationTemplate.class));
     }
 
     @Test
@@ -205,12 +227,14 @@ public class NotificationTemplateServiceTest {
         // Given
         Integer id = 1;
         when(repository.existsById(id)).thenReturn(true);
+        when(notificationHistoryRepository.existsByTemplate_Id(id)).thenReturn(false);
 
         // When
         service.deleteTemplate(id);
 
         // Then
         verify(repository).existsById(id);
+        verify(notificationHistoryRepository).existsByTemplate_Id(id);
         verify(repository).deleteById(id);
     }
 
@@ -219,22 +243,20 @@ public class NotificationTemplateServiceTest {
     void deleteTemplate_whenInUse_shouldThrowException() {
         // Given
         Integer id = 1;
-
-        // Mock the service to return true for isTemplateUsedByAnyNotification
-        NotificationTemplateService spyService = spy(service);
-        doReturn(true).when(spyService).isTemplateUsedByAnyNotification(id);
         when(repository.existsById(id)).thenReturn(true);
+        when(notificationHistoryRepository.existsByTemplate_Id(id)).thenReturn(true);
 
         // When/Then
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> spyService.deleteTemplate(id)
+                () -> service.deleteTemplate(id)
         );
         assertEquals("Cannot delete a template that is being used by notifications", exception.getMessage());
         verify(repository).existsById(id);
         verify(repository, never()).deleteById(anyInt());
     }
 
+    // Find operations
     @Test
     @DisplayName("Should find templates by type")
     void findByType_shouldReturnMatchingTemplates() {
@@ -316,20 +338,22 @@ public class NotificationTemplateServiceTest {
         verify(repository).findByTypeAndNameContaining(type, name);
     }
 
+    // Specialized queries
     @Test
     @DisplayName("Should get templates by type and content")
     void getTemplatesByTypeAndContent_shouldReturnMatchingTemplates() {
         // Given
         String type = "EMAIL";
         String content = "test";
-        when(repository.findByTypeAndNameContaining(type, content)).thenReturn(templates);
+        when(repository.findByTypeAndContentInSubjectOrBody(type, content)).thenReturn(templates);
 
         // When
         List<NotificationTemplateResponse> result = service.getTemplatesByTypeAndContent(type, content);
 
         // Then
         assertNotNull(result);
-        verify(repository).findByTypeAndNameContaining(type, content);
+        assertEquals(templates.size(), result.size());
+        verify(repository).findByTypeAndContentInSubjectOrBody(type, content);
     }
 
     @Test
@@ -352,14 +376,15 @@ public class NotificationTemplateServiceTest {
     void getTemplatesByVariable_shouldReturnMatchingTemplates() {
         // Given
         String variable = "name";
-        when(repository.findAll()).thenReturn(templates);
+        when(repository.findByVariablesContaining(variable)).thenReturn(templates);
 
         // When
         List<NotificationTemplateResponse> result = service.getTemplatesByVariable(variable);
 
         // Then
         assertNotNull(result);
-        verify(repository).findAll();
+        assertEquals(templates.size(), result.size());
+        verify(repository).findByVariablesContaining(variable);
     }
 
     @Test
@@ -368,14 +393,14 @@ public class NotificationTemplateServiceTest {
         // Given
         String type = "EMAIL";
         String event = "test";
-        when(repository.findByType(type)).thenReturn(templates);
+        when(repository.findByTypeAndNameContaining(type, event)).thenReturn(templates);
 
         // When
         NotificationTemplateResponse result = service.getTemplateForNotification(type, event);
 
         // Then
         assertNotNull(result);
-        verify(repository).findByType(type);
+        verify(repository).findByTypeAndNameContaining(type, event);
     }
 
     @Test
@@ -384,18 +409,19 @@ public class NotificationTemplateServiceTest {
         // Given
         String type = "EMAIL";
         String event = "nonexistent";
-        when(repository.findByType(type)).thenReturn(Collections.emptyList());
+        when(repository.findByTypeAndNameContaining(type, event)).thenReturn(Collections.emptyList());
 
         // When/Then
         ResourceNotFoundException exception = assertThrows(
                 ResourceNotFoundException.class,
                 () -> service.getTemplateForNotification(type, event)
         );
-        assertEquals(String.format("No template found for type '%s' and event '%s'", type, event), 
+        assertEquals(String.format("No template found for type '%s' and event '%s'", type, event),
                 exception.getMessage());
-        verify(repository).findByType(type);
+        verify(repository).findByTypeAndNameContaining(type, event);
     }
 
+    // Bulk operations
     @Test
     @DisplayName("Should bulk create multiple templates")
     void bulkCreateTemplates_success() {
@@ -436,7 +462,7 @@ public class NotificationTemplateServiceTest {
 
         // Then
         verify(repository, times(2)).findByName(any());
-        verify(repository, times(2)).save(any(NotificationTemplate.class));
+        verify(repository).saveAll(anyList());
     }
 
     @Test
@@ -452,6 +478,23 @@ public class NotificationTemplateServiceTest {
         verify(repository).deleteAllById(templateIds);
     }
 
+    @Test
+    @DisplayName("Should throw exception when bulk deleting template in use")
+    void bulkDeleteTemplates_whenTemplateInUse_shouldThrowException() {
+        // Given
+        List<Integer> templateIds = List.of(1, 2, 3);
+        when(notificationHistoryRepository.existsByTemplate_Id(1)).thenReturn(true);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.bulkDeleteTemplates(templateIds)
+        );
+        assertEquals("Cannot delete template with id 1 as it is being used by notifications", exception.getMessage());
+        verify(repository, never()).deleteAllById(anyList());
+    }
+
+    // Check operations
     @Test
     @DisplayName("Should check if template exists by name")
     void existsByName_whenExists_returnsTrue() {
@@ -480,6 +523,34 @@ public class NotificationTemplateServiceTest {
         // Then
         assertFalse(result);
         verify(repository).existsByName(name);
+    }
+
+    @Test
+    @DisplayName("Should return false when template is not used by any notification")
+    void isTemplateUsedByAnyNotification_returnsFalse() {
+        // Given
+        when(notificationHistoryRepository.existsByTemplate_Id(1)).thenReturn(false);
+
+        // When
+        boolean result = service.isTemplateUsedByAnyNotification(1);
+
+        // Then
+        assertFalse(result);
+        verify(notificationHistoryRepository).existsByTemplate_Id(1);
+    }
+
+    @Test
+    @DisplayName("Should return true when template is used by notifications")
+    void isTemplateUsedByAnyNotification_returnsTrue() {
+        // Given
+        when(notificationHistoryRepository.existsByTemplate_Id(1)).thenReturn(true);
+
+        // When
+        boolean result = service.isTemplateUsedByAnyNotification(1);
+
+        // Then
+        assertTrue(result);
+        verify(notificationHistoryRepository).existsByTemplate_Id(1);
     }
 
     @Test
@@ -518,7 +589,7 @@ public class NotificationTemplateServiceTest {
     void validateTemplateVariables_shouldReturnFalse_whenVariablesDontMatch() {
         // Given
         Integer templateId = 1;
-        List<String> variables = List.of("name", "phone"); // phone is not in template variables
+        List<String> variables = List.of("name", "phone");
         when(repository.findById(templateId)).thenReturn(Optional.of(template));
 
         // When
@@ -527,15 +598,5 @@ public class NotificationTemplateServiceTest {
         // Then
         assertFalse(result);
         verify(repository).findById(templateId);
-    }
-
-    @Test
-    @DisplayName("Should check if template is used by any notification")
-    void isTemplateUsedByAnyNotification_returnsFalse() {
-        // Given/When
-        boolean result = service.isTemplateUsedByAnyNotification(1);
-
-        // Then - currently implemented to always return false
-        assertFalse(result);
     }
 }
