@@ -1,9 +1,11 @@
 package com.app.panama_trips.service.implementation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,207 +23,166 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class TourFaqService implements ITourFaqService{
+@Transactional(readOnly = true)
+public class TourFaqService implements ITourFaqService {
 
     private final TourFaqRepository repository;
     private final TourPlanRepository tourPlanRepository;
 
+    // CRUD operations
     @Override
-    @Transactional(readOnly = true)
     public Page<TourFaqResponse> getAllFaqs(Pageable pageable) {
-        return this.repository.findAll(pageable)
-                .map(TourFaqResponse::new);
+        return repository.findAll(pageable).map(TourFaqResponse::new);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public TourFaqResponse getFaqById(Integer id) {
-        TourFaq faq = this.repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("TourFaq not found with id: " + id));
-        return new TourFaqResponse(faq);
+        return new TourFaqResponse(findFaqOrThrow(id));
     }
 
     @Override
     @Transactional
     public TourFaqResponse saveFaq(TourFaqRequest request) {
         validateRequest(request);
-        TourFaq newFaq = buildFromRequest(request);
-        return new TourFaqResponse(this.repository.save(newFaq));
+        return new TourFaqResponse(repository.save(buildFromRequest(request)));
     }
 
     @Override
     @Transactional
     public TourFaqResponse updateFaq(Integer id, TourFaqRequest request) {
-        TourFaq existingFaq = this.repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("TourFaq not found with id: " + id));
+        TourFaq existingFaq = findFaqOrThrow(id);
         updateFromRequest(existingFaq, request);
-        return new TourFaqResponse(this.repository.save(existingFaq));
+        return new TourFaqResponse(repository.save(existingFaq));
     }
 
     @Override
     @Transactional
     public void deleteFaq(Integer id) {
-        if (!this.repository.existsById(id)) {
+        if (!repository.existsById(id)) {
             throw new ResourceNotFoundException("TourFaq not found with id: " + id);
         }
-        this.repository.deleteById(id);
+        repository.deleteById(id);
     }
 
+    // Find operations
     @Override
-    @Transactional(readOnly = true)
     public List<TourFaqResponse> findByTourPlanId(Integer tourPlanId) {
-        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
-        return this.repository.findByTourPlan(tourPlan)
-                .stream()
-                .map(TourFaqResponse::new)
-                .toList();
+        validateTourPlanExists(tourPlanId);
+        return toResponseList(repository.findByTourPlan_Id(tourPlanId));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<TourFaqResponse> findByTourPlanIdOrderByDisplayOrderAsc(Integer tourPlanId) {
-        return this.repository.findByTourPlanIdOrderByDisplayOrder(tourPlanId.longValue())
-                .stream()
-                .map(TourFaqResponse::new)
-                .toList();
+        return toResponseList(repository.findByTourPlan_IdOrderByDisplayOrderAsc(tourPlanId));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<TourFaqResponse> searchByQuestionOrAnswer(String keyword) {
-        return this.repository.searchByKeyword(keyword)
-                .stream()
-                .map(TourFaqResponse::new)
-                .toList();
+        return toResponseList(repository.searchByKeyword(keyword));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<TourFaqResponse> findByTourPlanIdAndQuestion(Integer tourPlanId, String question) {
-        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
-        return this.repository.findByTourPlan(tourPlan)
-                .stream()
-                .filter(faq -> faq.getQuestion().equalsIgnoreCase(question))
-                .map(TourFaqResponse::new)
-                .findFirst();
+        return repository.findByTourPlan_IdAndQuestionIgnoreCase(tourPlanId, question)
+                .map(TourFaqResponse::new);
     }
 
+    // Specialized queries
     @Override
-    @Transactional(readOnly = true)
     public List<TourFaqResponse> getTopFaqsByTourPlan(Integer tourPlanId, int limit) {
-        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
-        return this.repository.findByTourPlanOrderByDisplayOrderAsc(tourPlan)
-                .stream()
-                .limit(limit)
-                .map(TourFaqResponse::new)
-                .toList();
+        validateTourPlanExists(tourPlanId);
+        return toResponseList(repository.findByTourPlan_IdOrderByDisplayOrderAsc(tourPlanId, PageRequest.of(0, limit)));
     }
 
     @Override
     @Transactional
     public void reorderFaqs(Integer tourPlanId, List<Integer> faqIdsInOrder) {
+        List<TourFaq> toSave = new ArrayList<>();
         for (int i = 0; i < faqIdsInOrder.size(); i++) {
             Integer faqId = faqIdsInOrder.get(i);
-            TourFaq faq = this.repository.findById(faqId)
-                    .orElseThrow(() -> new ResourceNotFoundException("TourFaq not found with id: " + faqId));
-
-            // Verify the FAQ belongs to the specified tour plan
+            TourFaq faq = findFaqOrThrow(faqId);
             if (!faq.getTourPlan().getId().equals(tourPlanId)) {
                 throw new IllegalArgumentException(
                         "FAQ with id " + faqId + " does not belong to tour plan " + tourPlanId);
             }
-
             faq.setDisplayOrder(i + 1);
-            this.repository.save(faq);
+            toSave.add(faq);
         }
+        repository.saveAll(toSave);
     }
 
+    // Bulk operations
     @Override
     @Transactional
     public void bulkCreateFaqs(List<TourFaqRequest> requests) {
-        for (TourFaqRequest request : requests) {
-            validateRequest(request);
-        }
-
+        requests.forEach(this::validateRequest);
         List<TourFaq> faqs = requests.stream()
                 .map(this::buildFromRequest)
                 .toList();
-
-        this.repository.saveAll(faqs);
-    }
-
-    @Override
-    @Transactional
-    public void bulkUpdateFaqs(List<TourFaqRequest> requests) {
-        for (TourFaqRequest request : requests) {
-            validateRequest(request);
-        }
-
-        // This method would need to be implemented based on business logic
-        // For now, we'll throw an exception as it's not clear how to identify which FAQ
-        // to update
-        throw new UnsupportedOperationException("bulkUpdateFaqs requires additional business logic to identify which FAQs to update");
+        repository.saveAll(faqs);
     }
 
     @Override
     @Transactional
     public void bulkDeleteFaqs(List<Integer> faqIds) {
         for (Integer faqId : faqIds) {
-            if (!this.repository.existsById(faqId)) {
+            if (!repository.existsById(faqId)) {
                 throw new ResourceNotFoundException("TourFaq not found with id: " + faqId);
             }
         }
-        this.repository.deleteAllById(faqIds);
+        repository.deleteAllById(faqIds);
     }
 
+    // Check operations
     @Override
-    @Transactional(readOnly = true)
     public boolean existsByTourPlanIdAndQuestion(Integer tourPlanId, String question) {
-        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
-        return this.repository.findByTourPlan(tourPlan)
-                .stream()
-                .anyMatch(faq -> faq.getQuestion().equalsIgnoreCase(question));
+        return repository.existsByTourPlan_IdAndQuestionIgnoreCase(tourPlanId, question);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public boolean isDisplayOrderUniqueWithinTourPlan(Integer tourPlanId, Integer displayOrder) {
-        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
-        return this.repository.findByTourPlan(tourPlan)
-                .stream()
-                .noneMatch(faq -> faq.getDisplayOrder().equals(displayOrder));
+        return !repository.existsByTourPlan_IdAndDisplayOrder(tourPlanId, displayOrder);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public long countByTourPlanId(Integer tourPlanId) {
-        TourPlan tourPlan = findTourPlanOrFail(tourPlanId);
-        return this.repository.countByTourPlan(tourPlan);
+        return repository.countByTourPlan_Id(tourPlanId);
     }
-    // Private methods
-    private void validateRequest(TourFaqRequest request) {
-        TourPlan tourPlan = findTourPlanOrFail(request.tourPlanId());
 
-        // Validate that the tour plan is active
+    // Private helper methods
+    private TourFaq findFaqOrThrow(Integer id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("TourFaq not found with id: " + id));
+    }
+
+    private TourPlan findTourPlanOrThrow(Integer tourPlanId) {
+        return tourPlanRepository.findById(tourPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("TourPlan not found with id: " + tourPlanId));
+    }
+
+    private void validateTourPlanExists(Integer tourPlanId) {
+        if (!tourPlanRepository.existsById(tourPlanId)) {
+            throw new ResourceNotFoundException("TourPlan not found with id: " + tourPlanId);
+        }
+    }
+
+    private void validateRequest(TourFaqRequest request) {
+        TourPlan tourPlan = findTourPlanOrThrow(request.tourPlanId());
         if (!"ACTIVE".equals(tourPlan.getStatus())) {
             throw new IllegalStateException("Tour plan is not active");
         }
-
-        // Validate display order uniqueness within the tour plan
-        if (!isDisplayOrderUniqueWithinTourPlan(request.tourPlanId(), request.displayOrder())) {
+        if (repository.existsByTourPlan_IdAndDisplayOrder(request.tourPlanId(), request.displayOrder())) {
             throw new IllegalStateException("Display order " + request.displayOrder()
                     + " is not unique within tour plan " + request.tourPlanId());
         }
-
-        // Validate question uniqueness within the tour plan
-        if (existsByTourPlanIdAndQuestion(request.tourPlanId(), request.question())) {
+        if (repository.existsByTourPlan_IdAndQuestionIgnoreCase(request.tourPlanId(), request.question())) {
             throw new IllegalStateException("Question already exists for tour plan " + request.tourPlanId());
         }
     }
 
     private TourFaq buildFromRequest(TourFaqRequest request) {
         return TourFaq.builder()
-                .tourPlan(findTourPlanOrFail(request.tourPlanId()))
+                .tourPlan(findTourPlanOrThrow(request.tourPlanId()))
                 .question(request.question())
                 .answer(request.answer())
                 .displayOrder(request.displayOrder())
@@ -229,19 +190,17 @@ public class TourFaqService implements ITourFaqService{
     }
 
     private void updateFromRequest(TourFaq faq, TourFaqRequest request) {
-        // Check if we're changing the tour plan
         if (!faq.getTourPlan().getId().equals(request.tourPlanId())) {
-            faq.setTourPlan(findTourPlanOrFail(request.tourPlanId()));
+            faq.setTourPlan(findTourPlanOrThrow(request.tourPlanId()));
         }
-
         faq.setQuestion(request.question());
         faq.setAnswer(request.answer());
         faq.setDisplayOrder(request.displayOrder());
     }
 
-
-    private TourPlan findTourPlanOrFail(Integer tourPlanId) {
-        return tourPlanRepository.findById(tourPlanId)
-                .orElseThrow(() -> new ResourceNotFoundException("TourPlan not found with id: " + tourPlanId));
+    private List<TourFaqResponse> toResponseList(List<TourFaq> faqs) {
+        return faqs.stream()
+                .map(TourFaqResponse::new)
+                .toList();
     }
 }
