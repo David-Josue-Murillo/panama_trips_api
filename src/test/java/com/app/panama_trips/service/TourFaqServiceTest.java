@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.TourFaq;
 import com.app.panama_trips.persistence.entity.TourPlan;
+import com.app.panama_trips.persistence.entity.enums.TourPlanStatus;
 import com.app.panama_trips.persistence.repository.TourFaqRepository;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.presentation.dto.TourFaqRequest;
@@ -136,7 +137,7 @@ public class TourFaqServiceTest {
     void saveFaq_whenTourPlanNotActive_shouldThrowException() {
         // Given
         TourPlan inactiveTourPlan = tourPlanTwoMock;
-        inactiveTourPlan.setStatus("INACTIVE");
+        inactiveTourPlan.setStatus(TourPlanStatus.INACTIVE);
         when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(inactiveTourPlan));
 
         // When/Then

@@ -545,7 +545,11 @@ public class DataProvider {
             BigDecimal.valueOf(100.00),
             1,
             10,
-            1);
+            1,
+            null,
+            null,
+            null,
+            null);
 
     public static List<TourPlanResponse> tourPlanResponseListMocks = List.of(
             new TourPlanResponse(tourPlanOneMock),

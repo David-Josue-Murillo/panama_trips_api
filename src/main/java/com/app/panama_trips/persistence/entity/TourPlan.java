@@ -1,10 +1,13 @@
 package com.app.panama_trips.persistence.entity;
 
+import com.app.panama_trips.persistence.entity.enums.DifficultyLevel;
+import com.app.panama_trips.persistence.entity.enums.TourPlanStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -46,9 +49,10 @@ public class TourPlan {
     @Column(name = "available_spots", nullable = false)
     private Integer availableSpots;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
     @Builder.Default
-    private String status = "ACTIVE";
+    private TourPlanStatus status = TourPlanStatus.ACTIVE;
 
     @ManyToOne
     @JoinColumn(name = "created_by", foreignKey = @ForeignKey(name = "fk_tour_created_by"))
@@ -62,11 +66,11 @@ public class TourPlan {
     @JoinColumn(name = "provider_id", nullable = false, foreignKey = @ForeignKey(name = "fk_tour_plan_provider"))
     private Provider provider;
 
-    @Column(name = "start_time", length = 8)
-    private String startTime;
+    @Column(name = "start_time")
+    private LocalTime startTime;
 
-    @Column(name = "end_time", length = 8)
-    private String endTime;
+    @Column(name = "end_time")
+    private LocalTime endTime;
 
     @Column(name = "available_days", columnDefinition = "JSONB DEFAULT '[\"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\", \"SAT\", \"SUN\"]'")
     private String availableDays;
@@ -136,9 +140,10 @@ public class TourPlan {
     @Builder.Default
     private Boolean allowInstantBooking = true;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "difficulty_level", length = 20)
     @Builder.Default
-    private String difficultyLevel = "EASY";
+    private DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
 
     @Column(name = "recommended_age", length = 20)
     @Builder.Default

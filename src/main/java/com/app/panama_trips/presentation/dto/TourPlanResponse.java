@@ -1,8 +1,12 @@
 package com.app.panama_trips.presentation.dto;
 
 import com.app.panama_trips.persistence.entity.TourPlan;
+import com.app.panama_trips.persistence.entity.enums.DifficultyLevel;
+import com.app.panama_trips.persistence.entity.enums.TourPlanStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public record TourPlanResponse(
         Integer id,
@@ -15,6 +19,10 @@ public record TourPlanResponse(
         String providerEmail,
         String providerPhone,
         String address,
+        TourPlanStatus status,
+        DifficultyLevel difficultyLevel,
+        LocalTime startTime,
+        LocalTime endTime,
         LocalDateTime createdAt
 ) {
     public TourPlanResponse(TourPlan tourPlan) {
@@ -29,6 +37,10 @@ public record TourPlanResponse(
                 tourPlan.getProvider().getEmail(),
                 tourPlan.getProvider().getPhone(),
                 tourPlan.getProvider().getAddress().getStreet(),
+                tourPlan.getStatus(),
+                tourPlan.getDifficultyLevel(),
+                tourPlan.getStartTime(),
+                tourPlan.getEndTime(),
                 tourPlan.getCreatedAt()
         );
     }

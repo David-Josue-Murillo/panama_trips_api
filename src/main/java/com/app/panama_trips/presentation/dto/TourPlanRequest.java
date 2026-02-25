@@ -1,8 +1,11 @@
 package com.app.panama_trips.presentation.dto;
 
+import com.app.panama_trips.persistence.entity.enums.DifficultyLevel;
+import com.app.panama_trips.persistence.entity.enums.TourPlanStatus;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
 
 public record TourPlanRequest(
         @NotBlank(message = "El título es obligatorio")
@@ -26,5 +29,13 @@ public record TourPlanRequest(
 
         @NotNull(message = "El ID del proveedor es obligatorio")
         @Positive(message = "El ID del proveedor debe ser un número positivo")
-        Integer providerId
+        Integer providerId,
+
+        TourPlanStatus status,
+
+        DifficultyLevel difficultyLevel,
+
+        LocalTime startTime,
+
+        LocalTime endTime
 ) { }

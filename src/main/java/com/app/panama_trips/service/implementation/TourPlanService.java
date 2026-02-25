@@ -157,14 +157,26 @@ public class TourPlanService implements ITourPlanService {
     }
 
     private TourPlan buildTourPlanFromRequest(TourPlanRequest tourPlanRequest) {
-        return TourPlan.builder()
+        var builder = TourPlan.builder()
                 .title(tourPlanRequest.title())
                 .description(tourPlanRequest.description())
                 .price(tourPlanRequest.price())
                 .duration(tourPlanRequest.duration())
                 .availableSpots(tourPlanRequest.availableSpots())
-                .provider(findProviderOrFail(tourPlanRequest.providerId()))
-                .build();
+                .provider(findProviderOrFail(tourPlanRequest.providerId()));
+        if (tourPlanRequest.status() != null) {
+            builder.status(tourPlanRequest.status());
+        }
+        if (tourPlanRequest.difficultyLevel() != null) {
+            builder.difficultyLevel(tourPlanRequest.difficultyLevel());
+        }
+        if (tourPlanRequest.startTime() != null) {
+            builder.startTime(tourPlanRequest.startTime());
+        }
+        if (tourPlanRequest.endTime() != null) {
+            builder.endTime(tourPlanRequest.endTime());
+        }
+        return builder.build();
     }
 
     private void updateTourPlanEntity(TourPlan tourPlan, TourPlanRequest tourPlanRequest) {
@@ -174,6 +186,18 @@ public class TourPlanService implements ITourPlanService {
         tourPlan.setDuration(tourPlanRequest.duration());
         tourPlan.setAvailableSpots(tourPlanRequest.availableSpots());
         tourPlan.setProvider(findProviderOrFail(tourPlanRequest.providerId()));
+        if (tourPlanRequest.status() != null) {
+            tourPlan.setStatus(tourPlanRequest.status());
+        }
+        if (tourPlanRequest.difficultyLevel() != null) {
+            tourPlan.setDifficultyLevel(tourPlanRequest.difficultyLevel());
+        }
+        if (tourPlanRequest.startTime() != null) {
+            tourPlan.setStartTime(tourPlanRequest.startTime());
+        }
+        if (tourPlanRequest.endTime() != null) {
+            tourPlan.setEndTime(tourPlanRequest.endTime());
+        }
     }
 
     private List<TourPlanResponse> toResponseList(List<TourPlan> tourPlans) {

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.TourFaq;
 import com.app.panama_trips.persistence.entity.TourPlan;
+import com.app.panama_trips.persistence.entity.enums.TourPlanStatus;
 import com.app.panama_trips.persistence.repository.TourFaqRepository;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.presentation.dto.TourFaqRequest;
@@ -168,7 +169,7 @@ public class TourFaqService implements ITourFaqService {
 
     private void validateRequest(TourFaqRequest request) {
         TourPlan tourPlan = findTourPlanOrThrow(request.tourPlanId());
-        if (!"ACTIVE".equals(tourPlan.getStatus())) {
+        if (tourPlan.getStatus() != TourPlanStatus.ACTIVE) {
             throw new IllegalStateException("Tour plan is not active");
         }
         if (repository.existsByTourPlan_IdAndDisplayOrder(request.tourPlanId(), request.displayOrder())) {
