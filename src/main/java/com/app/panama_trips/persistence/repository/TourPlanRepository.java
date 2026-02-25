@@ -3,6 +3,7 @@ package com.app.panama_trips.persistence.repository;
 import com.app.panama_trips.persistence.entity.TourPlan;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +15,13 @@ import java.util.Optional;
 
 @Repository
 public interface TourPlanRepository extends JpaRepository<TourPlan, Integer> {
+
+    @EntityGraph(attributePaths = {"provider", "provider.address"})
+    Optional<TourPlan> findById(Integer id);
+
+    @EntityGraph(attributePaths = {"provider", "provider.address"})
+    Page<TourPlan> findAll(Pageable pageable);
+
     Optional<TourPlan> findByTitleIgnoreCase(String title);
     boolean existsByTitleIgnoreCase(String title);
 

@@ -19,11 +19,11 @@ public class Region {
     @Column(name = "name", nullable = false, unique = true, length = 100)
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "province_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_region_province"))
     private Province province;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comarca_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_region_comarca"))
     private Comarca comarca;
 }
