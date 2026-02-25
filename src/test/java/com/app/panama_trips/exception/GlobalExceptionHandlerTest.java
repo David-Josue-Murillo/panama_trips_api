@@ -16,12 +16,12 @@ public class GlobalExceptionHandlerTest {
     private GlobalExceptionHandler globalExceptionHandler;
 
     @Test
-    void handlerUseNotFoundException_WhenUserNotFoundException() {
+    void handleUserNotFoundException_WhenUserNotFoundException() {
         // Given
         UserNotFoundException exception = new UserNotFoundException("User not found");
 
         // When
-        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handlerUseNotFoundException(exception);
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleUserNotFoundException(exception);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());

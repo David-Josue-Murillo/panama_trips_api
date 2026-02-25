@@ -16,8 +16,8 @@ public record NotificationHistoryRequest(
     Integer reservationId,
     
     @NotBlank(message = "Delivery status is required")
-    @Pattern(regexp = "^(SENT|DELIVERED|FAILED|PENDING)$", 
-            message = "Delivery status must be one of: SENT, DELIVERED, FAILED, PENDING")
+    @Pattern(regexp = "^(PENDING|DELIVERED|FAILED)$",
+            message = "Delivery status must be one of: PENDING, DELIVERED, FAILED")
     String deliveryStatus,
     
     @NotBlank(message = "Content is required")

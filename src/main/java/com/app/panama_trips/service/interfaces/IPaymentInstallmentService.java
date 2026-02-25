@@ -49,7 +49,6 @@ public interface IPaymentInstallmentService {
 
     // Bulk operations
     void bulkCreatePaymentInstallments(List<PaymentInstallmentRequest> requests);
-    void bulkUpdatePaymentInstallments(List<PaymentInstallmentRequest> requests);
     void bulkDeletePaymentInstallments(List<Integer> installmentIds);
     void bulkUpdateStatus(List<Integer> installmentIds, String newStatus);
     void bulkMarkAsReminderSent(List<Integer> installmentIds);

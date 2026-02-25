@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,16 +14,22 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.AuditLog;
 import com.app.panama_trips.persistence.entity.UserEntity;
+import com.app.panama_trips.persistence.entity.enums.AuditAction;
 import com.app.panama_trips.persistence.repository.AuditLogRepository;
 import com.app.panama_trips.service.interfaces.IAuditLogService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuditLogService implements IAuditLogService {
 
     private final AuditLogRepository repository;
+    private final ObjectMapper objectMapper;
 
     // CRUD operations
     @Override
@@ -78,9 +85,7 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> findByUserId(Integer userId) {
-        UserEntity user = new UserEntity();
-        user.setId(userId.longValue());
-        return repository.findByUser(user);
+        return repository.findByUser_Id(userId.longValue());
     }
 
     @Override
@@ -111,72 +116,50 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> findByEntityType(String entityType) {
-        return repository.findAll().stream()
-                .filter(log -> entityType.equals(log.getEntityType()))
-                .toList();
+        return repository.findByEntityType(entityType);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> findByEntityId(Integer entityId) {
-        return repository.findAll().stream()
-                .filter(log -> entityId.equals(log.getEntityId()))
-                .toList();
+        return repository.findByEntityId(entityId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> findByUserAndAction(UserEntity user, String action) {
-        return repository.findByUser(user).stream()
-                .filter(log -> action.equals(log.getAction()))
-                .toList();
-
+        return repository.findByUser_IdAndAction(user.getId(), action);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> findByUserAndEntityType(UserEntity user, String entityType) {
-        return repository.findByUser(user).stream()
-                .filter(log -> entityType.equals(log.getEntityType()))
-                .toList();
-
+        return repository.findByUser_IdAndEntityType(user.getId(), entityType);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> findByActionAndEntityType(String action, String entityType) {
-        return repository.findByAction(action).stream()
-                .filter(log -> entityType.equals(log.getEntityType()))
-                .toList();
-
+        return repository.findByActionAndEntityType(action, entityType);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> findByTimestampAfter(LocalDateTime timestamp) {
-        return repository.findAll().stream()
-                .filter(log -> log.getActionTimestamp().isAfter(timestamp))
-                .toList();
-
+        return repository.findByActionTimestampAfter(timestamp);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> findByTimestampBefore(LocalDateTime timestamp) {
-        return repository.findAll().stream()
-                .filter(log -> log.getActionTimestamp().isBefore(timestamp))
-                .toList();
-
+        return repository.findByActionTimestampBefore(timestamp);
     }
 
     // Business logic operations
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getRecentActivity(int limit) {
-        return repository.findAll().stream()
-                .sorted((a, b) -> b.getActionTimestamp().compareTo(a.getActionTimestamp()))
-                .limit(limit)
-                .toList();
+        return repository.findRecentActivity(PageRequest.of(0, limit));
     }
 
     @Override
@@ -213,28 +196,21 @@ public class AuditLogService implements IAuditLogService {
     @Transactional(readOnly = true)
     public List<AuditLog> getActivityByUserAndDateRange(Integer userId, LocalDateTime startDate,
             LocalDateTime endDate) {
-        return findByUserId(userId).stream()
-                .filter(log -> log.getActionTimestamp().isAfter(startDate) &&
-                        log.getActionTimestamp().isBefore(endDate))
-                .toList();
+        return repository.findByUser_IdAndActionTimestampBetween(userId.longValue(), startDate, endDate);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getActivityByEntityAndDateRange(String entityType, Integer entityId, LocalDateTime startDate,
             LocalDateTime endDate) {
-        return findByEntityTypeAndEntityId(entityType, entityId).stream()
-                .filter(log -> log.getActionTimestamp().isAfter(startDate) &&
-                        log.getActionTimestamp().isBefore(endDate))
-                .toList();
+        return repository.findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate, endDate);
     }
 
     // Advanced queries
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getRecentActivityByEntityType(String entityType, int limit) {
-        return findByEntityType(entityType).stream()
-                .sorted((a, b) -> b.getActionTimestamp().compareTo(a.getActionTimestamp()))
+        return repository.findRecentActivityByEntityType(entityType, LocalDateTime.MIN).stream()
                 .limit(limit)
                 .toList();
     }
@@ -242,60 +218,45 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getActivityByUserAgent(String userAgent) {
-        return repository.findAll().stream()
-                .filter(log -> userAgent.equals(log.getUserAgent()))
-                .toList();
+        return repository.findByUserAgent(userAgent);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getActivityByUserAgentContaining(String userAgentPattern) {
-        return repository.findAll().stream()
-                .filter(log -> log.getUserAgent() != null &&
-                        log.getUserAgent().contains(userAgentPattern))
-                .toList();
+        return repository.findByUserAgentContaining(userAgentPattern);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getActivityByIpAddressAndDateRange(String ipAddress, LocalDateTime startDate,
             LocalDateTime endDate) {
-        return repository.findByIpAddress(ipAddress).stream()
-                .filter(log -> log.getActionTimestamp().isAfter(startDate) &&
-                        log.getActionTimestamp().isBefore(endDate))
-                .toList();
+        return repository.findByIpAddressAndActionTimestampBetween(ipAddress, startDate, endDate);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getActivityByActionAndDateRange(String action, LocalDateTime startDate,
             LocalDateTime endDate) {
-        return repository.findByAction(action).stream()
-                .filter(log -> log.getActionTimestamp().isAfter(startDate) &&
-                        log.getActionTimestamp().isBefore(endDate))
-                .toList();
+        return repository.findByActionAndActionTimestampBetween(action, startDate, endDate);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getActivityByEntityTypeAndAction(String entityType, String action) {
-        return findByActionAndEntityType(action, entityType);
+        return repository.findByActionAndEntityType(action, entityType);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getActivityByUserAndAction(Integer userId, String action) {
-        return findByUserId(userId).stream()
-                .filter(log -> action.equals(log.getAction()))
-                .toList();
+        return repository.findByUser_IdAndAction(userId.longValue(), action);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getActivityByUserAndEntityType(Integer userId, String entityType) {
-        return findByUserId(userId).stream()
-                .filter(log -> entityType.equals(log.getEntityType()))
-                .toList();
+        return repository.findByUser_IdAndEntityType(userId.longValue(), entityType);
     }
 
     // Bulk operations
@@ -315,15 +276,13 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional
     public void bulkDeleteAuditLogsByEntityType(String entityType) {
-        List<AuditLog> logsToDelete = findByEntityType(entityType);
-        repository.deleteAll(logsToDelete);
+        repository.deleteByEntityType(entityType);
     }
 
     @Override
     @Transactional
     public void bulkDeleteAuditLogsByUser(Integer userId) {
-        List<AuditLog> logsToDelete = findByUserId(userId);
-        repository.deleteAll(logsToDelete);
+        repository.deleteByUser_Id(userId.longValue());
     }
 
     @Override
@@ -336,8 +295,7 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional
     public void bulkDeleteAuditLogsByAction(String action) {
-        List<AuditLog> logsToDelete = repository.findByAction(action);
-        repository.deleteAll(logsToDelete);
+        repository.deleteByAction(action);
     }
 
     // Check operations
@@ -350,72 +308,68 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public boolean existsByEntityTypeAndEntityId(String entityType, Integer entityId) {
-        return !repository.findByEntityTypeAndEntityId(entityType, entityId).isEmpty();
+        return repository.existsByEntityTypeAndEntityId(entityType, entityId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean existsByUser(Integer userId) {
-        return !findByUserId(userId).isEmpty();
+        return repository.existsByUser_Id(userId.longValue());
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean existsByAction(String action) {
-        return !repository.findByAction(action).isEmpty();
+        return repository.existsByAction(action);
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean existsByIpAddress(String ipAddress) {
-        return !repository.findByIpAddress(ipAddress).isEmpty();
+        return repository.existsByIpAddress(ipAddress);
     }
 
     @Override
     @Transactional(readOnly = true)
     public long countByEntityType(String entityType) {
-        return findByEntityType(entityType).size();
+        return repository.countByEntityType(entityType);
     }
 
     @Override
     @Transactional(readOnly = true)
     public long countByUser(Integer userId) {
-        return findByUserId(userId).size();
+        return repository.countByUser_Id(userId.longValue());
     }
 
     @Override
     @Transactional(readOnly = true)
     public long countByAction(String action) {
-        return repository.findByAction(action).size();
+        return repository.countByAction(action);
     }
 
     @Override
     @Transactional(readOnly = true)
     public long countByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return repository.findByActionTimestampBetween(startDate, endDate).size();
+        return repository.countByActionTimestampBetween(startDate, endDate);
     }
 
     @Override
     @Transactional(readOnly = true)
     public long countByIpAddress(String ipAddress) {
-        return repository.findByIpAddress(ipAddress).size();
+        return repository.countByIpAddress(ipAddress);
     }
 
     // Audit trail operations
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForEntity(String entityType, Integer entityId) {
-        return repository.findByEntityTypeAndEntityId(entityType, entityId).stream()
-                .sorted((a, b) -> a.getActionTimestamp().compareTo(b.getActionTimestamp()))
-                .toList();
+        return repository.findByEntityTypeAndEntityIdOrderByActionTimestampAsc(entityType, entityId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForUser(Integer userId) {
-        return findByUserId(userId).stream()
-                .sorted((a, b) -> a.getActionTimestamp().compareTo(b.getActionTimestamp()))
-                .toList();
+        return repository.findByUser_IdOrderByActionTimestampAsc(userId.longValue());
     }
 
     @Override
@@ -437,29 +391,21 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForUserAndAction(Integer userId, String action) {
-        return getAuditTrailForUser(userId).stream()
-                .filter(log -> action.equals(log.getAction()))
-                .toList();
+        return repository.findByUser_IdAndAction(userId.longValue(), action);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForEntityAndDateRange(String entityType, Integer entityId,
             LocalDateTime startDate, LocalDateTime endDate) {
-        return getAuditTrailForEntity(entityType, entityId).stream()
-                .filter(log -> log.getActionTimestamp().isAfter(startDate)
-                        && log.getActionTimestamp().isBefore(endDate))
-                .toList();
+        return repository.findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate, endDate);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForUserAndDateRange(Integer userId, LocalDateTime startDate,
             LocalDateTime endDate) {
-        return getAuditTrailForUser(userId).stream()
-                .filter(log -> log.getActionTimestamp().isAfter(startDate)
-                        && log.getActionTimestamp().isBefore(endDate))
-                .toList();
+        return repository.findByUser_IdAndActionTimestampBetween(userId.longValue(), startDate, endDate);
     }
 
     // Statistics and analytics
@@ -472,43 +418,44 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public long getTotalAuditLogsByEntityType(String entityType) {
-        return countByEntityType(entityType);
+        return repository.countByEntityType(entityType);
     }
 
     @Override
     @Transactional(readOnly = true)
     public long getTotalAuditLogsByUser(Integer userId) {
-        return countByUser(userId);
+        return repository.countByUser_Id(userId.longValue());
     }
 
     @Override
     @Transactional(readOnly = true)
     public long getTotalAuditLogsByAction(String action) {
-        return countByAction(action);
+        return repository.countByAction(action);
     }
 
     @Override
     @Transactional(readOnly = true)
     public long getTotalAuditLogsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return countByDateRange(startDate, endDate);
+        return repository.countByActionTimestampBetween(startDate, endDate);
     }
 
     @Override
     @Transactional(readOnly = true)
     public long getTotalAuditLogsByIpAddress(String ipAddress) {
-        return countByIpAddress(ipAddress);
+        return repository.countByIpAddress(ipAddress);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getTopUsersByActivity(int limit) {
-        return repository.findAll().stream()
+        List<AuditLog> allLogs = repository.findAll();
+        return allLogs.stream()
                 .filter(log -> log.getUser() != null)
                 .collect(Collectors.groupingBy(log -> log.getUser().getId(), Collectors.counting()))
                 .entrySet().stream()
                 .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
                 .limit(limit)
-                .map(entry -> repository.findAll().stream()
+                .map(entry -> allLogs.stream()
                         .filter(log -> log.getUser() != null && entry.getKey().equals(log.getUser().getId()))
                         .findFirst().orElse(null))
                 .filter(log -> log != null)
@@ -518,12 +465,13 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getTopEntityTypesByActivity(int limit) {
-        return repository.findAll().stream()
+        List<AuditLog> allLogs = repository.findAll();
+        return allLogs.stream()
                 .collect(Collectors.groupingBy(AuditLog::getEntityType, Collectors.counting()))
                 .entrySet().stream()
                 .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
                 .limit(limit)
-                .map(entry -> repository.findAll().stream()
+                .map(entry -> allLogs.stream()
                         .filter(log -> entry.getKey().equals(log.getEntityType()))
                         .findFirst().orElse(null))
                 .filter(log -> log != null)
@@ -533,12 +481,13 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getTopActionsByActivity(int limit) {
-        return repository.findAll().stream()
+        List<AuditLog> allLogs = repository.findAll();
+        return allLogs.stream()
                 .collect(Collectors.groupingBy(AuditLog::getAction, Collectors.counting()))
                 .entrySet().stream()
                 .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
                 .limit(limit)
-                .map(entry -> repository.findAll().stream()
+                .map(entry -> allLogs.stream()
                         .filter(log -> entry.getKey().equals(log.getAction()))
                         .findFirst().orElse(null))
                 .filter(log -> log != null)
@@ -548,13 +497,14 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getTopIpAddressesByActivity(int limit) {
-        return repository.findAll().stream()
+        List<AuditLog> allLogs = repository.findAll();
+        return allLogs.stream()
                 .filter(log -> log.getIpAddress() != null)
                 .collect(Collectors.groupingBy(AuditLog::getIpAddress, Collectors.counting()))
                 .entrySet().stream()
                 .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
                 .limit(limit)
-                .map(entry -> repository.findAll().stream()
+                .map(entry -> allLogs.stream()
                         .filter(log -> entry.getKey().equals(log.getIpAddress()))
                         .findFirst().orElse(null))
                 .filter(log -> log != null)
@@ -597,11 +547,10 @@ public class AuditLogService implements IAuditLogService {
     public List<AuditLog> getSuspiciousActivity(String ipAddress) {
         return repository.findByIpAddress(ipAddress).stream()
                 .filter(log -> {
-                    // Consider suspicious: multiple failed attempts, unusual hours, etc.
                     LocalDateTime now = LocalDateTime.now();
                     return log.getActionTimestamp().isAfter(now.minusHours(24)) &&
-                            (log.getAction().contains("FAILED") ||
-                                    log.getAction().contains("ERROR") ||
+                            (AuditAction.getSuspiciousActions().stream()
+                                    .anyMatch(action -> log.getAction().contains(action)) ||
                                     log.getActionTimestamp().getHour() < 6 ||
                                     log.getActionTimestamp().getHour() > 22);
                 })
@@ -611,106 +560,74 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getActivityByMultipleIpAddresses(List<String> ipAddresses) {
-        return repository.findAll().stream()
-                .filter(log -> log.getIpAddress() != null && ipAddresses.contains(log.getIpAddress()))
-                .collect(Collectors.toList());
+        return repository.findByIpAddressIn(ipAddresses);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getActivityByUserAgentPattern(String pattern) {
-        return getActivityByUserAgentContaining(pattern);
+        return repository.findByUserAgentContaining(pattern);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getFailedLoginAttempts() {
-        return repository.findAll().stream()
-                .filter(log -> log.getAction() != null &&
-                        (log.getAction().contains("LOGIN_FAILED") ||
-                                log.getAction().contains("AUTHENTICATION_FAILED") ||
-                                log.getAction().contains("FAILED_LOGIN")))
-                .toList();
+        return repository.findByActionIn(AuditAction.getFailedLoginActions());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getSuccessfulLoginAttempts() {
-        return repository.findAll().stream()
-                .filter(log -> log.getAction() != null &&
-                        (log.getAction().contains("LOGIN_SUCCESS") ||
-                                log.getAction().contains("AUTHENTICATION_SUCCESS") ||
-                                log.getAction().contains("SUCCESSFUL_LOGIN")))
-                .toList();
+        return repository.findByActionIn(AuditAction.getSuccessfulLoginActions());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getDataModificationActivity() {
-        return repository.findAll().stream()
-                .filter(log -> log.getAction() != null &&
-                        (log.getAction().contains("UPDATE") ||
-                                log.getAction().contains("MODIFY") ||
-                                log.getAction().contains("EDIT")))
-                .toList();
+        return repository.findByActionIn(AuditAction.getDataModificationActions());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getDataAccessActivity() {
-        return repository.findAll().stream()
-                .filter(log -> log.getAction() != null &&
-                        (log.getAction().contains("READ") ||
-                                log.getAction().contains("VIEW") ||
-                                log.getAction().contains("ACCESS")))
-                .toList();
+        return repository.findByActionIn(AuditAction.getDataAccessActions());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getDataDeletionActivity() {
-        return repository.findAll().stream()
-                .filter(log -> log.getAction() != null &&
-                        (log.getAction().contains("DELETE") ||
-                                log.getAction().contains("REMOVE") ||
-                                log.getAction().contains("DESTROY")))
-                .toList();
+        return repository.findByActionIn(AuditAction.getDataDeletionActions());
     }
 
     // Data integrity operations
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithMissingUser() {
-        return repository.findAll().stream()
-                .filter(log -> log.getUser() == null)
-                .toList();
+        return repository.findByUserIsNull();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithMissingIpAddress() {
-        return repository.findAll().stream()
-                .filter(log -> log.getIpAddress() == null || log.getIpAddress().trim().isEmpty())
-                .toList();
+        return repository.findByIpAddressIsNullOrEmpty();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithInvalidJsonData() {
         return repository.findAll().stream()
-                .filter(log -> {
+                .filter(auditLog -> {
                     try {
-                        if (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) {
-                            // Try to parse as JSON
-                            new com.fasterxml.jackson.databind.ObjectMapper().readTree(log.getOldValues());
+                        if (auditLog.getOldValues() != null && !auditLog.getOldValues().trim().isEmpty()) {
+                            objectMapper.readTree(auditLog.getOldValues());
                         }
-                        if (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()) {
-                            // Try to parse as JSON
-                            new com.fasterxml.jackson.databind.ObjectMapper().readTree(log.getNewValues());
+                        if (auditLog.getNewValues() != null && !auditLog.getNewValues().trim().isEmpty()) {
+                            objectMapper.readTree(auditLog.getNewValues());
                         }
-                        return false; // Valid JSON
+                        return false;
                     } catch (Exception e) {
-                        return true; // Invalid JSON
+                        log.warn("Invalid JSON data in audit log id {}: {}", auditLog.getId(), e.getMessage());
+                        return true;
                     }
                 })
                 .toList();
@@ -719,26 +636,19 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithEmptyOldValues() {
-        return repository.findAll().stream()
-                .filter(log -> log.getOldValues() == null || log.getOldValues().trim().isEmpty())
-                .toList();
+        return repository.findByOldValuesIsNullOrEmpty();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithEmptyNewValues() {
-        return repository.findAll().stream()
-                .filter(log -> log.getNewValues() == null || log.getNewValues().trim().isEmpty())
-                .toList();
+        return repository.findByNewValuesIsNullOrEmpty();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithBothEmptyValues() {
-        return repository.findAll().stream()
-                .filter(log -> (log.getOldValues() == null || log.getOldValues().trim().isEmpty()) &&
-                        (log.getNewValues() == null || log.getNewValues().trim().isEmpty()))
-                .toList();
+        return repository.findByBothValuesNullOrEmpty();
     }
 
     // Utility operations
@@ -746,42 +656,25 @@ public class AuditLogService implements IAuditLogService {
     @Transactional
     public void cleanupOldAuditLogs(int daysToKeep) {
         LocalDateTime cutoffDate = LocalDateTime.now().minusDays(daysToKeep);
-        List<AuditLog> oldLogs = repository.findAll().stream()
-                .filter(log -> log.getActionTimestamp().isBefore(cutoffDate))
-                .toList();
-        repository.deleteAll(oldLogs);
+        repository.deleteByActionTimestampBefore(cutoffDate);
     }
 
     @Override
     @Transactional
-    public void archiveAuditLogs(LocalDateTime beforeDate) {
-        List<AuditLog> logsToArchive = repository.findAll().stream()
-                .filter(log -> log.getActionTimestamp().isBefore(beforeDate))
-                .toList();
-        // In a real implementation, you would move these to an archive table
-        // For now, we'll just delete them
-        repository.deleteAll(logsToArchive);
+    public void deleteOldAuditLogs(LocalDateTime beforeDate) {
+        repository.deleteByActionTimestampBefore(beforeDate);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> searchAuditLogsByKeyword(String keyword) {
-        return repository.findAll().stream()
-                .filter(log -> {
-                    String searchText = (log.getEntityType() + " " +
-                            log.getAction() + " " +
-                            (log.getOldValues() != null ? log.getOldValues() : "") + " " +
-                            (log.getNewValues() != null ? log.getNewValues() : "") + " " +
-                            (log.getUserAgent() != null ? log.getUserAgent() : "")).toLowerCase();
-                    return searchText.contains(keyword.toLowerCase());
-                })
-                .toList();
+        return repository.searchByKeyword(keyword);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> searchAuditLogsByUserAgent(String userAgent) {
-        return getActivityByUserAgent(userAgent);
+        return repository.findByUserAgent(userAgent);
     }
 
     @Override
@@ -794,46 +687,20 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithJsonData() {
-        return repository.findAll().stream()
-                .filter(log -> (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) ||
-                        (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()))
-                .toList();
+        return repository.findByOldValuesOrNewValuesNotEmpty();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithoutJsonData() {
-        return repository.findAll().stream()
-                .filter(log -> (log.getOldValues() == null || log.getOldValues().trim().isEmpty()) &&
-                        (log.getNewValues() == null || log.getNewValues().trim().isEmpty()))
-                .toList();
+        return repository.findByOldValuesAndNewValuesNullOrEmpty();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsByJsonField(String fieldName, String fieldValue) {
         return repository.findAll().stream()
-                .filter(log -> {
-                    try {
-                        if (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) {
-                            com.fasterxml.jackson.databind.JsonNode oldNode = new com.fasterxml.jackson.databind.ObjectMapper()
-                                    .readTree(log.getOldValues());
-                            if (oldNode.has(fieldName) && fieldValue.equals(oldNode.get(fieldName).asText())) {
-                                return true;
-                            }
-                        }
-                        if (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()) {
-                            com.fasterxml.jackson.databind.JsonNode newNode = new com.fasterxml.jackson.databind.ObjectMapper()
-                                    .readTree(log.getNewValues());
-                            if (newNode.has(fieldName) && fieldValue.equals(newNode.get(fieldName).asText())) {
-                                return true;
-                            }
-                        }
-                    } catch (Exception e) {
-                        // Invalid JSON, skip
-                    }
-                    return false;
-                })
+                .filter(log -> hasJsonFieldWithValue(log, fieldName, fieldValue, false))
                 .toList();
     }
 
@@ -841,27 +708,7 @@ public class AuditLogService implements IAuditLogService {
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsByJsonFieldContaining(String fieldName, String fieldValue) {
         return repository.findAll().stream()
-                .filter(log -> {
-                    try {
-                        if (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) {
-                            com.fasterxml.jackson.databind.JsonNode oldNode = new com.fasterxml.jackson.databind.ObjectMapper()
-                                    .readTree(log.getOldValues());
-                            if (oldNode.has(fieldName) && oldNode.get(fieldName).asText().contains(fieldValue)) {
-                                return true;
-                            }
-                        }
-                        if (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()) {
-                            com.fasterxml.jackson.databind.JsonNode newNode = new com.fasterxml.jackson.databind.ObjectMapper()
-                                    .readTree(log.getNewValues());
-                            if (newNode.has(fieldName) && newNode.get(fieldName).asText().contains(fieldValue)) {
-                                return true;
-                            }
-                        }
-                    } catch (Exception e) {
-                        // Invalid JSON, skip
-                    }
-                    return false;
-                })
+                .filter(log -> hasJsonFieldWithValue(log, fieldName, fieldValue, true))
                 .toList();
     }
 
@@ -869,27 +716,7 @@ public class AuditLogService implements IAuditLogService {
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsByJsonFieldExists(String fieldName) {
         return repository.findAll().stream()
-                .filter(log -> {
-                    try {
-                        if (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) {
-                            com.fasterxml.jackson.databind.JsonNode oldNode = new com.fasterxml.jackson.databind.ObjectMapper()
-                                    .readTree(log.getOldValues());
-                            if (oldNode.has(fieldName)) {
-                                return true;
-                            }
-                        }
-                        if (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()) {
-                            com.fasterxml.jackson.databind.JsonNode newNode = new com.fasterxml.jackson.databind.ObjectMapper()
-                                    .readTree(log.getNewValues());
-                            if (newNode.has(fieldName)) {
-                                return true;
-                            }
-                        }
-                    } catch (Exception e) {
-                        // Invalid JSON, skip
-                    }
-                    return false;
-                })
+                .filter(log -> hasJsonField(log, fieldName))
                 .toList();
     }
 
@@ -897,29 +724,7 @@ public class AuditLogService implements IAuditLogService {
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsByJsonFieldNotExists(String fieldName) {
         return repository.findAll().stream()
-                .filter(log -> {
-                    try {
-                        boolean hasFieldInOld = false;
-                        boolean hasFieldInNew = false;
-
-                        if (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) {
-                            com.fasterxml.jackson.databind.JsonNode oldNode = new com.fasterxml.jackson.databind.ObjectMapper()
-                                    .readTree(log.getOldValues());
-                            hasFieldInOld = oldNode.has(fieldName);
-                        }
-
-                        if (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()) {
-                            com.fasterxml.jackson.databind.JsonNode newNode = new com.fasterxml.jackson.databind.ObjectMapper()
-                                    .readTree(log.getNewValues());
-                            hasFieldInNew = newNode.has(fieldName);
-                        }
-
-                        return !hasFieldInOld && !hasFieldInNew;
-                    } catch (Exception e) {
-                        // Invalid JSON, skip
-                        return false;
-                    }
-                })
+                .filter(log -> !hasJsonField(log, fieldName))
                 .toList();
     }
 
@@ -972,5 +777,49 @@ public class AuditLogService implements IAuditLogService {
         if (auditLog.getUserAgent() != null) {
             existingAuditLog.setUserAgent(auditLog.getUserAgent());
         }
+    }
+
+    private boolean hasJsonField(AuditLog auditLog, String fieldName) {
+        try {
+            if (auditLog.getOldValues() != null && !auditLog.getOldValues().trim().isEmpty()) {
+                JsonNode oldNode = objectMapper.readTree(auditLog.getOldValues());
+                if (oldNode.has(fieldName)) {
+                    return true;
+                }
+            }
+            if (auditLog.getNewValues() != null && !auditLog.getNewValues().trim().isEmpty()) {
+                JsonNode newNode = objectMapper.readTree(auditLog.getNewValues());
+                if (newNode.has(fieldName)) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Invalid JSON in audit log id {}: {}", auditLog.getId(), e.getMessage());
+        }
+        return false;
+    }
+
+    private boolean hasJsonFieldWithValue(AuditLog auditLog, String fieldName, String fieldValue, boolean contains) {
+        try {
+            if (auditLog.getOldValues() != null && !auditLog.getOldValues().trim().isEmpty()) {
+                JsonNode oldNode = objectMapper.readTree(auditLog.getOldValues());
+                if (oldNode.has(fieldName) && matchesValue(oldNode.get(fieldName).asText(), fieldValue, contains)) {
+                    return true;
+                }
+            }
+            if (auditLog.getNewValues() != null && !auditLog.getNewValues().trim().isEmpty()) {
+                JsonNode newNode = objectMapper.readTree(auditLog.getNewValues());
+                if (newNode.has(fieldName) && matchesValue(newNode.get(fieldName).asText(), fieldValue, contains)) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Invalid JSON in audit log id {}: {}", auditLog.getId(), e.getMessage());
+        }
+        return false;
+    }
+
+    private boolean matchesValue(String actual, String expected, boolean contains) {
+        return contains ? actual.contains(expected) : expected.equals(actual);
     }
 }

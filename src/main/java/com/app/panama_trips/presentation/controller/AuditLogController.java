@@ -485,7 +485,7 @@ public class AuditLogController {
 
     @PostMapping("/archive/{beforeDate}")
     public ResponseEntity<Void> archiveAuditLogs(@PathVariable LocalDateTime beforeDate) {
-        auditLogService.archiveAuditLogs(beforeDate);
+        auditLogService.deleteOldAuditLogs(beforeDate);
         return ResponseEntity.ok().build();
     }
 

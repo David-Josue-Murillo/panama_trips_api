@@ -10,6 +10,7 @@ import com.app.panama_trips.presentation.dto.TourPriceHistoryRequest;
 import com.app.panama_trips.presentation.dto.TourPriceHistoryResponse;
 import com.app.panama_trips.service.implementation.TourPriceHistoryService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
@@ -37,13 +38,13 @@ public class TourPriceHistoryController {
     }
 
     @PostMapping
-    public ResponseEntity<TourPriceHistoryResponse> create(@RequestBody TourPriceHistoryRequest request) {
+    public ResponseEntity<TourPriceHistoryResponse> create(@RequestBody @Valid TourPriceHistoryRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.saveTourPriceHistory(request));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TourPriceHistoryResponse> update(@PathVariable Integer id,
-            @RequestBody TourPriceHistoryRequest request) {
+            @RequestBody @Valid TourPriceHistoryRequest request) {
         return ResponseEntity.ok(service.updateTourPriceHistory(id, request));
     }
 
@@ -147,7 +148,7 @@ public class TourPriceHistoryController {
 
     // Bulk operations
     @PostMapping("/bulk")
-    public ResponseEntity<Void> bulkCreate(@RequestBody List<TourPriceHistoryRequest> requests) {
+    public ResponseEntity<Void> bulkCreate(@RequestBody @Valid List<TourPriceHistoryRequest> requests) {
         service.bulkCreateTourPriceHistories(requests);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -188,16 +189,6 @@ public class TourPriceHistoryController {
     @GetMapping("/stats/top-tour-plans/{limit}")
     public ResponseEntity<List<TourPriceHistoryResponse>> getTopTourPlansByChangeCount(@PathVariable int limit) {
         return ResponseEntity.ok(service.getTopTourPlansByChangeCount(limit));
-    }
-
-    @GetMapping("/tour-plan/{tourPlanId}/changes-by-month")
-    public ResponseEntity<List<TourPriceHistoryResponse>> getChangesByMonth(@PathVariable Integer tourPlanId) {
-        return ResponseEntity.ok(service.getChangesByMonth(tourPlanId));
-    }
-
-    @GetMapping("/tour-plan/{tourPlanId}/changes-by-day-of-week")
-    public ResponseEntity<List<TourPriceHistoryResponse>> getChangesByDayOfWeek(@PathVariable Integer tourPlanId) {
-        return ResponseEntity.ok(service.getChangesByDayOfWeek(tourPlanId));
     }
 
     // Utility operations

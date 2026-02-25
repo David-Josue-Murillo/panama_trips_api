@@ -278,24 +278,6 @@ public class TourFaqControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = { "ADMIN" })
-    @DisplayName("Should bulk update FAQs successfully")
-    void bulkUpdate_success() throws Exception {
-        // Given
-        List<TourFaqRequest> requests = tourFaqRequestListForBulkUpdateMock();
-        doNothing().when(service).bulkUpdateFaqs(requests);
-
-        // When/Then
-        mockMvc.perform(put("/api/tour-faq/bulk")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(requests))
-                .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isOk());
-
-        verify(service).bulkUpdateFaqs(requests);
-    }
-
-    @Test
-    @WithMockUser(username = "admin", roles = { "ADMIN" })
     @DisplayName("Should bulk delete FAQs successfully")
     void bulkDelete_success() throws Exception {
         // Given
@@ -387,16 +369,6 @@ public class TourFaqControllerTest {
     }
 
     // Statistics and Analytics Tests
-    @Test
-    @WithMockUser(username = "admin", roles = { "ADMIN" })
-    @DisplayName("Should get total FAQs count")
-    void getTotalFaqs_success() throws Exception {
-        // When/Then
-        mockMvc.perform(get("/api/tour-faq/stats/total"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("0"));
-    }
-
     @Test
     @WithMockUser(username = "admin", roles = { "ADMIN" })
     @DisplayName("Should get total FAQs by tour plan")

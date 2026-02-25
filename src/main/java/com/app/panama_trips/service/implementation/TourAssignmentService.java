@@ -13,6 +13,7 @@ import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.Guide;
 import com.app.panama_trips.persistence.entity.TourAssignment;
 import com.app.panama_trips.persistence.entity.TourPlan;
+import com.app.panama_trips.persistence.entity.enums.TourPlanStatus;
 import com.app.panama_trips.persistence.repository.GuideRepository;
 import com.app.panama_trips.persistence.repository.TourAssignmentRepository;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
@@ -200,7 +201,7 @@ public class TourAssignmentService implements ITourAssignmentService{
         }
 
         // Validate that the tour plan is active
-        if (!tourPlan.getStatus().equals("ACTIVE")) {
+        if (tourPlan.getStatus() != TourPlanStatus.ACTIVE) {
             throw new IllegalStateException("Tour plan is not active");
         }
     }

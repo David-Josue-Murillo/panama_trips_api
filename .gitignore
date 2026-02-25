@@ -39,3 +39,8 @@ TODO.md
 WORKFLOWS.md
 reports/*
 CLAUDE.md
+.agents/*
+.claude/*
+.cursor/*
+.engram/
+openspec/config.yaml

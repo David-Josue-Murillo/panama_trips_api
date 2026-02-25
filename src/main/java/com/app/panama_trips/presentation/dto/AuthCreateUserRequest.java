@@ -23,6 +23,10 @@ public record AuthCreateUserRequest(
         String email,
 
         @NotBlank(message = "Password is required")
-        @Size(min = 6, max = 16, message = "The password must be between 6 and 16 characters.")
+        @Size(min = 8, max = 128, message = "The password must be between 8 and 128 characters.")
+        @Pattern(
+                regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$",
+                message = "Password must contain at least: one digit, one lowercase letter, one uppercase letter, one special character (@#$%^&+=!), and no whitespace"
+        )
         String password) {
 }

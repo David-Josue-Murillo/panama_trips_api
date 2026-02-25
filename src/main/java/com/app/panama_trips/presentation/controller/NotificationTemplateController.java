@@ -10,6 +10,7 @@ import com.app.panama_trips.presentation.dto.NotificationTemplateRequest;
 import com.app.panama_trips.presentation.dto.NotificationTemplateResponse;
 import com.app.panama_trips.service.implementation.NotificationTemplateService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -32,13 +33,13 @@ public class NotificationTemplateController {
     }
 
     @PostMapping
-    public ResponseEntity<NotificationTemplateResponse> createTemplate(@RequestBody NotificationTemplateRequest request) {
+    public ResponseEntity<NotificationTemplateResponse> createTemplate(@RequestBody @Valid NotificationTemplateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(service.saveTemplate(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<NotificationTemplateResponse> updateTemplate(@PathVariable Integer id, @RequestBody NotificationTemplateRequest request) {
+    public ResponseEntity<NotificationTemplateResponse> updateTemplate(@PathVariable Integer id, @RequestBody @Valid NotificationTemplateRequest request) {
         return ResponseEntity.ok(service.updateTemplate(id, request));
     }
 
@@ -97,13 +98,13 @@ public class NotificationTemplateController {
     }
 
     @PostMapping("/bulk")
-    public ResponseEntity<Void> bulkCreateTemplates(@RequestBody List<NotificationTemplateRequest> requests) {
+    public ResponseEntity<Void> bulkCreateTemplates(@RequestBody @Valid List<NotificationTemplateRequest> requests) {
         service.bulkCreateTemplates(requests);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/bulk")
-    public ResponseEntity<Void> bulkUpdateTemplates(@RequestBody List<NotificationTemplateRequest> requests) {
+    public ResponseEntity<Void> bulkUpdateTemplates(@RequestBody @Valid List<NotificationTemplateRequest> requests) {
         service.bulkUpdateTemplates(requests);
         return ResponseEntity.ok().build();
     }

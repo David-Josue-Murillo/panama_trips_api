@@ -91,6 +91,8 @@ class SecurityIntegrationTest {
         @Test
         @DisplayName("Should login successfully with valid credentials")
         void login_shouldReturnToken_whenCredentialsAreValid() throws Exception {
+            createUser("testuser", "test@example.com", "Password123!", customerRole);
+
             AuthLoginRequest loginRequest = new AuthLoginRequest("testuser", "Password123!");
 
             mockMvc.perform(post("/auth/login")

@@ -324,7 +324,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-027: findByStatus retorna campañas ACTIVE")
     void testFindByStatus_ActiveStatus() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByStatus(CampaignStatus.ACTIVE)).thenReturn(List.of(campaign2));
 
         // When
         List<MarketingCampaignResponse> result = service.findByStatus(CampaignStatus.ACTIVE);
@@ -339,7 +339,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-028: findByStatus retorna lista vacía sin coincidencias")
     void testFindByStatus_NoMatches() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByStatus(CampaignStatus.PAUSED)).thenReturn(List.of());
 
         // When
         List<MarketingCampaignResponse> result = service.findByStatus(CampaignStatus.PAUSED);
@@ -352,7 +352,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-030: findByType retorna campañas por tipo")
     void testFindByType_EmailType() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByType(CampaignType.EMAIL)).thenReturn(List.of(campaign2));
 
         // When
         List<MarketingCampaignResponse> result = service.findByType(CampaignType.EMAIL);
@@ -367,7 +367,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-032: findByStartDateAfter retorna campañas futuras")
     void testFindByStartDateAfter_FutureDate() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByStartDateAfter(now)).thenReturn(List.of(campaign1));
 
         // When
         List<MarketingCampaignResponse> result = service.findByStartDateAfter(now);
@@ -382,7 +382,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-035: findByEndDateBefore retorna campañas vencidas")
     void testFindByEndDateBefore_PastDate() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByEndDateBefore(now)).thenReturn(List.of(campaign3));
 
         // When
         List<MarketingCampaignResponse> result = service.findByEndDateBefore(now);
@@ -423,7 +423,8 @@ class MarketingCampaignServiceTest {
                 .budget(new BigDecimal("1500.00"))
                 .build();
 
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3, upcoming2));
+        when(marketingCampaignRepository.findByStartDateAfterOrderByStartDateAsc(any(LocalDateTime.class)))
+                .thenReturn(List.of(campaign1, upcoming2));
 
         // When
         List<MarketingCampaignResponse> result = service.findUpcomingCampaigns();
@@ -438,7 +439,8 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-053: getCampaignsByBudgetRange retorna campañas en rango")
     void testGetCampaignsByBudgetRange_ValidRange() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByBudgetBetween(new BigDecimal("500.00"), new BigDecimal("1000.00")))
+                .thenReturn(List.of(campaign1, campaign3));
 
         // When
         List<MarketingCampaignResponse> result = service.getCampaignsByBudgetRange(
@@ -511,15 +513,6 @@ class MarketingCampaignServiceTest {
     }
 
     @Test
-    @DisplayName("CP-068: bulkUpdateCampaigns lanza UnsupportedOperationException")
-    void testBulkUpdateCampaigns_NotSupported() {
-        // When/Then
-        assertThatThrownBy(() -> service.bulkUpdateCampaigns(List.of(validRequest)))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessageContaining("requires campaign IDs");
-    }
-
-    @Test
     @DisplayName("CP-069: bulkDeleteCampaigns elimina múltiples campañas")
     void testBulkDeleteCampaigns_HappyPath() {
         // Given
@@ -566,8 +559,7 @@ class MarketingCampaignServiceTest {
                 .endDate(now.plusDays(20))
                 .build();
 
-        when(marketingCampaignRepository.findById(10)).thenReturn(Optional.of(c1));
-        when(marketingCampaignRepository.findById(11)).thenReturn(Optional.of(c2));
+        when(marketingCampaignRepository.findAllById(List.of(10, 11))).thenReturn(List.of(c1, c2));
         when(marketingCampaignRepository.saveAll(anyList())).thenReturn(List.of(c1, c2));
 
         // When
@@ -585,7 +577,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-075: bulkUpdateStatus lanza excepción si transición inválida")
     void testBulkUpdateStatus_InvalidTransition() {
         // Given
-        when(marketingCampaignRepository.findById(3)).thenReturn(Optional.of(campaign3)); // COMPLETED
+        when(marketingCampaignRepository.findAllById(List.of(3))).thenReturn(List.of(campaign3)); // COMPLETED
 
         // When/Then
         assertThatThrownBy(() -> service.bulkUpdateStatus(List.of(3), CampaignStatus.ACTIVE))
@@ -599,8 +591,7 @@ class MarketingCampaignServiceTest {
         // Given
         campaign1.setActualClicks(50L);
         campaign2.setActualClicks(150L);
-        when(marketingCampaignRepository.findById(1)).thenReturn(Optional.of(campaign1));
-        when(marketingCampaignRepository.findById(2)).thenReturn(Optional.of(campaign2));
+        when(marketingCampaignRepository.findAllById(List.of(1, 2))).thenReturn(List.of(campaign1, campaign2));
         when(marketingCampaignRepository.saveAll(anyList())).thenReturn(List.of(campaign1, campaign2));
 
         // When
@@ -660,8 +651,7 @@ class MarketingCampaignServiceTest {
     void testExistsByCreatedById_UserHasCampaigns() {
         // Given
         when(userEntityRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(marketingCampaignRepository.findByCreatedBy(testUser))
-                .thenReturn(List.of(campaign1, campaign2));
+        when(marketingCampaignRepository.existsByCreatedBy(testUser)).thenReturn(true);
 
         // When
         boolean result = service.existsByCreatedById(1);
@@ -689,7 +679,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-093: sumBudgetByStatus suma presupuestos correctamente")
     void testSumBudgetByStatus_CorrectSum() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.sumBudgetByStatus(CampaignStatus.ACTIVE)).thenReturn(new BigDecimal("2000.00"));
 
         // When
         BigDecimal result = service.sumBudgetByStatus(CampaignStatus.ACTIVE);
@@ -702,7 +692,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-094: sumBudgetByStatus retorna ZERO si no hay campañas")
     void testSumBudgetByStatus_NoMatches() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.sumBudgetByStatus(CampaignStatus.PAUSED)).thenReturn(BigDecimal.ZERO);
 
         // When
         BigDecimal result = service.sumBudgetByStatus(CampaignStatus.PAUSED);
@@ -715,7 +705,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-098: calculateTotalBudget suma todos los presupuestos")
     void testCalculateTotalBudget_AllCampaigns() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.sumTotalBudget()).thenReturn(new BigDecimal("3500.00"));
 
         // When
         BigDecimal result = service.calculateTotalBudget();
@@ -728,7 +718,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-102: calculateRemainingBudgetByStatus con ratio correcto")
     void testCalculateRemainingBudgetByStatus_WithRatio() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign2)); // ACTIVE, targetClicks=200, actualClicks=150
+        when(marketingCampaignRepository.findByStatus(CampaignStatus.ACTIVE)).thenReturn(List.of(campaign2)); // ACTIVE, targetClicks=200, actualClicks=150
 
         // When
         BigDecimal result = service.calculateRemainingBudgetByStatus(CampaignStatus.ACTIVE);
@@ -743,7 +733,8 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-108: getTotalBudgetSpent calcula gasto total")
     void testGetTotalBudgetSpent_ActiveAndCompleted() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign2, campaign3)); // ACTIVE + COMPLETED
+        when(marketingCampaignRepository.findByStatusIn(List.of(CampaignStatus.COMPLETED, CampaignStatus.ACTIVE)))
+                .thenReturn(List.of(campaign2, campaign3)); // ACTIVE + COMPLETED
 
         // When
         BigDecimal result = service.getTotalBudgetSpent();
@@ -785,7 +776,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-124: getTotalActiveCampaigns cuenta solo ACTIVE")
     void testGetTotalActiveCampaigns_OnlyActive() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.countByStatus(CampaignStatus.ACTIVE)).thenReturn(1L);
 
         // When
         long result = service.getTotalActiveCampaigns();
@@ -975,7 +966,8 @@ class MarketingCampaignServiceTest {
                 .budget(new BigDecimal("1000.00"))
                 .build();
 
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(activeCampaignExpired));
+        when(marketingCampaignRepository.findByStatusAndEndDateBefore(eq(CampaignStatus.ACTIVE), any(LocalDateTime.class)))
+                .thenReturn(List.of(activeCampaignExpired));
         when(marketingCampaignRepository.saveAll(anyList())).thenReturn(List.of(activeCampaignExpired));
 
         // When
@@ -993,7 +985,8 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-168: cleanupExpiredCampaigns elimina COMPLETED/CANCELLED vencidas")
     void testCleanupExpiredCampaigns_DeletesExpired() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign3)); // COMPLETED, vencida
+        when(marketingCampaignRepository.findByStatusInAndEndDateBefore(anyList(), any(LocalDateTime.class)))
+                .thenReturn(List.of(campaign3)); // COMPLETED, vencida
         doNothing().when(marketingCampaignRepository).deleteAll(anyList());
 
         // When
@@ -1008,7 +1001,8 @@ class MarketingCampaignServiceTest {
     void testSearchCampaignsByBudget_TenPercentTolerance() {
         // Given
         // budget=1000, tolerance=100, range=[900, 1100]
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByBudgetBetween(any(BigDecimal.class), any(BigDecimal.class)))
+                .thenReturn(List.of(campaign1));
 
         // When
         List<MarketingCampaignResponse> result = service.searchCampaignsByBudget(new BigDecimal("1000.00"));
@@ -1051,9 +1045,11 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-184: getHighBudgetCampaigns retorna presupuestos > avg*1.5")
     void testGetHighBudgetCampaigns_ThresholdCorrect() {
         // Given
-        // Presupuestos: 1000, 2000, 500 -> avg = 1166.67 -> threshold = 1750
+        // avg = 1166.67 -> threshold = 1750
         // Solo campaign2 (2000) supera el threshold
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.avgBudget()).thenReturn(new BigDecimal("1166.67"));
+        when(marketingCampaignRepository.findByBudgetBetween(any(BigDecimal.class), any(BigDecimal.class)))
+                .thenReturn(List.of(campaign2));
 
         // When
         List<MarketingCampaignResponse> result = service.getHighBudgetCampaigns();
@@ -1068,14 +1064,14 @@ class MarketingCampaignServiceTest {
     @DisplayName("CP-193: getCampaignsByMonth retorna campañas del mes actual")
     void testGetCampaignsByMonth_CurrentMonth() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByCreatedAtAfter(any(LocalDateTime.class)))
+                .thenReturn(List.of(campaign1, campaign2, campaign3));
 
         // When
         List<MarketingCampaignResponse> result = service.getCampaignsByMonth();
 
         // Then
-        // Depende de las fechas de creación en setUp
-        assertThat(result).isNotNull();
+        assertThat(result).isNotNull().hasSize(3);
     }
 
     @Test
@@ -1083,7 +1079,7 @@ class MarketingCampaignServiceTest {
     void testGetCampaignSuccessRate_CorrectPercentage() {
         // Given
         when(marketingCampaignRepository.count()).thenReturn(3L);
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByStatus(CampaignStatus.COMPLETED)).thenReturn(List.of(campaign3));
 
         // When
         double result = service.getCampaignSuccessRate();
@@ -1102,7 +1098,8 @@ class MarketingCampaignServiceTest {
     @DisplayName("CL-001: getCampaignsByDateRange con rango válido")
     void testGetCampaignsByDateRange_ValidRange() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByDateRange(any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(List.of(campaign1, campaign2));
 
         // When
         List<MarketingCampaignResponse> result = service.getCampaignsByDateRange(
@@ -1119,7 +1116,7 @@ class MarketingCampaignServiceTest {
     void testCalculateRemainingBudgetByStatus_ZeroTargetClicks() {
         // Given
         campaign1.setTargetClicks(0L);
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1));
+        when(marketingCampaignRepository.findByStatus(CampaignStatus.DRAFT)).thenReturn(List.of(campaign1));
 
         // When
         BigDecimal result = service.calculateRemainingBudgetByStatus(CampaignStatus.DRAFT);
@@ -1132,7 +1129,8 @@ class MarketingCampaignServiceTest {
     @DisplayName("CL-008: getCampaignsByDateRange con rango invertido retorna vacío")
     void testGetCampaignsByDateRange_InvertedRange() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByDateRange(any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(List.of());
 
         // When
         List<MarketingCampaignResponse> result = service.getCampaignsByDateRange(
@@ -1145,12 +1143,12 @@ class MarketingCampaignServiceTest {
     }
 
     @Test
-    @DisplayName("CL-010: bulkIncrementClicks con IDs duplicados procesa ambas")
+    @DisplayName("CL-010: bulkIncrementClicks con IDs duplicados deduplicados por findAllById")
     void testBulkIncrementClicks_DuplicateIds() {
         // Given
         campaign1.setActualClicks(50L);
-        when(marketingCampaignRepository.findById(1)).thenReturn(Optional.of(campaign1));
-        when(marketingCampaignRepository.saveAll(anyList())).thenReturn(List.of(campaign1, campaign1));
+        when(marketingCampaignRepository.findAllById(List.of(1, 1))).thenReturn(List.of(campaign1));
+        when(marketingCampaignRepository.saveAll(anyList())).thenReturn(List.of(campaign1));
 
         // When
         service.bulkIncrementClicks(List.of(1, 1));
@@ -1159,7 +1157,7 @@ class MarketingCampaignServiceTest {
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<MarketingCampaign>> captor = ArgumentCaptor.forClass(List.class);
         verify(marketingCampaignRepository).saveAll(captor.capture());
-        assertThat(captor.getValue()).hasSize(2);
+        assertThat(captor.getValue()).hasSize(1);
     }
 
     @Test
@@ -1237,15 +1235,6 @@ class MarketingCampaignServiceTest {
                 .hasMessageContaining("Invalid status transition from COMPLETED to ACTIVE");
     }
 
-    @Test
-    @DisplayName("EX-005: UnsupportedOperationException en bulkUpdateCampaigns")
-    void testUnsupportedOperationException_BulkUpdate() {
-        // When/Then
-        assertThatThrownBy(() -> service.bulkUpdateCampaigns(List.of(validRequest)))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessage("bulkUpdateCampaigns requires campaign IDs. Use individual updateMarketingCampaign instead.");
-    }
-
     // ==================== PRUEBAS ADICIONALES CRÍTICAS ====================
 
     @Test
@@ -1265,7 +1254,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("countByStatus cuenta correctamente")
     void testCountByStatus_CorrectCount() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.countByStatus(CampaignStatus.ACTIVE)).thenReturn(1L);
 
         // When
         long result = service.countByStatus(CampaignStatus.ACTIVE);
@@ -1278,7 +1267,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("countByStartDateAfter cuenta correctamente")
     void testCountByStartDateAfter_CorrectCount() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.countByStartDateAfter(now)).thenReturn(1L);
 
         // When
         long result = service.countByStartDateAfter(now);
@@ -1292,8 +1281,8 @@ class MarketingCampaignServiceTest {
     void testGetCampaignsByCreatedByAndStatus_CorrectFilter() {
         // Given
         when(userEntityRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(marketingCampaignRepository.findByCreatedBy(testUser))
-                .thenReturn(List.of(campaign1, campaign2));
+        when(marketingCampaignRepository.findByCreatedByAndStatus(testUser, CampaignStatus.DRAFT))
+                .thenReturn(List.of(campaign1));
 
         // When
         List<MarketingCampaignResponse> result = service.getCampaignsByCreatedByAndStatus(1, CampaignStatus.DRAFT);
@@ -1308,7 +1297,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("getActiveCampaigns es alias de findByStatus(ACTIVE)")
     void testGetActiveCampaigns_AliasOfFindByStatus() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByStatus(CampaignStatus.ACTIVE)).thenReturn(List.of(campaign2));
 
         // When
         List<MarketingCampaignResponse> result = service.getActiveCampaigns();
@@ -1323,7 +1312,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("getDraftCampaigns retorna solo DRAFT")
     void testGetDraftCampaigns_OnlyDraft() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByStatus(CampaignStatus.DRAFT)).thenReturn(List.of(campaign1));
 
         // When
         List<MarketingCampaignResponse> result = service.getDraftCampaigns();
@@ -1338,7 +1327,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("getPausedCampaigns retorna solo PAUSED")
     void testGetPausedCampaigns_OnlyPaused() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByStatus(CampaignStatus.PAUSED)).thenReturn(List.of());
 
         // When
         List<MarketingCampaignResponse> result = service.getPausedCampaigns();
@@ -1351,7 +1340,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("getCompletedCampaigns retorna solo COMPLETED")
     void testGetCompletedCampaigns_OnlyCompleted() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByStatus(CampaignStatus.COMPLETED)).thenReturn(List.of(campaign3));
 
         // When
         List<MarketingCampaignResponse> result = service.getCompletedCampaigns();
@@ -1366,7 +1355,8 @@ class MarketingCampaignServiceTest {
     @DisplayName("findExpiredCampaigns ordena por endDate DESC")
     void testFindExpiredCampaigns_OrderedDesc() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByEndDateBeforeOrderByEndDateDesc(any(LocalDateTime.class)))
+                .thenReturn(List.of(campaign3));
 
         // When
         List<MarketingCampaignResponse> result = service.findExpiredCampaigns();
@@ -1380,7 +1370,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("calculateTotalBudgetByStatus es alias de sumBudgetByStatus")
     void testCalculateTotalBudgetByStatus_AliasOfSum() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.sumBudgetByStatus(CampaignStatus.ACTIVE)).thenReturn(new BigDecimal("2000.00"));
 
         // When
         BigDecimal result = service.calculateTotalBudgetByStatus(CampaignStatus.ACTIVE);
@@ -1393,7 +1383,7 @@ class MarketingCampaignServiceTest {
     @DisplayName("getTotalCompletedCampaigns cuenta solo COMPLETED")
     void testGetTotalCompletedCampaigns_OnlyCompleted() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.countByStatus(CampaignStatus.COMPLETED)).thenReturn(1L);
 
         // When
         long result = service.getTotalCompletedCampaigns();
@@ -1406,59 +1396,45 @@ class MarketingCampaignServiceTest {
     @DisplayName("getTopCampaignsByMonth ordena por actualClicks DESC")
     void testGetTopCampaignsByMonth_OrderedByClicks() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2, campaign3));
+        when(marketingCampaignRepository.findByCreatedAtAfterOrderByActualClicksDesc(any(LocalDateTime.class), any(Pageable.class)))
+                .thenReturn(List.of(campaign2, campaign3, campaign1));
 
         // When
         List<MarketingCampaignResponse> result = service.getTopCampaignsByMonth(3);
 
         // Then
-        // Puede retornar 0 o más dependiendo de createdAt en mes actual
-        assertThat(result).isNotNull();
+        assertThat(result).isNotNull().hasSize(3);
     }
 
     // ==================== GAPS CRÍTICOS DETECTADOS POR TESS ====================
 
     @Test
-    @DisplayName("CL-022: findByStartDateAfter con startDate NULL lanza NullPointerException")
-    void testFindByStartDateAfter_NullStartDate() {
+    @DisplayName("CL-022: findByStartDateAfter delega al repositorio correctamente")
+    void testFindByStartDateAfter_DelegatesToRepository() {
         // Given
-        MarketingCampaign campaignWithNullStartDate = MarketingCampaign.builder()
-                .id(99)
-                .name("Null Date Campaign")
-                .startDate(null)  // ⚠️ NULL
-                .endDate(now.plusDays(30))
-                .status(CampaignStatus.DRAFT)
-                .budget(new BigDecimal("1000.00"))
-                .build();
-        when(marketingCampaignRepository.findAll())
-                .thenReturn(List.of(campaign1, campaignWithNullStartDate));
+        when(marketingCampaignRepository.findByStartDateAfter(now)).thenReturn(List.of(campaign1));
 
-        // When/Then - Espera NullPointerException o filtra correctamente
-        assertThatThrownBy(() -> service.findByStartDateAfter(now))
-                .isInstanceOf(NullPointerException.class);
+        // When
+        List<MarketingCampaignResponse> result = service.findByStartDateAfter(now);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(marketingCampaignRepository).findByStartDateAfter(now);
     }
 
     @Test
-    @DisplayName("CL-040: getCampaignsByMonth filtra correctamente con createdAt NULL")
-    void testGetCampaignsByMonth_NullCreatedAt() {
+    @DisplayName("CL-040: getCampaignsByMonth delega al repositorio correctamente")
+    void testGetCampaignsByMonth_DelegatesToRepository() {
         // Given
-        MarketingCampaign campaignWithNullCreatedAt = MarketingCampaign.builder()
-                .id(98)
-                .name("Null Created Campaign")
-                .createdAt(null)  // ⚠️ NULL - será filtrado
-                .status(CampaignStatus.DRAFT)
-                .budget(new BigDecimal("1000.00"))
-                .startDate(now)
-                .endDate(now.plusDays(30))
-                .build();
-        when(marketingCampaignRepository.findAll())
-                .thenReturn(List.of(campaign1, campaignWithNullCreatedAt));
+        when(marketingCampaignRepository.findByCreatedAtAfter(any(LocalDateTime.class)))
+                .thenReturn(List.of(campaign1));
 
-        // When - El método maneja null correctamente
+        // When
         List<MarketingCampaignResponse> result = service.getCampaignsByMonth();
 
-        // Then - Verifica que la campaña null no causa excepción
-        assertThat(result).isNotNull();
+        // Then
+        assertThat(result).hasSize(1);
+        verify(marketingCampaignRepository).findByCreatedAtAfter(any(LocalDateTime.class));
     }
 
     @Test
@@ -1481,7 +1457,7 @@ class MarketingCampaignServiceTest {
     void testCalculateRemainingBudgetByStatus_NullTargetClicks() {
         // Given
         campaign1.setTargetClicks(null);  // ⚠️ NULL
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1));
+        when(marketingCampaignRepository.findByStatus(CampaignStatus.DRAFT)).thenReturn(List.of(campaign1));
 
         // When
         BigDecimal result = service.calculateRemainingBudgetByStatus(CampaignStatus.DRAFT);
@@ -1529,7 +1505,7 @@ class MarketingCampaignServiceTest {
         // Given
         campaign1.setTargetClicks(100L);
         campaign1.setActualClicks(150L);  // ⚠️ actualClicks > targetClicks
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1));
+        when(marketingCampaignRepository.findByStatus(CampaignStatus.DRAFT)).thenReturn(List.of(campaign1));
 
         // When
         BigDecimal result = service.calculateRemainingBudgetByStatus(CampaignStatus.DRAFT);
@@ -1584,8 +1560,7 @@ class MarketingCampaignServiceTest {
     void testCountByCreatedById_MultipleCampaigns() {
         // Given
         when(userEntityRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(marketingCampaignRepository.findByCreatedBy(testUser))
-                .thenReturn(List.of(campaign1, campaign2));
+        when(marketingCampaignRepository.countByCreatedBy(testUser)).thenReturn(2L);
 
         // When
         long result = service.countByCreatedById(1);
@@ -1645,7 +1620,8 @@ class MarketingCampaignServiceTest {
         // Given
         // campaign2: ACTIVE, budget=2000, actualClicks=150, targetClicks=200 -> ratio=0.75 -> spent=1500
         // campaign3: COMPLETED, budget=500 -> spent=500 (100%)
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign2, campaign3));
+        when(marketingCampaignRepository.findByStatusIn(List.of(CampaignStatus.COMPLETED, CampaignStatus.ACTIVE)))
+                .thenReturn(List.of(campaign2, campaign3));
 
         // When
         BigDecimal result = service.getTotalBudgetSpent();
@@ -1671,7 +1647,8 @@ class MarketingCampaignServiceTest {
     @DisplayName("CL-006: findExpiredCampaigns con lista vacía")
     void testFindExpiredCampaigns_Empty() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign1, campaign2));  // Ninguna vencida
+        when(marketingCampaignRepository.findByEndDateBeforeOrderByEndDateDesc(any(LocalDateTime.class)))
+                .thenReturn(List.of());
 
         // When
         List<MarketingCampaignResponse> result = service.findExpiredCampaigns();
@@ -1684,7 +1661,8 @@ class MarketingCampaignServiceTest {
     @DisplayName("CL-039: findUpcomingCampaigns con lista vacía")
     void testFindUpcomingCampaigns_Empty() {
         // Given
-        when(marketingCampaignRepository.findAll()).thenReturn(List.of(campaign2, campaign3));  // Ninguna futura
+        when(marketingCampaignRepository.findByStartDateAfterOrderByStartDateAsc(any(LocalDateTime.class)))
+                .thenReturn(List.of());
 
         // When
         List<MarketingCampaignResponse> result = service.findUpcomingCampaigns();

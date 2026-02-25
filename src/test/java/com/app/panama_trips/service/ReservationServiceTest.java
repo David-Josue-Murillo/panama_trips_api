@@ -88,12 +88,10 @@ public class ReservationServiceTest {
     void saveReservation_shouldReturnSavedReservation() {
         // Given
         when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlanOneMock));
-        when(userEntityRepository.existsById(anyLong())).thenReturn(true);
+        when(userEntityRepository.findById(anyLong())).thenReturn(Optional.of(userAdmin()));
         when(reservationRepository.countByTourPlan_Id(anyInt())).thenReturn(1L);
         when(reservationRepository.existsByUser_IdAndTourPlanId(anyLong(), anyInt())).thenReturn(false);
         when(reservationRepository.save(any(Reservation.class))).thenReturn(reservationOneMock);
-        when(userEntityRepository.findById(anyLong())).thenReturn(Optional.of(userAdmin()));
-        when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlanOneMock));
 
         // When
         ReservationResponse result = reservationService.saveReservation(reservationRequestMock);
@@ -107,7 +105,7 @@ public class ReservationServiceTest {
     void saveReservation_shouldThrowException_whenUserNotFound() {
         // Given
         when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlanOneMock));
-        when(userEntityRepository.existsById(anyLong())).thenReturn(false);
+        when(userEntityRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // When & Then
         Exception exception = assertThrows(UserNotFoundException.class, () -> reservationService.saveReservation(reservationRequestMock));
@@ -125,14 +123,14 @@ public class ReservationServiceTest {
         Exception exception = assertThrows(ResourceNotFoundException.class, () -> reservationService.saveReservation(reservationRequestMock));
 
         assertNotNull(exception);
-        assertEquals("Tour with ID: 1 not found", exception.getMessage());
+        assertEquals("Tour Plan with id 1 not found", exception.getMessage());
     }
 
     @Test
     void saveReservation_shouldThrowException_whenUserAlreadyReserved() {
         // Given
         when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.of(tourPlanOneMock));
-        when(userEntityRepository.existsById(anyLong())).thenReturn(true);
+        when(userEntityRepository.findById(anyLong())).thenReturn(Optional.of(userAdmin()));
         when(reservationRepository.existsByUser_IdAndTourPlanId(anyLong(), anyInt())).thenReturn(true);
 
         // When & Then
@@ -458,6 +456,7 @@ public class ReservationServiceTest {
     void cancelReservation_shouldCancelReservation() {
         // Given
         when(reservationRepository.findById(anyInt())).thenReturn(Optional.of(reservationOneMock));
+        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservationOneMock);
 
         // When
         ReservationResponse result = reservationService.cancelReservation(1);
@@ -465,12 +464,14 @@ public class ReservationServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(reservationOneMock.getId(), result.id());
+        verify(reservationRepository).save(any(Reservation.class));
     }
 
     @Test
     void confirmReservation_shouldConfirmReservation() {
         // Given
         when(reservationRepository.findById(anyInt())).thenReturn(Optional.of(reservationOneMock));
+        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservationOneMock);
 
         // When
         ReservationResponse result = reservationService.confirmReservation(1);
@@ -478,5 +479,6 @@ public class ReservationServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(reservationOneMock.getId(), result.id());
+        verify(reservationRepository).save(any(Reservation.class));
     }
 }

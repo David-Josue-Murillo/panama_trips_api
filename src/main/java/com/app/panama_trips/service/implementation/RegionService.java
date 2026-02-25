@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +25,13 @@ public class RegionService implements IRegionService {
     private final ComarcaRepository comarcaRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<RegionResponse> getAllRegions(Pageable pageable) {
         return this.regionRepository.findAll(pageable).map(RegionResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public RegionResponse getRegionById(Integer id) {
         return this.regionRepository.findById(id)
                 .map(RegionResponse::new)
@@ -36,6 +39,7 @@ public class RegionService implements IRegionService {
     }
 
     @Override
+    @Transactional
     public RegionResponse saveRegion(RegionRequest regionRequest) {
         validateRegion(regionRequest);
         Region newRegion = builderRegionFromRequest(regionRequest);
@@ -43,6 +47,7 @@ public class RegionService implements IRegionService {
     }
 
     @Override
+    @Transactional
     public RegionResponse updateRegion(Integer id, RegionRequest regionRequest) {
         validateRegion(regionRequest);
         Region region = this.regionRepository.findById(id)
@@ -52,6 +57,7 @@ public class RegionService implements IRegionService {
     }
 
     @Override
+    @Transactional
     public void deleteRegion(Integer id) {
         if(!this.regionRepository.existsById(id)) {
             throw  new ResourceNotFoundException("Region with id " + id + " not found");
@@ -60,6 +66,7 @@ public class RegionService implements IRegionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public RegionResponse getRegionByName(String name) {
         return this.regionRepository.findByNameIgnoreCase(name)
                 .map(RegionResponse::new)
@@ -67,26 +74,31 @@ public class RegionService implements IRegionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<RegionResponse> getRegionsByName(String name, Pageable pageable) {
         return this.regionRepository.findByNameContainingIgnoreCase(name, pageable).map(RegionResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<RegionResponse> getRegionByProvinceId(Integer provinceId, Pageable pageable) {
         return this.regionRepository.findByProvince_Id(provinceId, pageable).map(RegionResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<RegionResponse> getRegionByComarcaId(Integer comarcaId, Pageable pageable) {
         return this.regionRepository.findByComarca_Id(comarcaId, pageable).map(RegionResponse::new);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long countRegions() {
         return this.regionRepository.count();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsRegionByName(String name) {
         return this.regionRepository.existsByNameIgnoreCase(name);
     }

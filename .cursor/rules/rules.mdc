@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Java Spring Boot Expert Rules with Conventional Commits
+globs: **/*.java, **/pom.xml, **/*.yml, **/*.properties
 alwaysApply: true
 ---
 You are an expert in Java programming, Spring Boot, Spring Framework, Maven, JUnit, and related Java technologies.
@@ -72,9 +72,15 @@ Build and Deployment
 - Implement proper profiles for different environments (dev, test, prod).
 - Use Docker for containerization if applicable.
 
+Git and Commits (Conventional Commits v1.0.0)
+- All commit messages must follow: `<type>[optional scope]: <lowercase description>`.
+- Use types: `feat` (new feature), `fix` (bug fix), `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`.
+- Use imperative mood (e.g., "add" not "added") and no period at the end.
+- Use `!` for breaking changes (e.g., `feat(api)!: change user endpoint`) and include `BREAKING CHANGE:` in footer.
+- Common Java scopes: `api`, `service`, `repo`, `config`, `security`, `test`, `deps`.
+
 Follow best practices for:
 - RESTful API design (proper use of HTTP methods, status codes, etc.).
 - Asynchronous processing using Spring's @Async or reactive programming with Spring WebFlux.
 
 Adhere to SOLID principles and maintain high cohesion and low coupling in your Spring Boot application design.
-    

@@ -3,6 +3,8 @@ package com.app.panama_trips.presentation.controller;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.validation.Valid;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -42,14 +44,14 @@ public class TourFaqController {
     }
 
     @PostMapping
-    public ResponseEntity<TourFaqResponse> create(@RequestBody TourFaqRequest request) {
+    public ResponseEntity<TourFaqResponse> create(@RequestBody @Valid TourFaqRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(service.saveFaq(request));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TourFaqResponse> update(@PathVariable Integer id,
-            @RequestBody TourFaqRequest request) {
+            @RequestBody @Valid TourFaqRequest request) {
         return ResponseEntity.ok(service.updateFaq(id, request));
     }
 
@@ -91,15 +93,9 @@ public class TourFaqController {
 
     // Bulk operations
     @PostMapping("/bulk")
-    public ResponseEntity<Void> bulkCreate(@RequestBody List<TourFaqRequest> requests) {
+    public ResponseEntity<Void> bulkCreate(@RequestBody @Valid List<TourFaqRequest> requests) {
         service.bulkCreateFaqs(requests);
         return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @PutMapping("/bulk")
-    public ResponseEntity<Void> bulkUpdate(@RequestBody List<TourFaqRequest> requests) {
-        service.bulkUpdateFaqs(requests);
-        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/bulk")
@@ -135,12 +131,6 @@ public class TourFaqController {
     }
 
     // Statistics and analytics
-    @GetMapping("/stats/total")
-    public ResponseEntity<Long> getTotalFaqs() {
-        // This would need to be implemented in the service if needed
-        return ResponseEntity.ok(0L);
-    }
-
     @GetMapping("/stats/tour-plan/{tourPlanId}")
     public ResponseEntity<Long> getTotalFaqsByTourPlan(@PathVariable Integer tourPlanId) {
         return ResponseEntity.ok(service.countByTourPlanId(tourPlanId));
