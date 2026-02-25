@@ -15,7 +15,7 @@ public record UserResponse(
     LocalDateTime updatedAt,
     UserEntity createdById,
     UserEntity updatedById,
-    Integer RoleId
+    Integer roleId
 ) {
     public UserResponse(UserEntity userEntity) {
         this(
@@ -29,7 +29,7 @@ public record UserResponse(
             userEntity.getUpdatedAt(),
             userEntity.getCreatedBy(),
             userEntity.getUpdatedBy(),
-            userEntity.getRole_id().getId()
+            userEntity.getRole().getId()
         );
     }
 }

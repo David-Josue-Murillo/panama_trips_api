@@ -267,9 +267,9 @@ public class ReservationService implements IReservationService {
     // Business logic
 
     private boolean isAuthorizedToModifyReservation(UserEntity user, Reservation reservation) {
-        return user.getRole_id().getRoleEnum() == RoleEnum.ADMIN ||
+        return user.getRole().getRoleEnum() == RoleEnum.ADMIN ||
                 reservation.getUser().getId().equals(user.getId()) ||
-                user.getRole_id().getRoleEnum() == RoleEnum.OPERATOR;
+                user.getRole().getRoleEnum() == RoleEnum.OPERATOR;
     }
 
     private boolean canChangeToStatus(Reservation reservation, ReservationStatus newStatus) {

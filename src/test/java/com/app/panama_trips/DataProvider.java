@@ -151,7 +151,7 @@ public class DataProvider {
                 .lastname("admin")
                 .email("admin@example.com")
                 .dni("1-111-1111")
-                .role_id(ROLE_ADMIN)
+                .role(ROLE_ADMIN)
                 .passwordHash("adminpassword")
                 .build();
     }
@@ -164,7 +164,7 @@ public class DataProvider {
                 .lastname("operator")
                 .email("operator@example.com")
                 .dni("2-222-2222")
-                .role_id(ROLE_OPERATOR)
+                .role(ROLE_OPERATOR)
                 .passwordHash("operatorpassword")
                 .build();
     }
@@ -177,7 +177,7 @@ public class DataProvider {
                 .lastname("customer")
                 .email("customer@example.com")
                 .dni("3-333-3333")
-                .role_id(ROLE_CUSTOMER)
+                .role(ROLE_CUSTOMER)
                 .passwordHash("customerpassword")
                 .build();
     }
@@ -190,7 +190,7 @@ public class DataProvider {
                 .lastname("guest")
                 .email("guest@example.com")
                 .dni("4-444-4444")
-                .role_id(ROLE_GUEST)
+                .role(ROLE_GUEST)
                 .passwordHash("guestpassword")
                 .build();
     }
@@ -203,7 +203,7 @@ public class DataProvider {
                 .lastname("support")
                 .email("support@example.com")
                 .dni("5-555-5555")
-                .role_id(ROLE_SUPPORT)
+                .role(ROLE_SUPPORT)
                 .passwordHash("supportpassword")
                 .build();
     }
@@ -216,7 +216,7 @@ public class DataProvider {
                 .lastname("manager")
                 .email("contentmanager@example.com")
                 .dni("6-666-6666")
-                .role_id(ROLE_CONTENT_MANAGER)
+                .role(ROLE_CONTENT_MANAGER)
                 .passwordHash("contentmanagerpassword")
                 .build();
     }
@@ -248,7 +248,7 @@ public class DataProvider {
                 user.getUpdatedAt(),
                 user.getCreatedBy(),
                 user.getUpdatedBy(),
-                user.getRole_id().getId());
+                user.getRole().getId());
     }
 
     public static UserRequest userRequestMock = new UserRequest("1-111-1111", "admin", "admin", "admin@example.com",

@@ -618,7 +618,7 @@ class SecurityIntegrationTest {
                 .dni("8-000-000001")
                 .email(email)
                 .passwordHash(passwordEncoder.encode(password))
-                .role_id(role)
+                .role(role)
                 .build();
         return userEntityRepository.save(user);
     }

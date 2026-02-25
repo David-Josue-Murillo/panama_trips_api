@@ -81,7 +81,7 @@ public class UserEntityService implements IUserEntityService {
                 .dni(userRequest.dni())
                 .passwordHash(userRequest.password())
                 .profileImageUrl(userRequest.profileImageUrl())
-                .role_id(this.roleRepository.findByRoleEnum(RoleEnum.CUSTOMER))
+                .role(this.roleRepository.findByRoleEnum(RoleEnum.CUSTOMER))
                 .build();
     }
 

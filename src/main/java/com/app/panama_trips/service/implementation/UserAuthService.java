@@ -65,7 +65,7 @@ public class UserAuthService {
                 .dni(dni)
                 .email(email)
                 .passwordHash(this.passwordEncoder.encode(password))
-                .role_id(this.roleRepository.findByRoleEnum(RoleEnum.valueOf(role)))
+                .role(this.roleRepository.findByRoleEnum(RoleEnum.valueOf(role)))
                 .build();
 
         UserEntity savedUser = this.userEntityRepository.save(userEntity);
@@ -73,7 +73,7 @@ public class UserAuthService {
         // Creating the authorities for the user
         ArrayList<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role)));
-        savedUser.getRole_id().getPermissions()
+        savedUser.getRole().getPermissions()
                 .forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getPermissionEnum().name())));
 
         // Create the authentication

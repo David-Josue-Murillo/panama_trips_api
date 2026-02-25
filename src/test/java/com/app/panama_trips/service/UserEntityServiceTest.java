@@ -133,7 +133,7 @@ public class UserEntityServiceTest {
 
         // When
         when(userEntityRepository.save(any(UserEntity.class))).thenReturn(user);
-        when(roleRepository.findByRoleEnum(any(RoleEnum.class))).thenReturn(DataProvider.userCustomer().getRole_id());
+        when(roleRepository.findByRoleEnum(any(RoleEnum.class))).thenReturn(DataProvider.userCustomer().getRole());
 
 
         // Then
