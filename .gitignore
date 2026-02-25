@@ -37,10 +37,10 @@ src/main/resources/application-dev.properties
 
 TODO.md
 WORKFLOWS.md
-reports/*
+reports/
 CLAUDE.md
-.agents/*
-.claude/*
-.cursor/*
+.agents/
+.claude/
+.cursor/
 .engram/
-openspec/config.yaml
+openspec/

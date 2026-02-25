@@ -14,12 +14,12 @@ import lombok.*;
 public class TourPlanRegion {
 
     @Id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tour_plan_id", referencedColumnName = "id", nullable = false, foreignKey = @ForeignKey(name = "fk_tour_plan_region_tour_plan"))
     private TourPlan tourPlan;
 
     @Id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id", referencedColumnName = "id", nullable = false, foreignKey = @ForeignKey(name = "fk_tour_plan_region_region"))
     private Region region;
 }

@@ -31,15 +31,15 @@ public class Provider {
     @Column(name = "phone", nullable = false, length = 15)
     private String phone;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "province_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_provider_province"))
     private Province province;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "district_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_provider_district"))
     private District district;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", referencedColumnName = "address_id", foreignKey = @ForeignKey(name = "fk_provider_address"))
     private Address address;
 

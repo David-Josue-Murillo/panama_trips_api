@@ -4,15 +4,21 @@ import com.app.panama_trips.persistence.entity.Reservation;
 import com.app.panama_trips.persistence.entity.ReservationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
+
+    @EntityGraph(attributePaths = {"user", "tourPlan", "tourPlan.provider", "tourPlan.provider.address"})
+    Optional<Reservation> findById(Integer id);
+
     // Search by user, travel plan, status, and date
     Page<Reservation> findByUser_Id(Long userId, Pageable pageable);
     Page<Reservation> findByTourPlan_Id(Integer tourPlanId, Pageable pageable);

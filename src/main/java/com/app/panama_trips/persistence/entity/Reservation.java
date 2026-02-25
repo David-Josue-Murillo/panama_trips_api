@@ -21,11 +21,11 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, foreignKey = @ForeignKey(name = "fk_reservation_user"))
     private UserEntity user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tour_plan_id", referencedColumnName = "id", nullable = false, foreignKey = @ForeignKey(name = "fk_reservation_tour_plan"))
     private TourPlan tourPlan;
 
@@ -65,7 +65,7 @@ public class Reservation {
     @Column(name = "contact_email", length = 100)
     private String contactEmail;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "last_modified_by", foreignKey = @ForeignKey(name = "fk_reservation_last_modified_by"))
     private UserEntity lastModifiedBy;
 }

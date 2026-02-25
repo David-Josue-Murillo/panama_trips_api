@@ -54,15 +54,15 @@ public class TourPlan {
     @Builder.Default
     private TourPlanStatus status = TourPlanStatus.ACTIVE;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", foreignKey = @ForeignKey(name = "fk_tour_created_by"))
     private UserEntity createdBy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by", foreignKey = @ForeignKey(name = "fk_tour_updated_by"))
     private UserEntity updatedBy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "provider_id", nullable = false, foreignKey = @ForeignKey(name = "fk_tour_plan_provider"))
     private Provider provider;
 
@@ -211,7 +211,7 @@ public class TourPlan {
     @Column(name = "external_id", length = 100)
     private String externalId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cancellation_policy_id", foreignKey = @ForeignKey(name = "fk_tour_cancellation_policy"))
     private CancellationPolicy cancellationPolicy;
 

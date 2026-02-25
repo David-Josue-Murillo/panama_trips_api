@@ -18,11 +18,11 @@ public class Discount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_id", nullable = false, foreignKey = @ForeignKey(name = "fk_discount_reservation"))
     private Reservation reservationId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coupon_id", foreignKey = @ForeignKey(name = "fk_discount_coupon"))
     private Coupon couponId;
 
