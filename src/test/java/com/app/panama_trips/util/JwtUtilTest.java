@@ -32,22 +32,23 @@ public class JwtUtilTest {
 
     @Test
     void generateToken_shouldReturnValidToken() {
-        String token = jwtUtil.generateToken(authentication);
+        String token = jwtUtil.generateToken(authentication, 1L);
         assertNotNull(token);
     }
 
     @Test
     void generateToken_shouldContainCorrectClaims() {
-        String token = jwtUtil.generateToken(authentication);
+        String token = jwtUtil.generateToken(authentication, 1L);
         DecodedJWT decodedJWT = jwtUtil.validateToken(token);
 
         assertEquals("testIssuer", decodedJWT.getIssuer());
         assertEquals("testUser", decodedJWT.getSubject());
+        assertEquals(1L, jwtUtil.getUserIdFromToken(decodedJWT));
     }
 
     @Test
     void validateToken_shouldReturnDecodedJWT() {
-        String token = jwtUtil.generateToken(authentication);
+        String token = jwtUtil.generateToken(authentication, 1L);
         DecodedJWT decodedJWT = jwtUtil.validateToken(token);
 
         assertNotNull(decodedJWT);
@@ -60,7 +61,7 @@ public class JwtUtilTest {
 
     @Test
     void getUsernameFromToken_shouldReturnCorrectUsername() {
-        String token = jwtUtil.generateToken(authentication);
+        String token = jwtUtil.generateToken(authentication, 1L);
         DecodedJWT decodedJWT = jwtUtil.validateToken(token);
 
         assertEquals("testUser", jwtUtil.getUsernameFromToken(decodedJWT));
@@ -68,7 +69,7 @@ public class JwtUtilTest {
 
     @Test
     void getSpecificClaim_shouldReturnCorrectClaim() {
-        String token = jwtUtil.generateToken(authentication);
+        String token = jwtUtil.generateToken(authentication, 1L);
         DecodedJWT decodedJWT = jwtUtil.validateToken(token);
 
         assertEquals("", jwtUtil.getSpecificClaim(decodedJWT, "authorities").asString());
@@ -76,10 +77,11 @@ public class JwtUtilTest {
 
     @Test
     void getAllClaims_shouldReturnAllClaims() {
-        String token = jwtUtil.generateToken(authentication);
+        String token = jwtUtil.generateToken(authentication, 1L);
         DecodedJWT decodedJWT = jwtUtil.validateToken(token);
 
         assertNotNull(jwtUtil.getAllClaims(decodedJWT));
         assertTrue(jwtUtil.getAllClaims(decodedJWT).containsKey("authorities"));
+        assertTrue(jwtUtil.getAllClaims(decodedJWT).containsKey("userId"));
     }
 }
