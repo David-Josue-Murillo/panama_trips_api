@@ -23,14 +23,13 @@ public record TourPlanResponse(
         DifficultyLevel difficultyLevel,
         LocalTime startTime,
         LocalTime endTime,
-        LocalDateTime createdAt
-) {
+        LocalDateTime createdAt) {
     public TourPlanResponse(TourPlan tourPlan) {
         this(
                 tourPlan.getId(),
                 tourPlan.getTitle(),
                 tourPlan.getDescription(),
-                tourPlan.getPrice(),
+                tourPlan.getPricing() != null ? tourPlan.getPricing().getPrice() : null,
                 tourPlan.getDuration(),
                 tourPlan.getAvailableSpots(),
                 tourPlan.getProvider().getName(),
@@ -39,9 +38,8 @@ public record TourPlanResponse(
                 tourPlan.getProvider().getAddress().getStreet(),
                 tourPlan.getStatus(),
                 tourPlan.getDifficultyLevel(),
-                tourPlan.getStartTime(),
-                tourPlan.getEndTime(),
-                tourPlan.getCreatedAt()
-        );
+                tourPlan.getSchedule() != null ? tourPlan.getSchedule().getStartTime() : null,
+                tourPlan.getSchedule() != null ? tourPlan.getSchedule().getEndTime() : null,
+                tourPlan.getCreatedAt());
     }
 }
