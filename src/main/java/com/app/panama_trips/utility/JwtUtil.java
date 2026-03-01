@@ -27,7 +27,7 @@ public class JwtUtil {
     @Value("${security.jwt.expiration}")
     private long expirationTime;
 
-    public String generateToken(Authentication authentication) {
+    public String generateToken(Authentication authentication, Long userId) {
         Algorithm algorithm = Algorithm.HMAC256(privateKey);
         String username = authentication.getPrincipal().toString();
         String authorities = authentication.getAuthorities().stream()
@@ -38,6 +38,7 @@ public class JwtUtil {
                 .withIssuer(this.issuer)
                 .withSubject(username)
                 .withClaim("authorities", authorities)
+                .withClaim("userId", userId)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
                 .withJWTId(UUID.randomUUID().toString())
@@ -64,6 +65,10 @@ public class JwtUtil {
 
     public Claim getSpecificClaim(DecodedJWT decodedJWT, String claimName) {
         return decodedJWT.getClaim(claimName);
+    }
+
+    public Long getUserIdFromToken(DecodedJWT decodedJWT) {
+        return decodedJWT.getClaim("userId").asLong();
     }
 
     public Map<String, Claim> getAllClaims(DecodedJWT decodedJWT) {
