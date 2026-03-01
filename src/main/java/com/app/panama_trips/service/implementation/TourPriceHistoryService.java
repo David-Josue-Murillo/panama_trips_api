@@ -134,14 +134,18 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
     public BigDecimal getCurrentPriceForTourPlan(Integer tourPlanId) {
         return repository.findFirstByTourPlan_IdOrderByChangedAtDesc(tourPlanId)
                 .map(TourPriceHistory::getNewPrice)
-                .orElseGet(() -> findTourPlanOrThrow(tourPlanId).getPrice());
+                .orElseGet(() -> {
+                    TourPlan tourPlan = findTourPlanOrThrow(tourPlanId);
+                    return tourPlan.getPricing() != null ? tourPlan.getPricing().getPrice() : null;
+                });
     }
 
     @Override
     public BigDecimal getPreviousPriceForTourPlan(Integer tourPlanId) {
         return repository.findFirstByTourPlan_IdOrderByChangedAtDesc(tourPlanId)
                 .map(TourPriceHistory::getPreviousPrice)
-                .orElseThrow(() -> new ResourceNotFoundException("No price history found for tour plan with id " + tourPlanId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No price history found for tour plan with id " + tourPlanId));
     }
 
     @Override
@@ -286,7 +290,8 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
         UserEntity changedBy = null;
         if (request.changedById() != null) {
             changedBy = userRepository.findById(request.changedById())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + request.changedById()));
+                    .orElseThrow(
+                            () -> new ResourceNotFoundException("User not found with id " + request.changedById()));
         }
 
         return TourPriceHistory.builder()
@@ -304,7 +309,8 @@ public class TourPriceHistoryService implements ITourPriceHistoryService {
         UserEntity changedBy = null;
         if (request.changedById() != null) {
             changedBy = userRepository.findById(request.changedById())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + request.changedById()));
+                    .orElseThrow(
+                            () -> new ResourceNotFoundException("User not found with id " + request.changedById()));
         }
 
         existing.setTourPlan(tourPlan);

@@ -61,7 +61,7 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
     @Override
     @Transactional
     public void deleteById(Integer id) {
-        if(!this.tourPlanSpecialPriceRepository.existsById(id)) {
+        if (!this.tourPlanSpecialPriceRepository.existsById(id)) {
             throw new ResourceNotFoundException("TourPlanSpecialPrice with id " + id + " not found");
         }
         this.tourPlanSpecialPriceRepository.deleteById(id);
@@ -112,8 +112,10 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
 
     @Override
     @Transactional(readOnly = true)
-    public List<TourPlanSpecialPriceResponse> findOverlappingPricePeriodsForTourPlan(Integer tourPlanId, LocalDate startDate, LocalDate endDate) {
-        return this.tourPlanSpecialPriceRepository.findOverlappingPricePeriodsForTourPlan(tourPlanId, startDate, endDate)
+    public List<TourPlanSpecialPriceResponse> findOverlappingPricePeriodsForTourPlan(Integer tourPlanId,
+            LocalDate startDate, LocalDate endDate) {
+        return this.tourPlanSpecialPriceRepository
+                .findOverlappingPricePeriodsForTourPlan(tourPlanId, startDate, endDate)
                 .stream()
                 .map(TourPlanSpecialPriceResponse::new)
                 .toList();
@@ -130,7 +132,8 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
 
     @Override
     @Transactional(readOnly = true)
-    public List<TourPlanSpecialPriceResponse> findByTourPlanAndStartDateGreaterThanEqual(TourPlan tourPlan, LocalDate date) {
+    public List<TourPlanSpecialPriceResponse> findByTourPlanAndStartDateGreaterThanEqual(TourPlan tourPlan,
+            LocalDate date) {
         return this.tourPlanSpecialPriceRepository.findByTourPlanAndStartDateGreaterThanEqual(tourPlan, date)
                 .stream()
                 .map(TourPlanSpecialPriceResponse::new)
@@ -162,11 +165,13 @@ public class TourPlanSpecialPriceService implements ITourPlanSpecialPriceService
                         request.endDate());
 
         if (!overlappingPrices.isEmpty()) {
-            throw new IllegalArgumentException("There is already a special price defined for this tour plan during the specified date range");
+            throw new IllegalArgumentException(
+                    "There is already a special price defined for this tour plan during the specified date range");
         }
 
         // Check if the special price is lower than the regular tour price
-        if (tourPlan.getPrice() != null && request.price().compareTo(tourPlan.getPrice()) >= 0) {
+        if (tourPlan.getPricing() != null && tourPlan.getPricing().getPrice() != null &&
+                request.price().compareTo(tourPlan.getPricing().getPrice()) >= 0) {
             throw new IllegalArgumentException("Special price must be lower than the regular tour price");
         }
 

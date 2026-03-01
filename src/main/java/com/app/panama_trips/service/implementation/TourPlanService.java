@@ -3,6 +3,7 @@ package com.app.panama_trips.service.implementation;
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.Provider;
 import com.app.panama_trips.persistence.entity.TourPlan;
+import com.app.panama_trips.persistence.entity.embeddable.*;
 import com.app.panama_trips.persistence.repository.ProviderRepository;
 import com.app.panama_trips.persistence.repository.TourPlanRepository;
 import com.app.panama_trips.presentation.dto.TourPlanRequest;
@@ -70,12 +71,13 @@ public class TourPlanService implements ITourPlanService {
 
     @Override
     public List<TourPlanResponse> getTourPlanByPrice(BigDecimal price) {
-        return toResponseList(tourPlanRepository.findByPrice(price));
+        return toResponseList(tourPlanRepository.findByPricing_Price(price));
     }
 
     @Override
-    public Page<TourPlanResponse> getTourPlanByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
-        return tourPlanRepository.findByPriceBetween(minPrice, maxPrice, pageable)
+    public Page<TourPlanResponse> getTourPlanByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice,
+            Pageable pageable) {
+        return tourPlanRepository.findByPricing_PriceBetween(minPrice, maxPrice, pageable)
                 .map(TourPlanResponse::new);
     }
 
@@ -85,7 +87,8 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
-    public Page<TourPlanResponse> getTourPlanByDurationBetween(Integer minDuration, Integer maxDuration, Pageable pageable) {
+    public Page<TourPlanResponse> getTourPlanByDurationBetween(Integer minDuration, Integer maxDuration,
+            Pageable pageable) {
         return tourPlanRepository.findByDurationBetween(minDuration, maxDuration, pageable)
                 .map(TourPlanResponse::new);
     }
@@ -96,7 +99,8 @@ public class TourPlanService implements ITourPlanService {
     }
 
     @Override
-    public Page<TourPlanResponse> getTourPlanByAvailableSpotsBetween(Integer minSpots, Integer maxSpots, Pageable pageable) {
+    public Page<TourPlanResponse> getTourPlanByAvailableSpotsBetween(Integer minSpots, Integer maxSpots,
+            Pageable pageable) {
         return tourPlanRepository.findByAvailableSpotsBetween(minSpots, maxSpots, pageable)
                 .map(TourPlanResponse::new);
     }
@@ -108,24 +112,30 @@ public class TourPlanService implements ITourPlanService {
 
     @Override
     public List<TourPlanResponse> getTourPlanByTitleAndPrice(String title, BigDecimal price) {
-        return toResponseList(tourPlanRepository.findByTitleContainingIgnoreCaseAndPrice(title, price));
+        return toResponseList(tourPlanRepository.findByTitleContainingIgnoreCaseAndPricing_Price(title, price));
     }
 
     @Override
-    public Page<TourPlanResponse> getTourPlanByTitleAndPriceBetween(String title, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
-        return tourPlanRepository.findByTitleContainingIgnoreCaseAndPriceBetween(title, minPrice, maxPrice, pageable)
+    public Page<TourPlanResponse> getTourPlanByTitleAndPriceBetween(String title, BigDecimal minPrice,
+            BigDecimal maxPrice, Pageable pageable) {
+        return tourPlanRepository
+                .findByTitleContainingIgnoreCaseAndPricing_PriceBetween(title, minPrice, maxPrice, pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
-    public Page<TourPlanResponse> getTourPlanByTitleAndPriceBetweenAndDurationBetween(String title, BigDecimal minPrice, BigDecimal maxPrice, Integer minDuration, Integer maxDuration, Pageable pageable) {
-        return tourPlanRepository.findByTitleContainingIgnoreCaseAndPriceBetweenAndDurationBetween(title, minPrice, maxPrice, minDuration, maxDuration, pageable)
+    public Page<TourPlanResponse> getTourPlanByTitleAndPriceBetweenAndDurationBetween(String title, BigDecimal minPrice,
+            BigDecimal maxPrice, Integer minDuration, Integer maxDuration, Pageable pageable) {
+        return tourPlanRepository
+                .findByTitleContainingIgnoreCaseAndPricing_PriceBetweenAndDurationBetween(title, minPrice, maxPrice,
+                        minDuration, maxDuration, pageable)
                 .map(TourPlanResponse::new);
     }
 
     @Override
     public List<TourPlanResponse> getTop10TourPlanByTitleContaining(String keyword, Pageable pageable) {
-        return toResponseList(tourPlanRepository.findTop10ByTitleContainingIgnoreCaseOrderByTitleAsc(keyword, pageable));
+        return toResponseList(
+                tourPlanRepository.findTop10ByTitleContainingIgnoreCaseOrderByTitleAsc(keyword, pageable));
     }
 
     @Override
@@ -157,24 +167,29 @@ public class TourPlanService implements ITourPlanService {
     }
 
     private TourPlan buildTourPlanFromRequest(TourPlanRequest tourPlanRequest) {
-        var builder = TourPlan.builder()
+        TourPlanPricing pricing = TourPlanPricing.builder()
+                .price(tourPlanRequest.price())
+                .build();
+
+        TourPlanSchedule schedule = TourPlanSchedule.builder()
+                .startTime(tourPlanRequest.startTime())
+                .endTime(tourPlanRequest.endTime())
+                .build();
+
+        TourPlan.TourPlanBuilder builder = TourPlan.builder()
                 .title(tourPlanRequest.title())
                 .description(tourPlanRequest.description())
-                .price(tourPlanRequest.price())
+                .pricing(pricing)
+                .schedule(schedule)
                 .duration(tourPlanRequest.duration())
                 .availableSpots(tourPlanRequest.availableSpots())
                 .provider(findProviderOrFail(tourPlanRequest.providerId()));
+
         if (tourPlanRequest.status() != null) {
             builder.status(tourPlanRequest.status());
         }
         if (tourPlanRequest.difficultyLevel() != null) {
             builder.difficultyLevel(tourPlanRequest.difficultyLevel());
-        }
-        if (tourPlanRequest.startTime() != null) {
-            builder.startTime(tourPlanRequest.startTime());
-        }
-        if (tourPlanRequest.endTime() != null) {
-            builder.endTime(tourPlanRequest.endTime());
         }
         return builder.build();
     }
@@ -182,21 +197,27 @@ public class TourPlanService implements ITourPlanService {
     private void updateTourPlanEntity(TourPlan tourPlan, TourPlanRequest tourPlanRequest) {
         tourPlan.setTitle(tourPlanRequest.title());
         tourPlan.setDescription(tourPlanRequest.description());
-        tourPlan.setPrice(tourPlanRequest.price());
+
+        if (tourPlan.getPricing() == null) {
+            tourPlan.setPricing(new TourPlanPricing());
+        }
+        tourPlan.getPricing().setPrice(tourPlanRequest.price());
+
+        if (tourPlan.getSchedule() == null) {
+            tourPlan.setSchedule(new TourPlanSchedule());
+        }
+        tourPlan.getSchedule().setStartTime(tourPlanRequest.startTime());
+        tourPlan.getSchedule().setEndTime(tourPlanRequest.endTime());
+
         tourPlan.setDuration(tourPlanRequest.duration());
         tourPlan.setAvailableSpots(tourPlanRequest.availableSpots());
         tourPlan.setProvider(findProviderOrFail(tourPlanRequest.providerId()));
+
         if (tourPlanRequest.status() != null) {
             tourPlan.setStatus(tourPlanRequest.status());
         }
         if (tourPlanRequest.difficultyLevel() != null) {
             tourPlan.setDifficultyLevel(tourPlanRequest.difficultyLevel());
-        }
-        if (tourPlanRequest.startTime() != null) {
-            tourPlan.setStartTime(tourPlanRequest.startTime());
-        }
-        if (tourPlanRequest.endTime() != null) {
-            tourPlan.setEndTime(tourPlanRequest.endTime());
         }
     }
 
