@@ -16,31 +16,39 @@ import java.util.Optional;
 @Repository
 public interface TourPlanRepository extends JpaRepository<TourPlan, Integer> {
 
-    @EntityGraph(attributePaths = {"provider", "provider.address"})
+    @EntityGraph(attributePaths = { "provider", "provider.address" })
     Optional<TourPlan> findById(Integer id);
 
-    @EntityGraph(attributePaths = {"provider", "provider.address"})
+    @EntityGraph(attributePaths = { "provider", "provider.address" })
     Page<TourPlan> findAll(Pageable pageable);
 
     Optional<TourPlan> findByTitleIgnoreCase(String title);
+
     boolean existsByTitleIgnoreCase(String title);
 
-    List<TourPlan> findByPrice(BigDecimal price);
-    Page<TourPlan> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
+    List<TourPlan> findByPricing_Price(BigDecimal price);
+
+    Page<TourPlan> findByPricing_PriceBetween(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
 
     List<TourPlan> findByDuration(Integer duration);
+
     Page<TourPlan> findByDurationBetween(Integer minDuration, Integer maxDuration, Pageable pageable);
 
     List<TourPlan> findByAvailableSpots(Integer availableSpots);
+
     Page<TourPlan> findByAvailableSpotsBetween(Integer minSpots, Integer maxSpots, Pageable pageable);
 
     List<TourPlan> findByProvider_Id(Integer providerId);
 
-    List<TourPlan> findByTitleContainingIgnoreCaseAndPrice(String title, BigDecimal price);
-    Page<TourPlan> findByTitleContainingIgnoreCaseAndPriceBetween(String title, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
+    List<TourPlan> findByTitleContainingIgnoreCaseAndPricing_Price(String title, BigDecimal price);
 
-    Page<TourPlan> findByTitleContainingIgnoreCaseAndPriceBetweenAndDurationBetween(String title, BigDecimal minPrice, BigDecimal maxPrice, Integer minDuration, Integer maxDuration, Pageable pageable);
+    Page<TourPlan> findByTitleContainingIgnoreCaseAndPricing_PriceBetween(String title, BigDecimal minPrice,
+            BigDecimal maxPrice, Pageable pageable);
+
+    Page<TourPlan> findByTitleContainingIgnoreCaseAndPricing_PriceBetweenAndDurationBetween(String title,
+            BigDecimal minPrice, BigDecimal maxPrice, Integer minDuration, Integer maxDuration, Pageable pageable);
 
     @Query("SELECT t FROM TourPlan t WHERE LOWER(t.title) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY t.title ASC")
-    List<TourPlan> findTop10ByTitleContainingIgnoreCaseOrderByTitleAsc(@Param("keyword") String keyword, Pageable pageable);
+    List<TourPlan> findTop10ByTitleContainingIgnoreCaseOrderByTitleAsc(@Param("keyword") String keyword,
+            Pageable pageable);
 }
