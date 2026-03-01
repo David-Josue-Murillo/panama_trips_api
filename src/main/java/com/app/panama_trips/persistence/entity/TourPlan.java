@@ -1,13 +1,12 @@
 package com.app.panama_trips.persistence.entity;
 
+import com.app.panama_trips.persistence.entity.embeddable.*;
 import com.app.panama_trips.persistence.entity.enums.DifficultyLevel;
 import com.app.panama_trips.persistence.entity.enums.TourPlanStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -40,8 +39,8 @@ public class TourPlan {
     @Column(name = "short_description")
     private String shortDescription;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Embedded
+    private TourPlanPricing pricing;
 
     @Column(name = "duration", nullable = false)
     private Integer duration;
@@ -66,39 +65,14 @@ public class TourPlan {
     @JoinColumn(name = "provider_id", nullable = false, foreignKey = @ForeignKey(name = "fk_tour_plan_provider"))
     private Provider provider;
 
-    @Column(name = "start_time")
-    private LocalTime startTime;
+    @Embedded
+    private TourPlanSchedule schedule;
 
-    @Column(name = "end_time")
-    private LocalTime endTime;
-
-    @Column(name = "available_days", columnDefinition = "JSONB DEFAULT '[\"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\", \"SAT\", \"SUN\"]'")
-    private String availableDays;
-
-    @Column(name = "is_seasonal")
-    @Builder.Default
-    private Boolean isSeasonal = false;
-
-    @Column(name = "season_start_date")
-    private LocalDate seasonStartDate;
-
-    @Column(name = "season_end_date")
-    private LocalDate seasonEndDate;
+    @Embedded
+    private TourPlanLogistics logistics;
 
     @Column(name = "max_capacity_per_day")
     private Integer maxCapacityPerDay;
-
-    @Column(name = "meeting_point")
-    private String meetingPoint;
-
-    @Column(name = "meeting_point_coordinates", length = 100)
-    private String meetingPointCoordinates;
-
-    @Column(columnDefinition = "text")
-    private String tourRoute;
-
-    @Column(name = "child_price", precision = 10, scale = 2)
-    private BigDecimal childPrice;
 
     @Column(name = "min_participants")
     @Builder.Default
@@ -107,38 +81,6 @@ public class TourPlan {
     @Column(name = "max_participants")
     @Builder.Default
     private Integer maxParticipants = 10;
-
-    @Column(name = "currency", length = 3)
-    @Builder.Default
-    private String currency = "USD";
-
-    @Column(name = "discount_percentage", precision = 5, scale = 2)
-    @Builder.Default
-    private BigDecimal discountPercentage = BigDecimal.ZERO;
-
-    @Column(name = "tax_percentage", precision = 5, scale = 2)
-    @Builder.Default
-    private BigDecimal taxPercentage = BigDecimal.ZERO;
-
-    @Column(name = "booking_deadline_hours")
-    @Builder.Default
-    private Integer bookingDeadlineHours = 24;
-
-    @Column(name = "min_advance_booking_days")
-    @Builder.Default
-    private Integer minAdvanceBookingDays = 1;
-
-    @Column(name = "max_advance_booking_days")
-    @Builder.Default
-    private Integer maxAdvanceBookingDays = 90;
-
-    @Column(name = "requires_approval")
-    @Builder.Default
-    private Boolean requiresApproval = false;
-
-    @Column(name = "allow_instant_booking")
-    @Builder.Default
-    private Boolean allowInstantBooking = true;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "difficulty_level", length = 20)
@@ -168,26 +110,11 @@ public class TourPlan {
     @Column(columnDefinition = "JSONB DEFAULT '[\"es\", \"en\"]'")
     private String languageOptions;
 
-    @Column(name = "main_image_url")
-    private String mainImageUrl;
+    @Embedded
+    private TourPlanMedia media;
 
-    @Column(name = "thumbnail_url")
-    private String thumbnailUrl;
-
-    @Column(name = "image_gallery", columnDefinition = "JSONB")
-    private String imageGallery;
-
-    @Column(name = "video_url")
-    private String videoUrl;
-
-    @Column(name = "seo_title", length = 100)
-    private String seoTitle;
-
-    @Column(name = "seo_description")
-    private String seoDescription;
-
-    @Column(name = "seo_keywords")
-    private String seoKeywords;
+    @Embedded
+    private TourPlanSeo seo;
 
     @Column(name = "featured", nullable = false)
     @Builder.Default
@@ -231,6 +158,4 @@ public class TourPlan {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
-
 }
