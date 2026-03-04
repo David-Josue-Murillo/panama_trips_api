@@ -12,7 +12,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "providers")
+@Table(name = "providers", indexes = {
+        @Index(name = "idx_provider_province", columnList = "province_id"),
+        @Index(name = "idx_provider_district", columnList = "district_id"),
+        @Index(name = "idx_provider_address", columnList = "address_id")
+})
 public class Provider {
 
     @Id
