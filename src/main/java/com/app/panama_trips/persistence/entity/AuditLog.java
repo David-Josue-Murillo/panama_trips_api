@@ -11,7 +11,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "audit_log")
+@Table(name = "audit_log", indexes = {
+        @Index(name = "idx_audit_log_user", columnList = "user_id"),
+        @Index(name = "idx_audit_log_entity", columnList = "entity_type, entity_id"),
+        @Index(name = "idx_audit_log_action", columnList = "action"),
+        @Index(name = "idx_audit_log_timestamp", columnList = "action_timestamp")
+})
 public class AuditLog {
 
     @Id
