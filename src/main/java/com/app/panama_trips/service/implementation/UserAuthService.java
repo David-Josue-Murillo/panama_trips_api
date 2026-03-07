@@ -40,7 +40,11 @@ public class UserAuthService {
         Authentication authentication = this.authentication(username, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String token = this.jwtUtil.generateToken(authentication);
+        Long userId = this.userEntityRepository.findUserEntitiesByName(username)
+                .orElseThrow(() -> new BadCredentialsException("User not found"))
+                .getId();
+
+        String token = this.jwtUtil.generateToken(authentication, userId);
         return new AuthResponse(username, "Logged in successfully", token, true);
     }
 
@@ -78,7 +82,7 @@ public class UserAuthService {
 
         // Create the authentication
         Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getName(), savedUser.getPasswordHash(), authorities);
-        String token = this.jwtUtil.generateToken(authentication);
+        String token = this.jwtUtil.generateToken(authentication, savedUser.getId());
 
         return new AuthResponse(savedUser.getName(), "User created successfully", token, true);
     }

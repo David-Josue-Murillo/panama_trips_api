@@ -14,8 +14,7 @@ public record ReservationResponse(
         LocalDate reservationDate,
         Integer duration,
         BigDecimal price,
-        BigDecimal totalPrice
-) {
+        BigDecimal totalPrice) {
     public ReservationResponse(Reservation reservation) {
         this(
                 reservation.getId(),
@@ -25,8 +24,8 @@ public record ReservationResponse(
                 reservation.getReservationStatus().name(),
                 reservation.getReservationDate(),
                 reservation.getTourPlan().getDuration(),
-                reservation.getTourPlan().getPrice(),
-                reservation.getTourPlan().getPrice()
-        );
+                reservation.getTourPlan().getPricing() != null ? reservation.getTourPlan().getPricing().getPrice()
+                        : null,
+                reservation.getTotalPrice());
     }
 }

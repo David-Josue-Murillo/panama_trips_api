@@ -131,14 +131,16 @@ public class ReservationService implements IReservationService {
     }
 
     @Override
-    public Page<ReservationResponse> getReservationsByTourPlanAndStatus(Integer tourPlanId, String status, Pageable pageable) {
+    public Page<ReservationResponse> getReservationsByTourPlanAndStatus(Integer tourPlanId, String status,
+            Pageable pageable) {
         ReservationStatus reservationStatus = getReservationStatus(status);
         return reservationRepository.findByTourPlan_IdAndReservationStatus(tourPlanId, reservationStatus, pageable)
                 .map(ReservationResponse::new);
     }
 
     @Override
-    public Page<ReservationResponse> getReservationsBetweenDates(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<ReservationResponse> getReservationsBetweenDates(LocalDate startDate, LocalDate endDate,
+            Pageable pageable) {
         return reservationRepository.findByReservationDateBetween(startDate, endDate, pageable)
                 .map(ReservationResponse::new);
     }
@@ -162,7 +164,8 @@ public class ReservationService implements IReservationService {
     }
 
     @Override
-    public Page<ReservationResponse> getReservationsByPriceRange(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+    public Page<ReservationResponse> getReservationsByPriceRange(BigDecimal minPrice, BigDecimal maxPrice,
+            Pageable pageable) {
         return reservationRepository.findByTotalPriceBetween(minPrice, maxPrice, pageable)
                 .map(ReservationResponse::new);
     }
@@ -240,7 +243,7 @@ public class ReservationService implements IReservationService {
             throw new IllegalArgumentException("The booking date cannot be in the past");
         }
 
-        if (request.totalPrice().compareTo(tourPlan.getPrice()) != 0) {
+        if (request.totalPrice().compareTo(tourPlan.getPricing().getPrice()) != 0) {
             throw new IllegalArgumentException("The booking price must match the tour price");
         }
 
@@ -280,7 +283,11 @@ public class ReservationService implements IReservationService {
         }
 
         if (newStatus == ReservationStatus.cancelled) {
-            LocalDate tourDate = reservation.getTourPlan().getSeasonStartDate();
+            LocalDate tourDate = reservation.getTourPlan().getSchedule() != null
+                    ? reservation.getTourPlan().getSchedule().getSeasonStartDate()
+                    : null;
+            if (tourDate == null)
+                return true;
             return ChronoUnit.DAYS.between(LocalDate.now(), tourDate) >= 2;
         }
 

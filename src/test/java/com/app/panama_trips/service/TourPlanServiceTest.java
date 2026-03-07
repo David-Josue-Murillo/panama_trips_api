@@ -64,7 +64,7 @@ public class TourPlanServiceTest {
         assertEquals(tourPlanOneMock.getId(), result.id());
         assertEquals(tourPlanOneMock.getTitle(), result.title());
         assertEquals(tourPlanOneMock.getDescription(), result.description());
-        assertEquals(tourPlanOneMock.getPrice(), result.price());
+        assertEquals(tourPlanOneMock.getPricing().getPrice(), result.price());
     }
 
     @Test
@@ -94,7 +94,7 @@ public class TourPlanServiceTest {
         assertEquals(tourPlanOneMock.getId(), result.id());
         assertEquals(tourPlanOneMock.getTitle(), result.title());
         assertEquals(tourPlanOneMock.getDescription(), result.description());
-        assertEquals(tourPlanOneMock.getPrice(), result.price());
+        assertEquals(tourPlanOneMock.getPricing().getPrice(), result.price());
     }
 
     @Test
@@ -104,7 +104,8 @@ public class TourPlanServiceTest {
         when(providerRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         // When
-        Exception exception = assertThrows(ResourceNotFoundException.class, () -> tourPlanService.saveTourPlan(tourPlanRequestMock));
+        Exception exception = assertThrows(ResourceNotFoundException.class,
+                () -> tourPlanService.saveTourPlan(tourPlanRequestMock));
 
         // Then
         assertEquals("Provider with id 1 not found", exception.getMessage());
@@ -120,12 +121,12 @@ public class TourPlanServiceTest {
         // When
         TourPlanResponse result = tourPlanService.updateTourPlan(1, tourPlanRequestMock);
 
-        // Then{
+        // Then
         assertNotNull(result);
         assertEquals(tourPlanOneMock.getId(), result.id());
         assertEquals(tourPlanOneMock.getTitle(), result.title());
         assertEquals(tourPlanOneMock.getDescription(), result.description());
-        assertEquals(tourPlanOneMock.getPrice(), result.price());
+        assertEquals(tourPlanOneMock.getPricing().getPrice(), result.price());
     }
 
     @Test
@@ -134,7 +135,8 @@ public class TourPlanServiceTest {
         when(tourPlanRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         // When
-        Exception exception = assertThrows(ResourceNotFoundException.class, () -> tourPlanService.updateTourPlan(1, tourPlanRequestMock));
+        Exception exception = assertThrows(ResourceNotFoundException.class,
+                () -> tourPlanService.updateTourPlan(1, tourPlanRequestMock));
 
         // Then
         assertEquals("Tour Plan with id 1 not found", exception.getMessage());
@@ -177,7 +179,7 @@ public class TourPlanServiceTest {
         assertEquals(tourPlanOneMock.getId(), result.id());
         assertEquals(tourPlanOneMock.getTitle(), result.title());
         assertEquals(tourPlanOneMock.getDescription(), result.description());
-        assertEquals(tourPlanOneMock.getPrice(), result.price());
+        assertEquals(tourPlanOneMock.getPricing().getPrice(), result.price());
     }
 
     @Test
@@ -186,7 +188,8 @@ public class TourPlanServiceTest {
         when(tourPlanRepository.findByTitleIgnoreCase(anyString())).thenReturn(Optional.empty());
 
         // When
-        Exception exception = assertThrows(ResourceNotFoundException.class, () -> tourPlanService.getTourPlanByTitle("title"));
+        Exception exception = assertThrows(ResourceNotFoundException.class,
+                () -> tourPlanService.getTourPlanByTitle("title"));
 
         // Then
         assertEquals("Tour Plan with title title not found", exception.getMessage());
@@ -195,10 +198,10 @@ public class TourPlanServiceTest {
     @Test
     void getTourPlanByPrice_shouldReturnTourPlan() {
         // Given
-        when(tourPlanRepository.findByPrice(any())).thenReturn(tourPlanListsMock);
+        when(tourPlanRepository.findByPricing_Price(any())).thenReturn(tourPlanListsMock);
 
         // When
-        var result = tourPlanService.getTourPlanByPrice(tourPlanOneMock.getPrice());
+        var result = tourPlanService.getTourPlanByPrice(tourPlanOneMock.getPricing().getPrice());
 
         // Then
         assertNotNull(result);
@@ -210,10 +213,11 @@ public class TourPlanServiceTest {
         // Given
         Pageable pageable = PageRequest.of(0, 10);
         PageImpl<TourPlan> page = new PageImpl<>(tourPlanListsMock, pageable, tourPlanListsMock.size());
-        when(tourPlanRepository.findByPriceBetween(any(), any(), any())).thenReturn(page);
+        when(tourPlanRepository.findByPricing_PriceBetween(any(), any(), any())).thenReturn(page);
 
         // When
-        var result = tourPlanService.getTourPlanByPriceBetween(tourPlanOneMock.getPrice(), tourPlanTwoMock.getPrice(), pageable);
+        var result = tourPlanService.getTourPlanByPriceBetween(tourPlanOneMock.getPricing().getPrice(),
+                tourPlanTwoMock.getPricing().getPrice(), pageable);
 
         // Then
         assertNotNull(result);
@@ -292,10 +296,11 @@ public class TourPlanServiceTest {
     @Test
     void getTourPlanByTitleAndPrice_shouldReturnTourPlan() {
         // Given
-        when(tourPlanRepository.findByTitleContainingIgnoreCaseAndPrice(anyString(), any())).thenReturn(tourPlanListsMock);
+        when(tourPlanRepository.findByTitleContainingIgnoreCaseAndPricing_Price(anyString(), any()))
+                .thenReturn(tourPlanListsMock);
 
         // When
-        var result = tourPlanService.getTourPlanByTitleAndPrice("title", tourPlanOneMock.getPrice());
+        var result = tourPlanService.getTourPlanByTitleAndPrice("title", tourPlanOneMock.getPricing().getPrice());
 
         // Then
         assertNotNull(result);
@@ -307,10 +312,12 @@ public class TourPlanServiceTest {
         // Given
         Pageable pageable = PageRequest.of(0, 10);
         PageImpl<TourPlan> page = new PageImpl<>(tourPlanListsMock, pageable, tourPlanListsMock.size());
-        when(tourPlanRepository.findByTitleContainingIgnoreCaseAndPriceBetween(anyString(), any(), any(), any())).thenReturn(page);
+        when(tourPlanRepository.findByTitleContainingIgnoreCaseAndPricing_PriceBetween(anyString(), any(), any(),
+                any())).thenReturn(page);
 
         // When
-        var result = tourPlanService.getTourPlanByTitleAndPriceBetween("title", tourPlanOneMock.getPrice(), tourPlanTwoMock.getPrice(), pageable);
+        var result = tourPlanService.getTourPlanByTitleAndPriceBetween("title", tourPlanOneMock.getPricing().getPrice(),
+                tourPlanTwoMock.getPricing().getPrice(), pageable);
 
         // Then
         assertNotNull(result);
@@ -322,10 +329,12 @@ public class TourPlanServiceTest {
         // Given
         Pageable pageable = PageRequest.of(0, 10);
         PageImpl<TourPlan> page = new PageImpl<>(tourPlanListsMock, pageable, tourPlanListsMock.size());
-        when(tourPlanRepository.findByTitleContainingIgnoreCaseAndPriceBetweenAndDurationBetween(anyString(), any(), any(), anyInt(), anyInt(), any())).thenReturn(page);
+        when(tourPlanRepository.findByTitleContainingIgnoreCaseAndPricing_PriceBetweenAndDurationBetween(anyString(),
+                any(), any(), anyInt(), anyInt(), any())).thenReturn(page);
 
         // When
-        var result = tourPlanService.getTourPlanByTitleAndPriceBetweenAndDurationBetween("title", tourPlanOneMock.getPrice(), tourPlanTwoMock.getPrice(), 1, 2, pageable);
+        var result = tourPlanService.getTourPlanByTitleAndPriceBetweenAndDurationBetween("title",
+                tourPlanOneMock.getPricing().getPrice(), tourPlanTwoMock.getPricing().getPrice(), 1, 2, pageable);
 
         // Then
         assertNotNull(result);
@@ -335,7 +344,8 @@ public class TourPlanServiceTest {
     @Test
     void getTop10TourPlanByTitleContaining_shouldReturnTourPlan() {
         // Given
-        when(tourPlanRepository.findTop10ByTitleContainingIgnoreCaseOrderByTitleAsc(anyString(), any(Pageable.class))).thenReturn(tourPlanListsMock);
+        when(tourPlanRepository.findTop10ByTitleContainingIgnoreCaseOrderByTitleAsc(anyString(), any(Pageable.class)))
+                .thenReturn(tourPlanListsMock);
 
         // When
         var result = tourPlanService.getTop10TourPlanByTitleContaining("title", PageRequest.of(0, 10));

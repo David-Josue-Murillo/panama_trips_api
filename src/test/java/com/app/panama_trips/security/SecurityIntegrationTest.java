@@ -624,10 +624,12 @@ class SecurityIntegrationTest {
     }
 
     private String generateTokenForRole(RoleEnum roleEnum, String username) {
+        UserEntity user = createUser(username, username + "@test.com", "Password123!",
+                roleEnum == RoleEnum.ADMIN ? adminRole : customerRole);
         List<SimpleGrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_" + roleEnum.name())
         );
         var authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
-        return jwtUtil.generateToken(authentication);
+        return jwtUtil.generateToken(authentication, user.getId());
     }
 }

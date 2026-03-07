@@ -419,7 +419,7 @@ public class TourPriceHistoryServiceTest {
 
         BigDecimal result = service.getCurrentPriceForTourPlan(1);
 
-        assertEquals(tourPlan.getPrice(), result);
+        assertEquals(tourPlan.getPricing().getPrice(), result);
         verify(tourPlanRepository).findById(1);
     }
 

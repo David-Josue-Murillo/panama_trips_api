@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.List;
+import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -55,7 +56,8 @@ class UserAuthServiceTest {
 
         // Given
         when(userDetailService.loadUserByUsername("admin")).thenReturn(mockUserDetails);
-        when(jwtUtil.generateToken(any(Authentication.class))).thenReturn("mocked_jwt_token");
+        when(userEntityRepository.findUserEntitiesByName("admin")).thenReturn(Optional.of(DataProvider.userAdmin()));
+        when(jwtUtil.generateToken(any(Authentication.class), eq(1L))).thenReturn("mocked_jwt_token");
         when(passwordEncoder.matches("Admin123!", mockUserDetails.getPassword())).thenReturn(true);
         AuthLoginRequest authLoginRequest = DataProvider.userAuthLoginRequestMock();
 
@@ -83,7 +85,7 @@ class UserAuthServiceTest {
     void create_shouldCreateUser() {
         // Given
         when(userEntityRepository.save(any())).thenReturn(DataProvider.userAdmin());
-        when(jwtUtil.generateToken(any(Authentication.class))).thenReturn("mocked_jwt_token");
+        when(jwtUtil.generateToken(any(Authentication.class), eq(1L))).thenReturn("mocked_jwt_token");
 
         // When
         AuthResponse response = userAuthService.create(DataProvider.userAuthCreateUserRequestMock());

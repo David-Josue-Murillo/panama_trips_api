@@ -3,6 +3,7 @@ package com.app.panama_trips.persistence.repository;
 import com.app.panama_trips.persistence.entity.AuditLog;
 import com.app.panama_trips.persistence.entity.UserEntity;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +18,7 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
     // --- Existing methods ---
     List<AuditLog> findByEntityTypeAndEntityId(String entityType, Integer entityId);
 
+    @EntityGraph(attributePaths = { "user" })
     List<AuditLog> findByUser(UserEntity user);
 
     List<AuditLog> findByActionTimestampBetween(LocalDateTime start, LocalDateTime end);
@@ -27,13 +29,15 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
     List<AuditLog> findByIpAddress(@Param("ipAddress") String ipAddress);
 
     @Query("SELECT a FROM AuditLog a WHERE a.entityType = :entityType AND a.actionTimestamp >= :since ORDER BY a.actionTimestamp DESC")
-    List<AuditLog> findRecentActivityByEntityType(@Param("entityType") String entityType, @Param("since") LocalDateTime since);
+    List<AuditLog> findRecentActivityByEntityType(@Param("entityType") String entityType,
+            @Param("since") LocalDateTime since);
 
     // --- Single field queries ---
     List<AuditLog> findByEntityType(String entityType);
 
     List<AuditLog> findByEntityId(Integer entityId);
 
+    @EntityGraph(attributePaths = { "user" })
     List<AuditLog> findByUser_Id(Long userId);
 
     List<AuditLog> findByUserAgent(String userAgent);
@@ -53,7 +57,8 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
 
     List<AuditLog> findByUser_IdAndActionTimestampBetween(Long userId, LocalDateTime start, LocalDateTime end);
 
-    List<AuditLog> findByEntityTypeAndEntityIdAndActionTimestampBetween(String entityType, Integer entityId, LocalDateTime start, LocalDateTime end);
+    List<AuditLog> findByEntityTypeAndEntityIdAndActionTimestampBetween(String entityType, Integer entityId,
+            LocalDateTime start, LocalDateTime end);
 
     List<AuditLog> findByIpAddressAndActionTimestampBetween(String ipAddress, LocalDateTime start, LocalDateTime end);
 
@@ -124,8 +129,8 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
 
     // --- Keyword search ---
     @Query("SELECT a FROM AuditLog a WHERE LOWER(a.entityType) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-           "OR LOWER(a.action) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-           "OR LOWER(a.ipAddress) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-           "OR LOWER(a.userAgent) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+            "OR LOWER(a.action) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(a.ipAddress) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(a.userAgent) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<AuditLog> searchByKeyword(@Param("keyword") String keyword);
 }
