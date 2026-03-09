@@ -2,8 +2,11 @@ package com.app.panama_trips.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -41,10 +44,12 @@ public class AuditLog {
     private LocalDateTime actionTimestamp = LocalDateTime.now();
 
     @Column(name = "old_values", columnDefinition = "jsonb")
-    private String oldValues;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, Object> oldValues;
 
     @Column(name = "new_values", columnDefinition = "jsonb")
-    private String newValues;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, Object> newValues;
 
     @Column(name = "ip_address", length = 45)
     private String ipAddress;
