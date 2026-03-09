@@ -3,6 +3,9 @@ package com.app.panama_trips.persistence.entity.embeddable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,7 +21,8 @@ public class TourPlanMedia {
   private String thumbnailUrl;
 
   @Column(name = "image_gallery", columnDefinition = "JSONB")
-  private String imageGallery;
+  @JdbcTypeCode(SqlTypes.JSON)
+  private List<String> imageGallery;
 
   @Column(name = "video_url")
   private String videoUrl;
