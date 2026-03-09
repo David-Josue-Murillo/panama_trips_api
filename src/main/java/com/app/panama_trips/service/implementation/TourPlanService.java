@@ -174,6 +174,11 @@ public class TourPlanService implements ITourPlanService {
         TourPlanSchedule schedule = TourPlanSchedule.builder()
                 .startTime(tourPlanRequest.startTime())
                 .endTime(tourPlanRequest.endTime())
+                .availableDays(tourPlanRequest.availableDays())
+                .build();
+
+        TourPlanMedia media = TourPlanMedia.builder()
+                .imageGallery(tourPlanRequest.imageGallery())
                 .build();
 
         TourPlan.TourPlanBuilder builder = TourPlan.builder()
@@ -181,9 +186,15 @@ public class TourPlanService implements ITourPlanService {
                 .description(tourPlanRequest.description())
                 .pricing(pricing)
                 .schedule(schedule)
+                .media(media)
                 .duration(tourPlanRequest.duration())
                 .availableSpots(tourPlanRequest.availableSpots())
-                .provider(findProviderOrFail(tourPlanRequest.providerId()));
+                .provider(findProviderOrFail(tourPlanRequest.providerId()))
+                .includedServices(tourPlanRequest.includedServices())
+                .excludedServices(tourPlanRequest.excludedServices())
+                .whatToBring(tourPlanRequest.whatToBring())
+                .tags(tourPlanRequest.tags())
+                .languageOptions(tourPlanRequest.languageOptions());
 
         if (tourPlanRequest.status() != null) {
             builder.status(tourPlanRequest.status());
@@ -208,6 +219,20 @@ public class TourPlanService implements ITourPlanService {
         }
         tourPlan.getSchedule().setStartTime(tourPlanRequest.startTime());
         tourPlan.getSchedule().setEndTime(tourPlanRequest.endTime());
+        if (tourPlanRequest.availableDays() != null) {
+            tourPlan.getSchedule().setAvailableDays(tourPlanRequest.availableDays());
+        }
+
+        if (tourPlan.getMedia() == null) {
+            tourPlan.setMedia(new TourPlanMedia());
+        }
+        tourPlan.getMedia().setImageGallery(tourPlanRequest.imageGallery());
+
+        tourPlan.setIncludedServices(tourPlanRequest.includedServices());
+        tourPlan.setExcludedServices(tourPlanRequest.excludedServices());
+        tourPlan.setWhatToBring(tourPlanRequest.whatToBring());
+        tourPlan.setTags(tourPlanRequest.tags());
+        tourPlan.setLanguageOptions(tourPlanRequest.languageOptions());
 
         tourPlan.setDuration(tourPlanRequest.duration());
         tourPlan.setAvailableSpots(tourPlanRequest.availableSpots());
