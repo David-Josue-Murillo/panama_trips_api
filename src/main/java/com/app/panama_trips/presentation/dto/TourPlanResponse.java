@@ -7,6 +7,7 @@ import com.app.panama_trips.persistence.entity.enums.TourPlanStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 public record TourPlanResponse(
         Integer id,
@@ -23,7 +24,14 @@ public record TourPlanResponse(
         DifficultyLevel difficultyLevel,
         LocalTime startTime,
         LocalTime endTime,
-        LocalDateTime createdAt) {
+        LocalDateTime createdAt,
+        List<String> includedServices,
+        List<String> excludedServices,
+        List<String> whatToBring,
+        List<String> tags,
+        List<String> languageOptions,
+        List<String> availableDays,
+        List<String> imageGallery) {
     public TourPlanResponse(TourPlan tourPlan) {
         this(
                 tourPlan.getId(),
@@ -40,6 +48,13 @@ public record TourPlanResponse(
                 tourPlan.getDifficultyLevel(),
                 tourPlan.getSchedule() != null ? tourPlan.getSchedule().getStartTime() : null,
                 tourPlan.getSchedule() != null ? tourPlan.getSchedule().getEndTime() : null,
-                tourPlan.getCreatedAt());
+                tourPlan.getCreatedAt(),
+                tourPlan.getIncludedServices(),
+                tourPlan.getExcludedServices(),
+                tourPlan.getWhatToBring(),
+                tourPlan.getTags(),
+                tourPlan.getLanguageOptions(),
+                tourPlan.getSchedule() != null ? tourPlan.getSchedule().getAvailableDays() : null,
+                tourPlan.getMedia() != null ? tourPlan.getMedia().getImageGallery() : null);
     }
 }

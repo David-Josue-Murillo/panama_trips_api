@@ -658,7 +658,8 @@ public class AuditLogServiceTest {
 
         // Then
         assertNotNull(result);
-        verify(repository).findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate, endDate);
+        verify(repository).findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate,
+                endDate);
     }
 
     // Advanced Queries Tests
@@ -1239,7 +1240,8 @@ public class AuditLogServiceTest {
 
         // Then
         assertNotNull(result);
-        verify(repository).findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate, endDate);
+        verify(repository).findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate,
+                endDate);
     }
 
     @Test
@@ -1629,16 +1631,13 @@ public class AuditLogServiceTest {
 
     @Test
     @DisplayName("Should get audit logs with invalid json data")
-    void getAuditLogsWithInvalidJsonData_shouldReturnLogsWithInvalidJson() {
-        // Given
-        when(repository.findAll()).thenReturn(auditLogListWithNullsMock());
-
+    void getAuditLogsWithInvalidJsonData_shouldReturnEmptyList() {
         // When
         List<AuditLog> result = service.getAuditLogsWithInvalidJsonData();
 
         // Then
         assertNotNull(result);
-        verify(repository).findAll();
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -1646,7 +1645,7 @@ public class AuditLogServiceTest {
     void getAuditLogsWithEmptyOldValues_shouldReturnLogsWithEmptyOldValues() {
         // Given
         List<AuditLog> logsWithEmptyOld = auditLogListWithNullsMock().stream()
-                .filter(log -> log.getOldValues() == null || log.getOldValues().trim().isEmpty())
+                .filter(log -> log.getOldValues() == null)
                 .toList();
         when(repository.findByOldValuesIsNullOrEmpty()).thenReturn(logsWithEmptyOld);
 
@@ -1663,7 +1662,7 @@ public class AuditLogServiceTest {
     void getAuditLogsWithEmptyNewValues_shouldReturnLogsWithEmptyNewValues() {
         // Given
         List<AuditLog> logsWithEmptyNew = auditLogListWithNullsMock().stream()
-                .filter(log -> log.getNewValues() == null || log.getNewValues().trim().isEmpty())
+                .filter(log -> log.getNewValues() == null)
                 .toList();
         when(repository.findByNewValuesIsNullOrEmpty()).thenReturn(logsWithEmptyNew);
 
@@ -1680,8 +1679,7 @@ public class AuditLogServiceTest {
     void getAuditLogsWithBothEmptyValues_shouldReturnLogsWithBothEmptyValues() {
         // Given
         List<AuditLog> logsWithBothEmpty = auditLogListWithNullsMock().stream()
-                .filter(log -> (log.getOldValues() == null || log.getOldValues().trim().isEmpty()) &&
-                        (log.getNewValues() == null || log.getNewValues().trim().isEmpty()))
+                .filter(log -> log.getOldValues() == null && log.getNewValues() == null)
                 .toList();
         when(repository.findByBothValuesNullOrEmpty()).thenReturn(logsWithBothEmpty);
 
@@ -1774,8 +1772,7 @@ public class AuditLogServiceTest {
     void getAuditLogsWithJsonData_shouldReturnLogsWithJson() {
         // Given
         List<AuditLog> logsWithJson = auditLogs.stream()
-                .filter(log -> (log.getOldValues() != null && !log.getOldValues().trim().isEmpty()) ||
-                        (log.getNewValues() != null && !log.getNewValues().trim().isEmpty()))
+                .filter(log -> log.getOldValues() != null || log.getNewValues() != null)
                 .toList();
         when(repository.findByOldValuesOrNewValuesNotEmpty()).thenReturn(logsWithJson);
 
@@ -1792,8 +1789,7 @@ public class AuditLogServiceTest {
     void getAuditLogsWithoutJsonData_shouldReturnLogsWithoutJson() {
         // Given
         List<AuditLog> logsWithoutJson = auditLogs.stream()
-                .filter(log -> (log.getOldValues() == null || log.getOldValues().trim().isEmpty()) &&
-                        (log.getNewValues() == null || log.getNewValues().trim().isEmpty()))
+                .filter(log -> log.getOldValues() == null && log.getNewValues() == null)
                 .toList();
         when(repository.findByOldValuesAndNewValuesNullOrEmpty()).thenReturn(logsWithoutJson);
 

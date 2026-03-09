@@ -3,8 +3,11 @@ package com.app.panama_trips.persistence.entity.embeddable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,7 +23,8 @@ public class TourPlanSchedule {
   private LocalTime endTime;
 
   @Column(name = "available_days", columnDefinition = "JSONB DEFAULT '[\"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\", \"SAT\", \"SUN\"]'")
-  private String availableDays;
+  @JdbcTypeCode(SqlTypes.JSON)
+  private List<String> availableDays;
 
   @Column(name = "is_seasonal")
   @Builder.Default

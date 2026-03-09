@@ -9,7 +9,9 @@ import com.app.panama_trips.presentation.dto.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class DataProvider {
@@ -560,7 +562,14 @@ public class DataProvider {
                         null,
                         null,
                         null,
-                        null);
+                        null,
+                        List.of("Monday", "Wednesday", "Friday"),
+                        List.of("Service 1", "Service 2"),
+                        List.of("Service 3"),
+                        List.of("Water", "Sunscreen"),
+                        List.of("Adventure", "Nature"),
+                        List.of("English", "Spanish"),
+                        List.of("http://example.com/image1.jpg"));
 
         public static List<TourPlanResponse> tourPlanResponseListMocks = List.of(
                         new TourPlanResponse(tourPlanOneMock),
@@ -1955,7 +1964,7 @@ public class DataProvider {
                                 .user(userAdmin())
                                 .actionTimestamp(LocalDateTime.now().minusHours(2))
                                 .oldValues(null)
-                                .newValues("{\"name\":\"admin\",\"email\":\"admin@example.com\"}")
+                                .newValues(Map.of("name", "admin", "email", "admin@example.com"))
                                 .ipAddress("192.168.1.1")
                                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
                                 .build();
@@ -1969,8 +1978,8 @@ public class DataProvider {
                                 .action("UPDATE")
                                 .user(userOperator())
                                 .actionTimestamp(LocalDateTime.now().minusHours(1))
-                                .oldValues("{\"status\":\"pending\"}")
-                                .newValues("{\"status\":\"confirmed\"}")
+                                .oldValues(Map.of("status", "pending"))
+                                .newValues(Map.of("status", "confirmed"))
                                 .ipAddress("192.168.1.2")
                                 .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)")
                                 .build();
@@ -1984,7 +1993,7 @@ public class DataProvider {
                                 .action("DELETE")
                                 .user(userCustomer())
                                 .actionTimestamp(LocalDateTime.now().minusMinutes(30))
-                                .oldValues("{\"amount\":\"100.00\",\"status\":\"pending\"}")
+                                .oldValues(Map.of("amount", "100.00", "status", "pending"))
                                 .newValues(null)
                                 .ipAddress("192.168.1.3")
                                 .userAgent("Mozilla/5.0 (X11; Linux x86_64)")
@@ -2015,7 +2024,7 @@ public class DataProvider {
                                 .user(userContentManager())
                                 .actionTimestamp(LocalDateTime.now().minusMinutes(5))
                                 .oldValues(null)
-                                .newValues("{\"loginTime\":\"" + LocalDateTime.now().minusMinutes(5) + "\"}")
+                                .newValues(Map.of("loginTime", LocalDateTime.now().minusMinutes(5).toString()))
                                 .ipAddress("192.168.1.5")
                                 .userAgent("Mozilla/5.0 (Android 10; Mobile)")
                                 .build();
@@ -2040,7 +2049,7 @@ public class DataProvider {
                                 .user(null)
                                 .actionTimestamp(LocalDateTime.now().minusDays(1))
                                 .oldValues(null)
-                                .newValues("{\"startup\":\"successful\"}")
+                                .newValues(Map.of("startup", "successful"))
                                 .ipAddress("127.0.0.1")
                                 .userAgent("System")
                                 .build();
@@ -2054,8 +2063,8 @@ public class DataProvider {
                                 .action("AUTO_CANCEL")
                                 .user(userOperator())
                                 .actionTimestamp(LocalDateTime.now().minusHours(6))
-                                .oldValues("{\"status\":\"pending\"}")
-                                .newValues("{\"status\":\"cancelled\"}")
+                                .oldValues(Map.of("status", "pending"))
+                                .newValues(Map.of("status", "cancelled"))
                                 .ipAddress(null)
                                 .userAgent("System/1.0")
                                 .build();
@@ -2069,8 +2078,8 @@ public class DataProvider {
                                 .action("VIEW")
                                 .user(userCustomer())
                                 .actionTimestamp(LocalDateTime.now().minusMinutes(10))
-                                .oldValues("")
-                                .newValues("")
+                                .oldValues(null)
+                                .newValues(null)
                                 .ipAddress("192.168.1.6")
                                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
                                 .build();
@@ -2085,7 +2094,7 @@ public class DataProvider {
                                 .user(null)
                                 .actionTimestamp(LocalDateTime.now().minusMinutes(2))
                                 .oldValues(null)
-                                .newValues("{\"attempts\":3}")
+                                .newValues(Map.of("attempts", 3))
                                 .ipAddress("192.168.1.7")
                                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
                                 .build();
@@ -2099,8 +2108,8 @@ public class DataProvider {
                                 .action("REFUND")
                                 .user(userAdmin())
                                 .actionTimestamp(LocalDateTime.now().minusDays(30))
-                                .oldValues("{\"amount\":\"200.00\",\"status\":\"completed\"}")
-                                .newValues("{\"amount\":\"200.00\",\"status\":\"refunded\"}")
+                                .oldValues(Map.of("amount", "200.00", "status", "completed"))
+                                .newValues(Map.of("amount", "200.00", "status", "refunded"))
                                 .ipAddress("192.168.1.8")
                                 .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6)")
                                 .build();
@@ -2175,7 +2184,7 @@ public class DataProvider {
                                                 .user(userAdmin())
                                                 .actionTimestamp(LocalDateTime.now())
                                                 .oldValues(null)
-                                                .newValues("{\"test\":\"data\"}")
+                                                .newValues(Map.of("test", "data"))
                                                 .ipAddress("192.168.1.100")
                                                 .userAgent("Test Agent")
                                                 .build(),
@@ -2185,8 +2194,8 @@ public class DataProvider {
                                                 .action("UPDATE")
                                                 .user(userOperator())
                                                 .actionTimestamp(LocalDateTime.now())
-                                                .oldValues("{\"old\":\"value\"}")
-                                                .newValues("{\"new\":\"value\"}")
+                                                .oldValues(Map.of("old", "value"))
+                                                .newValues(Map.of("new", "value"))
                                                 .ipAddress("192.168.1.101")
                                                 .userAgent("Test Agent")
                                                 .build());

@@ -5,8 +5,11 @@ import com.app.panama_trips.persistence.entity.enums.DifficultyLevel;
 import com.app.panama_trips.persistence.entity.enums.TourPlanStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -96,19 +99,24 @@ public class TourPlan {
     private Boolean wheelchairAccessible = false;
 
     @Column(name = "included_services", columnDefinition = "JSONB")
-    private String includedServices;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<String> includedServices;
 
     @Column(name = "excluded_services", columnDefinition = "JSONB")
-    private String excludedServices;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<String> excludedServices;
 
     @Column(name = "what_to_bring", columnDefinition = "JSONB")
-    private String whatToBring;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<String> whatToBring;
 
     @Column(name = "tags", columnDefinition = "JSONB")
-    private String tags;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<String> tags;
 
     @Column(columnDefinition = "JSONB DEFAULT '[\"es\", \"en\"]'")
-    private String languageOptions;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<String> languageOptions;
 
     @Embedded
     private TourPlanMedia media;
