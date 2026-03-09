@@ -203,7 +203,8 @@ public class AuditLogService implements IAuditLogService {
     @Transactional(readOnly = true)
     public List<AuditLog> getActivityByEntityAndDateRange(String entityType, Integer entityId, LocalDateTime startDate,
             LocalDateTime endDate) {
-        return repository.findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate, endDate);
+        return repository.findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate,
+                endDate);
     }
 
     // Advanced queries
@@ -398,7 +399,8 @@ public class AuditLogService implements IAuditLogService {
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditTrailForEntityAndDateRange(String entityType, Integer entityId,
             LocalDateTime startDate, LocalDateTime endDate) {
-        return repository.findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate, endDate);
+        return repository.findByEntityTypeAndEntityIdAndActionTimestampBetween(entityType, entityId, startDate,
+                endDate);
     }
 
     @Override
@@ -615,22 +617,10 @@ public class AuditLogService implements IAuditLogService {
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsWithInvalidJsonData() {
-        return repository.findAll().stream()
-                .filter(auditLog -> {
-                    try {
-                        if (auditLog.getOldValues() != null && !auditLog.getOldValues().trim().isEmpty()) {
-                            objectMapper.readTree(auditLog.getOldValues());
-                        }
-                        if (auditLog.getNewValues() != null && !auditLog.getNewValues().trim().isEmpty()) {
-                            objectMapper.readTree(auditLog.getNewValues());
-                        }
-                        return false;
-                    } catch (Exception e) {
-                        log.warn("Invalid JSON data in audit log id {}: {}", auditLog.getId(), e.getMessage());
-                        return true;
-                    }
-                })
-                .toList();
+        // Con Hibernate 6 y el mapeo estructurado, ya no deberíamos tener JSON invalido
+        // en los campos Map.
+        // Los errores de serialización ocurririan al persistir/recuperar.
+        return List.of();
     }
 
     @Override
@@ -780,41 +770,22 @@ public class AuditLogService implements IAuditLogService {
     }
 
     private boolean hasJsonField(AuditLog auditLog, String fieldName) {
-        try {
-            if (auditLog.getOldValues() != null && !auditLog.getOldValues().trim().isEmpty()) {
-                JsonNode oldNode = objectMapper.readTree(auditLog.getOldValues());
-                if (oldNode.has(fieldName)) {
-                    return true;
-                }
-            }
-            if (auditLog.getNewValues() != null && !auditLog.getNewValues().trim().isEmpty()) {
-                JsonNode newNode = objectMapper.readTree(auditLog.getNewValues());
-                if (newNode.has(fieldName)) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            log.warn("Invalid JSON in audit log id {}: {}", auditLog.getId(), e.getMessage());
+        if (auditLog.getOldValues() != null && auditLog.getOldValues().containsKey(fieldName)) {
+            return true;
         }
-        return false;
+        return auditLog.getNewValues() != null && auditLog.getNewValues().containsKey(fieldName);
     }
 
     private boolean hasJsonFieldWithValue(AuditLog auditLog, String fieldName, String fieldValue, boolean contains) {
-        try {
-            if (auditLog.getOldValues() != null && !auditLog.getOldValues().trim().isEmpty()) {
-                JsonNode oldNode = objectMapper.readTree(auditLog.getOldValues());
-                if (oldNode.has(fieldName) && matchesValue(oldNode.get(fieldName).asText(), fieldValue, contains)) {
-                    return true;
-                }
+        if (auditLog.getOldValues() != null && auditLog.getOldValues().containsKey(fieldName)) {
+            Object value = auditLog.getOldValues().get(fieldName);
+            if (value != null && matchesValue(value.toString(), fieldValue, contains)) {
+                return true;
             }
-            if (auditLog.getNewValues() != null && !auditLog.getNewValues().trim().isEmpty()) {
-                JsonNode newNode = objectMapper.readTree(auditLog.getNewValues());
-                if (newNode.has(fieldName) && matchesValue(newNode.get(fieldName).asText(), fieldValue, contains)) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            log.warn("Invalid JSON in audit log id {}: {}", auditLog.getId(), e.getMessage());
+        }
+        if (auditLog.getNewValues() != null && auditLog.getNewValues().containsKey(fieldName)) {
+            Object value = auditLog.getNewValues().get(fieldName);
+            return value != null && matchesValue(value.toString(), fieldValue, contains);
         }
         return false;
     }
