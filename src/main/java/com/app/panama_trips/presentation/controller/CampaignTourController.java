@@ -67,5 +67,8 @@ public class CampaignTourController {
     return ResponseEntity.ok().build();
   }
 
-  
+  @GetMapping("/campaign/{campaignId}/count")
+  public ResponseEntity<Long> countToursInCampaign(@PathVariable Integer campaignId) {
+    return ResponseEntity.ok(service.countToursInCampaign(campaignId));
+  }
 }
