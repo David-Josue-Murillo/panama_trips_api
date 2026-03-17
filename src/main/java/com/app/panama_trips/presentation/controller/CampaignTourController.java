@@ -58,5 +58,14 @@ public class CampaignTourController {
     return ResponseEntity.ok().build();
   }
 
+  @PatchMapping("/campaign/{campaignId}/tour-plan/{tourPlanId}/special-price")
+  public ResponseEntity<Void> updateSpecialPrice(
+      @PathVariable Integer campaignId,
+      @PathVariable Integer tourPlanId,
+      @RequestParam BigDecimal specialPrice) {
+    service.updateSpecialPrice(campaignId, tourPlanId, specialPrice);
+    return ResponseEntity.ok().build();
+  }
+
   
 }
