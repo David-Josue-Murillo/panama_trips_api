@@ -49,5 +49,14 @@ public class CampaignTourController {
     return ResponseEntity.noContent().build();
   }
 
- 
+  @PatchMapping("/campaign/{campaignId}/tour-plan/{tourPlanId}/featured-order")
+  public ResponseEntity<Void> updateFeaturedOrder(
+      @PathVariable Integer campaignId,
+      @PathVariable Integer tourPlanId,
+      @RequestParam Integer featuredOrder) {
+    service.updateFeaturedOrder(campaignId, tourPlanId, featuredOrder);
+    return ResponseEntity.ok().build();
+  }
+
+  
 }
