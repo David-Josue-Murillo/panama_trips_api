@@ -110,5 +110,51 @@ class CampaignTourServiceTest {
         .hasMessage("Tour is already associated with this campaign");
   }
 
- 
+  @Test
+  @DisplayName("CP-004: updateCampaignTour con éxito")
+  void testUpdateCampaignTour_Success() {
+    CampaignTourId id = new CampaignTourId(1, 1);
+    when(campaignTourRepository.findById(any(CampaignTourId.class))).thenReturn(Optional.of(campaignTour));
+    when(campaignTourRepository.save(any(CampaignTour.class))).thenReturn(campaignTour);
+
+    CampaignTourResponse result = service.updateCampaignTour(1, 1, request);
+
+    assertThat(result).isNotNull();
+    verify(campaignTourRepository).save(any(CampaignTour.class));
+  }
+
+  @Test
+  @DisplayName("CP-005: removeTourFromCampaign con éxito")
+  void testRemoveTourFromCampaign_Success() {
+    CampaignTourId id = new CampaignTourId(1, 1);
+    when(campaignTourRepository.existsById(any(CampaignTourId.class))).thenReturn(true);
+
+    service.removeTourFromCampaign(1, 1);
+
+    verify(campaignTourRepository).deleteById(any(CampaignTourId.class));
+  }
+
+  @Test
+  @DisplayName("CP-006: updateSpecialPrice con éxito")
+  void testUpdateSpecialPrice() {
+    when(campaignTourRepository.findById(any(CampaignTourId.class))).thenReturn(Optional.of(campaignTour));
+
+    service.updateSpecialPrice(1, 1, BigDecimal.valueOf(50.00));
+
+    verify(campaignTourRepository).save(campaignTour);
+    assertThat(campaignTour.getSpecialPrice()).isEqualByComparingTo(BigDecimal.valueOf(50.00));
+  }
+
+  @Test
+  @DisplayName("CP-007: countToursInCampaign retorna cantidad")
+  void testCountToursInCampaign() {
+    when(campaignTourRepository.countToursByCampaign(1)).thenReturn(5L);
+
+    long result = service.countToursInCampaign(1);
+
+    assertThat(result).isEqualTo(5L);
+    verify(campaignTourRepository).countToursByCampaign(1);
+  }
+
+  
 }
