@@ -48,5 +48,12 @@ class CampaignTourControllerTest {
   private List<CampaignTourResponse> responseList;
   private CampaignTourRequest request;
 
+  @BeforeEach
+  void setUp() {
+    response = campaignTourResponseMock();
+    responseList = campaignTourResponseListMock();
+    request = campaignTourRequestMock();
+  }
+
   
 }
