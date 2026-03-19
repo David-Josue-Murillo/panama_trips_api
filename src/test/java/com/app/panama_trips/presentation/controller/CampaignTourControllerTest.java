@@ -55,5 +55,73 @@ class CampaignTourControllerTest {
     request = campaignTourRequestMock();
   }
 
+  @Nested
+  @DisplayName("GET /api/campaign-tours - Retrieval")
+  class RetrievalTests {
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("CP-001: should get tours by campaign ID")
+    void shouldGetToursByCampaignId() throws Exception {
+      when(service.getToursByCampaignId(anyInt())).thenReturn(responseList);
+
+      mockMvc.perform(get("/api/campaign-tours/campaign/{id}", 1))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$").isArray())
+          .andExpect(jsonPath("$[0].campaignId").value(1));
+
+      verify(service).getToursByCampaignId(1);
+    }
+
+    @Test
+    @WithMockUser(roles = "CONTENT_MANAGER")
+    @DisplayName("CP-002: should get campaigns by tour plan ID")
+    void shouldGetCampaignsByTourPlanId() throws Exception {
+      when(service.getCampaignsByTourPlanId(anyInt())).thenReturn(responseList);
+
+      mockMvc.perform(get("/api/campaign-tours/tour-plan/{id}", 1))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$").isArray())
+          .andExpect(jsonPath("$[0].tourPlanId").value(1));
+
+      verify(service).getCampaignsByTourPlanId(1);
+    }
+  }
+
+  @Nested
+  @DisplayName("POST /api/campaign-tours - Association")
+  class AssociationTests {
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("CP-003: should add tour to campaign (ADMIN)")
+    void shouldAddTourToCampaignAdmin() throws Exception {
+      when(service.addTourToCampaign(any(CampaignTourRequest.class))).thenReturn(response);
+
+      mockMvc.perform(post("/api/campaign-tours")
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(request)))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.campaignId").value(1));
+
+      verify(service).addTourToCampaign(any(CampaignTourRequest.class));
+    }
+
+    @Test
+    @WithMockUser(roles = "CONTENT_MANAGER")
+    @DisplayName("CP-004: should add tour to campaign (CONTENT_MANAGER)")
+    void shouldAddTourToCampaignContentManager() throws Exception {
+      when(service.addTourToCampaign(any(CampaignTourRequest.class))).thenReturn(response);
+
+      mockMvc.perform(post("/api/campaign-tours")
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(request)))
+          .andExpect(status().isCreated());
+    }
+
+  }
+
   
 }
