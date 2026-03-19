@@ -156,5 +156,41 @@ class CampaignTourServiceTest {
     verify(campaignTourRepository).countToursByCampaign(1);
   }
 
-  
+  @Test
+  @DisplayName("CP-008: updateFeaturedOrder con éxito")
+  void testUpdateFeaturedOrder_Success() {
+    when(campaignTourRepository.findById(any(CampaignTourId.class))).thenReturn(Optional.of(campaignTour));
+
+    service.updateFeaturedOrder(1, 1, 5);
+
+    verify(campaignTourRepository).save(campaignTour);
+    assertThat(campaignTour.getFeaturedOrder()).isEqualTo(5);
+  }
+
+  @Test
+  @DisplayName("CP-009: updateCampaignTour lanza exception si no existe")
+  void testUpdateCampaignTour_NotFound() {
+    when(campaignTourRepository.findById(any(CampaignTourId.class))).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> service.updateCampaignTour(1, 1, request))
+        .isInstanceOf(ResourceNotFoundException.class);
+  }
+
+  @Test
+  @DisplayName("CP-010: removeTourFromCampaign lanza exception si no existe")
+  void testRemoveTourFromCampaign_NotFound() {
+    when(campaignTourRepository.existsById(any(CampaignTourId.class))).thenReturn(false);
+
+    assertThatThrownBy(() -> service.removeTourFromCampaign(1, 1))
+        .isInstanceOf(ResourceNotFoundException.class);
+  }
+
+  @Test
+  @DisplayName("CP-011: updateSpecialPrice lanza exception si no existe")
+  void testUpdateSpecialPrice_NotFound() {
+    when(campaignTourRepository.findById(any(CampaignTourId.class))).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> service.updateSpecialPrice(1, 1, BigDecimal.TEN))
+        .isInstanceOf(ResourceNotFoundException.class);
+  }
 }
