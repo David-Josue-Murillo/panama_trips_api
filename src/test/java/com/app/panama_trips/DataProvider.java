@@ -3421,4 +3421,32 @@ public class DataProvider {
                                 marketingCampaignResponseActiveMock(),
                                 marketingCampaignResponseCompletedMock());
         }
+
+        /*
+         * CampaignTour instances
+         *
+         */
+        public static CampaignTour campaignTourOneMock() {
+                MarketingCampaign campaign = marketingCampaignOneMock();
+                TourPlan tour = tourPlanOneMock;
+                return CampaignTour.builder()
+                                .id(new CampaignTourId(campaign.getId(), tour.getId()))
+                                .campaign(campaign)
+                                .tourPlan(tour)
+                                .featuredOrder(1)
+                                .specialPrice(BigDecimal.valueOf(85.00))
+                                .build();
+        }
+
+        public static CampaignTourRequest campaignTourRequestMock() {
+                return new CampaignTourRequest(1, 1, 1, BigDecimal.valueOf(85.00));
+        }
+
+        public static CampaignTourResponse campaignTourResponseMock() {
+                return new CampaignTourResponse(campaignTourOneMock());
+        }
+
+        public static List<CampaignTourResponse> campaignTourResponseListMock() {
+                return List.of(campaignTourResponseMock());
+        }
 }
