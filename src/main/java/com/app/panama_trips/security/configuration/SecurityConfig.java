@@ -40,6 +40,8 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/districts/**").hasRole(RoleEnum.ADMIN.name());
                     auth.requestMatchers("/api/provinces").hasRole(RoleEnum.ADMIN.name());
                     auth.requestMatchers("/api/provinces/**").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("/api/comarcas").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("/api/comarcas/**").hasRole(RoleEnum.ADMIN.name());
                     auth.requestMatchers("/api/marketing-campaigns/**").hasAnyRole(RoleEnum.ADMIN.name(),
                             RoleEnum.CONTENT_MANAGER.name());
                     auth.requestMatchers("/api/campaign-tours/**").hasAnyRole(RoleEnum.ADMIN.name(),
