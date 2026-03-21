@@ -335,6 +335,23 @@ public class DataProvider {
                         convertToResponseDTO(provinceChiriquiMock),
                         convertToResponseDTO(provinceHerraraMock));
 
+        public static Comarca comarcaGunaYalaMock = Comarca.builder()
+                        .id(1)
+                        .name("Guna Yala")
+                        .build();
+
+        public static Comarca comarcaNgabeBugleMock = Comarca.builder()
+                        .id(2)
+                        .name("Ngäbe-Buglé")
+                        .build();
+
+        public static ComarcaRequest comarcaRequestMock = new ComarcaRequest("Guna Yala");
+        public static ComarcaResponse comarcaResponseMock = new ComarcaResponse(1, "Guna Yala");
+
+        public static List<ComarcaResponse> comarcaResponseListMocks = List.of(
+                        new ComarcaResponse(comarcaGunaYalaMock),
+                        new ComarcaResponse(comarcaNgabeBugleMock));
+
         /**
          * District instances
          * Here we have five districts
