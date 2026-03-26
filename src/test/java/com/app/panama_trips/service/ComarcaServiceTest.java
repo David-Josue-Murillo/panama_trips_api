@@ -4,7 +4,6 @@ import com.app.panama_trips.DataProvider;
 import com.app.panama_trips.exception.ResourceNotFoundException;
 import com.app.panama_trips.persistence.entity.Comarca;
 import com.app.panama_trips.persistence.repository.ComarcaRepository;
-import com.app.panama_trips.presentation.dto.ComarcaRequest;
 import com.app.panama_trips.presentation.dto.ComarcaResponse;
 import com.app.panama_trips.service.implementation.ComarcaService;
 import org.junit.jupiter.api.DisplayName;
