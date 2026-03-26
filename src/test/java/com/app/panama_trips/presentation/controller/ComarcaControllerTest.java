@@ -34,5 +34,38 @@ class ComarcaControllerTest {
   @MockitoBean
   private IComarcaService comarcaService;
 
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("Should get all comarcas")
+  void findAllComarcas_Success() throws Exception {
+    when(comarcaService.getAllComarcas()).thenReturn(DataProvider.comarcaResponseListMocks);
+
+    mockMvc.perform(get("/api/comarcas"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isArray())
+        .andExpect(jsonPath("$[0].name").value("Guna Yala"));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("Should get comarca by ID")
+  void findComarcaById_Success() throws Exception {
+    when(comarcaService.getComarcaById(1)).thenReturn(DataProvider.comarcaResponseMock);
+
+    mockMvc.perform(get("/api/comarcas/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").value("Guna Yala"));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("Should get 404 when comarca ID not found")
+  void findComarcaById_NotFound() throws Exception {
+    when(comarcaService.getComarcaById(anyInt())).thenThrow(new ResourceNotFoundException("Comarca not found"));
+
+    mockMvc.perform(get("/api/comarcas/999"))
+        .andExpect(status().isNotFound());
+  }
+
  
 }
