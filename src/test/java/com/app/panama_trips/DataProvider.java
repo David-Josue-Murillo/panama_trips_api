@@ -335,6 +335,23 @@ public class DataProvider {
                         convertToResponseDTO(provinceChiriquiMock),
                         convertToResponseDTO(provinceHerraraMock));
 
+        public static Comarca comarcaGunaYalaMock = Comarca.builder()
+                        .id(1)
+                        .name("Guna Yala")
+                        .build();
+
+        public static Comarca comarcaNgabeBugleMock = Comarca.builder()
+                        .id(2)
+                        .name("Ngäbe-Buglé")
+                        .build();
+
+        public static ComarcaRequest comarcaRequestMock = new ComarcaRequest("Guna Yala");
+        public static ComarcaResponse comarcaResponseMock = new ComarcaResponse(1, "Guna Yala");
+
+        public static List<ComarcaResponse> comarcaResponseListMocks = List.of(
+                        new ComarcaResponse(comarcaGunaYalaMock),
+                        new ComarcaResponse(comarcaNgabeBugleMock));
+
         /**
          * District instances
          * Here we have five districts
@@ -3420,5 +3437,33 @@ public class DataProvider {
                                 marketingCampaignResponseDraftMock(),
                                 marketingCampaignResponseActiveMock(),
                                 marketingCampaignResponseCompletedMock());
+        }
+
+        /*
+         * CampaignTour instances
+         *
+         */
+        public static CampaignTour campaignTourOneMock() {
+                MarketingCampaign campaign = marketingCampaignOneMock();
+                TourPlan tour = tourPlanOneMock;
+                return CampaignTour.builder()
+                                .id(new CampaignTourId(campaign.getId(), tour.getId()))
+                                .campaign(campaign)
+                                .tourPlan(tour)
+                                .featuredOrder(1)
+                                .specialPrice(BigDecimal.valueOf(85.00))
+                                .build();
+        }
+
+        public static CampaignTourRequest campaignTourRequestMock() {
+                return new CampaignTourRequest(1, 1, 1, BigDecimal.valueOf(85.00));
+        }
+
+        public static CampaignTourResponse campaignTourResponseMock() {
+                return new CampaignTourResponse(campaignTourOneMock());
+        }
+
+        public static List<CampaignTourResponse> campaignTourResponseListMock() {
+                return List.of(campaignTourResponseMock());
         }
 }
