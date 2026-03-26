@@ -67,5 +67,42 @@ class ComarcaControllerTest {
         .andExpect(status().isNotFound());
   }
 
- 
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("Should save comarca")
+  void saveComarca_Success() throws Exception {
+    when(comarcaService.saveComarca(any(ComarcaRequest.class))).thenReturn(DataProvider.comarcaResponseMock);
+
+    mockMvc.perform(post("/api/comarcas")
+        .with(csrf())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(DataProvider.comarcaRequestMock)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.name").value("Guna Yala"));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("Should update comarca")
+  void updateComarca_Success() throws Exception {
+    when(comarcaService.updateComarca(eq(1), any(ComarcaRequest.class))).thenReturn(DataProvider.comarcaResponseMock);
+
+    mockMvc.perform(put("/api/comarcas/1")
+        .with(csrf())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(DataProvider.comarcaRequestMock)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").value("Guna Yala"));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("Should delete comarca")
+  void deleteComarca_Success() throws Exception {
+    doNothing().when(comarcaService).deleteComarca(1);
+
+    mockMvc.perform(delete("/api/comarcas/1")
+        .with(csrf()))
+        .andExpect(status().isNoContent());
+  }
 }
