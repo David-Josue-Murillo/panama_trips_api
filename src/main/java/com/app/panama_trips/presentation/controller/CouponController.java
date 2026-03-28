@@ -21,5 +21,29 @@ public class CouponController {
 
   private final CouponService couponService;
 
+  @GetMapping
+  @Operation(summary = "Get all coupons", description = "Retrieve a paginated list of all coupons")
+  public ResponseEntity<Page<CouponResponse>> getAllCoupons(Pageable pageable) {
+    return ResponseEntity.ok(this.couponService.getAllCoupons(pageable));
+  }
+
+  @GetMapping("/{id}")
+  @Operation(summary = "Get coupon by ID", description = "Retrieve details of a coupon by its unique identifier")
+  public ResponseEntity<CouponResponse> getCouponById(@PathVariable Long id) {
+    return ResponseEntity.ok(this.couponService.getCouponById(id));
+  }
+
+  @GetMapping("/code/{code}")
+  @Operation(summary = "Get coupon by code", description = "Retrieve details of a coupon by its code")
+  public ResponseEntity<CouponResponse> getCouponByCode(@PathVariable String code) {
+    return ResponseEntity.ok(this.couponService.getCouponByCode(code));
+  }
+
+  @GetMapping("/validate/{code}")
+  @Operation(summary = "Validate coupon", description = "Check if a coupon code is valid and not expired")
+  public ResponseEntity<CouponResponse> validateCoupon(@PathVariable String code) {
+    return ResponseEntity.ok(this.couponService.validateAndGetCoupon(code));
+  }
+
   
 }
