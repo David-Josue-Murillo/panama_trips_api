@@ -45,5 +45,22 @@ public class CouponController {
     return ResponseEntity.ok(this.couponService.validateAndGetCoupon(code));
   }
 
-  
+  @PostMapping
+  @Operation(summary = "Create coupon", description = "Create a new discount coupon")
+  public ResponseEntity<CouponResponse> createCoupon(@Valid @RequestBody CouponRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(this.couponService.createCoupon(request));
+  }
+
+  @PutMapping("/{id}")
+  @Operation(summary = "Update coupon", description = "Update an existing coupon's details")
+  public ResponseEntity<CouponResponse> updateCoupon(@PathVariable Long id, @Valid @RequestBody CouponRequest request) {
+    return ResponseEntity.ok(this.couponService.updateCoupon(id, request));
+  }
+
+  @DeleteMapping("/{id}")
+  @Operation(summary = "Delete coupon", description = "Remove a coupon from the system")
+  public ResponseEntity<Void> deleteCoupon(@PathVariable Long id) {
+    this.couponService.deleteCoupon(id);
+    return ResponseEntity.noContent().build();
+  }
 }
