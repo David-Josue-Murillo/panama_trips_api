@@ -46,6 +46,9 @@ public class SecurityConfig {
                             RoleEnum.CONTENT_MANAGER.name());
                     auth.requestMatchers("/api/campaign-tours/**").hasAnyRole(RoleEnum.ADMIN.name(),
                             RoleEnum.CONTENT_MANAGER.name());
+                    auth.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/coupons/validate/**")
+                            .authenticated();
+                    auth.requestMatchers("/api/coupons/**").hasRole(RoleEnum.ADMIN.name());
                     auth.anyRequest().authenticated();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
