@@ -49,6 +49,7 @@ public class SecurityConfig {
                     auth.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/coupons/validate/**")
                             .authenticated();
                     auth.requestMatchers("/api/coupons/**").hasRole(RoleEnum.ADMIN.name());
+                    auth.requestMatchers("/api/discounts/**").hasRole(RoleEnum.ADMIN.name());
                     auth.anyRequest().authenticated();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
