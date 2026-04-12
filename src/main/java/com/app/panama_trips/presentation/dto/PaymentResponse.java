@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public record PaymentResponse(
         Long id,
-        Long reservationId,
+        Integer reservationId,
         String transactionId,
         BigDecimal amount,
         PaymentStatus paymentStatus,
