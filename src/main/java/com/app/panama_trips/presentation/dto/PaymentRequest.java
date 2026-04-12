@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 public record PaymentRequest(
         @NotNull(message = "Reservation ID is required")
-        Long reservationId,
+        Integer reservationId,
 
         @NotBlank(message = "Transaction ID is required")
         @Size(max = 100, message = "Transaction ID must be less than 100 characters")
