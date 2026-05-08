@@ -104,4 +104,73 @@ public class PaymentService implements IPaymentService {
         }
         this.paymentRepository.deleteById(id);
     }
+
+    // ─────────────────────────────────────────────
+    //  Búsquedas / Filtros
+    // ─────────────────────────────────────────────
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaymentResponse> getPaymentsByStatus(PaymentStatus status) {
+        return this.paymentRepository.findByPaymentStatus(status).stream()
+                .map(PaymentResponse::new)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaymentResponse> getPaymentsByUser(Long userId) {
+        return this.paymentRepository.findByUserId(userId).stream()
+                .map(PaymentResponse::new)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaymentResponse> getPaymentsByReservation(Long reservationId) {
+        return this.paymentRepository.findByReservationId_Id(reservationId).stream()
+                .map(PaymentResponse::new)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaymentResponse> getPaymentsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return this.paymentRepository.findByCreatedAtBetween(startDate, endDate).stream()
+                .map(PaymentResponse::new)
+                .toList();
+    }
+
+    // ─────────────────────────────────────────────
+    //  Estadísticas
+    // ─────────────────────────────────────────────
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countPaymentsByStatus(PaymentStatus status) {
+        return this.paymentRepository.countByPaymentStatus(status);
+    }
+
+    // ─────────────────────────────────────────────
+    //  Acciones de estado
+    // ─────────────────────────────────────────────
+
+    @Override
+    @Transactional
+    public PaymentResponse approvePayment(Long id) {
+        Payment payment = this.paymentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found with id " + id));
+        payment.setPaymentStatus(PaymentStatus.COMPLETED);
+        return new PaymentResponse(this.paymentRepository.save(payment));
+    }
+
+    @Override
+    @Transactional
+    public PaymentResponse rejectPayment(Long id) {
+        Payment payment = this.paymentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found with id " + id));
+        payment.setPaymentStatus(PaymentStatus.FAILED);
+        return new PaymentResponse(this.paymentRepository.save(payment));
+    }
 }
+
